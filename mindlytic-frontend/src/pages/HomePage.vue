@@ -1,11 +1,233 @@
-<template>
-  <v-container>
-    <div>
+<script setup>
+import { ref } from 'vue'
 
-    </div>
-  </v-container>
+// Data for the "Trusted By" section
+const clients = [
+  'Google', 'Amazon', 'Spotify', 'Slack', 'Netflix'
+  // In a real app, these would be logo URLs
+]
+
+const features = ref([
+  {
+    title: 'Real-time Analytics',
+    text: 'Monitor your data as it happens with our lightning-fast websocket connections.',
+    icon: 'mdi-flash-outline',
+    color: 'primary'
+  },
+  {
+    title: 'Secure Encryption',
+    text: 'Your data is encrypted at rest and in transit. Enterprise-grade security out of the box.',
+    icon: 'mdi-shield-check-outline',
+    color: 'success'
+  },
+  {
+    title: 'Global Scale',
+    text: 'Deploy instantly to 35+ regions worldwide without touching a single server configuration.',
+    icon: 'mdi-earth',
+    color: 'info'
+  }
+])
+
+const stats = [
+  { value: '10k+', label: 'Active Users' },
+  { value: '99.9%', label: 'Uptime SLA' },
+  { value: '24/7', label: 'Support' },
+]
+</script>
+
+<template>
+  <div class="home-wrapper">
+
+    <section class="position-relative pt-16 pb-16 pt-md-16 pb-md-16">
+      <v-container>
+        <v-row align="center" justify="center">
+          <v-col cols="12" md="8" lg="7" class="text-center">
+            <v-chip
+              color="primary"
+              variant="flat"
+              size="small"
+              class="mb-6 font-weight-bold text-uppercase spacing-1"
+            >
+              New Release v2.0
+            </v-chip>
+
+            <h1 class="text-h3 text-md-h2 font-weight-bold text-high-emphasis mb-6">
+              Turn your data into <br class="hidden-sm-and-down" />
+              <span class="text-primary">Actionable Insights</span>
+            </h1>
+
+            <p class="text-body-1 text-medium-emphasis mb-8 mx-auto" style="max-width: 600px;">
+              Mindlytic provides the infrastructure you need to analyze, visualize, and optimize your business metrics in real-time.
+            </p>
+
+            <div class="d-flex align-center justify-center gap-4 flex-wrap">
+              <v-btn
+                color="primary"
+                size="x-large"
+                elevation="2"
+                rounded="lg"
+                height="56"
+                class="text-none px-8 font-weight-bold"
+              >
+                Get Started Free
+                <v-icon end icon="mdi-arrow-right" class="ml-2"></v-icon>
+              </v-btn>
+
+              <v-btn
+                variant="outlined"
+                size="x-large"
+                color="primary"
+                rounded="lg"
+                height="56"
+                class="text-none px-8 font-weight-bold bg-surface"
+              >
+                View Demo
+              </v-btn>
+            </div>
+
+            <div class="d-flex justify-center gap-8 mt-12 hidden-sm-and-down">
+              <div v-for="stat in stats" :key="stat.label" class="text-center">
+                <div class="text-h6 font-weight-bold">{{ stat.value }}</div>
+                <div class="text-caption text-medium-emphasis text-uppercase">{{ stat.label }}</div>
+              </div>
+            </div>
+
+          </v-col>
+        </v-row>
+      </v-container>
+    </section>
+
+    <section class="bg-grey-lighten-4 py-10 border-y">
+      <v-container>
+        <p class="text-center text-caption font-weight-bold text-uppercase mb-6">
+          Trusted by engineering teams at
+        </p>
+        <v-row justify="center" align="center" class="opacity-60">
+          <v-col
+            v-for="client in clients"
+            :key="client"
+            cols="6" md="2"
+            class="text-center"
+          >
+            <span class="text-h6 font-weight-black text-grey-darken-1">{{ client }}</span>
+          </v-col>
+        </v-row>
+      </v-container>
+    </section>
+
+    <section class="py-16">
+      <v-container>
+        <v-row justify="center" class="mb-12">
+          <v-col cols="12" md="8" class="text-center">
+            <h2 class="text-h4 font-weight-bold mb-4">Everything you need to scale</h2>
+            <p class="text-body-1 text-medium-emphasis">
+              Powerful features designed for modern development teams.
+            </p>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col
+            v-for="(feature, i) in features"
+            :key="i"
+            cols="12" md="4"
+          >
+            <v-card
+              elevation="0"
+              class="h-100 pa-6 bg-surface border hover-card"
+              rounded="xl"
+            >
+              <v-avatar
+                :color="feature.color"
+                variant="tonal"
+                size="56"
+                class="mb-6 rounded-lg"
+              >
+                <v-icon :icon="feature.icon" size="28"></v-icon>
+              </v-avatar>
+
+              <h3 class="text-h6 font-weight-bold mb-3">{{ feature.title }}</h3>
+              <p class="text-body-2 text-medium-emphasis mb-0" style="line-height: 1.6;">
+                {{ feature.text }}
+              </p>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </section>
+
+    <section class="py-16">
+      <v-container>
+        <v-card
+          color="primary"
+          theme="dark"
+          rounded="xl"
+          class="pa-10 pa-md-16 overflow-hidden position-relative"
+        >
+          <div class="bg-circle-1"></div>
+          <div class="bg-circle-2"></div>
+
+          <v-row align="center">
+            <v-col cols="12" md="8">
+              <h2 class="text-h4 text-md-h3 font-weight-bold mb-4">
+                Ready to optimize your workflow?
+              </h2>
+              <p class="text-h6 text-primary-lighten-4 font-weight-regular mb-8 mb-md-0">
+                Join 10,000+ developers building with Mindlytic today.
+              </p>
+            </v-col>
+            <v-col cols="12" md="4" class="text-md-right">
+              <v-btn
+                color="white"
+                variant="flat"
+                size="x-large"
+                class="text-primary font-weight-bold px-8 text-none"
+                rounded="lg"
+              >
+                Get Started Now
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-container>
+    </section>
+
+  </div>
 </template>
 
-<script setup>
+<style scoped>
+/* Utility for gap spacing */
+.gap-4 { gap: 16px; }
+.gap-8 { gap: 32px; }
+.spacing-1 { letter-spacing: 1px; }
 
-</script>
+/* Subtle hover effect for feature cards */
+.hover-card {
+  transition: all 0.3s ease;
+}
+.hover-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1) !important;
+  border-color: rgb(var(--v-theme-primary)) !important;
+}
+
+/* Decorative Backgrounds for CTA */
+.bg-circle-1 {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255,255,255, 0.1);
+}
+.bg-circle-2 {
+  position: absolute;
+  bottom: -100px;
+  left: 20%;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(255,255,255, 0.05);
+}
+</style>

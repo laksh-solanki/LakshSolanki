@@ -45,7 +45,7 @@ const subscribe = () => {
 </script>
 
 <template>
-  <v-footer class="pt-16 pb-8" elevation="0" border scroll-behavior="elevate">
+  <v-footer class="pt-16 pb-8" elevation="0" border>
     <v-container>
       <v-row>
         <v-col cols="12" md="4" lg="3">

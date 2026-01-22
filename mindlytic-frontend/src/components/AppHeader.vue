@@ -34,7 +34,7 @@ const userMenu = [
           v-for="item in links"
           :key="item.title"
           :value="item.title"
-          active-color="primary"
+          color="primary"
         >
           <template v-slot:prepend>
             <v-icon
@@ -50,7 +50,6 @@ const userMenu = [
       color="surface"
       elevation="0"
       border
-      scroll-behavior="elevate"
       class="px-lg-4"
     >
       <v-app-bar-nav-icon
