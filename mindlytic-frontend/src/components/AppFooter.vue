@@ -1,82 +1,156 @@
-<template>
-  <v-footer
-    app
-    height="40"
-  >
-    <a
-      v-for="item in items"
-      :key="item.title"
-      class="d-inline-block mx-2 social-link"
-      :href="item.href"
-      rel="noopener noreferrer"
-      target="_blank"
-      :title="item.title"
-    >
-      <v-icon
-        :icon="item.icon"
-        :size="item.icon === '$vuetify' ? 24 : 16"
-      />
-    </a>
+<script setup>
+import { ref } from "vue";
 
-    <div
-      class="text-caption text-disabled"
-      style="position: absolute; right: 16px;"
-    >
-      &copy; 2016-{{ (new Date()).getFullYear() }} <span class="d-none d-sm-inline-block">Vuetify, LLC</span>
-      —
-      <a
-        class="text-decoration-none on-surface"
-        href="https://vuetifyjs.com/about/licensing/"
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        MIT License
-      </a>
-    </div>
+const currentYear = new Date().getFullYear();
+
+// Data-driven links for easy maintenance
+const socialLinks = ref([
+  { icon: "mdi-facebook", url: "#" },
+  { icon: "mdi-twitter", url: "#" },
+  { icon: "mdi-linkedin", url: "#" },
+  { icon: "mdi-instagram", url: "#" },
+]);
+
+const footerLinks = ref([
+  {
+    title: "Product",
+    items: ["Features", "Pricing", "Integrations", "Updates"],
+  },
+  {
+    title: "Company",
+    items: ["About Us", "Careers", "Press", "Contact"],
+  },
+  {
+    title: "Resources",
+    items: ["Documentation", "API Reference", "Community", "Blog"],
+  },
+  {
+    title: "Legal",
+    items: ["Privacy Policy", "Terms of Service", "Cookie Policy"],
+  },
+]);
+
+const newsletterEmail = ref("");
+const loading = ref(false);
+
+const subscribe = () => {
+  loading.value = true;
+  // Simulate API call
+  setTimeout(() => {
+    loading.value = false;
+    newsletterEmail.value = "";
+    alert("Subscribed successfully!");
+  }, 1000);
+};
+</script>
+
+<template>
+  <v-footer class="pt-16 pb-8" elevation="0" border scroll-behavior="elevate">
+    <v-container>
+      <v-row>
+        <v-col cols="12" md="4" lg="3">
+          <div class="d-flex align-center mb-4">
+            <v-icon
+              icon="mdi-cube-outline"
+              size="large"
+              color="primary"
+              class="mr-2"
+            ></v-icon>
+            <span class="text-h5 font-weight-bold">BrandName</span>
+          </div>
+          <p
+            class="text-body-2 text-medium-emphasis mb-6"
+            style="max-width: 300px"
+          >
+            Building the next generation of digital experiences. Join our
+            newsletter for the latest updates.
+          </p>
+
+          <v-form @submit.prevent="subscribe">
+            <v-text-field
+              v-model="newsletterEmail"
+              density="compact"
+              placeholder="Enter your email"
+              variant="outlined"
+              bg-color="surface"
+              hide-details
+              rounded="lg"
+            >
+              <template v-slot:append-inner>
+                <v-btn
+                  color="primary"
+                  size="small"
+                  variant="flat"
+                  class="text-none"
+                  :loading="loading"
+                  @click="subscribe"
+                >
+                  Subscribe
+                </v-btn>
+              </template>
+            </v-text-field>
+          </v-form>
+        </v-col>
+
+        <v-col cols="12" md="1" lg="2"></v-col>
+
+        <v-col
+          v-for="group in footerLinks"
+          :key="group.title"
+          cols="6"
+          sm="3"
+          md="2"
+          lg="auto"
+          class="mb-6"
+        >
+          <div class="text-subtitle-2 font-weight-bold mb-4">
+            {{ group.title }}
+          </div>
+          <div class="d-flex flex-column gap-2">
+            <a
+              v-for="item in group.items"
+              :key="item"
+              href="#"
+              class="text-body-2 text-medium-emphasis text-decoration-none hover-link mb-2"
+            >
+              {{ item }}
+            </a>
+          </div>
+        </v-col>
+      </v-row>
+
+      <v-divider class="my-8"></v-divider>
+
+      <v-row align="center" justify="space-between">
+        <v-col cols="12" sm="6" class="text-center text-sm-left">
+          <div class="text-caption text-medium-emphasis">
+            &copy; {{ currentYear }} BrandName Inc. All rights reserved.
+          </div>
+        </v-col>
+
+        <v-col cols="12" sm="6" class="text-center text-sm-right">
+          <v-btn
+            v-for="social in socialLinks"
+            :key="social.icon"
+            :icon="social.icon"
+            variant="text"
+            density="comfortable"
+            color="medium-emphasis"
+            class="mx-1"
+          ></v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
   </v-footer>
 </template>
 
-<script setup>
-  const items = [
-    {
-      title: 'Vuetify Documentation',
-      icon: `$vuetify`,
-      href: 'https://vuetifyjs.com/',
-    },
-    {
-      title: 'Vuetify Support',
-      icon: 'mdi-shield-star-outline',
-      href: 'https://support.vuetifyjs.com/',
-    },
-    {
-      title: 'Vuetify X',
-      icon: ['M2.04875 3.00002L9.77052 13.3248L1.99998 21.7192H3.74882L10.5519 14.3697L16.0486 21.7192H22L13.8437 10.8137L21.0765 3.00002H19.3277L13.0624 9.76874L8.0001 3.00002H2.04875ZM4.62054 4.28821H7.35461L19.4278 20.4308H16.6937L4.62054 4.28821Z'],
-      href: 'https://x.com/vuetifyjs',
-    },
-    {
-      title: 'Vuetify GitHub',
-      icon: `mdi-github`,
-      href: 'https://github.com/vuetifyjs/vuetify',
-    },
-    {
-      title: 'Vuetify Discord',
-      icon: ['M22,24L16.75,19L17.38,21H4.5A2.5,2.5 0 0,1 2,18.5V3.5A2.5,2.5 0 0,1 4.5,1H19.5A2.5,2.5 0 0,1 22,3.5V24M12,6.8C9.32,6.8 7.44,7.95 7.44,7.95C8.47,7.03 10.27,6.5 10.27,6.5L10.1,6.33C8.41,6.36 6.88,7.53 6.88,7.53C5.16,11.12 5.27,14.22 5.27,14.22C6.67,16.03 8.75,15.9 8.75,15.9L9.46,15C8.21,14.73 7.42,13.62 7.42,13.62C7.42,13.62 9.3,14.9 12,14.9C14.7,14.9 16.58,13.62 16.58,13.62C16.58,13.62 15.79,14.73 14.54,15L15.25,15.9C15.25,15.9 17.33,16.03 18.73,14.22C18.73,14.22 18.84,11.12 17.12,7.53C17.12,7.53 15.59,6.36 13.9,6.33L13.73,6.5C13.73,6.5 15.53,7.03 16.56,7.95C16.56,7.95 14.68,6.8 12,6.8M9.93,10.59C10.58,10.59 11.11,11.16 11.1,11.86C11.1,12.55 10.58,13.13 9.93,13.13C9.29,13.13 8.77,12.55 8.77,11.86C8.77,11.16 9.28,10.59 9.93,10.59M14.1,10.59C14.75,10.59 15.27,11.16 15.27,11.86C15.27,12.55 14.75,13.13 14.1,13.13C13.46,13.13 12.94,12.55 12.94,11.86C12.94,11.16 13.45,10.59 14.1,10.59Z'],
-      href: 'https://community.vuetifyjs.com/',
-    },
-    {
-      title: 'Vuetify Reddit',
-      icon: `mdi-reddit`,
-      href: 'https://reddit.com/r/vuetifyjs',
-    },
-  ]
-</script>
-
-<style scoped lang="sass">
-  .social-link :deep(.v-icon)
-    color: rgba(var(--v-theme-on-background), var(--v-disabled-opacity))
-    text-decoration: none
-    transition: .2s ease-in-out
-
-    &:hover
-      color: rgba(25, 118, 210, 1)
+<style scoped>
+/* Custom hover effect for links */
+.hover-link {
+  transition: color 0.2s ease-in-out;
+}
+.hover-link:hover {
+  color: rgb(var(--v-theme-primary)) !important;
+  text-decoration: underline !important;
+}
 </style>
