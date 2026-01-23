@@ -35,7 +35,6 @@ const loading = ref(false);
 
 const subscribe = () => {
   loading.value = true;
-  // Simulate API call
   setTimeout(() => {
     loading.value = false;
     newsletterEmail.value = "";

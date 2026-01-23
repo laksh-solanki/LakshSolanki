@@ -5,7 +5,10 @@ import { ref } from "vue";
 const drawer = ref(false);
 
 // Navigation Links
-const links = [{ title: "Dashboard", to: "/" }];
+const links = [
+  { title: "Home", to: "/" },
+  { title: "About", to: "/about" },
+];
 
 // User Dropdown Items
 const userMenu = [
@@ -46,12 +49,7 @@ const userMenu = [
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar
-      color="surface"
-      elevation="0"
-      border
-      class="px-lg-4"
-    >
+    <v-app-bar color="surface" elevation="0" border class="px-lg-4">
       <v-app-bar-nav-icon
         variant="text"
         class="hidden-md-and-up"
@@ -68,9 +66,7 @@ const userMenu = [
         <span class="text-h6 font-weight-bold tracking-tight">Mindlytic</span>
       </div>
 
-      <div
-        class="hidden-sm-and-down align-center gap-1"
-      >
+      <div class="hidden-sm-and-down align-center gap-1">
         <v-btn
           v-for="link in links"
           :key="link.title"
