@@ -1,43 +1,47 @@
 <script setup>
-import { ref } from 'vue'
+import { ref } from "vue";
 
 // Data for the "Trusted By" section
 const clients = [
-  'Google', 'Amazon', 'Spotify', 'Slack', 'Netflix'
+  { text: "Google", icon: "mdi-google" },
+  { text: "Microsoft", icon: "mdi-microsoft" },
+  { text: "Facebook", icon: "mdi-facebook" },
+  { text: "Spotify", icon: "mdi-spotify" },
+  { text: "Slack", icon: "mdi-slack" },
+  { text: "Netflix", icon: "mdi-netflix" },
   // In a real app, these would be logo URLs
-]
+];
 
 const features = ref([
   {
-    title: 'Real-time Analytics',
-    text: 'Monitor your data as it happens with our lightning-fast websocket connections.',
-    icon: 'mdi-flash-outline',
-    color: 'primary'
+    title: "Real-time Analytics",
+    text: "Monitor your data as it happens with our lightning-fast websocket connections.",
+    icon: "mdi-flash-outline",
+    color: "primary",
   },
   {
-    title: 'Secure Encryption',
-    text: 'Your data is encrypted at rest and in transit. Enterprise-grade security out of the box.',
-    icon: 'mdi-shield-check-outline',
-    color: 'success'
+    title: "Secure Encryption",
+    text: "Your data is encrypted at rest and in transit. Enterprise-grade security out of the box.",
+    icon: "mdi-shield-check-outline",
+    color: "success",
   },
   {
-    title: 'Global Scale',
-    text: 'Deploy instantly to 35+ regions worldwide without touching a single server configuration.',
-    icon: 'mdi-earth',
-    color: 'info'
-  }
-])
+    title: "Global Scale",
+    text: "Deploy instantly to 35+ regions worldwide without touching a single server configuration.",
+    icon: "mdi-earth",
+    color: "info",
+  },
+]);
 
 const stats = [
-  { value: '10k+', label: 'Active Users' },
-  { value: '99.9%', label: 'Uptime SLA' },
-  { value: '24/7', label: 'Support' },
-]
+  { value: "10k+", label: "Active Users" },
+  { value: "99.9%", label: "Uptime SLA" },
+  { value: "24/7", label: "Support" },
+];
 </script>
 
 <template>
   <div class="home-wrapper">
-
     <section class="position-relative pt-16 pb-16 pt-md-16 pb-md-16">
       <v-container>
         <v-row align="center" justify="center">
@@ -51,13 +55,19 @@ const stats = [
               New Release v2.0
             </v-chip>
 
-            <h1 class="text-h3 text-md-h2 font-weight-bold text-high-emphasis mb-6">
+            <h1
+              class="text-h3 text-md-h2 font-weight-bold text-high-emphasis mb-6"
+            >
               Turn your data into <br class="hidden-sm-and-down" />
               <span class="text-primary">Actionable Insights</span>
             </h1>
 
-            <p class="text-body-1 text-medium-emphasis mb-8 mx-auto" style="max-width: 600px;">
-              Mindlytic provides the infrastructure you need to analyze, visualize, and optimize your business metrics in real-time.
+            <p
+              class="text-body-1 text-medium-emphasis mb-8 mx-auto"
+              style="max-width: 600px"
+            >
+              Mindlytic provides the infrastructure you need to analyze,
+              visualize, and optimize your business metrics in real-time.
             </p>
 
             <div class="d-flex align-center justify-center gap-4 flex-wrap">
@@ -88,10 +98,11 @@ const stats = [
             <div class="d-flex justify-center gap-8 mt-12 hidden-sm-and-down">
               <div v-for="stat in stats" :key="stat.label" class="text-center">
                 <div class="text-h6 font-weight-bold">{{ stat.value }}</div>
-                <div class="text-caption text-medium-emphasis text-uppercase">{{ stat.label }}</div>
+                <div class="text-caption text-medium-emphasis text-uppercase">
+                  {{ stat.label }}
+                </div>
               </div>
             </div>
-
           </v-col>
         </v-row>
       </v-container>
@@ -99,17 +110,18 @@ const stats = [
 
     <section class="bg-grey-lighten-4 py-10 border-y">
       <v-container>
-        <p class="text-center text-caption font-weight-bold text-uppercase mb-6">
-          Trusted by engineering teams at
-        </p>
         <v-row justify="center" align="center" class="opacity-60">
           <v-col
             v-for="client in clients"
             :key="client"
-            cols="6" md="2"
-            class="text-center"
+            cols="6"
+            md="2"
+            class="text-center d-flex flex-column align-center justify-center gap-4"
           >
-            <span class="text-h6 font-weight-black text-grey-darken-1">{{ client }}</span>
+            <v-icon class="text-center" :icon="client.icon"></v-icon>
+            <span class="text-h6 font-weight-black text-grey-darken-1">{{
+              client.text
+            }}</span>
           </v-col>
         </v-row>
       </v-container>
@@ -119,7 +131,9 @@ const stats = [
       <v-container>
         <v-row justify="center" class="mb-12">
           <v-col cols="12" md="8" class="text-center">
-            <h2 class="text-h4 font-weight-bold mb-4">Everything you need to scale</h2>
+            <h2 class="text-h4 font-weight-bold mb-4">
+              Everything you need to scale
+            </h2>
             <p class="text-body-1 text-medium-emphasis">
               Powerful features designed for modern development teams.
             </p>
@@ -127,11 +141,7 @@ const stats = [
         </v-row>
 
         <v-row>
-          <v-col
-            v-for="(feature, i) in features"
-            :key="i"
-            cols="12" md="4"
-          >
+          <v-col v-for="(feature, i) in features" :key="i" cols="12" md="4">
             <v-card
               elevation="0"
               class="h-100 pa-6 bg-surface border hover-card"
@@ -147,7 +157,10 @@ const stats = [
               </v-avatar>
 
               <h3 class="text-h6 font-weight-bold mb-3">{{ feature.title }}</h3>
-              <p class="text-body-2 text-medium-emphasis mb-0" style="line-height: 1.6;">
+              <p
+                class="text-body-2 text-medium-emphasis mb-0"
+                style="line-height: 1.6"
+              >
                 {{ feature.text }}
               </p>
             </v-card>
@@ -172,7 +185,9 @@ const stats = [
               <h2 class="text-h4 text-md-h3 font-weight-bold mb-4">
                 Ready to optimize your workflow?
               </h2>
-              <p class="text-h6 text-primary-lighten-4 font-weight-regular mb-8 mb-md-0">
+              <p
+                class="text-h6 text-primary-lighten-4 font-weight-regular mb-8 mb-md-0"
+              >
                 Join 10,000+ developers building with Mindlytic today.
               </p>
             </v-col>
@@ -191,15 +206,20 @@ const stats = [
         </v-card>
       </v-container>
     </section>
-
   </div>
 </template>
 
 <style scoped>
 /* Utility for gap spacing */
-.gap-4 { gap: 16px; }
-.gap-8 { gap: 32px; }
-.spacing-1 { letter-spacing: 1px; }
+.gap-4 {
+  gap: 16px;
+}
+.gap-8 {
+  gap: 32px;
+}
+.spacing-1 {
+  letter-spacing: 1px;
+}
 
 /* Subtle hover effect for feature cards */
 .hover-card {
@@ -207,7 +227,7 @@ const stats = [
 }
 .hover-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1) !important;
   border-color: rgb(var(--v-theme-primary)) !important;
 }
 
@@ -219,7 +239,7 @@ const stats = [
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  background: rgba(255,255,255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 .bg-circle-2 {
   position: absolute;
@@ -228,6 +248,6 @@ const stats = [
   width: 300px;
   height: 300px;
   border-radius: 50%;
-  background: rgba(255,255,255, 0.05);
+  background: rgba(255, 255, 255, 0.05);
 }
 </style>
