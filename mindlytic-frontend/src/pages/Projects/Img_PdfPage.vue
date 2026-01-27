@@ -311,15 +311,15 @@ const setOrientation = (layout) => {
           <v-col v-for="(image, index) in images" :key="image.id" cols="12" sm="6" md="5" lg="4">
             <v-card class="mx-auto" max-width="400" color="primary-lighten-5" border rounded="lg">
               <v-card-actions>
-                <div class="d-flex justify-end align-center w-100">
-                  <v-btn @click="rotateImage(index)" icon="mdi-rotate-right" size="small" variant="text"
-                    color="yellow-accent-2" class="mr-2"></v-btn>
-                  <v-btn @click="moveUp(index)" :disabled="index === 0" class="control-btn"
-                    :icon="xs ? 'mdi-arrow-up' : 'mdi-arrow-left'" size="small" color="primary" variant="text"></v-btn>
-                  <v-btn @click="moveDown(index)" :disabled="index === images.length - 1" class="control-btn"
+                <div class="d-flex justify-end align-center ga-1 w-100">
+                  <v-btn @click="rotateImage(index)" icon="mdi-rotate-right" size="small" variant="elevated"
+                    color="yellow-accent-2"></v-btn>
+                  <v-btn @click="moveUp(index)" :disabled="index === 0"
+                    :icon="xs ? 'mdi-arrow-up' : 'mdi-arrow-left'" size="small" color="primary" variant="elevated"></v-btn>
+                  <v-btn @click="moveDown(index)" :disabled="index === images.length - 1"
                     :icon="xs ? 'mdi-arrow-down' : 'mdi-arrow-right'" size="small" color="primary"
-                    variant="text"></v-btn>
-                  <v-btn @click="removeImage(index)" color="red" class="control-btn" icon="mdi-close" variant="text"
+                    variant="elevated"></v-btn>
+                  <v-btn @click="removeImage(index)" color="red" icon="mdi-close" variant="elevated"
                     size="small"></v-btn>
                 </div>
               </v-card-actions>
