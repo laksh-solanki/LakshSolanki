@@ -3,6 +3,7 @@ import { ref } from "vue";
 import mainsvgicon from "@/assets/mainsvgicon.vue";
 
 // State for mobile navigation drawer
+const menu = ref(false)
 const drawer = ref(false);
 
 // Navigation Links - Matches your router/index.js
@@ -13,15 +14,9 @@ const quickLinks = [
 ]
 // User Dropdown Items
 const userMenu = [
-  {
-    title: "Profile",
-    to: "/about",
-    icon: "mdi-account-outline",
-    color: "primary",
-  },
+  { title: "Profile", to: "/profile", icon: "mdi-account-outline", color: "primary", },
+  { title: "Billing & Plans", to: "/", icon: "mdi-credit-card-outline", color: "primary", showChip: true },
   { title: "Settings", to: "/", icon: "mdi-cog-outline", color: "primary" },
-  { type: "divider" },
-  { title: "Logout", to: "/", icon: "mdi-logout", color: "error" },
 ];
 </script>
 
@@ -57,9 +52,9 @@ const userMenu = [
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
-  <v-app-bar color="surface" scroll-behavior="elevate" scroll-threshold="1000" class="px-md-5">
-    <v-app-bar-nav-icon variant="text" class="hidden-md-and-up" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-
+  <v-app-bar color="surface" scroll-behavior="elevate" scroll-threshold="1000" class="px-md-5" density="default">
+    <v-app-bar-nav-icon variant="text" class="hidden-md-and-up" @click.stop="drawer = !drawer"
+      title="Menu"></v-app-bar-nav-icon>
     <div class="d-flex align-center ml-2 mr-8">
       <mainsvgicon />
     </div>
@@ -80,31 +75,47 @@ const userMenu = [
         </v-badge>
       </v-btn>
       <v-divider thickness="1" vertical></v-divider>
-      <v-menu location="bottom end" transition="scale-transition">
+      <v-menu v-model="menu" :close-on-content-click="false" location="bottom end" origin="top right"
+        transition="scale-transition">
         <template v-slot:activator="{ props }">
-          <v-avatar v-bind="props" class="cursor-pointer ms-4" color="primary-lighten-4" size="40"
-            image="https://cdn.vuetifyjs.com/images/john.jpg"></v-avatar>
+          <v-btn icon v-bind="props" class="ml-2">
+            <v-avatar image="https://i.pravatar.cc/150?img=11"></v-avatar>
+          </v-btn>
         </template>
 
-        <v-list width="200" class="mt-4 rounded-lg elevation-4">
-          <v-list-item title="John Developer" subtitle="Pro Plan" class="mb-2"></v-list-item>
+        <v-card min-width="320" class="rounded-xl pa-2" elevation="10" border>
+          <v-list-item class="mb-2">
+            <template v-slot:prepend>
+              <v-avatar size="48" image="https://i.pravatar.cc/150?img=11" class="mr-2"></v-avatar>
+            </template>
+            <v-list-item-title class="text-h6 font-weight-bold">
+              John Developer
+            </v-list-item-title>
+            <v-list-item-subtitle class="text-caption text-grey-lighten-1">
+              <v-icon size="small" color="success" class="mr-1">mdi-check-decagram</v-icon>
+              Pro Plan
+            </v-list-item-subtitle>
 
-          <v-divider class="mb-2"></v-divider>
+            <template v-slot:append>
+              <v-btn icon="mdi-pencil" size="small" variant="text" color="grey"></v-btn>
+            </template>
+          </v-list-item>
 
-          <template v-for="(item, i) in userMenu" :key="i">
-            <v-divider v-if="item.type === 'divider'" class="my-2"></v-divider>
+          <v-divider class="mb-3"></v-divider>
 
-            <v-list-item v-else :value="item.title" rounded="lg" class="mx-2" :to="item.to"
-              :class="item.color ? `text-${item.color}` : ''">
-              <template v-slot:prepend>
-                <v-icon :icon="item.icon" size="small"></v-icon>
+          <v-list density="compact" rounded="xl" nav>
+            <v-list-item v-for="(item, i) in userMenu" :key="i" :value="item.title" :to="item.to" :prepend-icon="item.icon"
+              :title="item.title" rounded="xl" :color="item.color">
+              <template v-slot:append v-if="item.showChip">
+                <v-chip size="x-small" color="purple" variant="flat" class="font-weight-bold">NEW</v-chip>
               </template>
-              <v-list-item-title class="text-body-2">{{
-                item.title
-              }}</v-list-item-title>
             </v-list-item>
-          </template>
-        </v-list>
+            <v-divider class="my-2"></v-divider>
+
+            <v-list-item prepend-icon="mdi-logout-variant" title="Sign Out" value="logout" rounded="xl" variant="tonal"
+              color="error" class="py-3"></v-list-item>
+          </v-list>
+        </v-card>
       </v-menu>
     </div>
   </v-app-bar>
@@ -129,5 +140,11 @@ const userMenu = [
   min-width: 77px !important;
   height: 40px !important;
   font-size: 12px !important;
+}
+
+/* Optional: Fine-tune the blur effect for a glassmorphism feel */
+.v-menu .v-overlay__content>.v-card {
+  backdrop-filter: blur(2px);
+  background-color: rgba(30, 30, 30, 0.95) !important;
 }
 </style>
