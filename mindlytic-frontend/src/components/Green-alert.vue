@@ -18,7 +18,6 @@ const snackbar = computed({
   <v-snackbar
     v-model="snackbar"
     location="top"
-    style="margin-top: 70px !important"
     color="success"
     variant="flat"
   >
