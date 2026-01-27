@@ -56,7 +56,13 @@
     <v-sheet color="grey-lighten-4" class="py-16">
       <v-container>
         <div class="text-center mb-12">
-          <h2 class="text-h4 font-weight-bold">Why Work With Us?</h2>
+          <h2 class="text-h4 font-weight-bold mb-3">Why Work With Us?</h2>
+          <v-divider
+            class="mx-auto mb-6"
+            length="60"
+            thickness="4"
+            color=""
+          ></v-divider>
         </div>
         <v-row>
           <v-col
@@ -80,11 +86,82 @@
           </v-col>
         </v-row>
       </v-container>
+      <v-container>
+        <div class="text-center mb-10">
+          <h2 class="text-h4 font-weight-bold mb-3">Meet the Team</h2>
+          <v-divider
+            class="mx-auto mb-6"
+            length="60"
+            thickness="4"
+            color=""
+          ></v-divider>
+        </div>
+        <v-row justify="center">
+          <v-col
+            v-for="(member, index) in team"
+            :key="index"
+            cols="12"
+            sm="6"
+            md="4"
+          >
+            <v-hover v-slot="{ isHovering, props }">
+              <v-card
+                v-bind="props"
+                :elevation="isHovering ? 8 : 2"
+                class="text-center pa-6 rounded-lg transition-swing h-100"
+              >
+                <v-avatar size="150" class="mb-4 elevation-2">
+                  <v-img
+                    :src="member.image"
+                    cover
+                    alt="Team Member Photo"
+                  ></v-img>
+                </v-avatar>
+
+                <h3 class="text-h5 font-weight-bold mb-1">{{ member.name }}</h3>
+                <div
+                  class="text-subtitle-1 text-primary font-weight-medium mb-3"
+                >
+                  {{ member.role }}
+                </div>
+
+                <v-card-text class="text-body-2 text-medium-emphasis">
+                  {{ member.bio }}
+                </v-card-text>
+
+                <div class="mt-2">
+                  <v-btn
+                    icon="mdi-linkedin"
+                    variant="text"
+                    color="blue-darken-2"
+                    density="comfortable"
+                  ></v-btn>
+                  <v-btn
+                    icon="mdi-github"
+                    variant="text"
+                    color="grey-lighten-5"
+                    density="comfortable"
+                    href="https://github.com/laksh-solanki"
+                  ></v-btn>
+                  <v-btn
+                    icon="mdi-email"
+                    variant="text"
+                    color="red-darken-2"
+                    density="comfortable"
+                  ></v-btn>
+                </div>
+              </v-card>
+            </v-hover>
+          </v-col>
+        </v-row>
+      </v-container>
     </v-sheet>
   </v-container>
 </template>
 
 <script setup>
+import { ref } from "vue";
+
 const missionPoints = [
   "User-Centric Design Principles",
   "High-Performance Web Applications",
@@ -111,6 +188,15 @@ const values = [
     icon: "mdi-account-group-outline",
   },
 ];
+
+const team = ref([
+  {
+    name: "Laksh Solanki",
+    role: "Founder & Developer",
+    image: new URL("@/assets/Picture/my-pic.jpg", import.meta.url).href,
+    bio: "Specializes in full-stack development and crafting seamless user experiences.",
+  },
+]);
 </script>
 
 <style scoped>

@@ -1,155 +1,106 @@
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import mainsvgicon from '@/assets/mainsvgicon.vue'
+import Feedback from '@/components/Feedback.vue'
 
-const currentYear = new Date().getFullYear();
+const route = useRoute()
+const tab = ref(route.path)
 
-// Data-driven links for easy maintenance
-const socialLinks = ref([
-  { icon: "mdi-facebook", url: "#" },
-  { icon: "mdi-twitter", url: "#" },
-  { icon: "mdi-linkedin", url: "#" },
-  { icon: "mdi-instagram", url: "#" },
-]);
+watch(
+  () => route.path,
+  (newPath) => (tab.value = newPath),
+)
 
-const footerLinks = ref([
-  {
-    title: "Product",
-    items: ["Features", "Pricing", "Integrations", "Updates"],
-  },
-  {
-    title: "Company",
-    items: ["About Us", "Careers", "Press", "Contact"],
-  },
-  {
-    title: "Resources",
-    items: ["Documentation", "API Reference", "Community", "Blog"],
-  },
-  {
-    title: "Legal",
-    items: ["Privacy Policy", "Terms of Service", "Cookie Policy"],
-  },
-]);
-
-const newsletterEmail = ref("");
-const loading = ref(false);
-
-const subscribe = () => {
-  loading.value = true;
-  setTimeout(() => {
-    loading.value = false;
-    newsletterEmail.value = "";
-    alert("Subscribed successfully!");
-  }, 1000);
-};
+const quickLinks = [
+  { title: 'Home', path: '/', icon: 'mdi-home' },
+  { title: 'About', path: '/about', icon: 'mdi-information' },
+  { title: 'Projects', path: '/projects', icon: 'mdi-view-dashboard' },
+]
 </script>
-
 <template>
-  <v-footer class="pt-16 pb-8" elevation="0" border>
-    <v-container>
-      <v-row>
-        <v-col cols="12" md="4" lg="3">
-          <div class="d-flex align-center mb-4">
-            <v-icon
-              icon="mdi-cube-outline"
-              size="large"
-              color="primary"
-              class="mr-2"
-            ></v-icon>
-            <span class="text-h5 font-weight-bold">BrandName</span>
-          </div>
-          <p
-            class="text-body-2 text-medium-emphasis mb-6"
-            style="max-width: 300px"
-          >
-            Building the next generation of digital experiences. Join our
-            newsletter for the latest updates.
+  <v-divider color="grey-lighten-1" opacity="25"></v-divider>
+  <v-footer class="text-center pa-3">
+    <v-row dense>
+      <v-col cols="12" md="12">
+        <div class="d-flex justify-center align-center my-4">
+          <mainsvgicon />
+        </div>
+      </v-col>
+      <v-col cols="12" md="3" sm="6" xs="12">
+        <v-icon icon="mdi-information" size="40" color="primary" class="mb-2"></v-icon>
+        <p class="text-h6 font-weight-bold my-2">About Mindlytic</p>
+        <p class="text-body-2">
+          We are committed to providing exceptional services and solutions to our customers. Our
+          mission is to deliver excellence in every project we undertake.
+        </p>
+      </v-col>
+      <v-col cols="12" md="3" sm="6" xs="12">
+        <div class="d-flex flex-column align-center justify-center text-center">
+          <v-icon icon="mdi-link-variant" size="40" color="primary" class="mb-2"></v-icon>
+          <p class="text-h6 font-weight-bold align-center my-2">Quick Links</p>
+          <v-tabs inset v-model="tab" slider-color="info" direction="vertical" density="comfortable"
+            class="bg-transparent justify-center align-center">
+            <v-tab v-for="(link, index) in quickLinks" width="200" :key="index" :value="link.path" :to="link.path"
+              :prepend-icon="link.icon" class="d-flex justify-content-center align-content-center">
+              {{ link.title }}
+            </v-tab>
+          </v-tabs>
+        </div>
+      </v-col>
+      <v-col cols="12" md="3" sm="6" xs="12">
+        <v-icon icon="mdi-phone-log" size="40" color="primary" class="mb-2"></v-icon>
+        <p class="text-h6 align-center font-weight-bold my-2">Contact Us</p>
+        <div class="contact-info">
+          <p class="d-flex align-center justify-center text-center mb-2">
+            <v-icon size="small" class="mr-2">mdi-phone</v-icon>
+            +91 9033220721
           </p>
-
-          <v-form @submit.prevent="subscribe">
-            <v-text-field
-              v-model="newsletterEmail"
-              density="compact"
-              placeholder="Enter your email"
-              variant="outlined"
-              bg-color="surface"
-              hide-details
-              rounded="lg"
-            >
-              <template v-slot:append-inner>
-                <v-btn
-                  color="primary"
-                  size="small"
-                  variant="flat"
-                  class="text-none"
-                  :loading="loading"
-                  @click="subscribe"
-                >
-                  Subscribe
-                </v-btn>
-              </template>
-            </v-text-field>
-          </v-form>
-        </v-col>
-
-        <v-col cols="12" md="1" lg="2"></v-col>
-
-        <v-col
-          v-for="group in footerLinks"
-          :key="group.title"
-          cols="6"
-          sm="3"
-          md="2"
-          lg="auto"
-          class="mb-6"
-        >
-          <div class="text-subtitle-2 font-weight-bold mb-4">
-            {{ group.title }}
+          <p class="d-flex align-center justify-center text-center lh-2 mb-2">
+            <v-icon size="small" class="mr-2">mdi-email</v-icon>
+            lakshsolanki848@gmail.com
+          </p>
+        </div>
+      </v-col>
+      <v-col cols="12" md="3" sm="6" xs="12">
+        <Feedback />
+      </v-col>
+      <v-divider color="grey-lighten-1" opacity="25" class="my-5"></v-divider>
+      <v-col cols="12" md="12">
+        <div class="text-center">
+          © {{ new Date().getFullYear() }} <strong>Mindlytic</strong>. All rights reserved.
+          <div>
+            <router-link to="/privacy" class="text-decoration-none mr-2">Privacy Policy</router-link>
+            |
+            <router-link to="/terms" class="text-decoration-none mx-2">Terms of Service</router-link>
           </div>
-          <div class="d-flex flex-column gap-2">
-            <a
-              v-for="item in group.items"
-              :key="item"
-              href="#"
-              class="text-body-2 text-medium-emphasis text-decoration-none hover-link mb-2"
-            >
-              {{ item }}
-            </a>
-          </div>
-        </v-col>
-      </v-row>
-
-      <v-divider class="my-8"></v-divider>
-
-      <v-row align="center" justify="space-between">
-        <v-col cols="12" sm="6" class="text-center text-sm-left">
-          <div class="text-caption text-medium-emphasis">
-            &copy; {{ currentYear }} BrandName Inc. All rights reserved.
-          </div>
-        </v-col>
-
-        <v-col cols="12" sm="6" class="text-center text-sm-right">
-          <v-btn
-            v-for="social in socialLinks"
-            :key="social.icon"
-            :icon="social.icon"
-            variant="text"
-            density="comfortable"
-            color="medium-emphasis"
-            class="mx-1"
-          ></v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
+        </div>
+      </v-col>
+    </v-row>
   </v-footer>
 </template>
-
 <style scoped>
-/* Custom hover effect for links */
-.hover-link {
-  transition: color 0.2s ease-in-out;
+.social-icon-link {
+  text-decoration: none;
+  transition: transform 0.2s ease;
 }
-.hover-link:hover {
-  color: rgb(var(--v-theme-primary)) !important;
-  text-decoration: underline !important;
+
+.social-icon-link:hover {
+  transform: translateY(-3px);
+}
+
+.transparent {
+  background-color: transparent !important;
+}
+
+.contact-info p {
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .footer-logo {
+    max-width: 120px;
+    margin: 0 auto 1rem auto;
+  }
 }
 </style>
