@@ -5,29 +5,30 @@ import { ref } from 'vue'
 const projects = ref([
   {
     id: 1,
-    title: 'Fintech Dashboard',
-    category: 'Data Visualization',
+    title: 'Certificate Generator',
+    category: 'Web Application',
     description: 'A comprehensive financial analytics platform offering real-time data visualization and predictive modeling.',
-    image: 'https://images.unsplash.com/photo-1642427749670-f20e2e76ed8c?q=80&w=2080&auto=format&fit=crop', // Abstract dark chart
-    link: '#',
-    tags: ['Vue', 'ApexCharts', 'Firebase']
+    image: new URL('../assets/Picture/Project-1.png', import.meta.url).href,
+    link: '/projects/certificate-generator',
+    tags: ['Vue', 'Vuetify', 'pdf-lib'],
+    disabled: true,
   },
   {
     id: 2,
-    title: 'E-Commerce API',
-    category: 'Backend Architecture',
+    title: 'Image To PDF Converter',
+    category: 'Web Application',
     description: 'Headless commerce solution designed for scalability, featuring stripe integration and inventory management.',
-    image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=2032&auto=format&fit=crop', // Clean workspace
-    link: '#',
+    image: new URL('../assets/Picture/Project-2.png', import.meta.url).href,
+    link: '/projects/img-pdf',
     tags: ['Node.js', 'GraphQL', 'Docker']
   },
   {
     id: 3,
-    title: 'Health Track App',
-    category: 'Mobile Application',
+    title: 'PDF To Image Converter',
+    category: 'Web Application',
     description: 'Cross-platform wellness tracking application focusing on privacy-first data storage and minimal UI.',
-    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2070&auto=format&fit=crop', // Dark medical abstract
-    link: '#',
+    image: new URL('../assets/Picture/Project-3.jpg', import.meta.url).href,
+    link: '/projects/pdf-img',
     tags: ['React Native', 'TypeScript', 'Redux']
   }
 ])
@@ -54,9 +55,9 @@ const projects = ref([
       <v-row>
         <v-col v-for="project in projects" :key="project.id" cols="12" md="4">
           <v-hover v-slot="{ isHovering, props }">
-            <v-card v-bind="props" class="project-card d-flex flex-column" flat rounded="lg">
+            <v-card v-bind="props" class="project-card d-flex flex-column" flat rounded="lg" :disabled="project.disabled">
               <div class="img-container">
-                <v-img :src="project.image" height="260" cover class="project-img" :class="{ 'scale-up': isHovering }">
+                <v-img :src="project.image" height="260" content-class class="project-img" :class="{ 'scale-up': isHovering }">
                   <div class="gradient-overlay"></div>
                 </v-img>
               </div>
@@ -83,7 +84,7 @@ const projects = ref([
                     </span>
                   </div>
 
-                  <v-btn :href="project.link" icon variant="text" color="white" :class="{ 'slide-right': isHovering }">
+                  <v-btn :to="project.link" icon variant="text" color="white" :class="{ 'slide-right': isHovering }">
                     <v-icon icon="mdi-arrow-right"></v-icon>
                   </v-btn>
                 </div>
