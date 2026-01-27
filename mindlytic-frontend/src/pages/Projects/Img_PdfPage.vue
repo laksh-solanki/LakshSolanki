@@ -78,10 +78,16 @@ const processFiles = (files) => {
         name: file.name,
         size: file.size,
         type: file.type,
+        rotation: 0
       })
     }
     reader.readAsDataURL(file)
   })
+}
+
+const rotateImage = (index) => {
+  // Add 90 degrees, reset to 0 if it hits 360
+  images.value[index].rotation = (images.value[index].rotation + 90) % 360
 }
 
 // List Management
@@ -122,28 +128,51 @@ const addImageToPDF = (pdf, image, addPage) => {
   return new Promise((resolve, reject) => {
     const img = new Image()
     img.onload = () => {
+      // 1. Create Canvas
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+
+      // 2. Swap dimensions if rotated 90 or 270 degrees
+      if (image.rotation === 90 || image.rotation === 270) {
+        canvas.width = img.height
+        canvas.height = img.width
+      } else {
+        canvas.width = img.width
+        canvas.height = img.height
+      }
+
+      // 3. Rotate Context
+      // Move pivot to center
+      ctx.translate(canvas.width / 2, canvas.height / 2)
+      // Rotate
+      ctx.rotate((image.rotation * Math.PI) / 180)
+      // Draw image (offset by negative half-width/height to center it)
+      ctx.drawImage(img, -img.width / 2, -img.height / 2)
+
+      // 4. Get rotated data URL
+      const rotatedDataUrl = canvas.toDataURL('image/png')
+
+      // 5. Standard PDF adding logic (using the NEW rotatedDataUrl)
       if (addPage) pdf.addPage()
 
       const pageWidth = pdf.internal.pageSize.getWidth()
       const pageHeight = pdf.internal.pageSize.getHeight()
       const margin = 5
-
       const availableWidth = pageWidth - 2 * margin
       const availableHeight = pageHeight - 2 * margin
 
-      let imgWidth = img.width
-      let imgHeight = img.height
+      // Use canvas dimensions (which might be swapped)
+      let finalW = canvas.width
+      let finalH = canvas.height
 
-      const scale = Math.min(availableWidth / imgWidth, availableHeight / imgHeight, 1)
+      const scale = Math.min(availableWidth / finalW, availableHeight / finalH, 1)
+      finalW *= scale
+      finalH *= scale
 
-      imgWidth *= scale
-      imgHeight *= scale
+      const x = (pageWidth - finalW) / 2
+      const y = (pageHeight - finalH) / 2
 
-      const x = (pageWidth - imgWidth) / 2
-      const y = (pageHeight - imgHeight) / 2
-
-      const format = image.type === 'image/jpeg' ? 'JPEG' : 'PNG'
-      pdf.addImage(img, format, x, y, imgWidth, imgHeight)
+      pdf.addImage(rotatedDataUrl, 'PNG', x, y, finalW, finalH)
       resolve()
     }
     img.onerror = () => reject(new Error(`Failed to load ${image.name}`))
@@ -222,16 +251,18 @@ const setOrientation = (layout) => {
 }
 </script>
 <template>
-  <v-btn @click="goBack" variant="flat" icon="mdi-arrow-left" class="rounded-te rounded-ts rounded-bs" color="primary"></v-btn>
+  <v-btn @click="goBack" variant="flat" icon="mdi-arrow-left" class="rounded-te rounded-ts rounded-bs"
+    color="primary"></v-btn>
   <GreenAlert v-model:successAlert="successAlert" :successMessage="successMessage" />
   <RedAlert v-model:errorAlert="errorAlert" :errorMessage="errorMessage" />
-  <v-container style="min-height: 84.3vh !important">
-    <v-card class="text-h5 text-center my-3 pa-4" color="primary-lighten-5" border="primary lg opacity-25" rounded="xl" flat>
+  <v-container>
+    <v-card class="text-h5 text-center my-3 pa-4" color="primary-lighten-5" border="primary lg opacity-25" rounded="xl"
+      flat>
       Convert Images to PDF
     </v-card>
 
     <!-- Upload Zone -->
-    <v-sheet class="pa-8 border-double" rounded="xl" border="primary xl opacity-25"  @click="triggerFileInput()">
+    <v-sheet class="pa-8 border-double" rounded="xl" border="primary xl opacity-25" @click="triggerFileInput()">
       <input ref="fileInput" type="file" multiple accept="image/*" @change="handleFileSelect" id="fileInput"
         class="file-input" required />
       <div class="text-center">
@@ -262,7 +293,7 @@ const setOrientation = (layout) => {
           </v-btn>
           <v-menu>
             <template v-slot:activator="{ props }">
-              <v-btn append-icon="mdi-menu-down" color="info" rounded="lg" variant="elevated  " v-bind="props"
+              <v-btn append-icon="mdi-menu-down" color="info" rounded="lg" variant="elevated" v-bind="props"
                 text="Size All Images"></v-btn>
             </template>
             <v-list class="mt-2">
@@ -279,19 +310,25 @@ const setOrientation = (layout) => {
         <v-row dense>
           <v-col v-for="(image, index) in images" :key="image.id" cols="12" sm="6" md="5" lg="4">
             <v-card class="mx-auto" max-width="400" color="primary-lighten-5" border rounded="lg">
-              <v-img :src="image.url" :alt="image.name" class="align-end text-white ma-2" height="200" contain
-                rounded="lg">
-                <v-card-title>
-                  <div class="image-controls">
-                    <v-btn @click="moveUp(index)" :disabled="index === 0" class="control-btn"
-                      :icon="xs ? 'mdi-arrow-up' : 'mdi-arrow-left'" size="small" color="primary"></v-btn>
-                    <v-btn @click="moveDown(index)" :disabled="index === images.length - 1" class="control-btn"
-                      :icon="xs ? 'mdi-arrow-down' : 'mdi-arrow-right'" size="small" color="primary"></v-btn>
-                    <v-btn @click="removeImage(index)" color="red" class="control-btn" icon="mdi-close"
-                      size="small"></v-btn>
-                  </div>
-                </v-card-title>
-              </v-img>
+              <v-card-actions>
+                <div class="d-flex justify-end align-center w-100">
+                  <v-btn @click="rotateImage(index)" icon="mdi-rotate-right" size="small" variant="text"
+                    color="yellow-accent-2" class="mr-2"></v-btn>
+                  <v-btn @click="moveUp(index)" :disabled="index === 0" class="control-btn"
+                    :icon="xs ? 'mdi-arrow-up' : 'mdi-arrow-left'" size="small" color="primary" variant="text"></v-btn>
+                  <v-btn @click="moveDown(index)" :disabled="index === images.length - 1" class="control-btn"
+                    :icon="xs ? 'mdi-arrow-down' : 'mdi-arrow-right'" size="small" color="primary"
+                    variant="text"></v-btn>
+                  <v-btn @click="removeImage(index)" color="red" class="control-btn" icon="mdi-close" variant="text"
+                    size="small"></v-btn>
+                </div>
+              </v-card-actions>
+              <div class="d-flex justify-center align-center pa-2 position-relative overflow-hidden">
+                <v-img :src="image.url" :alt="image.name" class="align-end text-white ma-2" max-width="100%"
+                  height="200" contain rounded="lg"
+                  :style="{ transform: `rotate(${image.rotation}deg)`, transition: 'transform 0.3s ease' }">
+                </v-img>
+              </div>
               <v-card-text class="pa-2">
                 <p class="pa-1 ma-0 text-center">{{ image.name }}</p>
               </v-card-text>
@@ -308,16 +345,6 @@ const setOrientation = (layout) => {
 <style>
 #fileInput {
   display: none !important;
-}
-
-.image-controls {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
 }
 
 .slide-up-enter-active,
