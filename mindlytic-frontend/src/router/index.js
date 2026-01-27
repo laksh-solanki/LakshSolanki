@@ -39,8 +39,8 @@ const routes = [
     ],
   },
   {
-    path:"/profile",
-    name:"Profile",
+    path: "/profile",
+    name: "Profile",
     component: () => import("@/pages/ProfilePage.vue"),
     meta: { title: "Mindlytic | Profile" },
   },
@@ -64,7 +64,7 @@ const router = createRouter({
   },
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   document.title = to.meta.title || "Mindlytic";
   next();
 });

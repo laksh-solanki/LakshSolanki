@@ -29,22 +29,9 @@ const userMenu = [
     </v-list>
 
     <v-divider></v-divider>
-    <v-list density="compact" nav>
-      <v-list-group value="Users">
-        <template v-slot:activator="{ props }">
-          <v-list-item v-bind="props" prepend-avatar="https://cdn.vuetifyjs.com/images/john.jpg"
-            title="Users"></v-list-item>
-        </template>
-        <v-list-item v-for="(item, i) in userMenu" :key="i" :value="item.title" :prepend-icon="item.icon"
-          :title="item.title" :to="item.to" :class="item.color ? `text-${item.color}` : ''"><v-divider
-            v-if="item.type === 'divider'"></v-divider></v-list-item>
-      </v-list-group>
-    </v-list>
 
-    <v-divider></v-divider>
     <v-list density="compact" nav>
-      <v-list-item v-for="(link, index,) in quickLinks" :key="index" :to="link.path" :value="link.title"
-        color="primary">
+      <v-list-item v-for="(link, index) in quickLinks" :key="index" :to="link.path" :value="link.title" color="primary">
         <template v-slot:prepend>
           <v-icon :icon="link.icon"></v-icon>
         </template>
@@ -52,26 +39,26 @@ const userMenu = [
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
-  <v-app-bar color="surface" scroll-behavior="elevate" scroll-threshold="1000" class="px-md-5" density="default">
-    <v-app-bar-nav-icon variant="text" class="hidden-md-and-up" @click.stop="drawer = !drawer"
+  <v-app-bar color="surface" scroll-behavior="elevate" scroll-threshold="1000" class="px-md-5 px-2" density="default">
+    <v-app-bar-nav-icon variant="text" class="hidden-md-and-up ma-0" @click.stop="drawer = !drawer"
       title="Menu"></v-app-bar-nav-icon>
     <div class="d-flex align-center ml-2 mr-8">
       <mainsvgicon />
     </div>
 
     <div class="d-none d-md-flex justify-center align-center w-100">
-      <v-tabs inset border="" density="compact" slider-color="info" class="d-none d-lg-flex align-center tab-container">
-        <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" class="px-0 tab-size">{{ link.title
+      <v-tabs inset density="compact" slider-color="info" class="d-none d-lg-flex align-center tab-container">
+        <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" :class="link.class" class="px-0 tab-size">{{ link.title
         }}</v-tab>
       </v-tabs>
     </div>
 
     <v-spacer></v-spacer>
 
-    <div class="d-none d-md-flex align-center">
-      <v-btn icon class="me-4" color="medium-emphasis">
+    <div class="justify-center align-center d-flex">
+      <v-btn icon to="/notifications" class="align-center justify-center" color="medium-emphasis">
         <v-badge content="3" color="error" dot>
-          <v-icon icon="mdi-bell-outline"></v-icon>
+          <v-icon icon="mdi-bell-outline" size="24"></v-icon>
         </v-badge>
       </v-btn>
       <v-divider thickness="1" vertical></v-divider>
@@ -83,7 +70,7 @@ const userMenu = [
           </v-btn>
         </template>
 
-        <v-card min-width="320" class="rounded-xl pa-2" elevation="10" border>
+        <v-card min-width="310" class="rounded-xl mt-1 pa-2" elevation="10" border>
           <v-list-item class="mb-2">
             <template v-slot:prepend>
               <v-avatar size="48" image="https://i.pravatar.cc/150?img=11" class="mr-2"></v-avatar>
@@ -104,8 +91,8 @@ const userMenu = [
           <v-divider class="mb-3"></v-divider>
 
           <v-list density="compact" rounded="xl" nav>
-            <v-list-item v-for="(item, i) in userMenu" :key="i" :value="item.title" :to="item.to" :prepend-icon="item.icon"
-              :title="item.title" rounded="xl" :color="item.color">
+            <v-list-item v-for="(item, i) in userMenu" :key="i" :value="item.title" :to="item.to"
+              :prepend-icon="item.icon" :title="item.title" rounded="xl" :color="item.color">
               <template v-slot:append v-if="item.showChip">
                 <v-chip size="x-small" color="purple" variant="flat" class="font-weight-bold">NEW</v-chip>
               </template>
