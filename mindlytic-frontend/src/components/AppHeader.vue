@@ -57,15 +57,14 @@ const userMenu = [
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
-
-  <v-app-bar color="surface" scroll-behavior="elevate" scroll-threshold="1000" class="px-lg-8" border="thin opacity-25">
+  <v-app-bar color="surface" scroll-behavior="elevate" scroll-threshold="1000" class="px-md-5">
     <v-app-bar-nav-icon variant="text" class="hidden-md-and-up" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
     <div class="d-flex align-center ml-2 mr-8">
       <mainsvgicon />
     </div>
 
-    <div class="d-none d-md-flex">
+    <div class="d-none d-md-flex justify-center align-center w-100">
       <v-tabs inset border="" density="compact" slider-color="info" class="d-none d-lg-flex align-center tab-container">
         <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" class="px-0 tab-size">{{ link.title
         }}</v-tab>
