@@ -4,20 +4,18 @@
     <v-row>
 
       <v-col cols="12" md="4">
-        <v-card class="rounded-lg text-center pb-6" elevation="10">
-          <v-img height="150" src="https://cdn.vuetifyjs.com/images/cards/server-room.jpg" cover class="align-end">
-            <div class="d-flex justify-center" style="transform: translateY(50%);">
-              <v-avatar size="120" class="border-lg border-background"
-                image="https://i.pravatar.cc/150?img=11"></v-avatar>
-            </div>
+        <v-card class="rounded-lg text-center pb-3" elevation="10" border>
+          <v-img height="160" src="https://cdn.vuetifyjs.com/images/cards/server-room.jpg" cover
+            class="d-flex justify-center align-center">
+            <v-avatar size="120" class="border-lg border-background" z-index="10000"
+              image="https://i.pravatar.cc/150?img=11"></v-avatar>
           </v-img>
 
-          <div class="mt-16 pt-4 px-4">
+          <div class="mt-10">
             <h2 class="text-h5 font-weight-bold">John Developer</h2>
             <p class="text-medium-emphasis mb-4">Senior Full-Stack Engineer</p>
 
             <div class="d-flex justify-center gap-2 mb-6">
-              <v-btn color="primary" variant="flat" rounded="lg" prepend-icon="mdi-plus">Follow</v-btn>
               <v-btn color="grey" variant="tonal" rounded="lg" icon="mdi-email-outline"></v-btn>
               <v-btn color="grey" variant="tonal" rounded="lg" icon="mdi-dots-horizontal"></v-btn>
             </div>
@@ -54,20 +52,19 @@
       </v-col>
 
       <v-col cols="12" md="8">
-        <v-card class="rounded-lg" elevation="10">
+        <v-card class="rounded-lg pa-2" elevation="10" border>
           <v-tabs v-model="tab" color="primary" align-tabs="start" class="mb-6 border-b">
             <v-tab value="edit" class="text-capitalize">Edit Profile</v-tab>
             <v-tab value="stack" class="text-capitalize">Tech Stack</v-tab>
             <v-tab value="security" class="text-capitalize">Security</v-tab>
           </v-tabs>
 
-          <v-window v-model="tab" class="px-4 pb-4">
-
+          <v-window v-model="tab" class="ma-4">
             <v-window-item value="edit">
               <p class="text-h6 font-weight-bold mb-1">General Information</p>
               <p class="text-caption text-medium-emphasis mb-6">Update your personal details here.</p>
 
-              <v-row dense>
+              <v-row>
                 <v-col cols="12" md="6">
                   <v-text-field label="First Name" variant="outlined" density="comfortable" color="primary"
                     v-model="form.firstName"></v-text-field>
@@ -113,7 +110,7 @@
               <p class="text-h6 font-weight-bold mb-4">Password & Security</p>
 
               <v-list bg-color="transparent">
-                <v-list-item class="px-0">
+                <v-list-item>
                   <template v-slot:prepend>
                     <v-icon color="primary" class="mr-4">mdi-lock-outline</v-icon>
                   </template>
@@ -126,7 +123,7 @@
 
                 <v-divider class="my-3"></v-divider>
 
-                <v-list-item class="px-0">
+                <v-list-item>
                   <template v-slot:prepend>
                     <v-icon color="primary" class="mr-4">mdi-shield-check-outline</v-icon>
                   </template>

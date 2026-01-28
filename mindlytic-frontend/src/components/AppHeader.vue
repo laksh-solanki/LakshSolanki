@@ -55,7 +55,7 @@ const userMenu = [
 
     <v-spacer></v-spacer>
 
-    <div class="justify-center align-center d-flex">
+    <div class="justify-center align-center d-flex ga-1">
       <v-btn icon to="/notifications" class="align-center justify-center" color="medium-emphasis">
         <v-badge content="3" color="error" dot>
           <v-icon icon="mdi-bell-outline" size="24"></v-icon>
