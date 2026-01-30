@@ -8,11 +8,11 @@
           <v-img height="160" src="https://cdn.vuetifyjs.com/images/cards/server-room.jpg" cover
             class="d-flex justify-center align-center">
             <v-avatar size="120" class="border-lg border-background" z-index="10000"
-              image="https://i.pravatar.cc/150?img=11"></v-avatar>
+              image="/src/assets/Picture/my-pic.jpg"></v-avatar>
           </v-img>
 
           <div class="mt-10">
-            <h2 class="text-h5 font-weight-bold">John Developer</h2>
+            <h2 class="text-h5 font-weight-bold">Laksh Solanki</h2>
             <p class="text-medium-emphasis mb-4">Senior Full-Stack Engineer</p>
 
             <div class="d-flex justify-center gap-2 mb-6">
@@ -53,7 +53,7 @@
 
       <v-col cols="12" md="8">
         <v-card class="rounded-lg pa-2" elevation="10" border>
-          <v-tabs v-model="tab" color="primary" align-tabs="start" class="mb-6 border-b">
+          <v-tabs inset v-model="tab" color="primary" align-tabs="start" slider-color="white" class="mb-6 border-b">
             <v-tab value="edit" class="text-capitalize">Edit Profile</v-tab>
             <v-tab value="stack" class="text-capitalize">Tech Stack</v-tab>
             <v-tab value="security" class="text-capitalize">Security</v-tab>

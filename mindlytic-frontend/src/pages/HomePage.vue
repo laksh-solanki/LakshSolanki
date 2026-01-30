@@ -60,13 +60,13 @@ const stats = [
 
             <div class="d-flex align-center justify-center gap-4 flex-wrap">
               <v-btn color="primary" size="x-large" elevation="2" rounded="lg" height="56"
-                class="text-none px-8 font-weight-bold">
+                class="text-none px-8 font-weight-bold" to="/about">
                 Get Started Free
                 <v-icon end icon="mdi-arrow-right" class="ml-2"></v-icon>
               </v-btn>
 
               <v-btn variant="outlined" size="x-large" color="primary" rounded="lg" height="56"
-                class="text-none px-8 font-weight-bold bg-surface">
+                class="text-none px-8 font-weight-bold bg-surface" to="/projects">
                 View Demo
               </v-btn>
             </div>
@@ -143,7 +143,7 @@ const stats = [
             </v-col>
             <v-col cols="12" md="4" class="text-md-right">
               <v-btn color="white" variant="flat" size="x-large" class="text-primary font-weight-bold px-8 text-none"
-                rounded="lg">
+                rounded="lg" to="/about">
                 Get Started Now
               </v-btn>
             </v-col>
