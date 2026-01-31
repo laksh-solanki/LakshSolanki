@@ -13,7 +13,6 @@ export default defineConfig({
     Vue({
       template: { transformAssetUrls },
     }),
-    // Use 'autoImport' if you want Vuetify components to load automatically
     Vuetify({ autoImport: true }),
     Components(),
     Fonts({
@@ -38,8 +37,6 @@ export default defineConfig({
 
   define: {
     "process.env": {},
-    // REMOVED: pdfjsLib definition here.
-    // Set this inside your component script instead!
   },
 
   resolve: {
@@ -52,14 +49,12 @@ export default defineConfig({
   server: {
     port: 3000,
   },
-
-  // Suggested: Add build options to handle the worker file if you use it locally
   build: {
     target: "esnext",
     rollupOptions: {
       output: {
         manualChunks: {
-          "pdf-vendor": ["jspdf"], // Moves jspdf to its own file to keep the main bundle small
+          "pdf-vendor": ["jspdf"],
         },
       },
     },

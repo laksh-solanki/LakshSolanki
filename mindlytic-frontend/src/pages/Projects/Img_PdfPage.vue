@@ -255,14 +255,14 @@ const setOrientation = (layout) => {
     color="primary"></v-btn>
   <GreenAlert v-model:successAlert="successAlert" :successMessage="successMessage" />
   <RedAlert v-model:errorAlert="errorAlert" :errorMessage="errorMessage" />
-  <v-container>
-    <v-card class="text-h5 text-center my-3 pa-4" color="primary-lighten-5" border="primary lg opacity-25" rounded="xl"
+  <v-container style="min-height: 83.90vh;">
+    <v-card class="text-h5 text-center my-3 pa-4" color="primary-lighten-5" border="primary md opacity-100" rounded="xl"
       flat>
       Convert Images to PDF
     </v-card>
 
     <!-- Upload Zone -->
-    <v-sheet class="pa-8 border-double" rounded="xl" border="primary xl opacity-25" @click="triggerFileInput()">
+    <v-sheet class="pa-8 upload-zone" rounded="xl" @click="triggerFileInput()">
       <input ref="fileInput" type="file" multiple accept="image/*" @change="handleFileSelect" id="fileInput"
         class="file-input" required />
       <div class="text-center">

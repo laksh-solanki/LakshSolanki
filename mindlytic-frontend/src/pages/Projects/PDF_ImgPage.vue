@@ -172,13 +172,13 @@ onUnmounted(() => {
   <GreenAlert v-model:successAlert="successAlert" :successMessage="successMessage" />
   <RedAlert v-model:errorAlert="errorAlert" :errorMessage="errorMessage" />
   <v-container style="min-height: 84.3vh !important">
-    <v-card class="text-h5 text-center my-3 pa-4" color="primary-lighten-5" border="primary lg opacity-25" rounded="xl"
+    <v-card class="text-h5 text-center my-3 pa-4" color="primary-lighten-5" border="primary md opacity-100" rounded="xl"
       flat>
       Convert PDF to Images
     </v-card>
 
     <!-- Upload Zone -->
-    <v-sheet class="pa-8 border-double" rounded="xl" border="primary xl opacity-25" @click="triggerFileInput()">
+    <v-sheet class="pa-8 upload-zone" rounded="xl" hover border @click="triggerFileInput()">
       <input ref="fileInput" type="file" accept="application/pdf" @change="handleFileSelect" class="file-input"
         required />
       <div class="text-center">
@@ -215,8 +215,8 @@ onUnmounted(() => {
                 <div class="d-flex justify-end align-center ga-1   w-100">
                   <v-btn @click="removeImage(index)" icon="mdi-close" variant="elevated" color="red" size="small">
                   </v-btn>
-                  <v-btn @click="downloadImage(image.url, image.name)" icon="mdi-download" variant="elevated" color="green"
-                    size="small">
+                  <v-btn @click="downloadImage(image.url, image.name)" icon="mdi-download" variant="elevated"
+                    color="green" size="small">
                   </v-btn>
                 </div>
               </v-card-actions>
@@ -229,34 +229,6 @@ onUnmounted(() => {
             </v-card>
           </v-col>
         </v-row>
-      </div>
-    </transition>
-
-    <!-- Progress Section -->
-    <transition name="fade">
-      <div class="card" v-if="isConverting">
-        <div class="tools">
-          <div class="circle">
-            <span class="red box"></span>
-          </div>
-          <div class="circle">
-            <span class="yellow box"></span>
-          </div>
-          <div class="circle">
-            <span class="green box"></span>
-          </div>
-        </div>
-        <div class="card-content p-3">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-lg font-semibold text-slate-800">Converting to Images...</h3>
-            <span class="text-sm text-slate-600">{{ conversionProgress }}%</span>
-          </div>
-          <div class="w-full bg-gray-200 rounded-full h-3">
-            <div class="bg-gradient-to-r from-teal-500 to-amber-500 h-3 rounded-full transition-all duration-300"
-              :style="{ width: conversionProgress + '%' }"></div>
-          </div>
-          <p class="text-sm text-slate-600 mt-2">{{ conversionStatus }}</p>
-        </div>
       </div>
     </transition>
   </v-container>
@@ -294,55 +266,20 @@ onUnmounted(() => {
   padding: 9px;
 }
 
-.circle {
-  padding: 0 4px;
-}
-
-.box {
-  display: inline-block;
-  align-items: center;
-  width: 10px;
-  height: 10px;
-  padding: 1px;
-  border-radius: 50%;
-}
-
-.red {
-  background-color: #ff605c;
-}
-
-.yellow {
-  background-color: #ffbd44;
-}
-
-.green {
-  background-color: #00ca4e;
-}
-
 .upload-zone-header svg {
   height: 100px;
 }
 
-.btn-css {
-  border-start-start-radius: 0px !important;
-  border-bottom-left-radius: 0px !important;
-  border-top-right-radius: 0% !important;
-}
-
 .upload-zone {
   border: 3px dashed royalblue;
-  padding: 35px 40px;
   text-align: center;
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .upload-zone:hover {
-  border-color: black !important;
-  color: var(--bs-primary-text-emphasis) !important;
-  background-color: rgb(207 226 255) !important;
+  border: 3px solid royalblue !important;
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .image-controls {
@@ -391,5 +328,21 @@ onUnmounted(() => {
 .slide-up-leave-to {
   opacity: 0;
   transform: translateY(20px);
+}
+
+.hover-card {
+  transition: all 0.3s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1) !important;
+  border-color: rgb(var(--v-theme-primary)) !important;
+}
+
+@media (max-width: 768px) {
+  .upload-zone {
+    padding: 40px 20px;
+  }
 }
 </style>

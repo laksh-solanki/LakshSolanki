@@ -8,7 +8,7 @@
           <v-img height="160" src="https://cdn.vuetifyjs.com/images/cards/server-room.jpg" cover
             class="d-flex justify-center align-center">
             <v-avatar size="120" class="border-lg border-background" z-index="10000"
-              image="/src/assets/Picture/my-pic.jpg"></v-avatar>
+              :image="my_photo"></v-avatar>
           </v-img>
 
           <div class="mt-10">
@@ -40,12 +40,12 @@
             <v-divider class="mb-4"></v-divider>
 
             <v-list density="compact" nav class="text-left">
-              <v-list-item prepend-icon="mdi-map-marker-outline" title="San Francisco, CA"
-                class="text-body-2"></v-list-item>
-              <v-list-item prepend-icon="mdi-web" title="johndev.io" href="#"
-                class="text-body-2 text-blue"></v-list-item>
-              <v-list-item prepend-icon="mdi-github" title="github.com/johndev" class="text-body-2"></v-list-item>
-              <v-list-item prepend-icon="mdi-twitter" title="@john_codes" class="text-body-2"></v-list-item>
+              <v-list-item prepend-icon="mdi-map-marker-outline" title="Gujarat, India" class="text-body-2"></v-list-item>
+              <v-list-item prepend-icon="mdi-web" title="https://mindlytic.onrender.com/"
+                target="_blank" class="text-body-2"></v-list-item>
+              <v-list-item prepend-icon="mdi-github" title="github.com/laksh-solanki" href="https://github.com/laksh-solanki"
+                target="_blank" class="text-body-2 text-blue"></v-list-item>
+              <v-list-item prepend-icon="mdi-twitter" title="@laksh_solanki" class="text-body-2"></v-list-item>
             </v-list>
           </div>
         </v-card>
@@ -152,12 +152,13 @@
 
 <script setup>
 import { ref } from 'vue'
+import my_photo from "@/assets/Picture/my-pic.jpg";
 
 const tab = ref('edit')
 
 const form = ref({
-  firstName: 'John',
-  lastName: 'Developer',
+  firstName: 'Laksh',
+  lastName: 'Solanki',
   role: 'Senior Full-Stack Engineer',
   bio: 'Passionate about building scalable web applications with Vue and Node.js. Open source contributor and coffee enthusiast.'
 })

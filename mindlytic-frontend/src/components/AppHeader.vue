@@ -103,10 +103,6 @@ const userMenu = [
               <v-chip size="x-small" color="purple" variant="flat" class="font-weight-bold">NEW</v-chip>
             </template>
           </v-list-item>
-          <v-divider class="my-2"></v-divider>
-
-          <v-list-item prepend-icon="mdi-logout-variant" title="Sign Out" value="logout" rounded="lg" variant="tonal"
-            color="error" class="py-2"></v-list-item>
         </v-list>
       </v-card>
     </v-menu>
