@@ -1,0 +1,12 @@
+{
+	"dependencies": {
+		"@fastify/cors": "^11.2.0",
+		"dotenv": "^17.2.3",
+		"fastify": "^5.7.2",
+		"mongodb": "^7.0.0"
+	},
+	"scripts": {
+		"seed": "node seed.js",
+		"server": "node server.js"
+	}
+}

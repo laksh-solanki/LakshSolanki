@@ -1,7 +1,6 @@
 <script setup>
 import { ref } from "vue";
 
-
 import mainsvgicon from "@/assets/mainsvgicon.vue";
 import my_photo from "@/assets/Picture/my-pic.jpg";
 
@@ -47,9 +46,9 @@ const userMenu = [
   </v-navigation-drawer>
   <v-app-bar color="surface" scroll-behavior="elevate" border scroll-threshold="1000" class="px-md-1 px-0"
     density="default">
-    <v-app-bar-nav-icon variant="text" class="hidden-md-and-up ma-0" @click.stop="drawer = !drawer"
+    <v-app-bar-nav-icon variant="text" class="d-md-none ma-0" @click.stop="drawer = !drawer"
       title="Menu"></v-app-bar-nav-icon>
-    <v-divider vertical class="hidden-md-and-up mx-1"></v-divider>
+    <v-divider vertical class="d-md-none mx-1"></v-divider>
     <div class="d-flex align-center ml-1 mr-6">
       <mainsvgicon />
     </div>
@@ -88,10 +87,6 @@ const userMenu = [
             <v-icon size="small" color="success" class="mr-1">mdi-check-decagram</v-icon>
             Pro Plan
           </v-list-item-subtitle>
-
-          <template v-slot:append>
-            <v-btn icon="mdi-pencil" size="small" variant="text" color="grey"></v-btn>
-          </template>
         </v-list-item>
 
         <v-divider class="mb-3"></v-divider>

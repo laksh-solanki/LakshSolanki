@@ -7,8 +7,7 @@
         <v-card class="rounded-lg text-center pb-3" elevation="10" border>
           <v-img height="160" src="https://cdn.vuetifyjs.com/images/cards/server-room.jpg" cover
             class="d-flex justify-center align-center">
-            <v-avatar size="120" class="border-lg border-background" z-index="10000"
-              :image="my_photo"></v-avatar>
+            <v-avatar size="120" class="border-lg border-background" style="z-index: 10000" :image="my_photo"></v-avatar>
           </v-img>
 
           <div class="mt-10">
@@ -40,11 +39,12 @@
             <v-divider class="mb-4"></v-divider>
 
             <v-list density="compact" nav class="text-left">
-              <v-list-item prepend-icon="mdi-map-marker-outline" title="Gujarat, India" class="text-body-2"></v-list-item>
-              <v-list-item prepend-icon="mdi-web" title="https://mindlytic.onrender.com/"
-                target="_blank" class="text-body-2"></v-list-item>
-              <v-list-item prepend-icon="mdi-github" title="github.com/laksh-solanki" href="https://github.com/laksh-solanki"
-                target="_blank" class="text-body-2 text-blue"></v-list-item>
+              <v-list-item prepend-icon="mdi-map-marker-outline" title="Gujarat, India"
+                class="text-body-2"></v-list-item>
+              <v-list-item prepend-icon="mdi-web" title="https://mindlytic.onrender.com/" href="https://mindlytic.onrender.com/" target="_blank"
+                class="text-body-2"></v-list-item>
+              <v-list-item prepend-icon="mdi-github" title="github.com/laksh-solanki"
+                href="https://github.com/laksh-solanki" target="_blank" class="text-body-2 text-blue"></v-list-item>
               <v-list-item prepend-icon="mdi-twitter" title="@laksh_solanki" class="text-body-2"></v-list-item>
             </v-list>
           </div>
@@ -55,7 +55,6 @@
         <v-card class="rounded-lg pa-2" elevation="10" border>
           <v-tabs inset v-model="tab" color="primary" align-tabs="start" slider-color="white" class="mb-6 border-b">
             <v-tab value="edit" class="text-capitalize">Edit Profile</v-tab>
-            <v-tab value="stack" class="text-capitalize">Tech Stack</v-tab>
             <v-tab value="security" class="text-capitalize">Security</v-tab>
           </v-tabs>
 
@@ -74,6 +73,16 @@
                     v-model="form.lastName"></v-text-field>
                 </v-col>
                 <v-col cols="12">
+                  <v-combobox v-model="chips" :items="hobbies" label="Your favorite hobbies" variant="outlined" chips
+                    closable-chips multiple class="hobbies-combobox" item-title="name" return-object>
+                    <template v-slot:chip="{ props, item }">
+                      <v-chip v-bind="props">
+                        <strong>{{ item.title }}</strong>
+                      </v-chip>
+                    </template>
+                  </v-combobox>
+                </v-col>
+                <v-col cols="12">
                   <v-text-field label="Headline / Role" variant="outlined" density="comfortable" color="primary"
                     v-model="form.role"></v-text-field>
                 </v-col>
@@ -87,25 +96,6 @@
                 <v-btn color="primary" size="large" variant="flat" class="text-capitalize">Save Changes</v-btn>
               </div>
             </v-window-item>
-
-            <v-window-item value="stack">
-              <p class="text-h6 font-weight-bold mb-4">Skills & Technologies</p>
-
-              <div class="mb-6">
-                <v-chip-group column>
-                  <v-chip v-for="skill in skills" :key="skill" closable @click:close="removeSkill(skill)"
-                    color="primary" variant="tonal" class="font-weight-bold">
-                    {{ skill }}
-                  </v-chip>
-                </v-chip-group>
-              </div>
-
-              <v-divider class="mb-6"></v-divider>
-
-              <v-text-field v-model="newSkill" label="Add a skill (e.g. Docker)" variant="outlined"
-                append-inner-icon="mdi-plus" @click:append-inner="addSkill" @keyup.enter="addSkill"></v-text-field>
-            </v-window-item>
-
             <v-window-item value="security">
               <p class="text-h6 font-weight-bold mb-4">Password & Security</p>
 
@@ -151,31 +141,39 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted} from 'vue'
 import my_photo from "@/assets/Picture/my-pic.jpg";
-
 const tab = ref('edit')
+const chips = ref([])
+const hobbies = ref([])
+const BASE_URL =
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:5001'
+    : 'https://mindlytic-backend.onrender.com'
+
+const fetchhobbies = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/profile`)
+    if (!response.ok) {
+      throw new Error('Network response was not ok')
+    }
+    const data = await response.json()
+    hobbies.value = data
+  } catch (error) {
+    console.error('There was a problem with the fetch operation:', error)
+  }
+}
+onMounted(() => {
+  fetchhobbies()
+})
 
 const form = ref({
   firstName: 'Laksh',
   lastName: 'Solanki',
+  email: 'lakshsolanki848@gmail.com',
   role: 'Senior Full-Stack Engineer',
   bio: 'Passionate about building scalable web applications with Vue and Node.js. Open source contributor and coffee enthusiast.'
 })
-
-const skills = ref(['Vue.js', 'Vuetify', 'Node.js', 'TypeScript', 'Firebase', 'AWS'])
-const newSkill = ref('')
-
-const removeSkill = (skill) => {
-  skills.value = skills.value.filter(s => s !== skill)
-}
-
-const addSkill = () => {
-  if (newSkill.value) {
-    skills.value.push(newSkill.value)
-    newSkill.value = ''
-  }
-}
 </script>
 
 <style scoped>
