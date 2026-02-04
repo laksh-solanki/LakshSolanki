@@ -4,8 +4,7 @@ import { jsPDF } from 'jspdf'
 import { useDisplay } from 'vuetify'
 
 // Component Imports
-import RedAlert from '@/components/Red-alert.vue'
-import GreenAlert from '@/components/Green-alert.vue'
+import Alerts from '@/components/Alerts.vue'
 
 // State Management
 const images = ref([])
@@ -20,32 +19,15 @@ const { xs } = useDisplay()
 const fileInput = ref(null)
 const addMoreInput = ref(null)
 
-// Notification State
-const successAlert = ref(false)
-const successMessage = ref('')
-const errorAlert = ref(false)
-const errorMessage = ref('')
+// Notification State (unified)
+const alertVisible = ref(false)
+const alertMessage = ref('')
+const alertType = ref('success')
 
-let successTimeout = null
-let errorTimeout = null
-
-// Alert Logic
 const showAlert = (message, type) => {
-  if (type === 'success') {
-    successMessage.value = message
-    successAlert.value = true
-    clearTimeout(successTimeout)
-    successTimeout = setTimeout(() => {
-      successAlert.value = false
-    }, 4000)
-  } else {
-    errorMessage.value = message
-    errorAlert.value = true
-    clearTimeout(errorTimeout)
-    errorTimeout = setTimeout(() => {
-      errorAlert.value = false
-    }, 4000)
-  }
+  alertMessage.value = message
+  alertType.value = type === 'error' ? 'error' : 'success'
+  alertVisible.value = true
 }
 
 // Navigation & File Input
@@ -188,6 +170,7 @@ const onDrop = (e) => {
   processFiles(files)
 }
 
+
 onMounted(() => {
   window.addEventListener('dragover', onDragOver)
   window.addEventListener('drop', onDrop)
@@ -196,8 +179,6 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('dragover', onDragOver)
   window.removeEventListener('drop', onDrop)
-  clearTimeout(successTimeout)
-  clearTimeout(errorTimeout)
 })
 
 const orientation = ref('p')
@@ -253,8 +234,7 @@ const setOrientation = (layout) => {
 <template>
   <v-btn @click="goBack" variant="flat" icon="mdi-arrow-left" class="rounded-te rounded-ts rounded-bs"
     color="primary"></v-btn>
-  <GreenAlert v-model:successAlert="successAlert" :successMessage="successMessage" />
-  <RedAlert v-model:errorAlert="errorAlert" :errorMessage="errorMessage" />
+  <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
   <v-container style="min-height: 83.90vh;">
     <v-card class="text-h5 text-center my-3 pa-4" color="primary-lighten-5" border="primary md opacity-100" rounded="xl"
       flat>
@@ -262,7 +242,7 @@ const setOrientation = (layout) => {
     </v-card>
 
     <!-- Upload Zone -->
-    <v-sheet class="pa-8 upload-zone" rounded="xl" @click="triggerFileInput()">
+    <v-sheet class="pa-8 upload-zone" rounded="xl" hover border @click="triggerFileInput()">
       <input ref="fileInput" type="file" multiple accept="image/*" @change="handleFileSelect" id="fileInput"
         class="file-input" required />
       <div class="text-center">
@@ -345,6 +325,18 @@ const setOrientation = (layout) => {
 <style>
 #fileInput {
   display: none !important;
+}
+
+.upload-zone {
+  border: 3px dashed royalblue;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.upload-zone:hover {
+  border: 3px solid royalblue !important;
+  transform: translateY(-2px);
 }
 
 .slide-up-enter-active,

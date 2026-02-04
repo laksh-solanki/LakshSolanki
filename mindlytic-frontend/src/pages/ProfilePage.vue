@@ -15,7 +15,7 @@
             <p class="text-medium-emphasis mb-4">Senior Full-Stack Engineer</p>
 
             <div class="d-flex justify-center gap-2 mb-6">
-              <v-btn color="grey" variant="tonal" rounded="lg" icon="mdi-email-outline"></v-btn>
+              <v-btn color="grey" variant="tonal" rounded="lg" icon="mdi-email-outline" @click="openEmailModal"></v-btn>
               <v-btn color="grey" variant="tonal" rounded="lg" icon="mdi-dots-horizontal"></v-btn>
             </div>
 
@@ -52,13 +52,15 @@
       </v-col>
 
       <v-col cols="12" md="8">
-        <v-card class="rounded-lg pa-2" elevation="10" border>
-          <v-tabs inset v-model="tab" color="primary" align-tabs="start" slider-color="white" class="mb-6 border-b">
-            <v-tab value="edit" class="text-capitalize">Edit Profile</v-tab>
-            <v-tab value="security" class="text-capitalize">Security</v-tab>
-          </v-tabs>
+        <v-card class="rounded-lg" elevation="10" border>
+          <v-card-text class="pa-0">
+            <v-tabs v-model="tab" color="primary" align-tabs="start" slider-color="white" class="mb-6 border-b">
+              <v-tab value="edit" class="text-capitalize">Edit Profile</v-tab>
+              <v-tab value="security" class="text-capitalize">Security</v-tab>
+            </v-tabs>
+          </v-card-text>
 
-          <v-window v-model="tab" class="ma-4">
+          <v-window v-model="tab" class="ma-5">
             <v-window-item value="edit">
               <p class="text-h6 font-weight-bold mb-1">General Information</p>
               <p class="text-caption text-medium-emphasis mb-6">Update your personal details here.</p>
@@ -66,17 +68,17 @@
               <v-row>
                 <v-col cols="12" md="6">
                   <v-text-field label="First Name" variant="outlined" density="comfortable" color="primary"
-                    v-model="form.firstName"></v-text-field>
+                    v-model="form.firstName" rounded="lg"></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
                   <v-text-field label="Last Name" variant="outlined" density="comfortable" color="primary"
-                    v-model="form.lastName"></v-text-field>
+                    v-model="form.lastName" rounded="lg"></v-text-field>
                 </v-col>
                 <v-col cols="12">
                   <v-combobox v-model="chips" :items="hobbies" label="Your favorite hobbies" variant="outlined" chips
-                    closable-chips multiple class="hobbies-combobox" item-title="name" return-object>
+                    closable-chips multiple class="hobbies-combobox" item-title="name" return-object rounded="lg" color="primary">
                     <template v-slot:chip="{ props, item }">
-                      <v-chip v-bind="props">
+                      <v-chip v-bind="props" color="primary" text-color="on-primary" variant="outlined">
                         <strong>{{ item.title }}</strong>
                       </v-chip>
                     </template>
@@ -84,16 +86,16 @@
                 </v-col>
                 <v-col cols="12">
                   <v-text-field label="Headline / Role" variant="outlined" density="comfortable" color="primary"
-                    v-model="form.role"></v-text-field>
+                    v-model="form.role" rounded="lg"></v-text-field>
                 </v-col>
                 <v-col cols="12">
                   <v-textarea label="Bio" variant="outlined" rows="3" color="primary" v-model="form.bio"
-                    hint="Brief description for your profile."></v-textarea>
+                    hint="Brief description for your profile." rounded="lg"></v-textarea>
                 </v-col>
               </v-row>
 
               <div class="d-flex justify-end mt-4">
-                <v-btn color="primary" size="large" variant="flat" class="text-capitalize">Save Changes</v-btn>
+                <v-btn color="primary" size="large" variant="flat" class="text-capitalize" rounded="lg">Save Changes</v-btn>
               </div>
             </v-window-item>
             <v-window-item value="security">
@@ -102,12 +104,12 @@
               <v-list bg-color="transparent">
                 <v-list-item>
                   <template v-slot:prepend>
-                    <v-icon color="primary" class="mr-4">mdi-lock-outline</v-icon>
+                    <v-icon color="primary">mdi-lock-outline</v-icon>
                   </template>
                   <v-list-item-title>Change Password</v-list-item-title>
                   <v-list-item-subtitle>Last changed 3 months ago</v-list-item-subtitle>
                   <template v-slot:append>
-                    <v-btn variant="outlined" size="small">Update</v-btn>
+                    <v-btn variant="outlined" size="small" color="primary" rounded="lg">Update</v-btn>
                   </template>
                 </v-list-item>
 
@@ -115,12 +117,12 @@
 
                 <v-list-item>
                   <template v-slot:prepend>
-                    <v-icon color="primary" class="mr-4">mdi-shield-check-outline</v-icon>
+                    <v-icon color="primary">mdi-shield-check-outline</v-icon>
                   </template>
                   <v-list-item-title>Two-Factor Authentication</v-list-item-title>
-                  <v-list-item-subtitle class="text-success">Enabled</v-list-item-subtitle>
+                  <v-list-item-subtitle :class="twoFAEnabled ? 'text-success' : 'text-error'">{{ twoFAEnabled ? 'Enabled' : 'Disabled' }}</v-list-item-subtitle>
                   <template v-slot:append>
-                    <v-switch color="success" model-value="true" hide-details density="compact"></v-switch>
+                    <v-switch color="primary" v-model="twoFAEnabled" hide-details density="compact"></v-switch>
                   </template>
                 </v-list-item>
               </v-list>
@@ -146,6 +148,10 @@ import my_photo from "@/assets/Picture/my-pic.jpg";
 const tab = ref('edit')
 const chips = ref([])
 const hobbies = ref([])
+const twoFAEnabled = ref(true)
+const openEmailModal = () => {
+  alert('Email button clicked! Implement email functionality here.')
+}
 const BASE_URL =
   window.location.hostname === 'localhost'
     ? 'http://localhost:5001'

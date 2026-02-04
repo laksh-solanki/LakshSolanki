@@ -9,8 +9,7 @@ import { saveAs } from 'file-saver'
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker
 
 // Component Imports
-import RedAlert from '@/components/Red-alert.vue'
-import GreenAlert from '@/components/Green-alert.vue'
+import Alerts from '@/components/Alerts.vue'
 
 // State Management
 const pdfFile = ref(null)
@@ -24,32 +23,15 @@ const pdfName = ref('')
 // Template Refs
 const fileInput = ref(null)
 
-// Notification State
-const successAlert = ref(false)
-const successMessage = ref('')
-const errorAlert = ref(false)
-const errorMessage = ref('')
+// Notification State (unified)
+const alertVisible = ref(false)
+const alertMessage = ref('')
+const alertType = ref('success')
 
-let successTimeout = null
-let errorTimeout = null
-
-// Alert Logic
 const showAlert = (message, type) => {
-  if (type === 'success') {
-    successMessage.value = message
-    successAlert.value = true
-    clearTimeout(successTimeout)
-    successTimeout = setTimeout(() => {
-      successAlert.value = false
-    }, 4000)
-  } else {
-    errorMessage.value = message
-    errorAlert.value = true
-    clearTimeout(errorTimeout)
-    errorTimeout = setTimeout(() => {
-      errorAlert.value = false
-    }, 4000)
-  }
+  alertMessage.value = message
+  alertType.value = type === 'error' ? 'error' : 'success'
+  alertVisible.value = true
 }
 
 // Navigation & File Input
@@ -161,16 +143,13 @@ const clearAll = () => {
 // Lifecycle Hooks
 onUnmounted(() => {
   images.value.forEach((img) => URL.revokeObjectURL(img.url))
-  clearTimeout(successTimeout)
-  clearTimeout(errorTimeout)
 })
 </script>
 
 <template>
   <v-btn @click="goBack" variant="flat" icon="mdi-arrow-left" class="rounded-te rounded-ts rounded-bs"
     color="primary"></v-btn>
-  <GreenAlert v-model:successAlert="successAlert" :successMessage="successMessage" />
-  <RedAlert v-model:errorAlert="errorAlert" :errorMessage="errorMessage" />
+  <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
   <v-container style="min-height: 84.3vh !important">
     <v-card class="text-h5 text-center my-3 pa-4" color="primary-lighten-5" border="primary md opacity-100" rounded="xl"
       flat>
