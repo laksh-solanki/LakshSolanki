@@ -16,9 +16,11 @@ const quickLinks = [
 ]
 // User Dropdown Items
 const userMenu = [
-  { title: "Profile", to: "/profile", icon: "mdi-account-outline", color: "primary", },
+  { title: "Profile", to: "/profile", icon: "mdi-account-outline", color: "primary", showChip: true },
   // { title: "Billing & Plans", to: "/", icon: "mdi-credit-card-outline", color: "primary", showChip: true },
-  { title: "Settings", to: "/", icon: "mdi-cog-outline", color: "primary" },
+  // { title: "Settings", to: "/settings", icon: "mdi-cog-outline", color: "primary", showChip: false },
+  // { title: "Help & Support", to: "/help", icon: "mdi-lifebuoy", color: "primary", showChip: false },
+  // { title: "Sign Out", to: "/logout", icon: "mdi-logout", color: "error", showChip: false },
 ];
 </script>
 
@@ -29,38 +31,39 @@ const userMenu = [
         <mainsvgicon />
         <v-btn icon="mdi-close" variant="text" density="compact" class="position-absolute"
           style="right: 10px; top: 50%; transform: translateY(-50%);" @click="drawer = false"></v-btn>
-
       </v-list-item>
     </v-list>
 
     <v-divider></v-divider>
 
-    <v-list density="compact" nav>
-      <v-list-item v-for="(link, index) in quickLinks" :key="index" :to="link.path" :value="link.title" color="primary">
-        <template v-slot:prepend>
-          <v-icon :icon="link.icon"></v-icon>
-        </template>
-        <v-list-item-title>{{ link.title }}</v-list-item-title>
-      </v-list-item>
+    <v-list nav>
+      <v-tabs direction="vertical" density="comfortable" class="mt-2">
+        <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" :class="link.class"
+          color="primary">{{ link.title }}
+          <template v-slot:append>
+            <v-icon v-if="$route.path === link.path" icon="mdi-chevron-right"></v-icon>
+          </template>
+        </v-tab>
+      </v-tabs>
     </v-list>
   </v-navigation-drawer>
   <v-app-bar color="surface" scroll-behavior="elevate" border scroll-threshold="1000" class="px-0" density="default">
-    <v-app-bar-nav-icon variant="text" class="d-md-none ma-0" @click.stop="drawer = !drawer"
-      title="Menu"></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon variant="text" class="d-md-none d-lg-none d-xl-none d-xxl-none ma-0"
+      @click.stop="drawer = !drawer" title="Menu"></v-app-bar-nav-icon>
     <v-divider vertical class="d-md-none mx-1"></v-divider>
     <div class="d-flex align-center ml-1 mr-6">
       <mainsvgicon />
     </div>
-    <v-divider vertical></v-divider>
-    <div class="d-none d-md-flex justify-center align-center w-100">
-      <v-tabs inset density="compact" class="d-none d-lg-flex align-center tab-container">
+    <v-divider vertical class="d-none d-sm-flex d-md-flex d-lg-flex"></v-divider>
+    <div class="d-none d-md-flex justify-end align-center w-100">
+      <v-tabs density="compact" class="d-none d-lg-flex align-center">
         <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" :class="link.class"
           class="px-2 tab-size" slider-color="white">{{ link.title
           }}</v-tab>
       </v-tabs>
     </div>
-    <v-divider vertical class="d-none d-md-flex"></v-divider>
-    <div class="d-flex justify-end">
+    <div class="d-flex justify-end align-end w-100">
+      <v-divider vertical></v-divider>
       <v-btn to="/notifications" stacked class="pa-0" color="medium-emphasis">
         <v-badge content="3" color="error" dot overlap>
           <v-icon icon="mdi-bell-outline" size="25"></v-icon>
@@ -75,7 +78,7 @@ const userMenu = [
           </v-btn>
         </template>
 
-        <v-card min-width="310" class="rounded-lg mt-3 pa-0" elevation="10" border>
+        <v-card min-width="310" class="rounded-lg" elevation="10" border>
           <v-list-item class="mx-3 pa-3">
             <template v-slot:prepend>
               <v-avatar size="48" :image="my_photo" class="mr-2"></v-avatar>
@@ -85,13 +88,13 @@ const userMenu = [
             </v-list-item-title>
             <v-list-item-subtitle class="text-caption text-grey-lighten-1">
               <v-icon size="small" color="success" class="mr-1">mdi-check-decagram</v-icon>
-              Pro Plan
+              lakshsolanki848@gmail.com
             </v-list-item-subtitle>
           </v-list-item>
 
           <v-divider class="mb-3"></v-divider>
 
-          <v-list density="compact" rounded="lg" nav>
+          <v-list density="compact" rounded="lg" class="ma-3" nav>
             <v-list-item v-for="(item, i) in userMenu" :key="i" :value="item.title" :to="item.to"
               :prepend-icon="item.icon" :title="item.title" rounded="lg" :color="item.color">
               <template v-slot:append v-if="item.showChip">
@@ -112,18 +115,6 @@ const userMenu = [
 
 .tracking-tight {
   letter-spacing: -0.5px;
-}
-
-.tab-container {
-  max-width: 340px;
-  height: 48px !important;
-}
-
-.tab-size {
-  min-width: 80px !important;
-  height: 39px !important;
-  font-size: 12px !important;
-  font-weight: 600 !important;
 }
 
 /* Optional: Fine-tune the blur effect for a glassmorphism feel */

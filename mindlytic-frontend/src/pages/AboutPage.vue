@@ -147,7 +147,7 @@ const team = ref([
 .hero-section {
   min-height: 60vh;
   background: linear-gradient(135deg, #1867c0 0%, #5cbbf6 100%);
-  clip-path: ellipse(90% 100% at 50% 0%);
+  clip-path: ellipse(120% 100% at 50% 0%);
 }
 
 .transition-swing {

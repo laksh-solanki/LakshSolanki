@@ -1,5 +1,6 @@
 <template>
   <v-container class="py-10">
+    <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
     <v-row>
 
@@ -7,7 +8,8 @@
         <v-card class="rounded-lg text-center pb-3" elevation="10" border>
           <v-img height="160" src="https://cdn.vuetifyjs.com/images/cards/server-room.jpg" cover
             class="d-flex justify-center align-center">
-            <v-avatar size="120" class="border-lg border-background" style="z-index: 10000" :image="my_photo"></v-avatar>
+            <v-avatar size="120" class="border-lg border-background" style="z-index: 10000"
+              :image="my_photo"></v-avatar>
           </v-img>
 
           <div class="mt-10">
@@ -15,8 +17,8 @@
             <p class="text-medium-emphasis mb-4">Senior Full-Stack Engineer</p>
 
             <div class="d-flex justify-center gap-2 mb-6">
-              <v-btn color="grey" variant="tonal" rounded="lg" icon="mdi-email-outline" @click="openEmailModal"></v-btn>
-              <v-btn color="grey" variant="tonal" rounded="lg" icon="mdi-dots-horizontal"></v-btn>
+              <v-btn color="grey" variant="tonal" rounded="lg" icon="mdi-email-outline" @click="openanyModal"></v-btn>
+              <v-btn color="grey" variant="tonal" rounded="lg" icon="mdi-dots-horizontal" @click="openanyModal"></v-btn>
             </div>
 
             <v-divider class="mb-4"></v-divider>
@@ -41,8 +43,8 @@
             <v-list density="compact" nav class="text-left">
               <v-list-item prepend-icon="mdi-map-marker-outline" title="Gujarat, India"
                 class="text-body-2"></v-list-item>
-              <v-list-item prepend-icon="mdi-web" title="https://mindlytic.onrender.com/" href="https://mindlytic.onrender.com/" target="_blank"
-                class="text-body-2"></v-list-item>
+              <v-list-item prepend-icon="mdi-web" title="https://mindlytic.onrender.com/"
+                href="https://mindlytic.onrender.com/" target="_blank" class="text-body-2"></v-list-item>
               <v-list-item prepend-icon="mdi-github" title="github.com/laksh-solanki"
                 href="https://github.com/laksh-solanki" target="_blank" class="text-body-2 text-blue"></v-list-item>
               <v-list-item prepend-icon="mdi-twitter" title="@laksh_solanki" class="text-body-2"></v-list-item>
@@ -76,7 +78,8 @@
                 </v-col>
                 <v-col cols="12">
                   <v-combobox v-model="chips" :items="hobbies" label="Your favorite hobbies" variant="outlined" chips
-                    closable-chips multiple class="hobbies-combobox" item-title="name" return-object rounded="lg" color="primary">
+                    closable-chips multiple class="hobbies-combobox" item-title="title" return-object rounded="lg"
+                    color="primary">
                     <template v-slot:chip="{ props, item }">
                       <v-chip v-bind="props" color="primary" text-color="on-primary" variant="outlined">
                         <strong>{{ item.title }}</strong>
@@ -95,7 +98,8 @@
               </v-row>
 
               <div class="d-flex justify-end mt-4">
-                <v-btn color="primary" size="large" variant="flat" class="text-capitalize" rounded="lg">Save Changes</v-btn>
+                <v-btn color="primary" size="large" variant="flat" class="text-capitalize" rounded="lg">Save
+                  Changes</v-btn>
               </div>
             </v-window-item>
             <v-window-item value="security">
@@ -120,7 +124,9 @@
                     <v-icon color="primary">mdi-shield-check-outline</v-icon>
                   </template>
                   <v-list-item-title>Two-Factor Authentication</v-list-item-title>
-                  <v-list-item-subtitle :class="twoFAEnabled ? 'text-success' : 'text-error'">{{ twoFAEnabled ? 'Enabled' : 'Disabled' }}</v-list-item-subtitle>
+                  <v-list-item-subtitle :class="twoFAEnabled ? 'text-success' : 'text-error'">{{ twoFAEnabled ?
+                    'Enabled' :
+                    'Disabled' }}</v-list-item-subtitle>
                   <template v-slot:append>
                     <v-switch color="primary" v-model="twoFAEnabled" hide-details density="compact"></v-switch>
                   </template>
@@ -143,14 +149,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted} from 'vue'
+import { ref, onMounted } from 'vue'
 import my_photo from "@/assets/Picture/my-pic.jpg";
+import Alerts from '@/components/Alerts.vue'
+
+
+
+// Notification State (unified)
+const alertVisible = ref(false)
+const alertMessage = ref('')
+const alertType = ref('success')
+
+const showAlert = (message, type = 'success') => {
+  alertMessage.value = message
+  alertType.value = ['success', 'error', 'info'].includes(type) ? type : 'success'
+  alertVisible.value = true
+}
 const tab = ref('edit')
 const chips = ref([])
 const hobbies = ref([])
 const twoFAEnabled = ref(true)
-const openEmailModal = () => {
-  alert('Email button clicked! Implement email functionality here.')
+const openanyModal = () => {
+  showAlert('Email modal opened (functionality not implemented)', 'info')
 }
 const BASE_URL =
   window.location.hostname === 'localhost'

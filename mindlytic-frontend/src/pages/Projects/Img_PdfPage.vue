@@ -328,7 +328,7 @@ const setOrientation = (layout) => {
 }
 
 .upload-zone {
-  border: 3px dashed royalblue;
+  border: 3px dashed royalblue !important;
   text-align: center;
   transition: all 0.3s ease;
   cursor: pointer;
