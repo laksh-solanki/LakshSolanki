@@ -289,7 +289,7 @@ const setOrientation = (layout) => {
 
         <v-row dense>
           <v-col v-for="(image, index) in images" :key="image.id" cols="12" sm="6" md="5" lg="4">
-            <v-card class="mx-auto" max-width="400" color="primary-lighten-5" border rounded="lg">
+            <v-card class="mx-auto" max-width="400" color="primary-lighten-5" border rounded="xl" elevation="5">
               <v-card-actions>
                 <div class="d-flex justify-end align-center ga-1 w-100">
                   <v-btn @click="rotateImage(index)" icon="mdi-rotate-right" size="small" variant="elevated"
