@@ -55,7 +55,7 @@ const projects = ref([
       <v-row>
         <v-col v-for="project in projects" :key="project.id" cols="12" md="4">
           <v-hover v-slot="{ isHovering, props }">
-            <v-card v-bind="props" class="project-card d-flex flex-column" flat rounded="lg" :disabled="project.disabled">
+            <v-card v-bind="props" class="project-card d-flex flex-column" :to="project.link" flat rounded="lg" :disabled="project.disabled">
               <div class="img-container">
                 <v-img :src="project.image" height="260" content-class class="project-img" :class="{ 'scale-up': isHovering }">
                   <div class="gradient-overlay"></div>
@@ -83,10 +83,6 @@ const projects = ref([
                       #{{ tag }}
                     </span>
                   </div>
-
-                  <v-btn :to="project.link" icon variant="text" color="white" :class="{ 'slide-right': isHovering }">
-                    <v-icon icon="mdi-arrow-right"></v-icon>
-                  </v-btn>
                 </div>
               </div>
             </v-card>

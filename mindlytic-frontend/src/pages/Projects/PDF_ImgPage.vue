@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import * as pdfjsLib from 'pdfjs-dist/build/pdf'
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.mjs?url'
 import JSZip from 'jszip'
@@ -19,6 +19,7 @@ const conversionProgress = ref(0)
 const conversionStatus = ref('')
 const imageIdCounter = ref(0)
 const pdfName = ref('')
+const isDragging = ref(false)
 
 // Template Refs
 const fileInput = ref(null)
@@ -38,8 +39,7 @@ const showAlert = (message, type) => {
 const goBack = () => window.history.back()
 const triggerFileInput = () => fileInput.value?.click()
 
-const handleFileSelect = (event) => {
-  const file = event.target.files[0]
+const processSelectedFile = (file) => {
   if (file && file.type === 'application/pdf') {
     pdfFile.value = file
     pdfName.value = file.name
@@ -48,6 +48,18 @@ const handleFileSelect = (event) => {
   } else {
     showAlert('Please select a valid PDF file.', 'error')
   }
+}
+
+const handleFileSelect = (event) => {
+  const file = event.target.files[0]
+  processSelectedFile(file)
+}
+
+const handleDrop = (e) => {
+  e.preventDefault();
+  isDragging.value = false;
+  const file = e.dataTransfer.files[0];
+  processSelectedFile(file);
 }
 
 // PDF Processing
@@ -140,9 +152,20 @@ const clearAll = () => {
   showAlert('Cleared all data', 'error')
 }
 
+// Drag and Drop global handlers
+const onDragOver = (e) => e.preventDefault();
+const onDrop = (e) => e.preventDefault();
+
 // Lifecycle Hooks
+onMounted(() => {
+  window.addEventListener('dragover', onDragOver)
+  window.addEventListener('drop', onDrop)
+});
+
 onUnmounted(() => {
   images.value.forEach((img) => URL.revokeObjectURL(img.url))
+  window.removeEventListener('dragover', onDragOver)
+  window.removeEventListener('drop', onDrop)
 })
 </script>
 
@@ -157,21 +180,17 @@ onUnmounted(() => {
     </v-card>
 
     <!-- Upload Zone -->
-    <v-sheet class="pa-8 upload-zone" rounded="xl" hover border @click="triggerFileInput()">
-      <input ref="fileInput" type="file" accept="application/pdf" @change="handleFileSelect" class="file-input"
+    <v-sheet :class="['upload-zone', 'pa-8', { 'drag-over': isDragging }]" rounded="xl" border @click="triggerFileInput()"
+      @dragenter.prevent="isDragging = true" @dragover.prevent @dragleave.prevent="isDragging = false" @drop="handleDrop">
+      <input ref="fileInput" type="file" accept="application/pdf" @change="handleFileSelect" id="fileInput" class="file-input"
         required />
-      <div class="text-center">
-        <div class="upload-zone-header">
-          <v-icon size="100" class="text-primary-emphasis">mdi-upload-circle</v-icon>
-          <p>Browse File to upload!</p>
-        </div>
-        <h3 class="text-2xl font-semibold mb-2 text-slate-800">
-          Drop a PDF here or click to browse
-        </h3>
-        <p class="text-slate-600 mb-4">Supports PDF files</p>
-        <v-btn variant="outlined" class="text-primary-emphasis bg-primary-subtle border-primary-subtle rounded-3">
-          Choose File
-        </v-btn>
+      <div class="d-flex flex-column align-center justify-center ga-4 text-center">
+        <v-icon size="80" color="grey-lighten-1">mdi-cloud-upload-outline</v-icon>
+        <div class="text-h6 font-weight-bold text-grey-darken-2">Drag & Drop PDF here</div>
+        <div class="text-body-1 text-grey-darken-1">or click to select a file</div>
+        <p class="text-caption text-grey-darken-2 mt-2">
+          Supports: PDF
+        </p>
       </div>
     </v-sheet>
 
@@ -250,15 +269,24 @@ onUnmounted(() => {
 }
 
 .upload-zone {
-  border: 3px dashed royalblue;
-  text-align: center;
-  transition: all 0.3s ease;
+  border: 2px dashed rgb(var(--v-theme-primary)) !important;
+  background-color: rgba(var(--v-theme-primary), 0.05);
+  transition: background-color 0.3s ease, border-style 0.3s ease, border-color 0.3s ease, transform 0.2s ease-in-out;
   cursor: pointer;
+  text-align: center;
 }
 
 .upload-zone:hover {
-  border: 3px solid royalblue !important;
-  transform: translateY(-2px);
+  transform: scale(1.01);
+  background-color: rgba(var(--v-theme-primary), 0.1);
+  border-style: solid !important;
+}
+
+.upload-zone.drag-over {
+  background-color: rgba(var(--v-theme-primary), 0.15);
+  border-color: rgb(var(--v-theme-primary));
+  border-style: solid;
+  transform: scale(1.02);
 }
 
 .image-controls {

@@ -12,6 +12,7 @@ const isConverting = ref(false)
 const conversionProgress = ref(0)
 const conversionStatus = ref('')
 const imageIdCounter = ref(0)
+const isDragging = ref(false)
 
 const { xs } = useDisplay()
 
@@ -162,12 +163,17 @@ const addImageToPDF = (pdf, image, addPage) => {
   })
 }
 
+const handleDrop = (e) => {
+  e.preventDefault();
+  isDragging.value = false;
+  const files = Array.from(e.dataTransfer.files);
+  processFiles(files);
+};
+
 // Drag and Drop Handlers (Placeholder logic to prevent errors)
 const onDragOver = (e) => e.preventDefault()
 const onDrop = (e) => {
   e.preventDefault()
-  const files = Array.from(e.dataTransfer.files)
-  processFiles(files)
 }
 
 
@@ -242,21 +248,17 @@ const setOrientation = (layout) => {
     </v-card>
 
     <!-- Upload Zone -->
-    <v-sheet class="pa-8 upload-zone" rounded="xl" hover border @click="triggerFileInput()">
+    <v-sheet :class="['upload-zone', 'pa-8', { 'drag-over': isDragging }]" rounded="xl" border @click="triggerFileInput()"
+      @dragenter.prevent="isDragging = true" @dragover.prevent @dragleave.prevent="isDragging = false" @drop="handleDrop">
       <input ref="fileInput" type="file" multiple accept="image/*" @change="handleFileSelect" id="fileInput"
         class="file-input" required />
-      <div class="text-center">
-        <div class="upload-zone-header">
-          <v-icon size="100" class="text-primary-emphasis">mdi-upload-circle</v-icon>
-          <p class="mb-3">Browse File to upload!</p>
-        </div>
-        <h3 class="text-2xl font-semibold mb-2 text-slate-800">
-          Drop images here or click to browse
-        </h3>
-        <p class="text-slate-600 mb-4">Supports JPG, PNG, GIF, and WebP formats</p>
-        <v-btn variant="outlined" color="primary" rounded="lg">
-          Choose Files
-        </v-btn>
+      <div class="d-flex flex-column align-center justify-center ga-4 text-center">
+        <v-icon size="80" color="grey-lighten-1">mdi-cloud-upload-outline</v-icon>
+        <div class="text-h6 font-weight-bold text-grey-darken-2">Drag & Drop images here</div>
+        <div class="text-body-1 text-grey-darken-1">or click to select files</div>
+        <p class="text-caption text-grey-darken-2 mt-2">
+          Supports: JPG, PNG, GIF, WebP
+        </p>
       </div>
     </v-sheet>
 
@@ -328,15 +330,23 @@ const setOrientation = (layout) => {
 }
 
 .upload-zone {
-  border: 3px dashed royalblue !important;
-  text-align: center;
-  transition: all 0.3s ease;
+  border: 2px dashed rgb(var(--v-theme-primary)) !important;
+  background-color: rgba(var(--v-theme-primary), 0.05);
+  transition: background-color 0.3s ease, border-style 0.3s ease, border-color 0.3s ease, transform 0.2s ease-in-out;
   cursor: pointer;
 }
 
 .upload-zone:hover {
-  border: 3px solid royalblue !important;
-  transform: translateY(-2px);
+  transform: scale(1.01);
+  background-color: rgba(var(--v-theme-primary), 0.1);
+  border-style: solid !important;
+}
+
+.upload-zone.drag-over {
+  background-color: rgba(var(--v-theme-primary), 0.15);
+  border-color: rgb(var(--v-theme-primary));
+  border-style: solid;
+  transform: scale(1.02);
 }
 
 .slide-up-enter-active,
