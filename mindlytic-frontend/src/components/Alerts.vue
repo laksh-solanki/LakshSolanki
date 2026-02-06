@@ -31,9 +31,10 @@ onBeforeUnmount(() => clearTimeout(timer))
 </script>
 
 <template>
-  <v-snackbar v-model="visible" :color="color" variant="flat" location="top right" transition="slide-x-reverse-transition">
-    <span v-if="type === 'success'">✔</span>
-    <span v-else-if="type === 'error'">❌</span>
+  <v-snackbar v-model="visible" :color="color" variant="flat" rounded="lg" location="top right"
+    transition="slide-x-reverse-transition">
+    <span v-if="type === 'success'" class="mr-2">✔</span>
+    <span v-else-if="type === 'error'" class="mr-2">❌</span>
     {{ message }}
     <template #actions>
       <v-btn icon="mdi-close" @click="visible = false"></v-btn>

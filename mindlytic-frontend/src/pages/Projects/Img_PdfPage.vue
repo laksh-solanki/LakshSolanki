@@ -38,7 +38,7 @@ const triggerFileInput = () => fileInput.value?.click()
 const handleFileSelect = (event) => {
   const files = Array.from(event.target.files)
   if (files.length > 0) {
-    showAlert(`[${files.length}] file(s) added`, 'success')
+    showAlert(`[ ${files.length} ] file(s) added`, 'success')
     processFiles(files)
   }
 }
