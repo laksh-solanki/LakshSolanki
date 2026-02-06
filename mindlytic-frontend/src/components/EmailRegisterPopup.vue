@@ -9,18 +9,11 @@
     </div>
 
     <v-form ref="form" v-model="isValid" @submit.prevent="handleSubscribe">
-      <v-alert
-        v-if="feedbackMessage"
+      <Alerts
+        v-model="showAlert"
+        :message="feedbackMessage"
         :type="feedbackType"
-        variant="tonal"
-        class="mb-3"
-        closable
-        rounded="3"
-        density="compact"
-        @click:close="feedbackMessage = ''"
-      >
-        {{ feedbackMessage }}
-      </v-alert>
+      />
 
       <v-text-field
         v-model.trim="email"
@@ -53,6 +46,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import Alerts from './Alerts.vue'
 
 // State
 const isValid = ref(false)
@@ -61,6 +55,7 @@ const isSubscribed = ref(false)
 const email = ref('')
 const feedbackMessage = ref('')
 const feedbackType = ref('info')
+const showAlert = ref(false)
 
 // Validation Rules
 const emailRules = [
@@ -81,21 +76,18 @@ onMounted(() => {
   if (storedEmail) {
     email.value = storedEmail
     isSubscribed.value = true
-    showFeedback('You are already subscribed!', 'success')
+    feedbackMessage.value = 'You are already subscribed!'
+    feedbackType.value = 'success'
+    showAlert.value = true
   }
 })
 
 // Methods
-const showFeedback = (message, type = 'info') => {
-  feedbackMessage.value = message
-  feedbackType.value = type
-}
 
 const handleSubscribe = async () => {
   if (!isValid.value) return
 
   isLoading.value = true
-  feedbackMessage.value = ''
 
   try {
     const response = await fetch(`${API_URL}/api/subscribe`, {
@@ -109,13 +101,19 @@ const handleSubscribe = async () => {
     if (response.ok) {
       isSubscribed.value = true
       localStorage.setItem('subscribedEmail', email.value)
-      showFeedback('Thank you for subscribing!', 'success')
+      feedbackMessage.value = 'Thank you for subscribing!'
+      feedbackType.value = 'success'
+      showAlert.value = true
     } else {
-      showFeedback(data.error || 'Subscription failed. Please try again.', 'error')
+      feedbackMessage.value = data.error || 'Subscription failed. Please try again.'
+      feedbackType.value = 'error'
+      showAlert.value = true
     }
   } catch (error) {
     console.error('Subscription error:', error)
-    showFeedback('Network error. Please try again later.', 'error')
+    feedbackMessage.value = 'Network error. Please try again later.'
+    feedbackType.value = 'error'
+    showAlert.value = true
   } finally {
     isLoading.value = false
   }
