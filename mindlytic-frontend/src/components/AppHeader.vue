@@ -50,10 +50,8 @@ const userMenu = [
     <v-app-bar-nav-icon variant="text" class="d-lg-none d-xl-none d-xxl-none ma-0"
       @click.stop="drawer = !drawer" title="Menu"></v-app-bar-nav-icon>
     <v-divider vertical class="d-lg-none mx-1"></v-divider>
-    <div class="d-flex align-center ml-1 mr-6">
-      <mainsvgicon />
-    </div>
-    <v-divider vertical class="d-none d-sm-flex d-md-flex d-lg-flex"></v-divider>
+    <mainsvgicon/>
+    <v-divider vertical class="d-none d-sm-flex d-md-flex d-lg-flex ml-1"></v-divider>
     <div class="d-none d-md-flex justify-end align-center w-100">
       <v-tabs density="compact" class="d-none d-lg-flex align-center">
         <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" class="px-2"
@@ -65,7 +63,7 @@ const userMenu = [
       <v-divider vertical></v-divider>
       <v-btn to="/notifications" stacked class="pa-0" color="medium-emphasis">
         <v-badge content="3" color="error" dot overlap>
-          <v-icon icon="mdi-bell-outline" size="25"></v-icon>
+          <v-icon icon="mdi-bell" size="25"></v-icon>
         </v-badge>
       </v-btn>
       <v-divider vertical></v-divider>

@@ -1,5 +1,5 @@
 <template>
-  <div class="header-brand" @click="$router.push('/')" style="max-width: 153px; height: 100%;">
+  <div class="d-flex justify-center align-center mx-3" @click="$router.push('/')" style="max-width: 153px; height: 100%;">
     <svg width="45" height="45" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="gemini-grad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -28,7 +28,7 @@
 
       <rect x="35" y="75" width="30" height="6" rx="3" fill="#F4C430" opacity="0.8" />
     </svg>
-    <h1 class="brand-name">Mind<span class="accent">lytic</span></h1>
+    <h1 class="brand-name ml-2">Mind<span class="accent">lytic</span></h1>
   </div>
 </template>
 
