@@ -5,7 +5,7 @@ const props = defineProps({
   modelValue: Boolean,
   message: { type: String, default: '' },
   type: { type: String, default: 'success' }, // 'success' | 'error' | 'info'
-  duration: { type: Number, default: 3000 },
+  duration: { type: Number, default: 4000 },
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -31,7 +31,7 @@ onBeforeUnmount(() => clearTimeout(timer))
 </script>
 
 <template>
-  <v-snackbar v-model="visible" :color="color" variant="flat" location="top">
+  <v-snackbar v-model="visible" :color="color" variant="flat" location="top right" transition="slide-x-reverse-transition">
     <span v-if="type === 'success'">✔</span>
     <span v-else-if="type === 'error'">❌</span>
     {{ message }}

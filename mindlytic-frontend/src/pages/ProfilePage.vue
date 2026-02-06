@@ -3,7 +3,6 @@
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
     <v-row>
-
       <v-col cols="12" md="4">
         <v-card class="rounded-lg text-center pb-3" elevation="10" border>
           <v-img height="160" src="https://cdn.vuetifyjs.com/images/cards/server-room.jpg" cover
@@ -65,7 +64,9 @@
           <v-window v-model="tab" class="ma-5">
             <v-window-item value="edit">
               <p class="text-h6 font-weight-bold mb-1">General Information</p>
-              <p class="text-caption text-medium-emphasis mb-6">Update your personal details here.</p>
+              <p class="text-caption text-medium-emphasis mb-6">
+                Update your personal details here.
+              </p>
 
               <v-row>
                 <v-col cols="12" md="6">
@@ -78,10 +79,10 @@
                 </v-col>
                 <v-col cols="12">
                   <v-combobox v-model="chips" :items="hobbies" label="Your favorite hobbies" variant="outlined" chips
-                    closable-chips multiple class="hobbies-combobox" item-title="title" return-object rounded="lg"
-                    color="primary">
+                    closable-chips multiple class="hobbies-combobox" item-title="name" return-object rounded="lg"
+                    color="primary" density="comfortable">
                     <template v-slot:chip="{ props, item }">
-                      <v-chip v-bind="props" color="primary" text-color="on-primary" variant="outlined">
+                      <v-chip v-bind="props" color="primary" text-color="primary" variant="outlined">
                         <strong>{{ item.title }}</strong>
                       </v-chip>
                     </template>
@@ -124,9 +125,9 @@
                     <v-icon color="primary">mdi-shield-check-outline</v-icon>
                   </template>
                   <v-list-item-title>Two-Factor Authentication</v-list-item-title>
-                  <v-list-item-subtitle :class="twoFAEnabled ? 'text-success' : 'text-error'">{{ twoFAEnabled ?
-                    'Enabled' :
-                    'Disabled' }}</v-list-item-subtitle>
+                  <v-list-item-subtitle :class="twoFAEnabled ? 'text-success' : 'text-error'">{{
+                    twoFAEnabled ? "Enabled" : "Disabled"
+                  }}</v-list-item-subtitle>
                   <template v-slot:append>
                     <v-switch color="primary" v-model="twoFAEnabled" hide-details density="compact"></v-switch>
                   </template>
@@ -135,12 +136,13 @@
 
               <v-alert color="error" variant="tonal" icon="mdi-alert-circle-outline" title="Delete Account"
                 class="mt-6">
-                <div class="text-caption mb-4">Once you delete your account, there is no going back. Please be
-                  certain.</div>
+                <div class="text-caption mb-4">
+                  Once you delete your account, there is no going back. Please
+                  be certain.
+                </div>
                 <v-btn color="error" variant="flat" size="small">Delete Account</v-btn>
               </v-alert>
             </v-window-item>
-
           </v-window>
         </v-card>
       </v-col>
@@ -149,57 +151,58 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted } from "vue";
 import my_photo from "@/assets/Picture/my-pic.jpg";
-import Alerts from '@/components/Alerts.vue'
-
-
+import Alerts from "@/components/Alerts.vue";
 
 // Notification State (unified)
-const alertVisible = ref(false)
-const alertMessage = ref('')
-const alertType = ref('success')
+const alertVisible = ref(false);
+const alertMessage = ref("");
+const alertType = ref("success");
 
-const showAlert = (message, type = 'success') => {
-  alertMessage.value = message
-  alertType.value = ['success', 'error', 'info'].includes(type) ? type : 'success'
-  alertVisible.value = true
-}
-const tab = ref('edit')
-const chips = ref([])
-const hobbies = ref([])
-const twoFAEnabled = ref(true)
+const showAlert = (message, type = "success") => {
+  alertMessage.value = message;
+  alertType.value = ["success", "error", "info"].includes(type)
+    ? type
+    : "success";
+  alertVisible.value = true;
+};
+
+const tab = ref("edit");
+const chips = ref([]);
+const hobbies = ref([]);
+const twoFAEnabled = ref(true);
 const openanyModal = () => {
-  showAlert('Email modal opened (functionality not implemented)', 'info')
-}
+  showAlert("Email modal opened (functionality not implemented)", "info");
+};
 const BASE_URL =
-  window.location.hostname === 'localhost'
-    ? 'http://localhost:5001'
-    : 'https://mindlytic-backend.onrender.com'
+  window.location.hostname === "localhost"
+    ? "http://localhost:5001"
+    : "https://mindlytic-backend.onrender.com";
 
 const fetchhobbies = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/profile`)
+    const response = await fetch(`${BASE_URL}/profile`);
     if (!response.ok) {
-      throw new Error('Network response was not ok')
+      throw new Error("Network response was not ok");
     }
-    const data = await response.json()
-    hobbies.value = data
+    const data = await response.json();
+    hobbies.value = data;
   } catch (error) {
-    console.error('There was a problem with the fetch operation:', error)
+    console.error("There was a problem with the fetch operation:", error);
   }
-}
+};
 onMounted(() => {
-  fetchhobbies()
-})
+  fetchhobbies();
+});
 
 const form = ref({
-  firstName: 'Laksh',
-  lastName: 'Solanki',
-  email: 'lakshsolanki848@gmail.com',
-  role: 'Senior Full-Stack Engineer',
-  bio: 'Passionate about building scalable web applications with Vue and Node.js. Open source contributor and coffee enthusiast.'
-})
+  firstName: "Laksh",
+  lastName: "Solanki",
+  email: "lakshsolanki848@gmail.com",
+  role: "Senior Full-Stack Engineer",
+  bio: "Passionate about building scalable web applications with Vue and Node.js. Open source contributor and coffee enthusiast.",
+});
 </script>
 
 <style scoped>
