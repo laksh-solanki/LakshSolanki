@@ -78,25 +78,19 @@ app.post("/api/subscribe", async (request, reply) => {
   }
 });
 
-// Start Server & Connect DB
 const start = async () => {
   try {
-    // 1. Connect to MongoDB
     await client.connect();
     db = client.db("Mindlytic");
     
-    // This should be a 'ping', not the port config!
     await db.command({ ping: 1 }); 
     app.log.info("Connected to MongoDB!");
-
-    // 2. Start the Fastify Server
-    // We use 'localhost' here so it matches your preferred access method
     await app.listen({ 
       port: Number(port), 
-      host: 'localhost' 
+      host: '0.0.0.0' 
     });
 
-    console.log(`Server is happily running at http://localhost:${port}`);
+    console.log(`Server is running at http://0.0.0.0:${port}`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);
