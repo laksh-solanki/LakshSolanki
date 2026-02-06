@@ -99,7 +99,7 @@
               </v-row>
 
               <div class="d-flex justify-end mt-4">
-                <v-btn color="primary" size="large" variant="flat" class="text-capitalize" rounded="lg">Save
+                <v-btn color="primary" size="large" variant="flat" class="text-capitalize" rounded="lg" @click="submitProfile">Save
                   Changes</v-btn>
               </div>
             </v-window-item>
@@ -109,7 +109,7 @@
               <v-list bg-color="transparent">
                 <v-list-item>
                   <template v-slot:prepend>
-                    <v-icon color="primary">mdi-lock-outline</v-icon>
+                    <v-icon color="primary ma-n4">mdi-lock-outline</v-icon>
                   </template>
                   <v-list-item-title>Change Password</v-list-item-title>
                   <v-list-item-subtitle>Last changed 3 months ago</v-list-item-subtitle>
@@ -122,7 +122,7 @@
 
                 <v-list-item>
                   <template v-slot:prepend>
-                    <v-icon color="primary">mdi-shield-check-outline</v-icon>
+                    <v-icon color="primary ma-n4">mdi-shield-check-outline</v-icon>
                   </template>
                   <v-list-item-title>Two-Factor Authentication</v-list-item-title>
                   <v-list-item-subtitle :class="twoFAEnabled ? 'text-success' : 'text-error'">{{
@@ -174,6 +174,10 @@ const hobbies = ref([]);
 const twoFAEnabled = ref(true);
 const openanyModal = () => {
   showAlert("Email modal opened (functionality not implemented)", "info");
+};
+const submitProfile = () => {
+  // Here you would normally send the updated profile data to your backend
+  showAlert("Profile updated successfully!", "success");
 };
 const BASE_URL =
   window.location.hostname === "localhost"

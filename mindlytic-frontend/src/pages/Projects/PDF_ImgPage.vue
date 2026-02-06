@@ -104,7 +104,7 @@ const processPdf = async () => {
         })
       }
       conversionProgress.value = 100
-      showAlert('PDF converted to images successfully!', 'success')
+      showAlert(`PDF converted to [${images.value.length}] images successfully!`, 'success')
     } catch (error) {
       console.error('Error processing PDF:', error)
       showAlert('Error processing PDF.', 'error')
