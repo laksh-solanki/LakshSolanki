@@ -1,4 +1,9 @@
 {
+	"name": "mindlytic-backend",
+	"version": "1.0.0",
+	"description": "Backend for Mindlytic, a mental health analytics platform.",
+	"main": "server.js",
+	"type": "module",
 	"dependencies": {
 		"@fastify/cors": "^11.2.0",
 		"dotenv": "^17.2.3",
