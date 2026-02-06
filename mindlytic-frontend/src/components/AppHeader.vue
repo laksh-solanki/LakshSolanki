@@ -47,9 +47,9 @@ const userMenu = [
     </v-list>
   </v-navigation-drawer>
   <v-app-bar color="surface" scroll-behavior="elevate" border scroll-threshold="1000" class="px-0" density="default">
-    <v-app-bar-nav-icon variant="text" class="d-md-none d-lg-none d-xl-none d-xxl-none ma-0"
+    <v-app-bar-nav-icon variant="text" class="d-lg-none d-xl-none d-xxl-none ma-0"
       @click.stop="drawer = !drawer" title="Menu"></v-app-bar-nav-icon>
-    <v-divider vertical class="d-md-none mx-1"></v-divider>
+    <v-divider vertical class="d-lg-none mx-1"></v-divider>
     <div class="d-flex align-center ml-1 mr-6">
       <mainsvgicon />
     </div>
