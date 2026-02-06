@@ -2,7 +2,6 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import mainsvgicon from '@/assets/mainsvgicon.vue'
-import Feedback from '@/components/Feedback.vue'
 
 const route = useRoute()
 const tab = ref(route.path)
@@ -27,7 +26,7 @@ const quickLinks = [
           <mainsvgicon />
         </div>
       </v-col>
-      <v-col cols="12" md="3" sm="6" xs="12">
+      <v-col cols="12" md="4" sm="6" xs="12">
         <v-icon icon="mdi-information" size="40" color="primary" class="mb-2"></v-icon>
         <p class="text-h6 font-weight-bold my-2">About Mindlytic</p>
         <p class="text-body-2">
@@ -35,7 +34,7 @@ const quickLinks = [
           mission is to deliver excellence in every project we undertake.
         </p>
       </v-col>
-      <v-col cols="12" md="3" sm="6" xs="12">
+      <v-col cols="12" md="4" sm="6" xs="12">
         <div class="d-flex flex-column align-center justify-center text-center">
           <v-icon icon="mdi-link-variant" size="40" color="primary" class="mb-2"></v-icon>
           <p class="text-h6 font-weight-bold align-center my-2">Quick Links</p>
@@ -48,7 +47,7 @@ const quickLinks = [
           </v-tabs>
         </div>
       </v-col>
-      <v-col cols="12" md="3" sm="6" xs="12">
+      <v-col cols="12" md="4" sm="6" xs="12">
         <v-icon icon="mdi-phone-log" size="40" color="primary" class="mb-2"></v-icon>
         <p class="text-h6 align-center font-weight-bold my-2">Contact Us</p>
         <div class="contact-info">
@@ -61,9 +60,6 @@ const quickLinks = [
             lakshsolanki848@gmail.com
           </p>
         </div>
-      </v-col>
-      <v-col cols="12" md="3" sm="6" xs="12">
-        <Feedback />
       </v-col>
       <v-divider color="grey-lighten-1" opacity="25" class="my-5"></v-divider>
       <v-col cols="12" md="12">
