@@ -40,7 +40,7 @@ const stats = [
 
 <template>
   <div class="home-wrapper">
-    <section class="position-relative pt-16 pb-16 pt-md-16 pb-md-16">
+    <section class="position-relative pt-7 pb-16 pt-md-16 pb-md-16">
       <v-container>
         <v-row align="center" justify="center">
           <v-col cols="12" md="8" lg="7" class="text-center">
@@ -111,7 +111,7 @@ const stats = [
 
         <v-row>
           <v-col v-for="(feature, i) in features" :key="i" cols="12" md="4">
-            <v-card elevation="0" class="h-100 pa-6 bg-surface border hover-card" rounded="xl">
+            <v-card elevation="0" class="h-100 pa-6 bg-surface border hover-card text-center" rounded="xl">
               <v-avatar :color="feature.color" variant="tonal" size="56" class="mb-6 rounded-lg">
                 <v-icon :icon="feature.icon" size="28"></v-icon>
               </v-avatar>
@@ -128,7 +128,7 @@ const stats = [
 
     <section class="py-16">
       <v-container>
-        <v-card color="primary" theme="dark" rounded="xl" class="pa-10 pa-md-16 overflow-hidden position-relative">
+        <v-card color="primary" rounded="xl" class="pa-10 pa-md-16 overflow-hidden text-center position-relative">
           <div class="bg-circle-1"></div>
           <div class="bg-circle-2"></div>
 

@@ -20,12 +20,13 @@ const quickLinks = [
 </script>
 <template>
   <v-divider color="grey-lighten-1" opacity="25"></v-divider>
-  <v-footer class="text-center pa-3">
-    <v-row dense>
-      <v-col cols="12" md="12">
+  <v-footer class="text-center pa-3 d-flex">
+    <v-row>
+      <v-col cols="12" md="12" class="text-center d-flex flex-column justify-center align-center">
         <div class="d-flex justify-center align-center my-4">
           <mainsvgicon />
         </div>
+        <v-divider width="40" thickness="3" opacity="25"></v-divider>
       </v-col>
       <v-col cols="12" md="3" sm="6" xs="12">
         <v-icon icon="mdi-information" size="40" color="primary" class="mb-2"></v-icon>
@@ -39,10 +40,9 @@ const quickLinks = [
         <div class="d-flex flex-column align-center justify-center text-center">
           <v-icon icon="mdi-link-variant" size="40" color="primary" class="mb-2"></v-icon>
           <p class="text-h6 font-weight-bold align-center my-2">Quick Links</p>
-          <v-tabs inset v-model="tab" slider-color="info" direction="vertical" density="comfortable"
-            class="bg-transparent justify-center align-center">
-            <v-tab v-for="(link, index) in quickLinks" width="200" :key="index" :value="link.path" :to="link.path"
-              :prepend-icon="link.icon" class="d-flex justify-content-center align-content-center">
+          <v-tabs inset v-model="tab" slider-color="info" direction="vertical" density="comfortable" class="pa-2">
+            <v-tab v-for="(link, index) in quickLinks" width="230" :key="index" :value="link.path" :to="link.path"
+              :prepend-icon="link.icon" class="d-flex justify-center align-center text-center">
               {{ link.title }}
             </v-tab>
           </v-tabs>
@@ -65,7 +65,7 @@ const quickLinks = [
       <v-col cols="12" md="3" sm="6" xs="12">
         <EmailRegisterPopup />
       </v-col>
-      <v-divider color="grey-lighten-1" opacity="25" class="my-5"></v-divider>
+      <v-divider color="grey-lighten-1" opacity="25" class="mt-3 mb-2"></v-divider>
       <v-col cols="12" md="12">
         <div class="text-center">
           © {{ new Date().getFullYear() }} <strong>Mindlytic</strong>. All rights reserved.
