@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import Certificate from '@/components/certificate.vue'
+import Alerts from '@/components/Alerts.vue'
 
 const studentForm = ref(null)
 const form = reactive({
@@ -13,6 +14,16 @@ const BASE_URL =
   window.location.hostname === 'localhost'
     ? 'http://localhost:5001'
     : 'https://mindlytic-backend.onrender.com'
+
+const alertVisible = ref(false)
+const alertMessage = ref('')
+const alertType = ref('success')
+
+const showAlert = (message, type) => {
+  alertMessage.value = message
+  alertType.value = type === 'error' ? 'error' : 'success'
+  alertVisible.value = true
+}
 
 const fetchCourses = async () => {
   try {
@@ -34,31 +45,6 @@ onMounted(() => {
 const loading = ref(false)
 const dialog = ref(false)
 const pdfSection = ref(null)
-const successAlert = ref(false)
-const successMessage = ref('')
-const errorAlert = ref(false)
-const errorMessage = ref('')
-
-let successTimeout = null
-let errorTimeout = null
-
-const showAlert = (message, type) => {
-  if (type === 'success') {
-    successMessage.value = message
-    successAlert.value = true
-    clearTimeout(successTimeout)
-    successTimeout = setTimeout(() => {
-      successAlert.value = false
-    }, 4000)
-  } else {
-    errorMessage.value = message
-    errorAlert.value = true
-    clearTimeout(errorTimeout)
-    errorTimeout = setTimeout(() => {
-      errorAlert.value = false
-    }, 4000)
-  }
-}
 
 const previewCertificate = async () => {
   const { valid } = await studentForm.value.validate()
@@ -119,8 +105,7 @@ const goBack = () => {
     class="rounded-0 rounded-be-xl"
   ></v-btn>
 
-  <GreenAlert v-model:successAlert="successAlert" :successMessage="successMessage" />
-  <RedAlert v-model:errorAlert="errorAlert" :errorMessage="errorMessage" />
+  <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
   <v-container class="certificate-container" style="min-height: 84.3vh">
     <v-card
