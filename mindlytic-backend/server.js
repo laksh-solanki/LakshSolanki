@@ -32,7 +32,7 @@ app.get("/", async (request, reply) => {
   return { status: "Backend working", time: new Date() };
 });
 
-app.get("/project/certificate", async (request, reply) => {
+app.get("/project/certificate-gen", async (request, reply) => {
   try {
     const courses = await db.collection("courses").find({}).toArray();
     return courses;

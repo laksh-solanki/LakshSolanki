@@ -27,7 +27,7 @@ const showAlert = (message, type) => {
 
 const fetchCourses = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/project/certificate`)
+    const response = await fetch(`${BASE_URL}/project/certificate-gen`)
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
