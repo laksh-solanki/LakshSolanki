@@ -40,7 +40,7 @@ const quickLinks = [
         <div class="d-flex flex-column align-center justify-center text-center">
           <v-icon icon="mdi-link-variant" size="40" color="primary" class="mb-2"></v-icon>
           <p class="text-h6 font-weight-bold align-center my-2">Quick Links</p>
-          <v-tabs inset v-model="tab" slider-color="info" direction="vertical" density="comfortable" class="pa-2">
+          <v-tabs inset v-model="tab" slider-color="primary" direction="vertical" density="comfortable" class="pa-2 transparent rounded-lg">
             <v-tab v-for="(link, index) in quickLinks" width="230" :key="index" :value="link.path" :to="link.path"
               :prepend-icon="link.icon" class="d-flex justify-center align-center text-center">
               {{ link.title }}

@@ -25,6 +25,12 @@ const routes = [
         meta: { title: "Mindlytic | Projects" },
       },
       {
+        path: "certificate-gen",
+        name: "CertificateGen",
+        component: () => import("@/pages/Projects/CertificateView.vue"),
+        meta: { title: "Mindlytic | Certificate Generator" },
+      },
+      {
         path: "img-pdf",
         name: "ImageToPDF",
         component: () => import("@/pages/Projects/Img_PdfPage.vue"),

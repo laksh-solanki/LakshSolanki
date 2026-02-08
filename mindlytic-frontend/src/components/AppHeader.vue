@@ -53,7 +53,7 @@ const userMenu = [
     <mainsvgicon/>
     <v-divider vertical class="d-none d-sm-flex d-md-flex d-lg-flex ml-1"></v-divider>
     <div class="d-none d-md-flex justify-end align-center w-100">
-      <v-tabs density="compact" class="d-none d-lg-flex align-center">
+      <v-tabs density="compact" class="d-none d-lg-flex align-center" slider-color="primary" color="primary">
         <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" class="px-2"
           slider-color="white">{{ link.title
           }}</v-tab>

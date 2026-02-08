@@ -9,9 +9,9 @@ const projects = ref([
     category: 'Web Application',
     description: 'A comprehensive financial analytics platform offering real-time data visualization and predictive modeling.',
     image: new URL('../assets/Picture/Project-1.png', import.meta.url).href,
-    link: '/projects/certificate-generator',
+    link: '/projects/certificate-gen',
     tags: ['Vue', 'Vuetify', 'pdf-lib'],
-    disabled: true,
+    disabled: false,
   },
   {
     id: 2,
