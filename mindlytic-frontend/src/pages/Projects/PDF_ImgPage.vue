@@ -180,10 +180,11 @@ onUnmounted(() => {
     </v-card>
 
     <!-- Upload Zone -->
-    <v-sheet :class="['upload-zone', 'pa-8', { 'drag-over': isDragging }]" rounded="xl" border @click="triggerFileInput()"
-      @dragenter.prevent="isDragging = true" @dragover.prevent @dragleave.prevent="isDragging = false" @drop="handleDrop">
-      <input ref="fileInput" type="file" accept="application/pdf" @change="handleFileSelect" id="fileInput" class="file-input"
-        required />
+    <v-sheet :class="['upload-zone', 'pa-8', { 'drag-over': isDragging }]" rounded="xl" border
+      @click="triggerFileInput()" @dragenter.prevent="isDragging = true" @dragover.prevent
+      @dragleave.prevent="isDragging = false" @drop="handleDrop">
+      <input ref="fileInput" type="file" accept="application/pdf" @change="handleFileSelect" id="fileInput"
+        class="file-input" required />
       <div class="d-flex flex-column align-center justify-center ga-4 text-center">
         <v-icon size="80" color="grey-lighten-1">mdi-cloud-upload-outline</v-icon>
         <div class="text-h6 font-weight-bold text-grey-darken-2">Drag & Drop PDF here</div>
@@ -208,21 +209,23 @@ onUnmounted(() => {
 
         <v-row dense>
           <v-col v-for="(image, index) in images" :key="image.id" cols="12" sm="6" md="5" lg="4">
-            <v-card class="mx-auto" max-width="400" color="primary-lighten-5" border rounded="xl" elevation="5  ">
-              <v-card-actions>
-                <div class="d-flex justify-end align-center ga-1   w-100">
-                  <v-btn @click="removeImage(index)" icon="mdi-close" variant="elevated" color="red" size="small">
+            <v-card class="mx-auto border-md" max-width="400" rounded="xl" elevation="5">
+              <v-card-actions class="bg-primary">
+                <div class="d-flex justify-end align-center ga-1 w-100">
+                  <v-btn @click="removeImage(index)" icon="mdi-close" variant="elevated" color="red" size="small" elevation="3">
                   </v-btn>
                   <v-btn @click="downloadImage(image.url, image.name)" icon="mdi-download" variant="elevated"
-                    color="green" size="small">
+                    color="secondary" size="small" elevation="3">
                   </v-btn>
                 </div>
               </v-card-actions>
-              <v-img :src="image.url" :alt="image.name" class="align-end text-white img-thumbnail m-2 rounded-4"
-                height="200" contain>
-              </v-img>
-              <v-card-text class="text-center py-4">
-                <p class="p-1 m-0">{{ image.name }}</p>
+              <div class="d-flex justify-center align-center pa-2">
+                <v-img :src="image.url" :alt="image.name" class="align-end text-white img-thumbnail m-2 rounded-4"
+                  height="200" contain>
+                </v-img>
+              </div>
+              <v-card-text class="text-center py-4 bg-primary">
+               {{ image.name }}
               </v-card-text>
             </v-card>
           </v-col>

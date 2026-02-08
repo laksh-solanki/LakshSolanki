@@ -97,23 +97,13 @@ const goBack = () => {
 </script>
 
 <template>
-  <v-btn
-    @click="goBack"
-    variant="flat"
-    icon="mdi-arrow-left"
-    color="primary"
-    class="rounded-0 rounded-be-xl"
-  ></v-btn>
+  <v-btn @click="goBack" variant="flat" icon="mdi-arrow-left" color="primary" class="rounded-0 rounded-be-xl"></v-btn>
 
   <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
   <v-container class="certificate-container" style="min-height: 84.3vh">
-    <v-card
-      class="text-h5 mb-3 pa-3 text-center rounded-xl"
-      color="primary"
-      variant="tonal"
-      border
-    >
+    <v-card class="text-h5 text-center my-3 pa-4" color="primary-lighten-5" border="primary md opacity-100" rounded="xl"
+      flat>
       Student Certificate
     </v-card>
 
@@ -126,31 +116,14 @@ const goBack = () => {
               <v-divider class="my-3"></v-divider>
             </v-col>
             <v-col cols="12" md="6">
-              <v-text-field
-                v-model="form.fname"
-                :rules="[(v) => !!v || 'Full Name is required']"
-                label="Full Name"
-                variant="outlined"
-                name="fname"
-                id="fname"
-                rounded="lg"
-                bg-color="surface"
-              ></v-text-field>
+              <v-text-field v-model="form.fname" :rules="[(v) => !!v || 'Full Name is required']" label="Full Name"
+                variant="outlined" name="fname" id="fname" rounded="lg" bg-color="surface" autocomplete
+                spellcheck></v-text-field>
             </v-col>
             <v-col cols="12" md="6">
-              <v-select
-                v-model="form.course"
-                :items="courses"
-                :rules="[(v) => !!v || 'Course is required']"
-                label="Course"
-                variant="outlined"
-                name="course"
-                id="course"
-                rounded="lg"
-                item-title="name"
-                return-object
-                bg-color="surface"
-              ></v-select>
+              <v-select v-model="form.course" :items="courses" :rules="[(v) => !!v || 'Course is required']"
+                label="Course" variant="outlined" name="course" id="course" rounded="lg" item-title="name" return-object
+                bg-color="surface"></v-select>
             </v-col>
           </v-row>
 
@@ -158,17 +131,9 @@ const goBack = () => {
             <v-col cols="12" md="3" class="d-flex justify-center">
               <v-tooltip text="Preview and Download the certificate" location="top">
                 <template v-slot:activator="{ props }">
-                  <v-btn
-                    v-bind="props"
-                    @click="previewCertificate"
-                    text="Certificate"
-                    :loading="loading"
-                    prepend-icon="mdi-file-certificate-outline"
-                    variant="tonal"
-                    color="primary"
-                    size="large"
-                    class="rounded-lg border"
-                  ></v-btn>
+                  <v-btn v-bind="props" @click="previewCertificate" text="Certificate" :loading="loading"
+                    prepend-icon="mdi-file-certificate-outline" variant="tonal" color="primary" size="large"
+                    class="rounded-lg border"></v-btn>
                 </template>
               </v-tooltip>
             </v-col>
@@ -177,13 +142,7 @@ const goBack = () => {
       </v-card-text>
     </v-card>
 
-    <v-card
-      class="rounded-xl mt-4"
-      color="primary"
-      variant="tonal"
-      elevation="3"
-      border
-    >
+    <v-card class="rounded-xl mt-4" color="primary" variant="tonal" elevation="3" border>
       <v-card-text>
         <div>
           Note: Please ensure that you have filled in your full name and selected the correct course
@@ -201,23 +160,10 @@ const goBack = () => {
   <v-dialog v-model="dialog" max-width="820">
     <v-card>
       <v-card-title class="pa-0 d-flex justify-space-between">
-        <v-btn
-          @click="generatePdf"
-          text="Download"
-          prepend-icon="mdi-download"
-          :loading="loading"
-          variant="tonal"
-          color="primary"
-          height="45"
-          class="rounded-0 rounded-br-lg"
-        ></v-btn>
-        <v-btn
-          icon="mdi-close"
-          variant="text"
-          color="primary"
-          @click="dialog = false"
-          class="rounded-0 rounded-bl-lg"
-        ></v-btn>
+        <v-btn @click="generatePdf" text="Download" prepend-icon="mdi-download" :loading="loading" variant="tonal"
+          color="primary" height="45" class="rounded-0 rounded-br-lg"></v-btn>
+        <v-btn icon="mdi-close" variant="text" color="primary" @click="dialog = false"
+          class="rounded-0 rounded-bl-lg"></v-btn>
       </v-card-title>
 
       <div>

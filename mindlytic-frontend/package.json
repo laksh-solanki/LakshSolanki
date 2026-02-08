@@ -11,6 +11,7 @@
   "dependencies": {
     "@fontsource/roboto": "5.2.9",
     "@mdi/font": "7.4.47",
+    "@types/file-saver": "^2.0.7",
     "file-saver": "^2.0.5",
     "html2pdf": "^0.0.11",
     "html2pdf.js": "^0.14.0",
