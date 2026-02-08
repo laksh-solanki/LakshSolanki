@@ -30,6 +30,16 @@ const projects = ref([
     image: new URL('../assets/Picture/Project-3.jpg', import.meta.url).href,
     link: '/projects/pdf-img',
     tags: ['React Native', 'TypeScript', 'Redux']
+  },
+  {
+    id: 4,
+    title: 'Text to Speech Converter',
+    category: 'Web Application',
+    description: 'A simple and intuitive tool to convert text into speech with various voice options, pitch, and rate controls, using the browser\'s native Web Speech API.',
+    image: new URL('../assets/Picture/Project-4.png', import.meta.url).href,
+    link: '/projects/text-to-speech',
+    tags: ['Vue', 'Vuetify', 'Web Speech API'],
+    disabled: false,
   }
 ])
 </script>

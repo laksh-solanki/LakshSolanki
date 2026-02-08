@@ -42,6 +42,13 @@ const routes = [
         component: () => import("@/pages/Projects/PDF_ImgPage.vue"),
         meta: { title: "Mindlytic | PDF to Img" },
       },
+      {
+        path: "text-to-speech",
+        name: "TextToSpeech",
+        component: () => import("@/pages/Projects/TextToSpeech.vue"),
+        meta: { title: "Mindlytic | Text to Speech" },
+      },
+
     ],
   },
   {
