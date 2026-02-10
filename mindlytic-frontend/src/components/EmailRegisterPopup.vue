@@ -64,11 +64,7 @@ const emailRules = [
 ]
 
 // API Configuration
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  (['localhost', '127.0.0.1'].includes(window.location.hostname)
-    ? 'http://localhost:5001'
-    : 'https://mindlytic-backend.onrender.com')
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Lifecycle
 onMounted(() => {

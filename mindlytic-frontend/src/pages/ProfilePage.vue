@@ -179,11 +179,7 @@ const submitProfile = () => {
   // Here you would normally send the updated profile data to your backend
   showAlert("Profile updated successfully!", "success");
 };
-const BASE_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5001"
-    : "https://mindlytic-backend.onrender.com";
-
+const BASE_URL = import.meta.env.VITE_API_URL;
 const fetchhobbies = async () => {
   try {
     const response = await fetch(`${BASE_URL}/profile`);

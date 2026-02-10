@@ -10,11 +10,7 @@ const form = reactive({
 })
 
 const courses = ref([])
-const BASE_URL =
-  window.location.hostname === 'localhost'
-    ? 'http://localhost:5001'
-    : 'https://mindlytic-backend.onrender.com'
-
+const BASE_URL = import.meta.env.VITE_API_URL;
 const alertVisible = ref(false)
 const alertMessage = ref('')
 const alertType = ref('success')

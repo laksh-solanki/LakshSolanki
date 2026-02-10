@@ -5,7 +5,18 @@ import { MongoClient, ServerApiVersion } from "mongodb";
 
 dotenv.config();
 
-const app = fastify({ logger: true });
+const app = fastify({
+  logger: {
+    transport: {
+      target: "pino-pretty",
+      options: {
+        translateTime: "HH:MM:ss Z",
+        ignore: "pid,hostname",
+        singleLine: true,
+      },
+    },
+  },
+});
 const port = process.env.PORT || 5001;
 
 if (!process.env.MONGODB_URI) {
@@ -67,10 +78,13 @@ app.post("/api/subscribe", async (request, reply) => {
       return reply.status(409).send({ error: "Email already subscribed" });
     }
 
-    const result = await subscriptions.insertOne({ email, createdAt: new Date() });
-    return reply.status(201).send({ 
-      message: "Subscribed successfully", 
-      id: result.insertedId 
+    const result = await subscriptions.insertOne({
+      email,
+      createdAt: new Date(),
+    });
+    return reply.status(201).send({
+      message: "Subscribed successfully",
+      id: result.insertedId,
     });
   } catch (error) {
     app.log.error("Error creating subscription:", error);
@@ -82,12 +96,12 @@ const start = async () => {
   try {
     await client.connect();
     db = client.db("Mindlytic");
-    
-    await db.command({ ping: 1 }); 
+
+    await db.command({ ping: 1 });
     app.log.info("Connected to MongoDB!");
-    await app.listen({ 
-      port: Number(port), 
-      host: '0.0.0.0' 
+    await app.listen({
+      port: Number(port),
+      host: "0.0.0.0",
     });
 
     console.log(`Server is running at http://0.0.0.0:${port}`);
