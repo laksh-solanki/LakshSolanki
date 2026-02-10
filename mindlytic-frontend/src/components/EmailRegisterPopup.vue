@@ -9,35 +9,14 @@
     </div>
 
     <v-form ref="form" v-model="isValid" @submit.prevent="handleSubscribe">
-      <Alerts
-        v-model="showAlert"
-        :message="feedbackMessage"
-        :type="feedbackType"
-      />
+      <Alerts v-model="showAlert" :message="feedbackMessage" :type="feedbackType" />
 
-      <v-text-field
-        v-model.trim="email"
-        label="Email Address"
-        placeholder="you@example.com"
-        type="email"
-        variant="outlined"
-        prepend-inner-icon="mdi-email-outline"
-        :rules="emailRules"
-        :disabled="isLoading || isSubscribed"
-        required
-        density="comfortable"
-      ></v-text-field>
+      <v-text-field v-model.trim="email" label="Email Address" placeholder="you@example.com" type="email"
+        variant="outlined" prepend-inner-icon="mdi-email-outline" :rules="emailRules"
+        :disabled="isLoading || isSubscribed" required density="comfortable"></v-text-field>
 
-      <v-btn
-        block
-        color="primary"
-        type="submit"
-        rounded="3"
-        :loading="isLoading"
-        :disabled="!isValid || isSubscribed"
-        class="mt-2 text-none"
-        elevation="2"
-      >
+      <v-btn block color="primary" type="submit" rounded="3" :loading="isLoading" :disabled="!isValid || isSubscribed"
+        class="mt-2 text-none" elevation="2">
         {{ isSubscribed ? 'Subscribed' : 'Subscribe' }}
       </v-btn>
     </v-form>
@@ -64,7 +43,11 @@ const emailRules = [
 ]
 
 // API Configuration
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL =
+  (['localhost', '127.0.0.1'].includes(window.location.hostname)
+    ? import.meta.env.VITE_API_URL_1
+    : import.meta.env.VITE_API_URL_2
+  )
 
 // Lifecycle
 onMounted(() => {

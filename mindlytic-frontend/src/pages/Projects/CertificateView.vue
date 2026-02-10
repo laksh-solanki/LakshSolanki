@@ -10,7 +10,12 @@ const form = reactive({
 })
 
 const courses = ref([])
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL =
+  (['localhost', '127.0.0.1'].includes(window.location.hostname)
+    ? import.meta.env.VITE_API_URL_1
+    : import.meta.env.VITE_API_URL_2
+  )
+
 const alertVisible = ref(false)
 const alertMessage = ref('')
 const alertType = ref('success')

@@ -99,7 +99,8 @@
               </v-row>
 
               <div class="d-flex justify-end mt-4">
-                <v-btn color="primary" size="large" variant="flat" class="text-capitalize" rounded="lg" @click="submitProfile">Save
+                <v-btn color="primary" size="large" variant="flat" class="text-capitalize" rounded="lg"
+                  @click="submitProfile">Save
                   Changes</v-btn>
               </div>
             </v-window-item>
@@ -179,7 +180,11 @@ const submitProfile = () => {
   // Here you would normally send the updated profile data to your backend
   showAlert("Profile updated successfully!", "success");
 };
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL =
+  (['localhost', '127.0.0.1'].includes(window.location.hostname)
+    ? import.meta.env.VITE_API_URL_1
+    : import.meta.env.VITE_API_URL_2
+  )
 const fetchhobbies = async () => {
   try {
     const response = await fetch(`${BASE_URL}/profile`);
