@@ -5,18 +5,7 @@ import { MongoClient, ServerApiVersion } from "mongodb";
 
 dotenv.config();
 
-const app = fastify({
-  logger: {
-    transport: {
-      target: "pino-pretty",
-      options: {
-        translateTime: "HH:MM:ss Z",
-        ignore: "pid,hostname",
-        singleLine: true,
-      },
-    },
-  },
-});
+const app = fastify({logger: true});
 const port = process.env.PORT || 5001;
 
 if (!process.env.MONGODB_URI) {
