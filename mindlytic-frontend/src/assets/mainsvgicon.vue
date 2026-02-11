@@ -1,6 +1,15 @@
 <template>
-  <div class="d-flex justify-center align-center mx-3" @click="$router.push('/')" style="max-width: 159px; height: 100%;">
-    <svg width="45" height="45" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <div
+    class="d-flex align-center mx-3 justify-center"
+    @click="$router.push('/')"
+    style="max-width: 159px; height: 100%"
+  >
+    <svg
+      width="45"
+      height="45"
+      viewBox="0 0 100 100"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <defs>
         <linearGradient id="gemini-grad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#4285F4" />
@@ -14,19 +23,46 @@
           <feComposite in="SourceGraphic" in2="blur" operator="over" />
         </filter>
       </defs>
-      <rect x="10" y="10" width="80" height="80" rx="25" fill="#f8f9ff" stroke="#e0e0e0" stroke-width="0.5" />
+      <rect
+        x="10"
+        y="10"
+        width="80"
+        height="80"
+        rx="25"
+        fill="#f8f9ff"
+        stroke="#e0e0e0"
+        stroke-width="0.5"
+      />
 
-      <path class="m-body" d="M30 65
+      <path
+        class="m-body"
+        d="M30 65
                  C30 35, 35 25, 45 25
                  C50 25, 50 45, 50 45
                  C50 45, 50 25, 55 25
-                 C65 25, 70 35, 70 65" fill="none" stroke="url(#gemini-grad)" stroke-width="10" stroke-linecap="round"
-        filter="url(#glow)" />
+                 C65 25, 70 35, 70 65"
+        fill="none"
+        stroke="url(#gemini-grad)"
+        stroke-width="10"
+        stroke-linecap="round"
+        filter="url(#glow)"
+      />
 
-      <path class="flare" d="M85 15 C85 18 82 20 80 20 C82 20 85 22 85 25 C85 22 88 20 90 20 C88 20 85 18 85 15Z"
-        fill="#9b72cb" />
+      <path
+        class="flare"
+        d="M85 15 C85 18 82 20 80 20 C82 20 85 22 85 25 C85 22 88 20 90 20 C88 20 85 18 85 15Z"
+        fill="#9b72cb"
+      />
 
-      <rect x="35" y="75" width="30" height="6" rx="3" fill="#F4C430" opacity="0.8" />
+      <rect
+        x="35"
+        y="75"
+        width="30"
+        height="6"
+        rx="3"
+        fill="#F4C430"
+        opacity="0.8"
+      />
     </svg>
     <h1 class="brand-name ml-2">Mind<span class="accent">lytic</span></h1>
   </div>

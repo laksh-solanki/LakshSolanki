@@ -48,7 +48,6 @@ const routes = [
         component: () => import("@/pages/Projects/TextToSpeech.vue"),
         meta: { title: "Mindlytic | Text to Speech" },
       },
-
     ],
   },
   {

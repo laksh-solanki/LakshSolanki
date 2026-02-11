@@ -4,20 +4,40 @@
 
     <v-row>
       <v-col cols="12" md="4">
-        <v-card class="rounded-lg text-center pb-3" elevation="10" border>
-          <v-img height="160" src="https://cdn.vuetifyjs.com/images/cards/server-room.jpg" cover
-            class="d-flex justify-center align-center">
-            <v-avatar size="120" class="border-lg border-background" style="z-index: 10000"
-              :image="my_photo"></v-avatar>
+        <v-card class="rounded-lg pb-3 text-center" elevation="10" border>
+          <v-img
+            height="160"
+            src="https://cdn.vuetifyjs.com/images/cards/server-room.jpg"
+            cover
+            class="d-flex align-center justify-center"
+          >
+            <v-avatar
+              size="120"
+              class="border-lg border-background"
+              style="z-index: 10000"
+              :image="my_photo"
+            ></v-avatar>
           </v-img>
 
           <div class="mt-10">
             <h2 class="text-h5 font-weight-bold">Laksh Solanki</h2>
             <p class="text-medium-emphasis mb-4">Senior Full-Stack Engineer</p>
 
-            <div class="d-flex justify-center gap-2 mb-6">
-              <v-btn color="grey" variant="tonal" rounded="lg" icon="mdi-email-outline" @click="openanyModal"></v-btn>
-              <v-btn color="grey" variant="tonal" rounded="lg" icon="mdi-dots-horizontal" @click="openanyModal"></v-btn>
+            <div class="d-flex mb-6 justify-center gap-2">
+              <v-btn
+                color="grey"
+                variant="tonal"
+                rounded="lg"
+                icon="mdi-email-outline"
+                @click="openanyModal"
+              ></v-btn>
+              <v-btn
+                color="grey"
+                variant="tonal"
+                rounded="lg"
+                icon="mdi-dots-horizontal"
+                @click="openanyModal"
+              ></v-btn>
             </div>
 
             <v-divider class="mb-4"></v-divider>
@@ -40,13 +60,30 @@
             <v-divider class="mb-4"></v-divider>
 
             <v-list density="compact" nav class="text-left">
-              <v-list-item prepend-icon="mdi-map-marker-outline" title="Gujarat, India"
-                class="text-body-2"></v-list-item>
-              <v-list-item prepend-icon="mdi-web" title="https://mindlytic.onrender.com/"
-                href="https://mindlytic.onrender.com/" target="_blank" class="text-body-2"></v-list-item>
-              <v-list-item prepend-icon="mdi-github" title="github.com/laksh-solanki"
-                href="https://github.com/laksh-solanki" target="_blank" class="text-body-2 text-blue"></v-list-item>
-              <v-list-item prepend-icon="mdi-twitter" title="@laksh_solanki" class="text-body-2"></v-list-item>
+              <v-list-item
+                prepend-icon="mdi-map-marker-outline"
+                title="Gujarat, India"
+                class="text-body-2"
+              ></v-list-item>
+              <v-list-item
+                prepend-icon="mdi-web"
+                title="https://mindlytic.onrender.com/"
+                href="https://mindlytic.onrender.com/"
+                target="_blank"
+                class="text-body-2"
+              ></v-list-item>
+              <v-list-item
+                prepend-icon="mdi-github"
+                title="github.com/laksh-solanki"
+                href="https://github.com/laksh-solanki"
+                target="_blank"
+                class="text-body-2 text-blue"
+              ></v-list-item>
+              <v-list-item
+                prepend-icon="mdi-twitter"
+                title="@laksh_solanki"
+                class="text-body-2"
+              ></v-list-item>
             </v-list>
           </div>
         </v-card>
@@ -55,7 +92,13 @@
       <v-col cols="12" md="8">
         <v-card class="rounded-lg" elevation="10" border>
           <v-card-text class="pa-0">
-            <v-tabs v-model="tab" color="primary" align-tabs="start" slider-color="white" class="mb-6 border-b">
+            <v-tabs
+              v-model="tab"
+              color="primary"
+              align-tabs="start"
+              slider-color="white"
+              class="mb-6 border-b"
+            >
               <v-tab value="edit" class="text-capitalize">Edit Profile</v-tab>
               <v-tab value="security" class="text-capitalize">Security</v-tab>
             </v-tabs>
@@ -70,38 +113,86 @@
 
               <v-row>
                 <v-col cols="12" md="6">
-                  <v-text-field label="First Name" variant="outlined" density="comfortable" color="primary"
-                    v-model="form.firstName" rounded="lg"></v-text-field>
+                  <v-text-field
+                    label="First Name"
+                    variant="outlined"
+                    density="comfortable"
+                    color="primary"
+                    v-model="form.firstName"
+                    rounded="lg"
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
-                  <v-text-field label="Last Name" variant="outlined" density="comfortable" color="primary"
-                    v-model="form.lastName" rounded="lg"></v-text-field>
+                  <v-text-field
+                    label="Last Name"
+                    variant="outlined"
+                    density="comfortable"
+                    color="primary"
+                    v-model="form.lastName"
+                    rounded="lg"
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12">
-                  <v-combobox v-model="chips" :items="hobbies" label="Your favorite hobbies" variant="outlined" chips
-                    closable-chips multiple class="hobbies-combobox" item-title="name" return-object rounded="lg"
-                    color="primary" density="comfortable">
+                  <v-combobox
+                    v-model="chips"
+                    :items="hobbies"
+                    label="Your favorite hobbies"
+                    variant="outlined"
+                    chips
+                    closable-chips
+                    multiple
+                    class="hobbies-combobox"
+                    item-title="name"
+                    return-object
+                    rounded="lg"
+                    color="primary"
+                    density="comfortable"
+                  >
                     <template v-slot:chip="{ props, item }">
-                      <v-chip v-bind="props" color="primary" text-color="primary" variant="outlined">
+                      <v-chip
+                        v-bind="props"
+                        color="primary"
+                        text-color="primary"
+                        variant="outlined"
+                      >
                         <strong>{{ item.title }}</strong>
                       </v-chip>
                     </template>
                   </v-combobox>
                 </v-col>
                 <v-col cols="12">
-                  <v-text-field label="Headline / Role" variant="outlined" density="comfortable" color="primary"
-                    v-model="form.role" rounded="lg"></v-text-field>
+                  <v-text-field
+                    label="Headline / Role"
+                    variant="outlined"
+                    density="comfortable"
+                    color="primary"
+                    v-model="form.role"
+                    rounded="lg"
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="12">
-                  <v-textarea label="Bio" variant="outlined" rows="3" color="primary" v-model="form.bio"
-                    hint="Brief description for your profile." rounded="lg"></v-textarea>
+                  <v-textarea
+                    label="Bio"
+                    variant="outlined"
+                    rows="3"
+                    color="primary"
+                    v-model="form.bio"
+                    hint="Brief description for your profile."
+                    rounded="lg"
+                  ></v-textarea>
                 </v-col>
               </v-row>
 
-              <div class="d-flex justify-end mt-4">
-                <v-btn color="primary" size="large" variant="flat" class="text-capitalize" rounded="lg"
-                  @click="submitProfile">Save
-                  Changes</v-btn>
+              <div class="d-flex mt-4 justify-end">
+                <v-btn
+                  color="primary"
+                  size="large"
+                  variant="flat"
+                  class="text-capitalize"
+                  rounded="lg"
+                  @click="submitProfile"
+                  >Save Changes</v-btn
+                >
               </div>
             </v-window-item>
             <v-window-item value="security">
@@ -113,9 +204,17 @@
                     <v-icon color="primary ma-n4">mdi-lock-outline</v-icon>
                   </template>
                   <v-list-item-title>Change Password</v-list-item-title>
-                  <v-list-item-subtitle>Last changed 3 months ago</v-list-item-subtitle>
+                  <v-list-item-subtitle
+                    >Last changed 3 months ago</v-list-item-subtitle
+                  >
                   <template v-slot:append>
-                    <v-btn variant="outlined" size="small" color="primary" rounded="lg">Update</v-btn>
+                    <v-btn
+                      variant="outlined"
+                      size="small"
+                      color="primary"
+                      rounded="lg"
+                      >Update</v-btn
+                    >
                   </template>
                 </v-list-item>
 
@@ -123,25 +222,44 @@
 
                 <v-list-item>
                   <template v-slot:prepend>
-                    <v-icon color="primary ma-n4">mdi-shield-check-outline</v-icon>
+                    <v-icon color="primary ma-n4"
+                      >mdi-shield-check-outline</v-icon
+                    >
                   </template>
-                  <v-list-item-title>Two-Factor Authentication</v-list-item-title>
-                  <v-list-item-subtitle :class="twoFAEnabled ? 'text-success' : 'text-error'">{{
-                    twoFAEnabled ? "Enabled" : "Disabled"
-                  }}</v-list-item-subtitle>
+                  <v-list-item-title
+                    >Two-Factor Authentication</v-list-item-title
+                  >
+                  <v-list-item-subtitle
+                    :class="twoFAEnabled ? 'text-success' : 'text-error'"
+                    >{{
+                      twoFAEnabled ? "Enabled" : "Disabled"
+                    }}</v-list-item-subtitle
+                  >
                   <template v-slot:append>
-                    <v-switch color="primary" v-model="twoFAEnabled" hide-details density="compact"></v-switch>
+                    <v-switch
+                      color="primary"
+                      v-model="twoFAEnabled"
+                      hide-details
+                      density="compact"
+                    ></v-switch>
                   </template>
                 </v-list-item>
               </v-list>
 
-              <v-alert color="error" variant="tonal" icon="mdi-alert-circle-outline" title="Delete Account"
-                class="mt-6">
+              <v-alert
+                color="error"
+                variant="tonal"
+                icon="mdi-alert-circle-outline"
+                title="Delete Account"
+                class="mt-6"
+              >
                 <div class="text-caption mb-4">
                   Once you delete your account, there is no going back. Please
                   be certain.
                 </div>
-                <v-btn color="error" variant="flat" size="small">Delete Account</v-btn>
+                <v-btn color="error" variant="flat" size="small"
+                  >Delete Account</v-btn
+                >
               </v-alert>
             </v-window-item>
           </v-window>
@@ -180,11 +298,9 @@ const submitProfile = () => {
   // Here you would normally send the updated profile data to your backend
   showAlert("Profile updated successfully!", "success");
 };
-const BASE_URL =
-  (['localhost', '127.0.0.1'].includes(window.location.hostname)
-    ? import.meta.env.VITE_API_URL_1
-    : import.meta.env.VITE_API_URL_2
-  )
+const BASE_URL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+  ? import.meta.env.VITE_API_URL_1
+  : import.meta.env.VITE_API_URL_2;
 const fetchhobbies = async () => {
   try {
     const response = await fetch(`${BASE_URL}/profile`);

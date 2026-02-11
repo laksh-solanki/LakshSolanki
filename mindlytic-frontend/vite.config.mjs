@@ -3,20 +3,20 @@ import Components from "unplugin-vue-components/vite";
 import Vue from "@vitejs/plugin-vue";
 import Vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 import Fonts from "unplugin-fonts/vite";
+import tailwindcss from "@tailwindcss/vite";
 
 // Utilities
 import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "node:url";
-import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [
+    tailwindcss(),
     Vue({
       template: { transformAssetUrls },
     }),
     Vuetify({ autoImport: true }),
     Components(),
-    tailwindcss(),
     Fonts({
       fontsource: {
         families: [
@@ -27,12 +27,12 @@ export default defineConfig({
           },
         ],
       },
-    }),
+    }), 
   ],
 
   optimizeDeps: {
     esbuildOptions: {
-      target: 'esnext'
+      target: "esnext",
     },
     exclude: ["vuetify"],
   },
@@ -50,6 +50,7 @@ export default defineConfig({
 
   server: {
     port: 3000,
+    host: true,
   },
   build: {
     target: "esnext",

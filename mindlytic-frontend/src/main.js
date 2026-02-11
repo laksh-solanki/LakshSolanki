@@ -1,5 +1,6 @@
-// Plugins
-import { registerPlugins } from "@/plugins";
+// Styles
+import "unfonts.css";
+import "./assets/main.css";
 
 // Components
 import App from "./App.vue";
@@ -9,9 +10,8 @@ import { createApp } from "vue";
 import { createPinia } from "pinia";
 import router from "./router";
 
-// Styles
-import "unfonts.css";
-import "@/assets/style.css";
+// Plugins
+import { registerPlugins } from "@/plugins";
 
 const app = createApp(App);
 const pinia = createPinia();

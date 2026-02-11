@@ -4,7 +4,7 @@ defineProps({
     type: Object,
     required: true,
   },
-})
+});
 </script>
 
 <template>
@@ -48,7 +48,10 @@ defineProps({
       <div class="signatures">
         <div class="left prof-logo">
           <div class="figure text-center">
-            <img src="/src/assets/Picture/profSignature.png" alt="Provost Signature" />
+            <img
+              src="/src/assets/Picture/profSignature.png"
+              alt="Provost Signature"
+            />
           </div>
           <p class="signer-name">Prof. (Dr.) Prafulkumar Udani</p>
           <p class="signer-title">
@@ -81,7 +84,7 @@ defineProps({
 /* Main Wrapper to isolate print styles */
 .certificate-wrapper {
   width: 100%;
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
   color: #222;
 }
 
@@ -106,7 +109,7 @@ defineProps({
 }
 
 .logo-section .partner-logo:before {
-  content: '';
+  content: "";
   position: absolute;
   right: 0;
   top: 50%;
@@ -137,7 +140,7 @@ defineProps({
 
 /* Heading */
 .certificate-heading {
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-size: 34px;
   font-weight: 700;
   color: #222;
@@ -157,7 +160,7 @@ defineProps({
 }
 
 .name-content p {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 40px;
   font-weight: 700;
   text-align: center;
@@ -175,7 +178,7 @@ defineProps({
 }
 
 .content-body p {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 24px;
   font-weight: 400;
   line-height: 36px;
@@ -224,7 +227,7 @@ defineProps({
 }
 
 .signer-name {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 18px;
   font-weight: 800;
   line-height: normal;
@@ -233,7 +236,7 @@ defineProps({
 }
 
 .signer-title {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 15px;
   font-weight: 400;
   line-height: 20px;
