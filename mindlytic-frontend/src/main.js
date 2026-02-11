@@ -11,6 +11,7 @@ import router from "./router";
 
 // Styles
 import "unfonts.css";
+import "@/assets/style.css";
 
 const app = createApp(App);
 const pinia = createPinia();

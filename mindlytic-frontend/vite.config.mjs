@@ -7,6 +7,7 @@ import Fonts from "unplugin-fonts/vite";
 // Utilities
 import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "node:url";
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [
@@ -15,6 +16,7 @@ export default defineConfig({
     }),
     Vuetify({ autoImport: true }),
     Components(),
+    tailwindcss(),
     Fonts({
       fontsource: {
         families: [
