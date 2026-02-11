@@ -31,8 +31,8 @@ onBeforeUnmount(() => clearTimeout(timer))
 </script>
 
 <template>
-  <v-snackbar v-model="visible" :color="color" variant="flat" rounded="lg" location="top right"
-    transition="slide-x-reverse-transition">
+  <v-snackbar v-model="visible" :color="color" variant="elevated" rounded="lg" location="bottom center"
+    transition="slide-y-reverse-transition">
     <span v-if="type === 'success'" class="mr-2">✔</span>
     <span v-else-if="type === 'error'" class="mr-2">❌</span>
     {{ message }}
