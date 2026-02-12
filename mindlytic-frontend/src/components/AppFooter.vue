@@ -84,7 +84,7 @@ const quickLinks = [
           color="primary"
           class="mb-2"
         ></v-icon>
-        <p class="text-h6 align-center font-weight-bold my-2">Contact Us</p>
+        <p class="text-h6 font-weight-bold align-center my-2">Contact Us</p>
         <div class="contact-info">
           <p class="d-flex align-center mb-2 justify-center text-center">
             <v-icon size="small" class="mr-2">mdi-phone</v-icon>

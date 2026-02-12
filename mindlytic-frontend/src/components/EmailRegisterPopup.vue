@@ -1,48 +1,22 @@
 <template>
   <v-card class="mx-auto" elevation="0" max-width="300">
     <div class="mb-3 text-center">
-      <v-icon
-        icon="mdi-email-newsletter"
-        size="40"
-        color="primary"
-        class="mb-2"
-      ></v-icon>
-      <p class="text-h6 font-weight-bold">Subscribe</p>
+      <v-icon icon="mdi-email-newsletter" size="40" color="primary" class="mb-2"></v-icon>
+      <p class="text-h6 font-weight-bold align-center my-2">Subscribe</p>
       <p class="text-body-2 text-medium-emphasis">
         Join our newsletter to stay updated with the latest news and features.
       </p>
     </div>
 
     <v-form ref="form" v-model="isValid" @submit.prevent="handleSubscribe">
-      <Alerts
-        v-model="showAlert"
-        :message="feedbackMessage"
-        :type="feedbackType"
-      />
+      <Alerts v-model="showAlert" :message="feedbackMessage" :type="feedbackType" />
 
-      <v-text-field
-        v-model.trim="email"
-        label="Email Address"
-        placeholder="you@example.com"
-        type="email"
-        variant="outlined"
-        prepend-inner-icon="mdi-email-outline"
-        :rules="emailRules"
-        :disabled="isLoading || isSubscribed"
-        required
-        density="comfortable"
-      ></v-text-field>
+      <v-text-field v-model.trim="email" label="Email Address" placeholder="you@example.com" type="email"
+        variant="outlined" prepend-inner-icon="mdi-email-outline" :rules="emailRules"
+        :disabled="isLoading || isSubscribed" required density="comfortable"></v-text-field>
 
-      <v-btn
-        block
-        color="primary"
-        type="submit"
-        rounded="3"
-        :loading="isLoading"
-        :disabled="!isValid || isSubscribed"
-        class="text-none mt-2"
-        elevation="2"
-      >
+      <v-btn block color="primary" type="submit" rounded="3" :loading="isLoading" :disabled="!isValid || isSubscribed"
+        class="text-none mt-2" elevation="2">
         {{ isSubscribed ? "Subscribed" : "Subscribe" }}
       </v-btn>
     </v-form>
