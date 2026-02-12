@@ -4,37 +4,36 @@
       <v-icon>mdi-magnify</v-icon>
     </v-btn>
 
-    <v-dialog v-model="isOpen" max-width="600" transition="fade-transition" :fullscreen="$vuetify.display.xs">
+    <v-dialog v-model="isOpen" max-width="630" transition="fade-transition" :fullscreen="$vuetify.display.xs">
       <div
-        class="bg-[#111113] border border-white/10 rounded-lg sm:rounded-2xl overflow-hidden flex flex-col h-full sm:h-auto max-h-[80vh]">
+        class="bg-[#2e2e34] border border-white rounded-lg sm:rounded-2xl overflow-hidden flex flex-col h-full sm:h-auto max-h-[80vh]">
 
-        <div class="flex items-center pa-4 border-b border-white/10 ga-3">
-          <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input ref="searchInput" v-model="query" type="text" placeholder="Search anything..."
+        <div class="flex items-center pa-3 border-b border-white/10 ga-3">
+          <v-text-field ref="searchInput" v-model="query" variant="outlined" hide-details placeholder="Search anything..."
             class="flex-1 bg-transparent border-0 outline-none text-white text-lg placeholder-white/20"
-            @keydown.down.prevent="moveDown" @keydown.up.prevent="moveUp" @keydown.enter="selectResult" />
+            @keydown.down.prevent="moveDown" @keydown.up.prevent="moveUp" @keydown.enter="selectResult" prepend-inner-icon="mdi-magnify">
+          </v-text-field>
           <button @click="isOpen = false" class="text-white/40 text-xs hover:text-white sm:hidden">Close</button>
-          <kbd
-            class="hidden sm:block px-2 py-1 text-[10px] bg-white/5 border border-white/10 rounded uppercase">Esc</kbd>
+          <kbd  
+            class="hidden sm:block px-2 py-1 text-[10px] border border-white/10 rounded uppercase h-14 d-flex justify-center align-center">Esc</kbd>
         </div>
 
-        <div class="flex-1 overflow-y-auto custom-scrollbar pa-2 min-h-75">
+        <div class="flex-1 overflow-y-auto custom-scrollbar border ma-1 pa-2 min-h-75">
           <div v-if="query === ''" class="p-4">
-            <h3 class="text-xs font-bold text-white/30 uppercase tracking-widest mb-3">Popular Searches</h3>
-            <div class="flex flex-wrap gap-2">
+            <h3 class="text-xs font-bold text-white/30 uppercase tracking-widest mb-3 ml-3 mt-2">Recent
+              <v-icon>mdi-history</v-icon>
+            </h3>
+            <div class="flex flex-wrap items-start gap-2 pa-1">
               <button v-for="tag in suggestions" :key="tag" @click="query = tag"
-                class="px-3 py-1 bg-white/5 rounded-full text-xs text-indigo-300 hover:bg-indigo-500/20 transition-colors">
-                #{{ tag }}
+                class="px-2 py-1 bg-white rounded-full text-xs text-indigo-300 hover:bg-indigo-500/20 transition-colors">
+                # {{ tag }}
               </button>
             </div>
           </div>
 
           <div v-else-if="filteredResults.length > 0">
             <div v-for="(item, index) in filteredResults" :key="item.id"
-              :class="['flex items-center ga-4 pa-3 rounded-xl cursor-pointer transition-all', activeIndex === index ? 'bg-indigo-600 text-white shadow-lg' : 'hover:bg-white/5 text-white/70']"
+              :class="['flex items-center ga-4 pa-3 rounded-lg cursor-pointer transition-all', activeIndex === index ? 'bg-indigo-600 text-white shadow-lg' : 'hover:bg-white/5 text-white/70']"
               @mouseenter="activeIndex = index" @click="selectResult">
               <div
                 :class="['p-2 rounded-lg flex items-center justify-center w-9 h-9', activeIndex === index ? 'bg-white/20' : 'bg-white/5']">
@@ -61,13 +60,15 @@
         </div>
 
         <div
-          class="pa-3 border-t border-white/10 bg-black/20 hidden sm:flex items-center justify-between text-[10px] text-white/30">
+          class="pa-2 border-t border-white/10 bg-black/20 hidden sm:flex items-center justify-between text-[16px] text-white/30">
           <div class="flex ga-4">
             <span><kbd class="bg-white/10 px-1 rounded">↵</kbd> Select</span>
             <span><kbd class="bg-white/10 px-1 rounded">↑↓</kbd> Navigate</span>
           </div>
           <div class="flex items-center gap-1">
-            Search by <span class="text-white font-bold tracking-tighter">Mindlytic</span>
+            Search by <span class="text-white font-bold tracking-tighter">
+              <mainsvgicon class="pa-0" />
+            </span>
           </div>
         </div>
       </div>
@@ -78,6 +79,7 @@
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import mainsvgicon from '@/assets/mainsvgicon.vue';
 
 // --- State ---
 const isOpen = ref(false);
@@ -86,15 +88,15 @@ const activeIndex = ref(0);
 const searchInput = ref(null);
 const router = useRouter();
 
-const suggestions = ref(['Project', 'Dashboard', 'pdf to image', 'Profile', 'Certificate Generator']);
+const suggestions = ref(['Project', 'Dashboard', 'pdf to image', 'Profile', 'image to pdf', 'Certificate Generator']);
 
 const items = ref([
   { id: 1, title: 'Dashboard Overview', path: '/', category: 'Navigation', icon: 'mdi-view-dashboard-outline' },
   { id: 2, title: 'Serverless Analytics Setup', path: '/docs/serverless', category: 'Documentation', icon: 'mdi-server-network' },
-  { id: 3, title: 'Visualizer Tools', path: '/tools/visualizer', category: 'Tools', icon: 'mdi-chart-bar' },
+  { id: 3, title: 'image to pdf converter', path: '/projects/img-pdf', category: 'Tools', icon: 'mdi-chart-bar' },
   { id: 4, title: 'About Mindlytic', path: '/about', category: 'Navigation', icon: 'mdi-information-outline' },
   { id: 5, title: 'User Profile & Settings', path: '/profile', category: 'Account', icon: 'mdi-account-cog-outline' },
-  { id: 6, title: 'Pdf to Image Converter', path: '/projects/img-pdf', category: 'Tools', icon: 'mdi-file-document-outline' },
+  { id: 6, title: 'Pdf to Image Converter', path: '/projects/pdf-img', category: 'Tools', icon: 'mdi-file-document-outline' },
   { id: 7, title: 'Projects', path: '/projects', category: 'Navigation', icon: 'mdi-folder-multiple-outline' },
   { id: 8, title: 'Certificate Generator', path: '/projects/certificate-gen', category: 'Tools', icon: 'mdi-certificate-outline' },
 ]);

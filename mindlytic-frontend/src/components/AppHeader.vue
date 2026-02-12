@@ -47,7 +47,7 @@ const userMenu = [
       <v-tabs direction="vertical" density="comfortable" class="mt-2">
         <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" color="primary">{{ link.title }}
           <template v-slot:append>
-            <v-icon v-if="$route.path === link.path" icon="mdi-chevron-right"></v-icon>
+            <v-icon v-if="$route.path === link.path" icon="mdi-chevron-double-right"></v-icon>
           </template>
         </v-tab>
       </v-tabs>
