@@ -1,4 +1,5 @@
 import { createWebHistory, createRouter } from "vue-router";
+import { ref } from "vue";
 
 const routes = [
   {
@@ -79,6 +80,17 @@ const router = createRouter({
 router.beforeEach((to, _from, next) => {
   document.title = to.meta.title || "Mindlytic";
   next();
+});
+
+export const isGlobalLoading = ref(null);
+
+router.beforeEach((to, from, next) => {
+  if (isGlobalLoading.value) isGlobalLoading.value.start();
+  next();
+});
+
+router.afterEach(() => {
+  if (isGlobalLoading.value) isGlobalLoading.value.finish();
 });
 
 export default router;
