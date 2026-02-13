@@ -90,7 +90,7 @@ const projects = ref([
                 </v-img>
               </div>
 
-              <div class="card-content pa-6 d-flex flex-column flex-grow-1">
+              <div class="card-content pa-6 d-flex flex-column grow">
                 <div class="d-flex justify-space-between align-center mb-3">
                   <span
                     class="text-caption text-uppercase text-medium-emphasis font-weight-bold tracking-wide"

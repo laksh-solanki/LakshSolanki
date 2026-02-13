@@ -96,156 +96,193 @@ const goBack = () => {
 </script>
 
 <template>
-  <v-btn
-    @click="goBack"
-    variant="flat"
-    icon="mdi-arrow-left"
-    color="primary"
-    class="rounded-0 rounded-be-xl"
-  ></v-btn>
+  <div class="page-wrapper">
+    <v-btn
+      @click="goBack"
+      variant="flat"
+      icon="mdi-arrow-left"
+      color="primary"
+      class="rounded-0 rounded-be-xl back-button"
+      position="fixed"
+      style="z-index: 10; top: 64px"
+      aria-label="Go back"
+    ></v-btn>
 
-  <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
+    <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
-  <v-container class="certificate-container" style="min-height: 84.3vh">
-    <v-card
-      class="text-h5 pa-4 my-3 text-center"
-      color="primary-lighten-5"
-      border="primary md opacity-100"
-      rounded="xl"
-      flat
+    <v-sheet
+      class="d-flex align-center justify-center flex-wrap text-center"
+      elevation="0"
+      height="250"
+      dark
+      color="transparent"
     >
-      Student Certificate
-    </v-card>
+      <v-container>
+        <v-row justify="center">
+          <v-col cols="12" md="10" lg="8">
+            <div class="text-center mb-8">
+              <div class="text-overline text-medium-emphasis">Tool</div>
+              <h1 class="text-h2 font-weight-bold">
+                Certificate Generator
+              </h1>
+              <p class="text-body-1 text-medium-emphasis mt-2">
+                Create and download your course completion certificate.
+              </p>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-sheet>
 
-    <v-card class="rounded-xl" color="primary" variant="tonal" border>
-      <v-card-text>
-        <v-form ref="studentForm">
-          <v-row>
-            <v-col cols="12">
-              <h3 class="text-h6 text-md-start mt-4 text-center">
-                Personal Details
-              </h3>
-              <v-divider class="my-3"></v-divider>
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="form.fname"
-                :rules="[(v) => !!v || 'Full Name is required']"
-                label="Full Name"
-                variant="outlined"
-                name="fname"
-                id="fname"
-                rounded="lg"
-                bg-color="surface"
-                autocomplete
-                spellcheck
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-select
-                v-model="form.course"
-                :items="courses"
-                :rules="[(v) => !!v || 'Course is required']"
-                label="Course"
-                variant="outlined"
-                name="course"
-                id="course"
-                rounded="lg"
-                item-title="name"
-                return-object
-                bg-color="surface"
-              ></v-select>
-            </v-col>
-          </v-row>
+    <v-container>
+      <v-row justify="center">
+        <v-col cols="12" md="10" lg="8">
+          <v-card class="pa-4 pa-md-6 rounded-xl" flat border>
+            <v-form ref="studentForm" @submit.prevent="previewCertificate">
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model.trim="form.fname"
+                    :rules="[(v) => !!v || 'Full Name is required']"
+                    label="Full Name"
+                    placeholder="Enter your full name"
+                    name="fname"
+                    id="fname"
+                    rounded="lg"
+                    autocomplete="name"
+                    spellcheck="false"
+                    prepend-inner-icon="mdi-account"
+                    variant="solo-filled"
+                    flat
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-select
+                    v-model="form.course"
+                    :items="courses"
+                    :rules="[(v) => !!v || 'Course is required']"
+                    label="Select Course"
+                    name="course"
+                    id="course"
+                    rounded="lg"
+                    item-title="name"
+                    return-object
+                    prepend-inner-icon="mdi-school"
+                    variant="solo-filled"
+                    flat
+                  ></v-select>
+                </v-col>
+              </v-row>
 
-          <v-row class="mt-5 justify-center">
-            <v-col cols="12" md="3" class="d-flex justify-center">
-              <v-tooltip
-                text="Preview and Download the certificate"
-                location="top"
-              >
-                <template v-slot:activator="{ props }">
+              <v-row class="mt-4" justify="center">
+                <v-col cols="auto">
                   <v-btn
-                    v-bind="props"
-                    @click="previewCertificate"
-                    text="Certificate"
+                    type="submit"
+                    text="Preview Certificate"
                     :loading="loading"
                     prepend-icon="mdi-file-certificate-outline"
-                    variant="tonal"
                     color="primary"
                     size="large"
-                    class="rounded-lg border"
+                    class="rounded-lg"
+                    elevation="2"
                   ></v-btn>
-                </template>
-              </v-tooltip>
-            </v-col>
-          </v-row>
-        </v-form>
-      </v-card-text>
-    </v-card>
+                </v-col>
+              </v-row>
+            </v-form>
+          </v-card>
+          <v-alert
+            class="mt-6 rounded-xl"
+            color="primary"
+            variant="tonal"
+            border="start"
+            elevation="2"
+            icon="mdi-information"
+            prominent
+          >
+            <p class="text-body-1">
+              <strong>Note:</strong> Please ensure that you have filled in your
+              full name and selected the correct course before generating the
+              certificate. The certificate will be generated in PDF format,
+              which you can
+              <v-chip class="mx-1" color="secondary" label size="small">
+                Download For Free
+              </v-chip>
+              .
+            </p>
+          </v-alert>
+        </v-col>
+      </v-row>
+    </v-container>
 
-    <v-card
-      class="mt-4 rounded-xl"
-      color="primary"
-      variant="tonal"
-      elevation="3"
-      border
-    >
-      <v-card-text>
-        <div>
-          Note: Please ensure that you have filled in your full name and
-          selected the correct course before generating the certificate. The
-          certificate will be generated in PDF format, which you can
-          <v-chip class="ma-1" color="secondary" label>
-            Download For Free.
-          </v-chip>
-        </div>
-        <div class="mt-2">
-          Certificates: The 10 courses available for certificate generation.
-        </div>
-      </v-card-text>
-    </v-card>
-  </v-container>
+    <v-dialog v-model="dialog" max-width="900px">
+      <v-card class="d-flex flex-column fill-height">
+        <v-toolbar color="primary" density="compact">
+          <v-toolbar-title class="text-h6 font-weight-bold">
+            Certificate Preview
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            @click="dialog = false"
+            aria-label="Close dialog"
+          ></v-btn>
+        </v-toolbar>
 
-  <v-dialog v-model="dialog" max-width="820">
-    <v-card>
-      <v-card-title class="pa-0 d-flex justify-space-between">
-        <v-btn
-          @click="generatePdf"
-          text="Download"
-          prepend-icon="mdi-download"
-          :loading="loading"
-          variant="tonal"
-          color="primary"
-          height="45"
-          class="rounded-0 rounded-br-lg"
-        ></v-btn>
-        <v-btn
-          icon="mdi-close"
-          variant="text"
-          color="primary"
-          @click="dialog = false"
-          class="rounded-0 rounded-bl-lg"
-        ></v-btn>
-      </v-card-title>
-
-      <div>
-        <div ref="pdfSection" class="certificate-bg">
-          <Certificate :form="form" />
-        </div>
-      </div>
-    </v-card>
-  </v-dialog>
+        <v-card-text
+          class="grow d-flex align-center justify-center pa-2 pa-md-4 bg-grey-darken-4"
+        >
+          <div class="certificate-preview-wrapper">
+            <v-responsive :aspect-ratio="1 / 1.414">
+              <div ref="pdfSection" class="certificate-bg">
+                <Certificate :form="form" />
+              </div>
+            </v-responsive>
+          </div>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions class="pa-4">
+          <v-spacer></v-spacer>
+          <v-btn
+            @click="generatePdf"
+            text="Download"
+            prepend-icon="mdi-download"
+            :loading="loading"
+            variant="tonal"
+            color="primary"
+            size="large"
+          ></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <style scoped>
+.page-wrapper {
+  position: relative;
+}
+
+.back-button {
+  top: 64px; /* Adjust based on your app bar height */
+  left: 0;
+}
+
+.certificate-preview-wrapper {
+  width: 100%;
+  max-width: 820px; /* A4-like width for desktop */
+  margin: auto;
+}
+
 .certificate-bg {
-  background-image: url(/src/assets/Picture/CoursePathway_BG.jpg);
+  background-image: url(@/assets/Picture/CoursePathway_BG.jpg);
   padding: 0;
   margin: 0;
   width: 100%;
-  height: 1120px !important;
+  height: 100%;
+  display: flex;
   align-items: center;
+  justify-content: center;
   overflow: hidden;
   position: relative;
   background-repeat: no-repeat;
