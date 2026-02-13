@@ -41,7 +41,7 @@ defineExpose({ start, finish });
   top: 0;
   left: 0;
   width: 100%;
-  height: 1px;
+  height: 2px;
   z-index: 9999;
 }
 
