@@ -32,12 +32,10 @@ const userMenu = [
 </script>
 
 <template>
-  <v-navigation-drawer v-model="drawer" temporary location="left" border :scrim="false">
+  <v-navigation-drawer v-model="drawer" temporary location="left">
     <v-list>
-      <v-list-item class="px-auto position-relative py-0">
+      <v-list-item class="py-0">
         <mainsvgicon />
-        <v-btn icon="mdi-close" variant="text" density="compact" class="position-absolute"
-          style="right: 10px; top: 50%; transform: translateY(-50%)" @click="drawer = false"></v-btn>
       </v-list-item>
     </v-list>
 
@@ -45,7 +43,8 @@ const userMenu = [
 
     <v-list nav>
       <v-tabs inset direction="vertical" class="ma-0" inset-radius="8">
-        <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" slider-color="white" width="225">{{ link.title }}
+        <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" slider-color="white" width="225">{{
+          link.title }}
           <template v-slot:append>
             <v-icon v-if="$route.path === link.path" icon="mdi-chevron-double-right"></v-icon>
           </template>
@@ -54,15 +53,17 @@ const userMenu = [
     </v-list>
   </v-navigation-drawer>
   <v-app-bar color="surface" scroll-behavior="elevate" border scroll-threshold="1000" class="px-0" density="default">
-    <v-app-bar-nav-icon variant="text" class="d-lg-none d-xl-none d-xxl-none ma-0" @click.stop="drawer = !drawer"
+    <v-app-bar-nav-icon variant="text" class="d-lg-none d-xl-none d-xxl-none mx-0" @click.stop="drawer = !drawer"
       title="Menu"></v-app-bar-nav-icon>
-    <v-divider vertical class="d-lg-none mx-1"></v-divider>
+    <v-divider vertical class="d-flex d-sm-flex d-md-flex d-lg-none mx-1"></v-divider>
     <mainsvgicon />
     <v-divider vertical class="d-none d-sm-flex d-md-flex d-lg-flex"></v-divider>
     <div class="d-none d-md-flex align-center w-100 justify-center ">
-      <v-tabs inset inset-radius="8" inset-padding="8" density="compact" class="d-none d-lg-flex align-center " height="40" bg-color="black">
-        <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" max-height="40" class="px-2" slider-color="white">{{
-          link.title }}</v-tab>
+      <v-tabs inset inset-radius="8" inset-padding="8" density="compact" class="d-none d-lg-flex align-center "
+        height="40" bg-color="black">
+        <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" max-height="40" class="px-2"
+          slider-color="white">{{
+            link.title }}</v-tab>
       </v-tabs>
     </div>
     <div class="d-flex align-end w-100 justify-end">
