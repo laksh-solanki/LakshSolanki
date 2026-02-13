@@ -368,7 +368,7 @@ const setOrientation = (layout) => {
             <v-card
               class="border-md mx-auto"
               max-width="400"
-              rounded="xl"
+              rounded="lg"
               elevation="5"
             >
               <v-card-actions class="bg-primary">

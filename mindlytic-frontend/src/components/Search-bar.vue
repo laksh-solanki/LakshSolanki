@@ -13,9 +13,9 @@
             class="flex-1 bg-transparent border-0 outline-none text-white text-lg placeholder-white/20"
             @keydown.down.prevent="moveDown" @keydown.up.prevent="moveUp" @keydown.enter="selectResult" prepend-inner-icon="mdi-magnify">
           </v-text-field>
-          <button @click="isOpen = false" class="text-white/40 text-xs hover:text-white sm:hidden">Close</button>
-          <kbd  
-            class="hidden sm:block px-2 py-1 text-[10px] border border-white/10 rounded uppercase h-14 d-flex justify-center align-center">Esc</kbd>
+          <v-btn @click="isOpen = false" class="text-white/40 text-xs hover:text-white d-flex d-sm-none d-md-none d-lg-none" icon="mdi-close"></v-btn>
+          <kbd
+            class="hidden sm:flex px-2 py-1 text-[10px] border border-white/10 rounded uppercase h-14 align-center">Esc</kbd>
         </div>
 
         <div class="flex-1 overflow-y-auto custom-scrollbar border ma-1 pa-2 min-h-75">
@@ -60,7 +60,7 @@
         </div>
 
         <div
-          class="pa-2 border-t border-white/10 bg-black/20 hidden sm:flex items-center justify-between text-[16px] text-white/30">
+          class="pa-2 border-t border-white/10 bg-black/20 d-flex items-center justify-between text-[12px] text-white/30">
           <div class="flex ga-4">
             <span><kbd class="bg-white/10 px-1 rounded">↵</kbd> Select</span>
             <span><kbd class="bg-white/10 px-1 rounded">↑↓</kbd> Navigate</span>

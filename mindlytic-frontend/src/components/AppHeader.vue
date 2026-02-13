@@ -44,8 +44,8 @@ const userMenu = [
     <v-divider></v-divider>
 
     <v-list nav>
-      <v-tabs direction="vertical" density="comfortable" class="mt-2">
-        <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" color="primary">{{ link.title }}
+      <v-tabs inset direction="vertical" class="ma-0" inset-radius="8">
+        <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" slider-color="white" width="225">{{ link.title }}
           <template v-slot:append>
             <v-icon v-if="$route.path === link.path" icon="mdi-chevron-double-right"></v-icon>
           </template>
@@ -59,9 +59,9 @@ const userMenu = [
     <v-divider vertical class="d-lg-none mx-1"></v-divider>
     <mainsvgicon />
     <v-divider vertical class="d-none d-sm-flex d-md-flex d-lg-flex"></v-divider>
-    <div class="d-none d-md-flex align-center w-100 justify-end">
-      <v-tabs density="compact" class="d-none d-lg-flex align-center" slider-color="primary" color="primary">
-        <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" class="px-2" slider-color="white">{{
+    <div class="d-none d-md-flex align-center w-100 justify-center ">
+      <v-tabs inset inset-radius="8" inset-padding="8" density="compact" class="d-none d-lg-flex align-center " height="40" bg-color="black">
+        <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" max-height="40" class="px-2" slider-color="white">{{
           link.title }}</v-tab>
       </v-tabs>
     </div>
