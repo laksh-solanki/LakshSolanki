@@ -23,3 +23,22 @@ onMounted(() => {
   isGlobalLoading.value = loaderRef.value;
 });
 </script>
+<style>
+/* Smooth scrollbar for premium feel */
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+</style>

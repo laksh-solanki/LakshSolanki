@@ -46,6 +46,16 @@ const projects = ref([
     tags: ["Vue", "Vuetify", "Web Speech API"],
     disabled: false,
   },
+  {
+    id: 5,
+    title: "Gemini AI",
+    category: "AI",
+    description:"gemini ai",
+    image: new URL("../assets/Picture/Project-5.png", import.meta.url).href,
+    link: "/projects/mindlytic_Ai",
+    tags: ["Vue", "Vuetify", "Web Speech API"],
+    disabled: false,
+  }
 ]);
 </script>
 
