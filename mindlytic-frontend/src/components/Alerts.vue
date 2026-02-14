@@ -1,5 +1,11 @@
 <script setup>
-import { computed, watch, onBeforeUnmount } from "vue";
+
+// Library Imports
+import { computed, watch, onBeforeUnmount,defineProps, defineEmits } from "vue";
+
+// Props & Emits & State & Refs
+const emit = defineEmits(["update:modelValue"]);
+let timer = null;
 
 const props = defineProps({
   modelValue: Boolean,
@@ -8,7 +14,6 @@ const props = defineProps({
   duration: { type: Number, default: 4000 },
 });
 
-const emit = defineEmits(["update:modelValue"]);
 
 const visible = computed({
   get: () => props.modelValue,
@@ -23,7 +28,6 @@ const color = computed(() =>
       : "info",
 );
 
-let timer = null;
 watch(
   () => props.modelValue,
   (val) => {

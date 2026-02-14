@@ -5,8 +5,11 @@
 </template>
 
 <script setup>
+
+// Library Imports
 import { ref } from 'vue';
 
+// State & Refs
 const progress = ref(0);
 const isVisible = ref(false);
 let interval = null;

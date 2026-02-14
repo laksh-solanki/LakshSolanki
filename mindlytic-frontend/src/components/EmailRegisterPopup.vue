@@ -24,10 +24,12 @@
 </template>
 
 <script setup>
+
+// Library Imports
 import { ref, onMounted } from "vue";
 import Alerts from "./Alerts.vue";
 
-// State
+// State & Refs
 const isValid = ref(false);
 const isLoading = ref(false);
 const isSubscribed = ref(false);

@@ -132,7 +132,7 @@
                   <v-list-item-title>Two-Factor Authentication</v-list-item-title>
                   <v-list-item-subtitle :class="twoFAEnabled ? 'text-success' : 'text-error'">{{
                     twoFAEnabled ? "Enabled" : "Disabled"
-                  }}</v-list-item-subtitle>
+                    }}</v-list-item-subtitle>
                   <template v-slot:append>
                     <v-switch color="primary" v-model="twoFAEnabled" hide-details density="compact"></v-switch>
                   </template>
@@ -156,6 +156,8 @@
 </template>
 
 <script setup>
+
+// Library Imports
 import { ref, onMounted } from "vue";
 import my_photo from "@/assets/Picture/my-pic.jpg";
 import Alerts from "@/components/Alerts.vue";
@@ -164,6 +166,11 @@ import Alerts from "@/components/Alerts.vue";
 const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
+const selectedImage = ref('')
+const tab = ref("edit");
+const chips = ref([]);
+const hobbies = ref([]);
+const twoFAEnabled = ref(true);
 
 const showAlert = (message, type = "success") => {
   alertMessage.value = message;
@@ -182,24 +189,20 @@ const images = [
   new URL("../assets/Picture/banners/img-4.jpg", import.meta.url).href,
 ];
 
-const selectedImage = ref('')
-
 onMounted(() => {
   const randomIndex = Math.floor(Math.random() * images.length)
   selectedImage.value = images[randomIndex]
 })
 
-const tab = ref("edit");
-const chips = ref([]);
-const hobbies = ref([]);
-const twoFAEnabled = ref(true);
 const openanyModal = () => {
   showAlert("Email modal opened (functionality not implemented)", "info");
 };
+
 const submitProfile = () => {
   // Here you would normally send the updated profile data to your backend
   showAlert("Profile updated successfully!", "success");
 };
+
 const BASE_URL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
   ? import.meta.env.VITE_API_URL_1
   : import.meta.env.VITE_API_URL_2;
@@ -215,6 +218,7 @@ const fetchhobbies = async () => {
     console.error("There was a problem with the fetch operation:", error);
   }
 };
+
 onMounted(() => {
   fetchhobbies();
 });

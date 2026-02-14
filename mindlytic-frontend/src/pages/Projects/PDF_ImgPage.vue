@@ -1,17 +1,15 @@
 <script setup>
+// Library Imports
 import { ref, onMounted, onUnmounted } from "vue";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.mjs?url";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-
-// Set worker source
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
-
-// Component Imports
 import Alerts from "@/components/Alerts.vue";
 
-// State Management
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+
+// State & Refs
 const pdfFile = ref(null);
 const images = ref([]);
 const isConverting = ref(false);
@@ -20,11 +18,7 @@ const conversionStatus = ref("");
 const imageIdCounter = ref(0);
 const pdfName = ref("");
 const isDragging = ref(false);
-
-// Template Refs
 const fileInput = ref(null);
-
-// Notification State (unified)
 const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
@@ -35,7 +29,6 @@ const showAlert = (message, type) => {
   alertVisible.value = true;
 };
 
-// Navigation & File Input
 const goBack = () => window.history.back();
 const triggerFileInput = () => fileInput.value?.click();
 
@@ -123,7 +116,6 @@ const processPdf = async () => {
   reader.readAsArrayBuffer(pdfFile.value);
 };
 
-// Image Management
 const removeImage = (index) => {
   URL.revokeObjectURL(images.value[index].url);
   images.value.splice(index, 1);

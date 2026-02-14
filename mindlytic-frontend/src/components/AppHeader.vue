@@ -1,11 +1,12 @@
 <script setup>
-import { ref } from "vue";
 
+// Library Imports
+import { ref } from "vue";
 import mainsvgicon from "@/assets/mainsvgicon.vue";
 import SearchBar from "./Search-bar.vue";
 import my_photo from "@/assets/Picture/my-pic.jpg";
 
-// State for mobile navigation drawer
+// State & Refs
 const menu = ref(false);
 const drawer = ref(false);
 

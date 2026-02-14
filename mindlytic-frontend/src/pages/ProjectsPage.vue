@@ -1,4 +1,6 @@
 <script setup>
+
+// Library Imports
 import { ref } from "vue";
 
 // Data: Replace these with your actual 3 links/projects

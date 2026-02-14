@@ -16,6 +16,7 @@ import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
 import TopLoader from './components/TopLoader.vue';
 import { isGlobalLoading } from '@/router/index.js';
+
 const loaderRef = ref(null);
 
 onMounted(() => {

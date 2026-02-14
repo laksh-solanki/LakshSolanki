@@ -89,17 +89,18 @@
 </template>
 
 <script setup>
+
+// Library Imports
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import mainsvgicon from '@/assets/mainsvgicon.vue';
 
-// --- State ---
+// State & Refs
 const isOpen = ref(false);
 const query = ref('');
 const activeIndex = ref(0);
 const searchInput = ref(null);
 const router = useRouter();
-
 const suggestions = ref(['Project', 'Dashboard', 'pdf to image', 'Profile', 'image to pdf', 'Certificate Generator']);
 
 const items = ref([

@@ -38,7 +38,9 @@
 </template>
 
 <script setup>
+// Library Imports
 import { ref } from 'vue';
+// State & Refs
 const isVisible = ref(true);
 </script>
 

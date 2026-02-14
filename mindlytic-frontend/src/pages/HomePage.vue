@@ -1,4 +1,6 @@
 <script setup>
+
+// Library Imports
 import { ref } from "vue";
 import newbanner from "@/components/newbanner.vue";
 

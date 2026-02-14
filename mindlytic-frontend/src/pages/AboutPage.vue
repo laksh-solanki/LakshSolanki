@@ -155,6 +155,7 @@
 </template>
 
 <script setup>
+// Library Imports
 import { ref } from "vue";
 import about_pho_1 from "@/assets/Picture/about_pho_1.jpg";
 

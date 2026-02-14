@@ -1,22 +1,31 @@
 <script setup>
+// Library Imports
 import { ref, reactive, onMounted } from "vue";
 import Certificate from "@/components/certificate.vue";
 import Alerts from "@/components/Alerts.vue";
 
+// State & Refs
 const studentForm = ref(null);
+const alertVisible = ref(false);
+const alertMessage = ref("");
+const alertType = ref("success");
+const courses = ref([]);
+const loading = ref(false);
+const dialog = ref(false);
+const pdfSection = ref(null);
+
 const form = reactive({
   fname: "",
   course: "",
 });
 
-const courses = ref([]);
+const goBack = () => {
+  window.history.back();
+};
+
 const BASE_URL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
   ? import.meta.env.VITE_API_URL_1
   : import.meta.env.VITE_API_URL_2;
-
-const alertVisible = ref(false);
-const alertMessage = ref("");
-const alertType = ref("success");
 
 const showAlert = (message, type) => {
   alertMessage.value = message;
@@ -41,9 +50,6 @@ onMounted(() => {
   fetchCourses();
 });
 
-const loading = ref(false);
-const dialog = ref(false);
-const pdfSection = ref(null);
 
 const previewCertificate = async () => {
   const { valid } = await studentForm.value.validate();
@@ -90,33 +96,18 @@ const generatePdf = async () => {
   }
 };
 
-const goBack = () => {
-  window.history.back();
-};
 </script>
 
 <template>
   <div class="page-wrapper">
-    <v-btn
-      @click="goBack"
-      variant="flat"
-      icon="mdi-arrow-left"
-      color="primary"
-      class="rounded-0 rounded-be-xl back-button"
-      position="fixed"
-      style="z-index: 10; top: 64px"
-      aria-label="Go back"
-    ></v-btn>
+    <v-btn @click="goBack" variant="flat" icon="mdi-arrow-left" color="primary"
+      class="rounded-0 rounded-be-xl back-button" position="fixed" style="z-index: 10; top: 64px"
+      aria-label="Go back"></v-btn>
 
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
-    <v-sheet
-      class="d-flex align-center justify-center flex-wrap text-center"
-      elevation="0"
-      height="250"
-      dark
-      color="transparent"
-    >
+    <v-sheet class="d-flex align-center justify-center flex-wrap text-center" elevation="0" height="250" dark
+      color="transparent">
       <v-container>
         <v-row justify="center">
           <v-col cols="12" md="10" lg="8">
@@ -141,64 +132,29 @@ const goBack = () => {
             <v-form ref="studentForm" @submit.prevent="previewCertificate">
               <v-row>
                 <v-col cols="12" md="6">
-                  <v-text-field
-                    v-model.trim="form.fname"
-                    :rules="[(v) => !!v || 'Full Name is required']"
-                    label="Full Name"
-                    placeholder="Enter your full name"
-                    name="fname"
-                    id="fname"
-                    rounded="lg"
-                    autocomplete="name"
-                    spellcheck="false"
-                    prepend-inner-icon="mdi-account"
-                    variant="solo-filled"
-                    flat
-                  ></v-text-field>
+                  <v-text-field v-model.trim="form.fname" :rules="[(v) => !!v || 'Full Name is required']"
+                    label="Full Name" placeholder="Enter your full name" name="fname" id="fname" rounded="lg"
+                    autocomplete="name" spellcheck="false" prepend-inner-icon="mdi-account" variant="solo-filled"
+                    flat></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
-                  <v-select
-                    v-model="form.course"
-                    :items="courses"
-                    :rules="[(v) => !!v || 'Course is required']"
-                    label="Select Course"
-                    name="course"
-                    id="course"
-                    rounded="lg"
-                    item-title="name"
-                    return-object
-                    prepend-inner-icon="mdi-school"
-                    variant="solo-filled"
-                    flat
-                  ></v-select>
+                  <v-select v-model="form.course" :items="courses" :rules="[(v) => !!v || 'Course is required']"
+                    label="Select Course" name="course" id="course" rounded="lg" item-title="name" return-object
+                    prepend-inner-icon="mdi-school" variant="solo-filled" flat></v-select>
                 </v-col>
               </v-row>
 
               <v-row class="mt-4" justify="center">
                 <v-col cols="auto">
-                  <v-btn
-                    type="submit"
-                    text="Preview Certificate"
-                    :loading="loading"
-                    prepend-icon="mdi-file-certificate-outline"
-                    color="primary"
-                    size="large"
-                    class="rounded-lg"
-                    elevation="2"
-                  ></v-btn>
+                  <v-btn type="submit" text="Preview Certificate" :loading="loading"
+                    prepend-icon="mdi-file-certificate-outline" color="primary" size="large" class="rounded-lg"
+                    elevation="2"></v-btn>
                 </v-col>
               </v-row>
             </v-form>
           </v-card>
-          <v-alert
-            class="mt-6 rounded-xl"
-            color="primary"
-            variant="tonal"
-            border="start"
-            elevation="2"
-            icon="mdi-information"
-            prominent
-          >
+          <v-alert class="mt-6 rounded-xl" color="primary" variant="tonal" border="start" elevation="2"
+            icon="mdi-information" prominent>
             <p class="text-body-1">
               <strong>Note:</strong> Please ensure that you have filled in your
               full name and selected the correct course before generating the
@@ -221,17 +177,10 @@ const goBack = () => {
             Certificate Preview
           </v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            @click="dialog = false"
-            aria-label="Close dialog"
-          ></v-btn>
+          <v-btn icon="mdi-close" variant="text" @click="dialog = false" aria-label="Close dialog"></v-btn>
         </v-toolbar>
 
-        <v-card-text
-          class="grow d-flex align-center justify-center pa-2 pa-md-4 bg-grey-darken-4"
-        >
+        <v-card-text class="grow d-flex align-center justify-center pa-2 pa-md-4 bg-grey-darken-4">
           <div class="certificate-preview-wrapper">
             <v-responsive :aspect-ratio="1 / 1.414">
               <div ref="pdfSection" class="certificate-bg">
@@ -243,15 +192,8 @@ const goBack = () => {
         <v-divider></v-divider>
         <v-card-actions class="pa-4">
           <v-spacer></v-spacer>
-          <v-btn
-            @click="generatePdf"
-            text="Download"
-            prepend-icon="mdi-download"
-            :loading="loading"
-            variant="tonal"
-            color="primary"
-            size="large"
-          ></v-btn>
+          <v-btn @click="generatePdf" text="Download" prepend-icon="mdi-download" :loading="loading" variant="tonal"
+            color="primary" size="large"></v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -264,13 +206,15 @@ const goBack = () => {
 }
 
 .back-button {
-  top: 64px; /* Adjust based on your app bar height */
+  top: 64px;
+  /* Adjust based on your app bar height */
   left: 0;
 }
 
 .certificate-preview-wrapper {
   width: 100%;
-  max-width: 820px; /* A4-like width for desktop */
+  max-width: 820px;
+  /* A4-like width for desktop */
   margin: auto;
 }
 
