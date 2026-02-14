@@ -94,7 +94,7 @@ const stats = [
             <v-icon class="text-h2 text-center" :icon="client.icon" :color="client.color"></v-icon>
             <span class="text-h6 font-weight-bold text-grey-darken-1">{{
               client.text
-              }}</span>
+            }}</span>
           </v-col>
         </v-row>
       </v-container>

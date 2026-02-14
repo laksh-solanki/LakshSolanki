@@ -20,7 +20,7 @@
 
         <div class="flex items-center gap-x-4 w-full sm:w-auto justify-center">
           <a href="/about"
-            class="whitespace-nowrap rounded-full bg-white px-6 py-2 text-sm font-bold text-gray-900 shadow-sm hover:bg-gray-100 transition-all active:scale-95">
+            class="whitespace-nowrap rounded-lg bg-white px-6 py-2 text-sm font-bold text-gray-900 shadow-sm hover:bg-gray-100 transition-all active:scale-95">
             Explore Now
           </a>
 

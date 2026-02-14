@@ -1,16 +1,11 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref} from "vue";
 import { useRoute } from "vue-router";
 import mainsvgicon from "@/assets/mainsvgicon.vue";
 import EmailRegisterPopup from "@/components/EmailRegisterPopup.vue";
 
 const route = useRoute();
 const tab = ref(route.path);
-
-watch(
-  () => route.path,
-  (newPath) => (tab.value = newPath),
-);
 
 const quickLinks = [
   { title: "Home", path: "/", icon: "mdi-home" },
