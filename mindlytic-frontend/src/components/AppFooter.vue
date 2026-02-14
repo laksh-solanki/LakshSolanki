@@ -1,7 +1,6 @@
 <script setup>
-
 // Library Imports
-import { ref} from "vue";
+import { ref } from "vue";
 import { useRoute } from "vue-router";
 import mainsvgicon from "@/assets/mainsvgicon.vue";
 import EmailRegisterPopup from "@/components/EmailRegisterPopup.vue";

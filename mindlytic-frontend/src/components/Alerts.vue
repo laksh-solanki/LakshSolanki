@@ -1,7 +1,12 @@
 <script setup>
-
 // Library Imports
-import { computed, watch, onBeforeUnmount,defineProps, defineEmits } from "vue";
+import {
+  computed,
+  watch,
+  onBeforeUnmount,
+  defineProps,
+  defineEmits,
+} from "vue";
 
 // Props & Emits & State & Refs
 const emit = defineEmits(["update:modelValue"]);
@@ -13,7 +18,6 @@ const props = defineProps({
   type: { type: String, default: "success" }, // 'success' | 'error' | 'info'
   duration: { type: Number, default: 4000 },
 });
-
 
 const visible = computed({
   get: () => props.modelValue,

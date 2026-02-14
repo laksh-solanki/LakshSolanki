@@ -151,7 +151,6 @@ const downloadSpeech = async () => {
   }
 };
 
-
 // --- Lifecycle Hooks ---
 onMounted(() => {
   // Voices are loaded asynchronously. We need to listen for the 'voiceschanged' event.
@@ -171,45 +170,95 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <v-btn @click="goBack" variant="flat" icon="mdi-arrow-left" class="rounded-te rounded-ts rounded-bs"
-    color="primary"></v-btn>
+  <v-btn
+    @click="goBack"
+    variant="flat"
+    icon="mdi-arrow-left"
+    class="rounded-te rounded-ts rounded-bs"
+    color="primary"
+  ></v-btn>
   <v-container style="min-height: 84.3vh !important">
-    <v-card class="text-h5 pa-4 my-3 text-center" color="primary-lighten-5" border="primary md opacity-100" rounded="xl"
-      flat>
+    <v-card
+      class="text-h5 pa-4 my-3 text-center"
+      color="primary-lighten-5"
+      border="primary md opacity-100"
+      rounded="xl"
+      flat
+    >
       Text to Speech Converter
     </v-card>
 
     <v-card class="pa-4 pa-md-8 rounded-xl" border>
       <v-row>
         <v-col cols="12">
-          <v-textarea v-model="text" label="Enter Text" variant="outlined" rows="8" auto-grow clearable
-            bg-color="surface" rounded="lg" placeholder="Type something to be spoken..."></v-textarea>
+          <v-textarea
+            v-model="text"
+            label="Enter Text"
+            variant="outlined"
+            rows="8"
+            auto-grow
+            clearable
+            bg-color="surface"
+            rounded="lg"
+            placeholder="Type something to be spoken..."
+          ></v-textarea>
         </v-col>
 
         <v-col cols="12" md="6">
-          <v-select v-model="selectedVoiceURI" :items="voices" item-title="name" item-value="voiceURI"
-            label="Select Voice" variant="outlined" clearable clear-icon="mdi-close" hide-details :loading="isLoading"
-            bg-color="surface" rounded="lg" :disabled="isLoading || isPlaying">
+          <v-select
+            v-model="selectedVoiceURI"
+            :items="voices"
+            item-title="name"
+            item-value="voiceURI"
+            label="Select Voice"
+            variant="outlined"
+            clearable
+            clear-icon="mdi-close"
+            hide-details
+            :loading="isLoading"
+            bg-color="surface"
+            rounded="lg"
+            :disabled="isLoading || isPlaying"
+          >
             <template v-slot:item="{ props, item }">
-              <v-list-item v-bind="props" :subtitle="item.raw.lang"></v-list-item>
+              <v-list-item
+                v-bind="props"
+                :subtitle="item.raw.lang"
+              ></v-list-item>
             </template>
           </v-select>
         </v-col>
 
         <v-col cols="12" md="6" class="d-flex align-center ga-3">
-          <v-btn @click="isPlaying ? stop() : speak()" :color="isPlaying ? 'error' : 'primary'"
-            :loading="isPlaying && !synth.speaking" :disabled="!text || !selectedVoice || isDownloading" size="x-large"
-            class="grow rounded-lg" variant="tonal" height="56">
+          <v-btn
+            @click="isPlaying ? stop() : speak()"
+            :color="isPlaying ? 'error' : 'primary'"
+            :loading="isPlaying && !synth.speaking"
+            :disabled="!text || !selectedVoice || isDownloading"
+            size="x-large"
+            class="grow rounded-lg"
+            variant="tonal"
+            height="56"
+          >
             <v-icon start>{{
               isPlaying ? "mdi-stop-circle-outline" : "mdi-play-circle-outline"
-              }}</v-icon>
+            }}</v-icon>
             {{ isPlaying ? "Stop" : "Speak" }}
           </v-btn>
         </v-col>
 
         <v-col cols="12" md="6">
-          <v-slider v-model="rate" label="Rate" min="0.5" max="2" step="0.1" thumb-label color="primary" class="mt-4"
-            :disabled="isPlaying">
+          <v-slider
+            v-model="rate"
+            label="Rate"
+            min="0.5"
+            max="2"
+            step="0.1"
+            thumb-label
+            color="primary"
+            class="mt-4"
+            :disabled="isPlaying"
+          >
             <template v-slot:append>
               <span class="text-caption">{{ rate.toFixed(1) }}</span>
             </template>
@@ -217,8 +266,17 @@ onUnmounted(() => {
         </v-col>
 
         <v-col cols="12" md="6">
-          <v-slider v-model="pitch" label="Pitch" min="0" max="2" step="0.1" thumb-label color="primary" class="mt-4"
-            :disabled="isPlaying">
+          <v-slider
+            v-model="pitch"
+            label="Pitch"
+            min="0"
+            max="2"
+            step="0.1"
+            thumb-label
+            color="primary"
+            class="mt-4"
+            :disabled="isPlaying"
+          >
             <template v-slot:append>
               <span class="text-caption">{{ pitch.toFixed(1) }}</span>
             </template>
@@ -227,7 +285,13 @@ onUnmounted(() => {
       </v-row>
     </v-card>
 
-    <v-card class="mt-4 rounded-xl" color="primary" variant="tonal" elevation="3" border>
+    <v-card
+      class="mt-4 rounded-xl"
+      color="primary"
+      variant="tonal"
+      elevation="3"
+      border
+    >
       <v-card-text>
         <div>
           Note: This tool uses your browser's built-in Web Speech API. The

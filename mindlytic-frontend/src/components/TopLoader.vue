@@ -5,9 +5,8 @@
 </template>
 
 <script setup>
-
 // Library Imports
-import { ref } from 'vue';
+import { ref } from "vue";
 
 // State & Refs
 const progress = ref(0);
@@ -52,6 +51,8 @@ defineExpose({ start, finish });
   height: 100%;
   background: #4248b8;
   transition: width 0.3s ease;
-  box-shadow: 0 0 10px #4248b8, 0 0 20px #4248b8;
+  box-shadow:
+    0 0 10px #4248b8,
+    0 0 20px #4248b8;
 }
 </style>

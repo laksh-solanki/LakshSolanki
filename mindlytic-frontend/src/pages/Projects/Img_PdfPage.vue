@@ -234,23 +234,52 @@ const setOrientation = (layout) => {
 };
 </script>
 <template>
-  <v-btn @click="goBack" variant="flat" icon="mdi-arrow-left" class="rounded-te rounded-ts rounded-bs"
-    color="primary"></v-btn>
+  <v-btn
+    @click="goBack"
+    variant="flat"
+    icon="mdi-arrow-left"
+    class="rounded-te rounded-ts rounded-bs"
+    color="primary"
+  ></v-btn>
   <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
   <v-container style="min-height: 83.9vh">
-    <v-card class="text-h5 pa-4 my-3 text-center" color="primary-lighten-5" border="primary md opacity-100" rounded="xl"
-      flat>
+    <v-card
+      class="text-h5 pa-4 my-3 text-center"
+      color="primary-lighten-5"
+      border="primary md opacity-100"
+      rounded="xl"
+      flat
+    >
       Convert Images to PDF
     </v-card>
 
     <!-- Upload Zone -->
-    <v-sheet :class="['upload-zone', 'pa-8', { 'drag-over': isDragging }]" rounded="xl" border
-      @click="triggerFileInput()" @dragenter.prevent="isDragging = true" @dragover.prevent
-      @dragleave.prevent="isDragging = false" @drop="handleDrop">
-      <input ref="fileInput" type="file" multiple accept="image/*" @change="handleFileSelect" id="fileInput"
-        class="file-input" required />
-      <div class="d-flex flex-column align-center ga-4 justify-center text-center">
-        <v-icon size="80" color="grey-lighten-1">mdi-cloud-upload-outline</v-icon>
+    <v-sheet
+      :class="['upload-zone', 'pa-8', { 'drag-over': isDragging }]"
+      rounded="xl"
+      border
+      @click="triggerFileInput()"
+      @dragenter.prevent="isDragging = true"
+      @dragover.prevent
+      @dragleave.prevent="isDragging = false"
+      @drop="handleDrop"
+    >
+      <input
+        ref="fileInput"
+        type="file"
+        multiple
+        accept="image/*"
+        @change="handleFileSelect"
+        id="fileInput"
+        class="file-input"
+        required
+      />
+      <div
+        class="d-flex flex-column align-center ga-4 justify-center text-center"
+      >
+        <v-icon size="80" color="grey-lighten-1"
+          >mdi-cloud-upload-outline</v-icon
+        >
         <div class="text-h6 font-weight-bold text-grey-darken-2">
           Drag & Drop images here
         </div>
@@ -267,23 +296,49 @@ const setOrientation = (layout) => {
     <transition name="slide-up">
       <div v-if="images.length > 0" class="mb-12">
         <div class="d-flex align-center ga-1 my-8 flex-wrap justify-start">
-          <v-btn variant="elevated" @click="clearAll" append-icon="mdi-window-close" color="error" rounded="lg">
+          <v-btn
+            variant="elevated"
+            @click="clearAll"
+            append-icon="mdi-window-close"
+            color="error"
+            rounded="lg"
+          >
             Clear All
           </v-btn>
-          <v-btn variant="elevated" append-icon="mdi mdi-file-pdf-box" color="success" rounded="lg"
-            @click="generatePdfWithOrientation" :disabled="isConverting || images.length === 0">
+          <v-btn
+            variant="elevated"
+            append-icon="mdi mdi-file-pdf-box"
+            color="success"
+            rounded="lg"
+            @click="generatePdfWithOrientation"
+            :disabled="isConverting || images.length === 0"
+          >
             {{ isConverting ? "Converting..." : "Download PDF" }}
           </v-btn>
           <v-menu>
             <template v-slot:activator="{ props }">
-              <v-btn append-icon="mdi-menu-down" color="info" rounded="lg" variant="elevated" v-bind="props"
-                text="Size All Images"></v-btn>
+              <v-btn
+                append-icon="mdi-menu-down"
+                color="info"
+                rounded="lg"
+                variant="elevated"
+                v-bind="props"
+                text="Size All Images"
+              ></v-btn>
             </template>
             <v-list class="mt-2">
-              <v-list-item @click="setOrientation('p')" :active="orientation === 'p'" color="primary">
+              <v-list-item
+                @click="setOrientation('p')"
+                :active="orientation === 'p'"
+                color="primary"
+              >
                 <v-list-item-title>Portrait</v-list-item-title>
               </v-list-item>
-              <v-list-item @click="setOrientation('l')" :active="orientation === 'l'" color="primary">
+              <v-list-item
+                @click="setOrientation('l')"
+                :active="orientation === 'l'"
+                color="primary"
+              >
                 <v-list-item-title>Landscape</v-list-item-title>
               </v-list-item>
             </v-list>
@@ -291,30 +346,75 @@ const setOrientation = (layout) => {
         </div>
 
         <v-row dense>
-          <v-col v-for="(image, index) in images" :key="image.id" cols="12" sm="6" md="5" lg="4">
-            <v-card class="border-md mx-auto" max-width="400" rounded="lg" elevation="5">
+          <v-col
+            v-for="(image, index) in images"
+            :key="image.id"
+            cols="12"
+            sm="6"
+            md="5"
+            lg="4"
+          >
+            <v-card
+              class="border-md mx-auto"
+              max-width="400"
+              rounded="lg"
+              elevation="5"
+            >
               <v-card-actions class="bg-primary">
                 <div class="d-flex align-center ga-1 w-100 justify-end">
-                  <v-btn @click="rotateImage(index)" icon="mdi-rotate-right" size="small" variant="elevated"
-                    color="yellow-accent-2"></v-btn>
-                  <v-btn @click="moveUp(index)" :disabled="index === 0" :icon="xs ? 'mdi-arrow-up' : 'mdi-arrow-left'"
-                    size="small" color="secondary" variant="elevated"></v-btn>
-                  <v-btn @click="moveDown(index)" :disabled="index === images.length - 1"
-                    :icon="xs ? 'mdi-arrow-down' : 'mdi-arrow-right'" size="small" color="secondary"
-                    variant="elevated"></v-btn>
-                  <v-btn @click="removeImage(index)" color="red" icon="mdi-close" variant="elevated"
-                    size="small"></v-btn>
+                  <v-btn
+                    @click="rotateImage(index)"
+                    icon="mdi-rotate-right"
+                    size="small"
+                    variant="elevated"
+                    color="yellow-accent-2"
+                  ></v-btn>
+                  <v-btn
+                    @click="moveUp(index)"
+                    :disabled="index === 0"
+                    :icon="xs ? 'mdi-arrow-up' : 'mdi-arrow-left'"
+                    size="small"
+                    color="secondary"
+                    variant="elevated"
+                  ></v-btn>
+                  <v-btn
+                    @click="moveDown(index)"
+                    :disabled="index === images.length - 1"
+                    :icon="xs ? 'mdi-arrow-down' : 'mdi-arrow-right'"
+                    size="small"
+                    color="secondary"
+                    variant="elevated"
+                  ></v-btn>
+                  <v-btn
+                    @click="removeImage(index)"
+                    color="red"
+                    icon="mdi-close"
+                    variant="elevated"
+                    size="small"
+                  ></v-btn>
                 </div>
               </v-card-actions>
-              <div class="d-flex align-center pa-2 position-relative justify-center overflow-hidden">
-                <v-img :src="image.url" :alt="image.name" class="align-end ma-2 text-white" max-width="100%"
-                  height="200" contain rounded="lg" :style="{
+              <div
+                class="d-flex align-center pa-2 position-relative justify-center overflow-hidden"
+              >
+                <v-img
+                  :src="image.url"
+                  :alt="image.name"
+                  class="align-end ma-2 text-white"
+                  max-width="100%"
+                  height="200"
+                  contain
+                  rounded="lg"
+                  :style="{
                     transform: `rotate(${image.rotation}deg)`,
                     transition: 'transform 0.3s ease',
-                  }">
+                  }"
+                >
                 </v-img>
               </div>
-              <v-card-text class="pa-2 bg-primary rounded-b-lg text-center text-white">
+              <v-card-text
+                class="pa-2 bg-primary rounded-b-lg text-center text-white"
+              >
                 {{ image.name }}
                 <v-card-subtitle class="pa-1 text-center">
                   {{ formatFileSize(image.size) }}
