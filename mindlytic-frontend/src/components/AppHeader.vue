@@ -53,12 +53,13 @@ const userMenu = [
     </v-list>
   </v-navigation-drawer>
   <v-app-bar color="surface" scroll-behavior="elevate" border scroll-threshold="1000" class="px-0" density="default">
-    <v-app-bar-nav-icon variant="text" class="d-lg-none d-xl-none d-xxl-none mx-0" @click.stop="drawer = !drawer"
-      title="Menu"></v-app-bar-nav-icon>
-    <v-divider vertical class="d-flex d-sm-flex d-md-flex d-lg-none mx-0 ml-1"></v-divider>
+    <v-btn variant="text" stacked class="d-lg-none d-xl-none d-xxl-none mx-0 pa-0" min-width="55" @click.stop="drawer = !drawer">
+      <v-icon icon="mdi-menu" size="24"></v-icon>
+    </v-btn>
+    <v-divider vertical class="d-flex d-sm-flex d-md-flex d-lg-none mx-0"></v-divider>
     <mainsvgicon />
     <v-divider vertical class="d-none d-sm-flex d-md-flex d-lg-flex"></v-divider>
-    <div class="d-none d-md-flex align-center w-100 justify-center ">
+    <div class="d-none d-md-flex align-center w-100 justify-center">
       <v-tabs inset inset-radius="8" inset-padding="8" density="compact" class="d-none d-lg-flex align-center "
         height="40" bg-color="black">
         <v-tab v-for="(link, index) in quickLinks" :key="index" :to="link.path" max-height="40" class="px-2"
@@ -66,7 +67,7 @@ const userMenu = [
             link.title }}</v-tab>
       </v-tabs>
     </div>
-    <div class="d-flex align-end w-100 justify-end">
+    <div class="d-flex align-center w-100 justify-end">
       <v-divider vertical></v-divider>
       <SearchBar />
       <v-divider vertical></v-divider>
@@ -93,7 +94,7 @@ const userMenu = [
 
           <v-divider class="mb-3"></v-divider>
 
-          <v-list density="compact" rounded="lg" class="ma-3" nav>
+          <v-list density="comfortable" rounded="lg" class="ma-3 pa-0" nav>
             <v-list-item v-for="(item, i) in userMenu" :key="i" :value="item.title" :to="item.to"
               :prepend-icon="item.icon" :title="item.title" rounded="lg" :color="item.color">
               <template v-slot:append v-if="item.showChip">
