@@ -3,7 +3,7 @@
     <!-- 1. Header Bar -->
     <v-toolbar flat class="chat-header">
       <v-spacer></v-spacer>
-      <v-btn color="indigo" variant="tonal" prepend-icon="mdi-plus" @click="resetChat">
+      <v-btn color="indigo" variant="elevated" rounded="lg" prepend-icon="mdi-plus" @click="resetChat">
         New Chat
       </v-btn>
     </v-toolbar>
@@ -34,11 +34,11 @@
           <v-textarea v-model="userInput" placeholder="Ask me anything..." auto-grow rows="1" max-rows="5"
             variant="solo" flat hide-details bg-color="transparent" class="chat-textarea"
             @keydown.enter.prevent="sendMessage"></v-textarea>
-          <v-btn icon="mdi-send" variant="flat" :color="userInput.trim() ? 'indigo-accent-3' : '#334155'" elevation="0"
+          <v-btn icon="mdi-send" variant="flat" :color="userInput.trim() ? 'indigo-accent-3' : '#334155'" elevation="3"
             :loading="loading" :disabled="!userInput.trim()" @click="sendMessage" class="send-btn rounded-xl"></v-btn>
         </div>
         <p class="powered-by-text">
-          Powered by Gemini
+          Powered by Mindlyic Ai Studio
         </p>
       </div>
     </div>
@@ -418,7 +418,7 @@ pre::-webkit-scrollbar-thumb {
   margin-bottom: 1rem;
   border-radius: 0.75rem;
   overflow: hidden;
-  border: 1px solid #334155;
+  border: 2px solid #334155;
   background-color: #0f172a;
 }
 
@@ -439,8 +439,7 @@ pre::-webkit-scrollbar-thumb {
 }
 
 .copy-btn {
-  background: transparent;
-  border: 1px solid transparent;
+  border: 1px solid;
   color: #94a3b8;
   font-size: 0.8rem;
   cursor: pointer;
