@@ -257,6 +257,13 @@ const items = ref([
     category: "Tools",
     icon: "mdi-certificate-outline",
   },
+  { 
+    id: 9,
+    title: "Mindlytic AI",
+    path: "/projects/mindlytic_Ai",
+    category: "Tools",
+    icon: "mdi-file-document-outline",
+  },
 ]);
 
 // --- Core Logic ---
