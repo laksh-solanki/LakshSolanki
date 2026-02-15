@@ -4,8 +4,6 @@ import {
   computed,
   watch,
   onBeforeUnmount,
-  defineProps,
-  defineEmits,
 } from "vue";
 
 // Props & Emits & State & Refs
