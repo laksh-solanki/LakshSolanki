@@ -23,7 +23,7 @@ const projects = ref([
       "Headless commerce solution designed for scalability, featuring stripe integration and inventory management.",
     image: new URL("../assets/Picture/Project-2.png", import.meta.url).href,
     link: "/projects/img-pdf",
-    tags: ["Node.js", "GraphQL", "Docker"],
+    tags: ["Vue", "Vuetify", "img-lib", "Tailwind"],
   },
   {
     id: 3,
@@ -33,7 +33,7 @@ const projects = ref([
       "Cross-platform wellness tracking application focusing on privacy-first data storage and minimal UI.",
     image: new URL("../assets/Picture/Project-3.jpg", import.meta.url).href,
     link: "/projects/pdf-img",
-    tags: ["React Native", "TypeScript", "Redux"],
+    tags: ["Vue","Vuetify","pdf-lib","Tailwind"],
   },
   {
     id: 4,
@@ -43,17 +43,17 @@ const projects = ref([
       "A simple and intuitive tool to convert text into speech with various voice options, pitch, and rate controls, using the browser's native Web Speech API.",
     image: new URL("../assets/Picture/Project-4.png", import.meta.url).href,
     link: "/projects/text-to-speech",
-    tags: ["Vue", "Vuetify", "Web Speech API"],
+    tags: ["Vue", "Vuetify", "Web Speech API", "Tailwind"],
     disabled: false,
   },
   {
     id: 5,
-    title: "Gemini AI",
-    category: "AI",
-    description:"gemini ai",
+    title: "Mindlytic Ai",
+    category: "Web AI Application",
+    description:"Mindlytic AI 0.1v Powerd by Mindlytic AI Studio , Write Any Problem Solving Question and Generate code",
     image: new URL("../assets/Picture/Project-5.png", import.meta.url).href,
-    link: "/projects/mindlytic_Ai",
-    tags: ["Vue", "Vuetify", "Web Speech API"],
+    link: "/projects/mindly_ai",
+    tags: ["Vue", "Vuetify", "Gemini API","Tailwind"],
     disabled: false,
   }
 ]);
@@ -92,8 +92,7 @@ const projects = ref([
               <div class="img-container">
                 <v-img
                   :src="project.image"
-                  height="260"
-                  content-class
+                  height="240"
                   class="project-img"
                   :class="{ 'scale-up': isHovering }"
                 >
@@ -185,6 +184,9 @@ const projects = ref([
 }
 
 .project-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 

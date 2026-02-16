@@ -1,9 +1,11 @@
 <template>
   <div class="chat-page-container">
     <!-- 1. Header Bar -->
-    <v-toolbar flat class="chat-header">
+    <v-toolbar flat class="bg-transparent d-flex justify-center align-center">
+      <v-btn @click="goBack" variant="flat" icon="mdi-arrow-left" class="rounded-te rounded-ts rounded-bs"
+        color="primary"></v-btn>
       <v-spacer></v-spacer>
-      <v-btn color="indigo" variant="elevated" rounded="lg" prepend-icon="mdi-plus" @click="resetChat">
+      <v-btn variant="elevated" border rounded="lg" prepend-icon="mdi-plus" @click="resetChat">
         New Chat
       </v-btn>
     </v-toolbar>
@@ -11,9 +13,9 @@
     <!-- 2. Chat Messages Area -->
     <div ref="chatContainer" class="chat-messages-area" @click="handleChatClick">
       <div class="chat-messages-wrapper">
-        <div v-for="(msg, index) in messages" :key="index"
+        <div v-for="msg in messages" :key="msg.id"
           :class="['d-flex w-100', msg.role === 'user' ? 'justify-end' : 'justify-start']">
-          <div :class="['message-bubble', msg.role === 'user' ? 'user-bubble' : 'model-bubble']">
+          <div :class="['message-bubble border', msg.role === 'user' ? 'user-bubble' : 'model-bubble']">
             <div v-if="msg.role === 'model'" v-html="parseMessage(msg.text)" class="markdown-body"></div>
             <p v-else class="whitespace-pre-wrap">{{ msg.text }}</p>
           </div>
@@ -28,14 +30,15 @@
     </div>
 
     <!-- 3. User Input Area -->
-    <div class="chat-input-area">
+    <div class="chat-input-area border">
       <div class="input-wrapper">
-        <div class="input-field-container d-flex align-center justify-center ">
+        <div class="input-field-container d-flex align-center justify-center border">
           <v-textarea v-model="userInput" placeholder="Ask me anything..." auto-grow rows="1" max-rows="5"
-            variant="solo" flat hide-details bg-color="transparent" class="chat-textarea"
+            variant="solo" flat hide-details bg-color="transparent" class="chat-textarea" rounded="lg"
             @keydown.enter.prevent="sendMessage"></v-textarea>
-          <v-btn icon="mdi-send" variant="flat" :color="userInput.trim() ? 'indigo-accent-3' : '#334155'" elevation="3"
-            :loading="loading" :disabled="!userInput.trim()" @click="sendMessage" class="send-btn rounded-xl"></v-btn>
+          <v-btn icon="mdi-send" variant="flat" :color="userInput.trim() ? 'indigo-accent-3' : 'indigo-lighten-1'"
+            elevation="3" :loading="loading" :disabled="!userInput.trim()" @click="sendMessage"
+            class="send-btn"></v-btn>
         </div>
         <p class="powered-by-text">
           Powered by Mindlyic Ai Studio
@@ -51,20 +54,20 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import Prism from 'prismjs';
-
 // Import the VS Code-like dark theme
 import 'prismjs/themes/prism-tomorrow.css';
-
 // Import languages you want to support
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-css';
 import 'prismjs/components/prism-markup'; // for HTML
 import 'prismjs/components/prism-bash';
 
+let nextId = 0;
+const goBack = () => window.history.back();
 const userInput = ref('');
 const loading = ref(false);
 const messages = ref([
-  { role: 'model', text: 'Hello! How can I assist you today with the power of Gemini?' }
+  { id: nextId++, role: 'model', text: 'Hello! How can I assist you today with the power of Mindly?' }
 ]);
 const chatContainer = ref(null);
 
@@ -79,29 +82,16 @@ const scrollToBottom = async () => {
 };
 
 marked.setOptions({
-  breaks: true, // Auto-convert line breaks to <br>
-  gfm: true,    // GitHub Flavored Markdown
+  breaks: true,
+  gfm: true,
 });
-
-const escapeHtml = (unsafe) => {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-};
 
 const renderer = new marked.Renderer();
 
 renderer.code = ({ text, lang }) => {
   const language = lang || 'plaintext';
-  const safeCode = text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
 
-  // 2. Use Prism to highlight the code string
+  // Use Prism to highlight the code string
   const highlightedCode = Prism.highlight(
     text,
     Prism.languages[language] || Prism.languages.plaintext,
@@ -167,15 +157,16 @@ const sendMessage = async () => {
 
   const prompt = userInput.value;
 
-  messages.value.push({ role: 'user', text: prompt });
+  messages.value.push({ id: nextId++, role: 'user', text: prompt });
   userInput.value = '';
   loading.value = true;
   scrollToBottom();
 
   try {
     const model = genAI.getGenerativeModel(
-      { model: "gemini-2.5-flash" },
-      { apiVersion: "v1beta" }
+      {
+        model: "gemini-2.5-flash",
+      },
     );
     const apiHistory = messages.value
       .filter((m, index) => !(index === 0 && m.role === 'model'))
@@ -186,23 +177,22 @@ const sendMessage = async () => {
       }));
 
     const chat = model.startChat({ history: apiHistory });
-
     const result = await chat.sendMessage(prompt);
     const response = await result.response;
     const text = response.text();
-
-    messages.value.push({ role: 'model', text });
-  } catch (error) {
+    messages.value.push({ id: nextId++, role: 'model', text: text });
+  }
+  catch (error) {
     console.error("Gemini Error:", error);
-    messages.value.push({ role: 'model', text: "Chat error: " + error.message });
+    messages.value.push({ id: nextId++, role: 'model', text: "Sorry, I encountered an error: " + error.message });
   } finally {
     loading.value = false;
-    scrollToBottom();
+    await scrollToBottom();
   }
 };
 
 const resetChat = () => {
-  messages.value = [{ role: 'model', text: 'New session started. How can I help?' }];
+  messages.value = [{ id: nextId++, role: 'model', text: 'New session started. How can I help?' }];
 };
 </script>
 <style>
@@ -211,16 +201,9 @@ const resetChat = () => {
   flex-direction: column;
   height: calc(100vh - 64px);
   /* Full viewport height minus header */
-  background-color: #020617;
+  background-color: #2b3351;
   /* slate-950 */
   overflow: hidden;
-}
-
-.chat-header {
-  background-color: rgba(15, 23, 42, 0.5) !important;
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid #334155 !important;
-  flex-shrink: 0;
 }
 
 .chat-messages-area {
@@ -255,16 +238,15 @@ const resetChat = () => {
 }
 
 .model-bubble {
-  background-color: #1e293b;
+  background-color: #202122;
   color: #e2e8f0;
-  border: 1px solid #334155;
   border-bottom-left-radius: 0;
 }
 
 .chat-input-area {
   flex-shrink: 0;
   padding: 1rem;
-  background: linear-gradient(to top, #020617 50%, transparent);
+  background: transparent;
 }
 
 .input-wrapper {
@@ -276,14 +258,9 @@ const resetChat = () => {
   display: flex;
   align-items: flex-end;
   gap: 0.75rem;
-  background-color: #1e293b;
-  /* slate-800 */
+  background-color: #202122;
   padding: 0.5rem 0.5rem 0.5rem 1rem;
-  /* More horizontal padding on the left */
-  border-radius: 1.5rem;
-  /* Larger radius */
-  border: 1px solid #334155;
-  /* slate-700 */
+  border-radius: 1.2rem;
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
@@ -300,6 +277,7 @@ const resetChat = () => {
 
 .send-btn {
   transition: background-color 0.2s ease-in-out !important;
+  border-radius: 12px 12px 12px 12px;
 }
 
 .powered-by-text {
