@@ -1,0 +1,34 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0A241F"/>
+      <stop offset="0.5" stop-color="#14574E"/>
+      <stop offset="1" stop-color="#2AB39B"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <rect x="130" y="90" width="940" height="500" rx="24" fill="#0F1D2D" stroke="#60DCC5" stroke-opacity="0.35"/>
+  <rect x="170" y="130" width="430" height="420" rx="16" fill="#091523" stroke="#53CCB5" stroke-opacity="0.4"/>
+  <rect x="630" y="130" width="400" height="250" rx="16" fill="#091523" stroke="#53CCB5" stroke-opacity="0.4"/>
+  <rect x="630" y="400" width="400" height="150" rx="16" fill="#091523" stroke="#53CCB5" stroke-opacity="0.4"/>
+
+  <text x="190" y="176" fill="#8BEEDC" font-family="Consolas, monospace" font-size="24">&lt;main&gt;</text>
+  <text x="214" y="214" fill="#FFAF9D" font-family="Consolas, monospace" font-size="21">&lt;h1&gt;</text>
+  <text x="292" y="214" fill="#D8EBFF" font-family="Consolas, monospace" font-size="21">Web Lab</text>
+  <text x="380" y="214" fill="#FFAF9D" font-family="Consolas, monospace" font-size="21">&lt;/h1&gt;</text>
+  <text x="214" y="252" fill="#FFAF9D" font-family="Consolas, monospace" font-size="21">&lt;button&gt;</text>
+  <text x="320" y="252" fill="#D8EBFF" font-family="Consolas, monospace" font-size="21">Compile</text>
+  <text x="408" y="252" fill="#FFAF9D" font-family="Consolas, monospace" font-size="21">&lt;/button&gt;</text>
+  <text x="190" y="294" fill="#8BEEDC" font-family="Consolas, monospace" font-size="24">&lt;/main&gt;</text>
+
+  <text x="660" y="186" fill="#FFD69C" font-family="Verdana, sans-serif" font-size="26" font-weight="700">HTML · CSS · JS COMPILER</text>
+  <text x="660" y="226" fill="#BDEFE3" font-family="Verdana, sans-serif" font-size="18">Live Preview • Runtime Console • Snapshots</text>
+  <text x="660" y="256" fill="#BDEFE3" font-family="Verdana, sans-serif" font-size="18">A11y Scan • CSS Coverage • Freeze Network</text>
+
+  <rect x="660" y="434" width="118" height="48" rx="12" fill="#1F9E89"/>
+  <text x="687" y="465" fill="#EEFFFA" font-family="Verdana, sans-serif" font-size="17" font-weight="700">COMPILE</text>
+  <rect x="792" y="434" width="124" height="48" rx="12" fill="#2F5DBF"/>
+  <text x="822" y="465" fill="#EEF3FF" font-family="Verdana, sans-serif" font-size="17" font-weight="700">EXPORT</text>
+  <rect x="930" y="434" width="80" height="48" rx="12" fill="#B44A4A"/>
+  <text x="952" y="465" fill="#FFF1F1" font-family="Verdana, sans-serif" font-size="17" font-weight="700">LOGS</text>
+</svg>

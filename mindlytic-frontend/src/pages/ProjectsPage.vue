@@ -52,6 +52,26 @@ const projects = ref([
     link: "/projects/mindly_ai",
     tags: ["Gemini API", "Markdown", "Prism"],
   },
+  {
+    id: 6,
+    title: "JSON Forge Studio",
+    category: "Developer Power Tool",
+    description:
+      "Premium JSON workspace with validation, format/minify, key sorting, deep compare, key explorer, import/export, and syntax-highlighted output.",
+    image: new URL("../assets/Picture/Project-6.svg", import.meta.url).href,
+    link: "/projects/json-forge",
+    tags: ["JSON", "Diff Engine", "Syntax UI"],
+  },
+  {
+    id: 7,
+    title: "Web Lab Compiler",
+    category: "Frontend Engineering",
+    description:
+      "Advanced HTML/CSS/JS compiler with live preview, runtime console telemetry, freeze-network mode, analytics scan, and time-capsule snapshots.",
+    image: new URL("../assets/Picture/Project-7.svg", import.meta.url).href,
+    link: "/projects/web-lab-compiler",
+    tags: ["HTML/CSS/JS", "Runtime Metrics", "Snapshots"],
+  },
 ]);
 </script>
 

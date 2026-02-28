@@ -55,6 +55,18 @@ const routes = [
         component: () => import("@/pages/Projects/mindly_ai.vue"),
         meta: { title: "Mindlytic | mindly AI" },
       },
+      {
+        path: "json-forge",
+        name: "JsonForgeStudio",
+        component: () => import("@/pages/Projects/JsonForgeStudio.vue"),
+        meta: { title: "Mindlytic | JSON Forge Studio" },
+      },
+      {
+        path: "web-lab-compiler",
+        name: "WebLabCompiler",
+        component: () => import("@/pages/Projects/WebLabCompiler.vue"),
+        meta: { title: "Mindlytic | Web Lab Compiler" },
+      },
     ],
   },
   {
