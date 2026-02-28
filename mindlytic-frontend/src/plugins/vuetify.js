@@ -7,6 +7,21 @@ import { createVuetify } from "vuetify";
 
 export default createVuetify({
   theme: {
-    defaultTheme: "system",
+    defaultTheme: "portfolioLight",
+    themes: {
+      portfolioLight: {
+        dark: false,
+        colors: {
+          background: "#f3f7f2",
+          surface: "#ffffff",
+          primary: "#136f63",
+          secondary: "#f59e0b",
+          error: "#dc2626",
+          info: "#2563eb",
+          success: "#15803d",
+          warning: "#d97706",
+        },
+      },
+    },
   },
 });

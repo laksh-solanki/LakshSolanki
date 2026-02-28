@@ -1,269 +1,104 @@
-<template>
-  <v-container class="py-10">
+﻿<template>
+  <v-container class="py-8 py-md-12 profile-shell">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
     <v-row>
-      <v-col cols="12" md="4">
-        <v-card class="rounded-lg pb-3 text-center" elevation="10" border>
-          <v-img height="160" :src="selectedImage" cover class="rounded-t-lg">
-            <template v-slot:error>
-              <v-img src="../assets/Picture/banners/img-1.jpg" cover></v-img>
-            </template>
-          </v-img>
+      <v-col cols="12" md="4" lg="3">
+        <v-card class="section-shell profile-card pa-5" flat>
+          <v-avatar size="124" :image="myPhoto" class="mx-auto d-flex mb-4 profile-avatar"></v-avatar>
+          <h1 class="text-h5 text-center mb-1">Laksh Solanki</h1>
+          <p class="text-center muted-copy mb-4">Senior Full-Stack Engineer</p>
 
-          <v-avatar
-            size="120"
-            class="border-lg border-background mx-auto"
-            style="margin-top: -60px; z-index: 2"
-            :image="my_photo"
-          ></v-avatar>
-
-          <div class="mt-10">
-            <h2 class="text-h5 font-weight-bold">Laksh Solanki</h2>
-            <p class="text-medium-emphasis mb-4">Senior Full-Stack Engineer</p>
-
-            <div class="d-flex mb-6 justify-center gap-2">
-              <v-btn
-                color="grey"
-                variant="tonal"
-                rounded="lg"
-                icon="mdi-email-outline"
-                @click="openanyModal"
-              ></v-btn>
-              <v-btn
-                color="grey"
-                variant="tonal"
-                rounded="lg"
-                icon="mdi-dots-horizontal"
-                @click="openanyModal"
-              ></v-btn>
+          <div class="d-flex flex-column ga-2 mb-5">
+            <div class="d-flex justify-space-between">
+              <span class="muted-copy">Experience</span>
+              <strong>4+ years</strong>
             </div>
-
-            <v-divider class="mb-4"></v-divider>
-
-            <div class="d-flex justify-space-around mb-4">
-              <div>
-                <div class="text-h6 font-weight-bold">82</div>
-                <div class="text-caption text-medium-emphasis">Projects</div>
-              </div>
-              <div>
-                <div class="text-h6 font-weight-bold">14k</div>
-                <div class="text-caption text-medium-emphasis">Commits</div>
-              </div>
-              <div>
-                <div class="text-h6 font-weight-bold">4.9</div>
-                <div class="text-caption text-medium-emphasis">Rating</div>
-              </div>
+            <div class="d-flex justify-space-between">
+              <span class="muted-copy">Primary Stack</span>
+              <strong>Vue + Node</strong>
             </div>
+            <div class="d-flex justify-space-between">
+              <span class="muted-copy">Location</span>
+              <strong>India</strong>
+            </div>
+          </div>
 
-            <v-divider class="mb-4"></v-divider>
+          <v-btn block color="primary" rounded="xl" class="text-none mb-3" href="mailto:lakshsolanki848@gmail.com">
+            Contact Me
+          </v-btn>
+          <v-btn block variant="outlined" color="primary" rounded="xl" class="text-none" @click="copyEmail">
+            Copy Email
+          </v-btn>
 
-            <v-list density="compact" nav class="text-left">
-              <v-list-item
-                prepend-icon="mdi-map-marker-outline"
-                title="Gujarat, India"
-                class="text-body-2"
-              ></v-list-item>
-              <v-list-item
-                prepend-icon="mdi-web"
-                title="https://mindlytic.onrender.com/"
-                href="https://mindlytic.onrender.com/"
-                target="_blank"
-                class="text-body-2"
-              ></v-list-item>
-              <v-list-item
-                prepend-icon="mdi-github"
-                title="github.com/laksh-solanki"
-                href="https://github.com/laksh-solanki"
-                target="_blank"
-                class="text-body-2 text-blue"
-              ></v-list-item>
-              <v-list-item
-                prepend-icon="mdi-twitter"
-                title="@laksh_solanki"
-                class="text-body-2"
-              ></v-list-item>
-            </v-list>
+          <v-divider class="my-5"></v-divider>
+
+          <div class="d-flex justify-center ga-2">
+            <v-btn icon="mdi-github" variant="tonal" color="primary" href="https://github.com/laksh-solanki" target="_blank"></v-btn>
+            <v-btn icon="mdi-web" variant="tonal" color="primary" href="https://mindlytic.onrender.com/" target="_blank"></v-btn>
+            <v-btn icon="mdi-linkedin" variant="tonal" color="primary" href="https://www.linkedin.com" target="_blank"></v-btn>
           </div>
         </v-card>
       </v-col>
 
-      <v-col cols="12" md="8">
-        <v-card class="rounded-lg" elevation="10" border>
-          <v-card-text class="pa-0">
-            <v-tabs
-              v-model="tab"
-              grow
-              color="white"
-              align-tabs="start"
-              slider-color="white"
-              class="mb-6 border-b"
-            >
-              <v-tab value="edit" class="text-capitalize">Edit Profile</v-tab>
-              <v-divider vertical></v-divider>
-              <v-tab value="security" class="text-capitalize">Security</v-tab>
-            </v-tabs>
-          </v-card-text>
+      <v-col cols="12" md="8" lg="9">
+        <v-card class="section-shell pa-6 pa-md-8 mb-6" flat>
+          <p class="text-overline text-primary font-weight-bold mb-2">Developer Profile</p>
+          <h2 class="text-h4 mb-4">I build products that stay maintainable as they scale.</h2>
+          <p class="muted-copy mb-0 intro-copy">
+            I help teams turn ideas into fast, reliable web apps with a practical engineering workflow.
+            My focus is clean architecture, clear communication, and shipping features that solve real problems.
+          </p>
+        </v-card>
 
-          <v-window v-model="tab" class="ma-5">
-            <v-window-item value="edit">
-              <p class="text-h6 font-weight-bold mb-1">General Information</p>
-              <p class="text-caption text-medium-emphasis mb-6">
-                Update your personal details here.
-              </p>
-
-              <v-row>
-                <v-col cols="12" md="6">
-                  <v-text-field
-                    label="First Name"
-                    variant="outlined"
-                    density="comfortable"
-                    color="primary"
-                    v-model="form.firstName"
-                    rounded="lg"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" md="6">
-                  <v-text-field
-                    label="Last Name"
-                    variant="outlined"
-                    density="comfortable"
-                    color="primary"
-                    v-model="form.lastName"
-                    rounded="lg"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-combobox
-                    v-model="chips"
-                    :items="hobbies"
-                    label="Your favorite hobbies"
-                    variant="outlined"
-                    chips
-                    closable-chips
-                    multiple
-                    class="hobbies-combobox"
-                    item-title="name"
-                    return-object
-                    rounded="lg"
-                    color="primary"
-                    density="comfortable"
-                  >
-                    <template v-slot:chip="{ props, item }">
-                      <v-chip
-                        v-bind="props"
-                        color="primary"
-                        text-color="primary"
-                        variant="outlined"
-                      >
-                        <strong>{{ item.title }}</strong>
-                      </v-chip>
-                    </template>
-                  </v-combobox>
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field
-                    label="Headline / Role"
-                    variant="outlined"
-                    density="comfortable"
-                    color="primary"
-                    v-model="form.role"
-                    rounded="lg"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12">
-                  <v-textarea
-                    label="Bio"
-                    variant="outlined"
-                    rows="3"
-                    color="primary"
-                    v-model="form.bio"
-                    hint="Brief description for your profile."
-                    rounded="lg"
-                  ></v-textarea>
-                </v-col>
-              </v-row>
-
-              <div class="d-flex mt-4 justify-end">
-                <v-btn
-                  color="primary"
-                  size="large"
-                  variant="flat"
-                  class="text-capitalize"
-                  rounded="lg"
-                  @click="submitProfile"
-                  >Save Changes</v-btn
-                >
+        <v-card class="section-shell pa-6 pa-md-8 mb-6" flat>
+          <h3 class="text-h5 mb-4">Career Highlights</h3>
+          <v-row>
+            <v-col v-for="item in highlights" :key="item.title" cols="12" sm="6" lg="3">
+              <div class="highlight-box pa-4">
+                <p class="text-h5 font-weight-bold text-primary mb-1">{{ item.value }}</p>
+                <p class="font-weight-bold mb-1">{{ item.title }}</p>
+                <p class="text-caption muted-copy mb-0">{{ item.caption }}</p>
               </div>
-            </v-window-item>
-            <v-window-item value="security">
-              <p class="text-h6 font-weight-bold mb-4">Password & Security</p>
+            </v-col>
+          </v-row>
+        </v-card>
 
-              <v-list bg-color="transparent">
-                <v-list-item>
-                  <template v-slot:prepend>
-                    <v-icon color="primary ma-n4">mdi-lock-outline</v-icon>
-                  </template>
-                  <v-list-item-title>Change Password</v-list-item-title>
-                  <v-list-item-subtitle
-                    >Last changed 3 months ago</v-list-item-subtitle
-                  >
-                  <template v-slot:append>
-                    <v-btn
-                      variant="outlined"
-                      size="small"
-                      color="primary"
-                      rounded="lg"
-                      >Update</v-btn
-                    >
-                  </template>
-                </v-list-item>
+        <v-card class="section-shell pa-6 pa-md-8 mb-6" flat>
+          <h3 class="text-h5 mb-3">Experience Timeline</h3>
+          <v-timeline side="end" truncate-line="both" density="comfortable">
+            <v-timeline-item
+              v-for="job in experiences"
+              :key="job.role"
+              :dot-color="job.dotColor"
+              size="small"
+            >
+              <template #opposite>
+                <span class="text-caption muted-copy">{{ job.period }}</span>
+              </template>
+              <div class="timeline-card pa-4">
+                <p class="text-subtitle-1 font-weight-bold mb-1">{{ job.role }}</p>
+                <p class="text-body-2 text-primary font-weight-medium mb-2">{{ job.company }}</p>
+                <p class="muted-copy mb-0">{{ job.summary }}</p>
+              </div>
+            </v-timeline-item>
+          </v-timeline>
+        </v-card>
 
-                <v-divider class="my-3"></v-divider>
-
-                <v-list-item>
-                  <template v-slot:prepend>
-                    <v-icon color="primary ma-n4"
-                      >mdi-shield-check-outline</v-icon
-                    >
-                  </template>
-                  <v-list-item-title
-                    >Two-Factor Authentication</v-list-item-title
-                  >
-                  <v-list-item-subtitle
-                    :class="twoFAEnabled ? 'text-success' : 'text-error'"
-                    >{{
-                      twoFAEnabled ? "Enabled" : "Disabled"
-                    }}</v-list-item-subtitle
-                  >
-                  <template v-slot:append>
-                    <v-switch
-                      color="primary"
-                      v-model="twoFAEnabled"
-                      hide-details
-                      density="compact"
-                    ></v-switch>
-                  </template>
-                </v-list-item>
-              </v-list>
-
-              <v-alert
-                color="error"
-                variant="tonal"
-                icon="mdi-alert-circle-outline"
-                title="Delete Account"
-                class="mt-6"
-              >
-                <div class="text-caption mb-4">
-                  Once you delete your account, there is no going back. Please
-                  be certain.
+        <v-card class="section-shell pa-6 pa-md-8" flat>
+          <h3 class="text-h5 mb-4">Stack & Expertise</h3>
+          <v-row>
+            <v-col v-for="group in skillGroups" :key="group.title" cols="12" md="6">
+              <div class="mb-4">
+                <p class="font-weight-bold mb-2">{{ group.title }}</p>
+                <div class="d-flex flex-wrap ga-2">
+                  <v-chip v-for="skill in group.skills" :key="skill" color="primary" variant="tonal" size="small">
+                    {{ skill }}
+                  </v-chip>
                 </div>
-                <v-btn color="error" variant="flat" size="small"
-                  >Delete Account</v-btn
-                >
-              </v-alert>
-            </v-window-item>
-          </v-window>
+              </div>
+            </v-col>
+          </v-row>
         </v-card>
       </v-col>
     </v-row>
@@ -271,87 +106,119 @@
 </template>
 
 <script setup>
-// Library Imports
-import { ref, onMounted } from "vue";
-import my_photo from "@/assets/Picture/my-pic.jpg";
+import { ref } from "vue";
 import Alerts from "@/components/Alerts.vue";
-import { getApiBaseUrl } from "@/utils/apiBaseUrl";
+import myPhoto from "@/assets/Picture/my-pic.jpg";
 
-// Notification State (unified)
 const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
-const selectedImage = ref("");
-const tab = ref("edit");
-const chips = ref([]);
-const hobbies = ref([]);
-const twoFAEnabled = ref(true);
+
+const highlights = [
+  { value: "50+", title: "Shipped Features", caption: "Across tools, dashboards, and internal systems." },
+  { value: "12+", title: "Production APIs", caption: "Built with authentication and resilient data flows." },
+  { value: "35%", title: "Faster Releases", caption: "By improving code structure and CI handoff." },
+  { value: "4.9/5", title: "Collaboration", caption: "Consistent feedback from cross-functional teams." },
+];
+
+const experiences = [
+  {
+    period: "2024 - Present",
+    role: "Senior Full-Stack Engineer",
+    company: "Mindlytic",
+    summary:
+      "Lead product implementation for AI-powered tools, conversion utilities, and developer-focused interfaces.",
+    dotColor: "primary",
+  },
+  {
+    period: "2022 - 2024",
+    role: "Frontend Engineer",
+    company: "Freelance & Product Teams",
+    summary:
+      "Built Vue applications with reusable component systems and optimized Lighthouse performance scores.",
+    dotColor: "secondary",
+  },
+  {
+    period: "2021 - 2022",
+    role: "Software Developer",
+    company: "Client Projects",
+    summary:
+      "Delivered full-stack solutions with Node.js, MongoDB, and responsive UI implementations.",
+    dotColor: "info",
+  },
+];
+
+const skillGroups = [
+  {
+    title: "Frontend",
+    skills: ["Vue 3", "Vuetify", "Tailwind", "Pinia", "Accessibility", "Responsive UX"],
+  },
+  {
+    title: "Backend",
+    skills: ["Node.js", "Fastify", "MongoDB", "REST APIs", "Auth", "Validation"],
+  },
+  {
+    title: "Tooling",
+    skills: ["Vite", "Git", "pnpm", "Postman", "VS Code", "Deployment"],
+  },
+  {
+    title: "Workflow",
+    skills: ["Feature Planning", "Code Review", "Refactoring", "Debugging", "Documentation"],
+  },
+];
 
 const showAlert = (message, type = "success") => {
   alertMessage.value = message;
-  alertType.value = ["success", "error", "info"].includes(type)
-    ? type
-    : "success";
+  alertType.value = type;
   alertVisible.value = true;
 };
 
-//profile background image change
-
-const images = [
-  new URL("../assets/Picture/banners/img-1.jpg", import.meta.url).href,
-  new URL("../assets/Picture/banners/img-2.jpg", import.meta.url).href,
-  new URL("../assets/Picture/banners/img-3.jpg", import.meta.url).href,
-  new URL("../assets/Picture/banners/img-4.jpg", import.meta.url).href,
-];
-
-onMounted(() => {
-  const randomIndex = Math.floor(Math.random() * images.length);
-  selectedImage.value = images[randomIndex];
-});
-
-const openanyModal = () => {
-  showAlert("Email modal opened (functionality not implemented)", "info");
-};
-
-const submitProfile = () => {
-  // Here you would normally send the updated profile data to your backend
-  showAlert("Profile updated successfully!", "success");
-};
-
-const BASE_URL = getApiBaseUrl();
-const fetchhobbies = async () => {
+const copyEmail = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/profile`);
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    const data = await response.json();
-    hobbies.value = data;
-  } catch (error) {
-    console.error("There was a problem with the fetch operation:", error);
+    await navigator.clipboard.writeText("lakshsolanki848@gmail.com");
+    showAlert("Email copied to clipboard.", "success");
+  } catch {
+    showAlert("Unable to copy email on this browser.", "error");
   }
 };
-
-onMounted(() => {
-  fetchhobbies();
-});
-
-const form = ref({
-  firstName: "Laksh",
-  lastName: "Solanki",
-  email: "lakshsolanki848@gmail.com",
-  role: "Senior Full-Stack Engineer",
-  bio: "Passionate about building scalable web applications with Vue and Node.js. Open source contributor and coffee enthusiast.",
-});
 </script>
 
 <style scoped>
-.gap-2 {
-  gap: 8px;
+.profile-shell {
+  max-width: 1240px;
 }
 
-/* Custom thick border for the avatar to cut into the cover image */
-.border-lg {
-  border: 4px solid rgb(var(--v-theme-background));
+.profile-card {
+  position: sticky;
+  top: 96px;
+}
+
+.profile-avatar {
+  border: 3px solid #ffffff;
+  box-shadow: 0 10px 26px rgba(19, 111, 99, 0.22);
+}
+
+.intro-copy {
+  max-width: 72ch;
+}
+
+.highlight-box {
+  border: 1px solid rgba(19, 111, 99, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
+  height: 100%;
+}
+
+.timeline-card {
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(19, 111, 99, 0.14);
+}
+
+@media (max-width: 960px) {
+  .profile-card {
+    position: static;
+  }
 }
 </style>
+

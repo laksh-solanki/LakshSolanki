@@ -1,6 +1,5 @@
 <script setup>
-// Library Imports
-import { ref, onMounted, onUnmounted } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.mjs?url";
 import JSZip from "jszip";
@@ -9,7 +8,6 @@ import Alerts from "@/components/Alerts.vue";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
-// State & Refs
 const pdfFile = ref(null);
 const images = ref([]);
 const isConverting = ref(false);
@@ -23,6 +21,9 @@ const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
 
+const convertedCount = computed(() => images.value.length);
+const hasPdf = computed(() => Boolean(pdfFile.value));
+
 const showAlert = (message, type) => {
   alertMessage.value = message;
   alertType.value = type === "error" ? "error" : "success";
@@ -32,11 +33,16 @@ const showAlert = (message, type) => {
 const goBack = () => window.history.back();
 const triggerFileInput = () => fileInput.value?.click();
 
+const resetImages = () => {
+  images.value.forEach((img) => URL.revokeObjectURL(img.url));
+  images.value = [];
+};
+
 const processSelectedFile = (file) => {
   if (file && file.type === "application/pdf") {
     pdfFile.value = file;
     pdfName.value = file.name;
-    showAlert("PDF file selected", "success");
+    showAlert("PDF file selected.", "success");
     processPdf();
   } else {
     showAlert("Please select a valid PDF file.", "error");
@@ -55,13 +61,16 @@ const handleDrop = (e) => {
   processSelectedFile(file);
 };
 
-// PDF Processing
 const processPdf = async () => {
   if (!pdfFile.value) return;
+
+  isConverting.value = true;
+  conversionProgress.value = 0;
   conversionStatus.value = "Loading PDF...";
-  images.value = [];
+  resetImages();
 
   const reader = new FileReader();
+
   reader.onload = async (e) => {
     try {
       const typedarray = new Uint8Array(e.target.result);
@@ -77,42 +86,38 @@ const processPdf = async () => {
         const viewport = page.getViewport({ scale: 2.0 });
         const canvas = document.createElement("canvas");
         const context = canvas.getContext("2d");
+
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport,
-        };
-        await page.render(renderContext).promise;
+        await page.render({ canvasContext: context, viewport }).promise;
 
-        const blob = await new Promise((resolve) =>
-          canvas.toBlob(resolve, "image/png"),
-        );
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
         const url = URL.createObjectURL(blob);
 
         images.value.push({
           id: imageIdCounter.value++,
-          url: url,
-          blob: blob,
+          url,
+          blob,
           name: `${pdfName.value.replace(".pdf", "")}-page-${i}.png`,
         });
       }
+
       conversionProgress.value = 100;
-      showAlert(
-        `PDF converted to [ ${images.value.length}   ] images successfully!`,
-        "success",
-      );
+      conversionStatus.value = "Conversion complete.";
+      showAlert(`PDF converted to ${images.value.length} image(s).`, "success");
     } catch (error) {
       console.error("Error processing PDF:", error);
       showAlert("Error processing PDF.", "error");
     } finally {
-      setTimeout(() => {
+      window.setTimeout(() => {
         isConverting.value = false;
         conversionProgress.value = 0;
-      }, 2000);
+        conversionStatus.value = "";
+      }, 900);
     }
   };
+
   reader.readAsArrayBuffer(pdfFile.value);
 };
 
@@ -131,275 +136,410 @@ const downloadImage = (url, name) => {
 };
 
 const downloadAll = () => {
+  if (!images.value.length) return;
+
   const zip = new JSZip();
   images.value.forEach((image) => {
     zip.file(image.name, image.blob);
   });
+
   zip.generateAsync({ type: "blob" }).then((content) => {
     saveAs(content, `${pdfName.value.replace(".pdf", "")}-images.zip`);
   });
 };
 
 const clearAll = () => {
-  images.value.forEach((img) => URL.revokeObjectURL(img.url));
+  resetImages();
   pdfFile.value = null;
-  images.value = [];
   pdfName.value = "";
   if (fileInput.value) fileInput.value.value = "";
-  showAlert("Cleared all data", "error");
+  showAlert("Cleared all data.", "error");
 };
 
-// Drag and Drop global handlers
 const onDragOver = (e) => e.preventDefault();
 const onDrop = (e) => e.preventDefault();
 
-// Lifecycle Hooks
 onMounted(() => {
   window.addEventListener("dragover", onDragOver);
   window.addEventListener("drop", onDrop);
 });
 
 onUnmounted(() => {
-  images.value.forEach((img) => URL.revokeObjectURL(img.url));
+  resetImages();
   window.removeEventListener("dragover", onDragOver);
   window.removeEventListener("drop", onDrop);
 });
 </script>
 
 <template>
-  <v-btn
-    @click="goBack"
-    variant="flat"
-    icon="mdi-arrow-left"
-    class="rounded-te rounded-ts rounded-bs"
-    color="primary"
-  ></v-btn>
-  <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
-  <v-container style="min-height: 84.3vh !important">
-    <v-card
-      class="text-h5 pa-4 my-3 text-center"
-      color="primary-lighten-5"
-      border="primary md opacity-100"
-      rounded="xl"
-      flat
-    >
-      Convert PDF to Images
-    </v-card>
+  <div class="tool-page">
+    <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
-    <!-- Upload Zone -->
-    <v-sheet
-      :class="['upload-zone', 'pa-8', { 'drag-over': isDragging }]"
-      rounded="xl"
-      border
-      @click="triggerFileInput()"
-      @dragenter.prevent="isDragging = true"
-      @dragover.prevent
-      @dragleave.prevent="isDragging = false"
-      @drop="handleDrop"
-    >
-      <input
-        ref="fileInput"
-        type="file"
-        accept="application/pdf"
-        @change="handleFileSelect"
-        id="fileInput"
-        class="file-input"
-        required
-      />
-      <div
-        class="d-flex flex-column align-center ga-4 justify-center text-center"
-      >
-        <v-icon size="80" color="grey-lighten-1"
-          >mdi-cloud-upload-outline</v-icon
-        >
-        <div class="text-h6 font-weight-bold text-grey-darken-2">
-          Drag & Drop PDF here
-        </div>
-        <div class="text-body-1 text-grey-darken-1">
-          or click to select a file
-        </div>
-        <p class="text-caption text-grey-darken-2 mt-2">Supports: PDF</p>
-      </div>
-    </v-sheet>
-
-    <!-- Image Gallery -->
-    <transition name="slide-up">
-      <div v-if="images.length > 0" class="mb-12">
-        <div class="d-flex align-center ga-1 my-8 flex-wrap justify-start">
+    <section class="hero-shell">
+      <v-container class="py-10 py-md-12">
+        <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-6">
           <v-btn
-            variant="elevated"
-            @click="clearAll"
-            append-icon="mdi-window-close"
-            color="error"
-            rounded="lg"
+            @click="goBack"
+            variant="tonal"
+            color="primary"
+            prepend-icon="mdi-arrow-left"
+            rounded="xl"
+            class="text-none"
           >
-            Clear All
+            Back
           </v-btn>
-          <v-btn
-            variant="elevated"
-            color="success"
-            rounded="lg"
-            append-icon="mdi mdi-download"
-            @click="downloadAll"
-          >
-            Download All
-          </v-btn>
+          <div class="hero-chip">Project Tool</div>
         </div>
 
-        <v-row dense>
-          <v-col
-            v-for="(image, index) in images"
-            :key="image.id"
-            cols="12"
-            sm="6"
-            md="5"
-            lg="4"
-          >
-            <v-card
-              class="border-md mx-auto"
-              max-width="400"
-              rounded="lg"
-              elevation="5"
-            >
-              <v-card-actions class="bg-primary">
-                <div class="d-flex align-center ga-1 w-100 justify-end">
-                  <v-btn
-                    @click="removeImage(index)"
-                    icon="mdi-close"
-                    variant="elevated"
-                    color="red"
-                    size="small"
-                    elevation="3"
-                  >
-                  </v-btn>
-                  <v-btn
-                    @click="downloadImage(image.url, image.name)"
-                    icon="mdi-download"
-                    variant="elevated"
-                    color="secondary"
-                    size="small"
-                    elevation="3"
-                  >
-                  </v-btn>
-                </div>
-              </v-card-actions>
-              <div class="d-flex align-center pa-2 justify-center">
-                <v-img
-                  :src="image.url"
-                  :alt="image.name"
-                  class="align-end img-thumbnail rounded-4 m-2 text-white"
-                  height="200"
-                  contain
-                >
-                </v-img>
+        <v-row align="center" class="ga-0">
+          <v-col cols="12" md="8" lg="7" class="pr-md-8">
+            <h1 class="hero-title mb-3">PDF to Image Converter</h1>
+            <p class="hero-subtitle mb-0">
+              Upload one PDF and extract every page as a high-quality image. Download individual pages or all as ZIP.
+            </p>
+          </v-col>
+          <v-col cols="12" md="4" lg="5" class="mt-6 mt-md-0">
+            <div class="hero-stats">
+              <div class="stat-item">
+                <span class="stat-value">{{ hasPdf ? "1" : "0" }}</span>
+                <span class="stat-label">PDF Selected</span>
               </div>
-              <v-card-text class="bg-primary py-4 text-center">
-                {{ image.name }}
-              </v-card-text>
-            </v-card>
+              <div class="stat-item">
+                <span class="stat-value">{{ convertedCount }}</span>
+                <span class="stat-label">Images Ready</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">ZIP</span>
+                <span class="stat-label">Bulk Download</span>
+              </div>
+            </div>
           </v-col>
         </v-row>
-      </div>
-    </transition>
-  </v-container>
+      </v-container>
+    </section>
+
+    <v-container class="py-8 py-md-12">
+      <v-row class="ga-0" align="start">
+        <v-col cols="12" lg="8" class="pr-lg-6 mb-8 mb-lg-0">
+          <v-card class="tool-shell pa-5 pa-md-7" rounded="xl" elevation="0">
+            <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
+              <div>
+                <p class="panel-kicker mb-1">Upload PDF</p>
+                <h2 class="text-h5 font-weight-bold mb-1">Drop your file here</h2>
+                <p class="text-body-2 text-medium-emphasis mb-0">Supports a single PDF per conversion run.</p>
+              </div>
+              <v-icon icon="mdi-file-pdf-box" color="primary" size="34"></v-icon>
+            </div>
+
+            <v-sheet
+              :class="['upload-zone', { 'drag-over': isDragging }]"
+              rounded="xl"
+              border
+              @click="triggerFileInput"
+              @dragenter.prevent="isDragging = true"
+              @dragover.prevent
+              @dragleave.prevent="isDragging = false"
+              @drop="handleDrop"
+            >
+              <input
+                ref="fileInput"
+                type="file"
+                accept="application/pdf"
+                @change="handleFileSelect"
+                class="file-input"
+                required
+              />
+
+              <div class="d-flex flex-column align-center ga-4 justify-center text-center">
+                <v-icon size="72" color="primary">mdi-cloud-upload-outline</v-icon>
+                <div class="text-h6 font-weight-bold">Drag and drop PDF file</div>
+                <div class="text-body-1 text-medium-emphasis">or click to browse from your device</div>
+                <p class="text-caption text-medium-emphasis mb-0">Supported format: PDF</p>
+              </div>
+            </v-sheet>
+
+            <div v-if="pdfName" class="selected-file mt-4">
+              <v-icon icon="mdi-file-document" size="18" class="mr-2"></v-icon>
+              {{ pdfName }}
+            </div>
+
+            <div v-if="isConverting" class="progress-shell mt-5">
+              <div class="d-flex justify-space-between align-center mb-2">
+                <span class="text-body-2">{{ conversionStatus }}</span>
+                <span class="text-caption">{{ conversionProgress }}%</span>
+              </div>
+              <v-progress-linear :model-value="conversionProgress" color="primary" rounded height="8"></v-progress-linear>
+            </div>
+          </v-card>
+
+          <transition name="slide-up">
+            <div v-if="images.length > 0" class="mt-6">
+              <v-card class="tool-shell pa-4 pa-md-5" rounded="xl" elevation="0">
+                <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-5">
+                  <h3 class="text-h6 font-weight-bold mb-0">Converted Images ({{ images.length }})</h3>
+                  <div class="d-flex align-center ga-2 flex-wrap">
+                    <v-btn variant="tonal" color="error" rounded="lg" @click="clearAll" class="text-none">
+                      Clear All
+                    </v-btn>
+                    <v-btn variant="flat" color="primary" rounded="lg" @click="downloadAll" class="text-none">
+                      Download ZIP
+                    </v-btn>
+                  </div>
+                </div>
+
+                <v-row>
+                  <v-col
+                    v-for="(image, index) in images"
+                    :key="image.id"
+                    cols="12"
+                    sm="6"
+                    md="6"
+                    lg="4"
+                  >
+                    <v-card class="image-card" rounded="lg" elevation="0">
+                      <v-card-actions class="d-flex justify-end ga-1 pa-2">
+                        <v-btn
+                          @click="removeImage(index)"
+                          icon="mdi-close"
+                          variant="tonal"
+                          color="error"
+                          size="small"
+                        ></v-btn>
+                        <v-btn
+                          @click="downloadImage(image.url, image.name)"
+                          icon="mdi-download"
+                          variant="tonal"
+                          color="primary"
+                          size="small"
+                        ></v-btn>
+                      </v-card-actions>
+
+                      <div class="pa-2">
+                        <v-img :src="image.url" :alt="image.name" height="210" contain class="rounded-lg"></v-img>
+                      </div>
+
+                      <v-card-text class="pt-1 pb-3 text-body-2 text-medium-emphasis text-truncate">
+                        {{ image.name }}
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-card>
+            </div>
+          </transition>
+        </v-col>
+
+        <v-col cols="12" lg="4">
+          <v-card class="side-panel pa-5" rounded="xl" elevation="0">
+            <p class="panel-kicker mb-1">Quick Guide</p>
+            <h3 class="text-h6 font-weight-bold mb-3">How it works</h3>
+
+            <div class="step-list">
+              <article class="step-item">
+                <span class="step-index">01</span>
+                <div>
+                  <p class="step-title mb-1">Upload PDF</p>
+                  <p class="step-copy mb-0">Select a PDF from your device or drag it into the upload box.</p>
+                </div>
+              </article>
+
+              <article class="step-item">
+                <span class="step-index">02</span>
+                <div>
+                  <p class="step-title mb-1">Auto conversion</p>
+                  <p class="step-copy mb-0">Each page is converted into PNG format with high rendering quality.</p>
+                </div>
+              </article>
+
+              <article class="step-item">
+                <span class="step-index">03</span>
+                <div>
+                  <p class="step-title mb-1">Download output</p>
+                  <p class="step-copy mb-0">Download pages one by one or get all images in a single ZIP file.</p>
+                </div>
+              </article>
+            </div>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
-<style>
-#fileInput {
-  display: none;
+<style scoped>
+.tool-page {
+  position: relative;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(96, 219, 198, 0.18), transparent 28%),
+    radial-gradient(circle at 96% 15%, rgba(255, 199, 120, 0.2), transparent 30%);
 }
 
-.file-btn {
-  border-radius: 6px;
+.hero-shell {
+  border-bottom: 1px solid rgba(19, 111, 99, 0.12);
+  background: linear-gradient(152deg, rgba(246, 252, 250, 0.98), rgba(236, 246, 241, 0.92));
+}
+
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(19, 111, 99, 0.22);
+  color: #136f63;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.hero-title {
+  font-size: clamp(2rem, 3.2vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.hero-subtitle {
+  color: #4d5d59;
+  max-width: 58ch;
+  line-height: 1.72;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stat-item {
+  border: 1px solid rgba(19, 111, 99, 0.15);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #10312b;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.73rem;
+  color: #5f716d;
+}
+
+.tool-shell {
+  border: 1px solid rgba(19, 111, 99, 0.17);
+  background: linear-gradient(160deg, #ffffff 0%, #f5fbf8 100%);
+  box-shadow: 0 16px 30px rgba(11, 39, 34, 0.08);
+}
+
+.panel-kicker {
+  color: #157568;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.upload-zone {
+  border: 2px dashed rgba(19, 111, 99, 0.45) !important;
+  background: rgba(19, 111, 99, 0.04);
+  padding: 36px 22px;
   cursor: pointer;
-  font-size: 14px;
-  display: inline-block;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.upload-zone:hover {
+  transform: translateY(-2px);
+  border-color: rgba(19, 111, 99, 0.75) !important;
+  background: rgba(19, 111, 99, 0.08);
+}
+
+.upload-zone.drag-over {
+  border-style: solid !important;
+  border-color: rgba(19, 111, 99, 0.95) !important;
+  background: rgba(19, 111, 99, 0.12);
 }
 
 .file-input {
   display: none;
 }
 
-.card {
-  width: 100%;
-  height: 300px;
-  margin: 0 auto;
-  background-color: #011522 !important;
-  color: white !important;
-  border-radius: 8px;
-  z-index: 1;
-}
-
-.tools {
-  display: flex;
+.selected-file {
+  display: inline-flex;
   align-items: center;
-  padding: 9px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(19, 111, 99, 0.2);
+  background: rgba(19, 111, 99, 0.08);
+  font-size: 0.85rem;
+  color: #16453d;
 }
 
-.upload-zone-header svg {
-  height: 100px;
+.progress-shell {
+  border: 1px solid rgba(19, 111, 99, 0.14);
+  border-radius: 12px;
+  background: #f8fcfa;
+  padding: 12px;
 }
 
-.upload-zone {
-  border: 2px dashed rgb(var(--v-theme-primary)) !important;
-  background-color: rgba(var(--v-theme-primary), 0.05);
-  transition:
-    background-color 0.3s ease,
-    border-style 0.3s ease,
-    border-color 0.3s ease,
-    transform 0.2s ease-in-out;
-  cursor: pointer;
-  text-align: center;
+.image-card {
+  border: 1px solid rgba(19, 111, 99, 0.14);
+  background: #ffffff;
 }
 
-.upload-zone:hover {
-  transform: scale(1.01);
-  background-color: rgba(var(--v-theme-primary), 0.1);
-  border-style: solid !important;
+.side-panel {
+  border: 1px solid rgba(19, 111, 99, 0.17);
+  background:
+    radial-gradient(circle at 90% 12%, rgba(255, 201, 131, 0.2), transparent 34%),
+    linear-gradient(160deg, #ffffff 0%, #f4faf7 100%);
+  box-shadow: 0 16px 30px rgba(11, 39, 34, 0.08);
 }
 
-.upload-zone.drag-over {
-  background-color: rgba(var(--v-theme-primary), 0.15);
-  border-color: rgb(var(--v-theme-primary));
-  border-style: solid;
-  transform: scale(1.02);
+.step-list {
+  display: grid;
+  gap: 12px;
 }
 
-.image-controls {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: flex;
-  gap: 4px;
+.step-item {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(19, 111, 99, 0.14);
+  background: rgba(255, 255, 255, 0.84);
 }
 
-.control-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  border: none;
-  cursor: pointer;
-  display: flex;
+.step-index {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  border-radius: 10px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #157568;
+  background: rgba(21, 117, 104, 0.12);
 }
 
-.control-btn:hover {
-  background: rgba(0, 0, 0, 0.9);
-  transform: scale(1.1);
+.step-title {
+  font-weight: 700;
+  color: #12352f;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+.step-copy {
+  color: #556865;
+  font-size: 0.89rem;
+  line-height: 1.5;
 }
 
 .slide-up-enter-active,
@@ -413,19 +553,13 @@ onUnmounted(() => {
   transform: translateY(20px);
 }
 
-.hover-card {
-  transition: all 0.3s ease;
-}
+@media (max-width: 960px) {
+  .hero-stats {
+    grid-template-columns: 1fr;
+  }
 
-.hover-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1) !important;
-  border-color: rgb(var(--v-theme-primary)) !important;
-}
-
-@media (max-width: 768px) {
   .upload-zone {
-    padding: 40px 20px;
+    padding: 28px 18px;
   }
 }
 </style>

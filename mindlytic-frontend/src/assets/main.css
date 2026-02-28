@@ -1,1 +1,76 @@
+﻿@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap");
 @import "tailwindcss";
+
+:root {
+  --portfolio-bg: #f3f7f2;
+  --portfolio-surface: #ffffff;
+  --portfolio-ink: #10231f;
+  --portfolio-muted: #4d5d59;
+  --portfolio-primary: #136f63;
+  --portfolio-secondary: #f59e0b;
+  --portfolio-stroke: #d4ddd8;
+  --portfolio-gradient:
+    radial-gradient(circle at 12% 8%, #dff5ee 0%, transparent 32%),
+    radial-gradient(circle at 92% 14%, #fef0d5 0%, transparent 30%),
+    linear-gradient(145deg, #f8fffb 0%, #eef7ff 55%, #f6fbf6 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--portfolio-ink);
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  background: var(--portfolio-gradient);
+  background-attachment: fixed;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  letter-spacing: -0.02em;
+}
+
+code,
+pre,
+kbd {
+  font-family: "JetBrains Mono", "Consolas", monospace;
+}
+
+.v-application {
+  background: transparent !important;
+}
+
+.section-shell {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--portfolio-stroke) 70%, white 30%);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--portfolio-surface) 90%, #f7fbf8 10%);
+  box-shadow: 0 12px 40px rgba(14, 35, 31, 0.08);
+}
+
+.glow-dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(150deg, var(--portfolio-primary), #2da894);
+  box-shadow: 0 0 0 6px rgba(19, 111, 99, 0.13);
+}
+
+.muted-copy {
+  color: var(--portfolio-muted);
+}
+

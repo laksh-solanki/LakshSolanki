@@ -1,186 +1,141 @@
 <script setup>
-// Library Imports
-import { ref } from "vue";
+import { nextTick, ref } from "vue";
+import { useRoute } from "vue-router";
 import mainsvgicon from "@/assets/mainsvgicon.vue";
-import SearchBar from "./Search-bar.vue";
-import my_photo from "@/assets/Picture/my-pic.jpg";
 
-// State & Refs
-const menu = ref(false);
+const route = useRoute();
 const drawer = ref(false);
 
-// Navigation Links - Matches your router/index.js
-const quickLinks = [
-  { title: "Home", path: "/", icon: "mdi-home" },
-  { title: "About", path: "/about", icon: "mdi-information" },
-  { title: "Projects", path: "/projects", icon: "mdi-view-dashboard" },
+const navLinks = [
+  { title: "Home", path: "/" },
+  { title: "About", path: "/about" },
+  { title: "Projects", path: "/projects" },
+  { title: "Profile", path: "/profile" },
 ];
-// User Dropdown Items
-const userMenu = [
-  {
-    title: "Profile",
-    to: "/profile",
-    icon: "mdi-account-outline",
-    color: "primary",
-    showChip: true,
-  },
-  // { title: "Billing & Plans", to: "/", icon: "mdi-credit-card-outline", color: "primary", showChip: true },
-  // { title: "Settings", to: "/settings", icon: "mdi-cog-outline", color: "primary", showChip: false },
-  // { title: "Help & Support", to: "/help", icon: "mdi-lifebuoy", color: "primary", showChip: false },
-  // { title: "Sign Out", to: "/logout", icon: "mdi-logout", color: "error", showChip: false },
-];
+
+const isActive = (path) =>
+  path === "/projects" ? route.path.startsWith("/projects") : route.path === path;
+
+const closeDrawer = () => {
+  drawer.value = false;
+};
+
+const scrollToSubscribe = async () => {
+  closeDrawer();
+  await nextTick();
+
+  const section = document.getElementById("subscribe-container");
+  if (!section) return;
+
+  section.scrollIntoView({ behavior: "smooth", block: "center" });
+  section.classList.add("subscribe-focus");
+  window.setTimeout(() => section.classList.remove("subscribe-focus"), 1600);
+};
 </script>
 
 <template>
-  <v-navigation-drawer v-model="drawer" temporary location="left">
-    <v-list>
-      <v-list-item class="py-0">
-        <mainsvgicon />
+  <v-navigation-drawer v-model="drawer" temporary location="right" class="mobile-drawer">
+    <div class="pa-5 d-flex align-center justify-space-between">
+      <mainsvgicon />
+      <v-btn icon="mdi-close" variant="text" @click="closeDrawer"></v-btn>
+    </div>
+    <v-divider></v-divider>
+
+    <v-list nav class="px-3 py-4">
+      <v-list-item
+        v-for="link in navLinks"
+        :key="link.path"
+        :to="link.path"
+        :title="link.title"
+        rounded="xl"
+        class="mb-2"
+        @click="closeDrawer"
+      >
       </v-list-item>
     </v-list>
 
-    <v-divider></v-divider>
-
-    <v-list nav>
-      <v-tabs inset direction="vertical" class="ma-0" inset-radius="8">
-        <v-tab
-          v-for="(link, index) in quickLinks"
-          :key="index"
-          :to="link.path"
-          slider-color="white"
-          width="225"
-          >{{ link.title }}
-          <template v-slot:append>
-            <v-icon
-              v-if="$route.path === link.path"
-              icon="mdi-chevron-double-right"
-            ></v-icon>
-          </template>
-        </v-tab>
-      </v-tabs>
-    </v-list>
+    <div class="px-5 pb-6 pt-2">
+      <v-btn
+        block
+        color="primary"
+        rounded="xl"
+        variant="flat"
+        @click="scrollToSubscribe"
+      >
+        Let's Collaborate
+      </v-btn>
+    </div>
   </v-navigation-drawer>
-  <v-app-bar
-    color="surface"
-    scroll-behavior="elevate"
-    border
-    scroll-threshold="1000"
-    class="px-0"
-    density="default"
-  >
-    <v-btn
-      variant="text"
-      stacked
-      class="d-lg-none d-xl-none d-xxl-none mx-0 pa-0"
-      min-width="55"
-      @click.stop="drawer = !drawer"
-    >
-      <v-icon icon="mdi-menu" size="24"></v-icon>
-    </v-btn>
-    <v-divider
-      vertical
-      class="d-flex d-sm-flex d-md-flex d-lg-none mx-0"
-    ></v-divider>
-    <mainsvgicon />
-    <v-divider
-      vertical
-      class="d-none d-sm-flex d-md-flex d-lg-flex"
-    ></v-divider>
-    <div class="d-none d-md-flex align-center w-100 justify-center">
-      <v-tabs
-        inset
-        inset-radius="8"
-        inset-padding="8"
-        density="compact"
-        class="d-none d-lg-flex align-center"
-        height="40"
-        bg-color="black"
-      >
-        <v-tab
-          v-for="(link, index) in quickLinks"
-          :key="index"
+
+  <v-app-bar class="portfolio-header" flat height="78">
+    <v-container class="d-flex align-center py-0">
+      <router-link to="/" class="brand-link d-flex align-center text-decoration-none">
+        <mainsvgicon />
+      </router-link>
+
+      <div class="d-none d-md-flex align-center mx-auto ga-2 nav-cluster">
+        <v-btn
+          v-for="link in navLinks"
+          :key="link.path"
           :to="link.path"
-          max-height="40"
-          class="px-2"
-          slider-color="white"
-          >{{ link.title }}</v-tab
+          variant="text"
+          rounded="xl"
+          class="nav-link text-none"
+          :class="{ 'is-active': isActive(link.path) }"
         >
-      </v-tabs>
-    </div>
-    <div class="d-flex align-center w-100 justify-end">
-      <v-divider vertical></v-divider>
-      <SearchBar />
-      <v-divider vertical></v-divider>
-      <v-menu
-        v-model="menu"
-        :close-on-content-click="false"
-        location="bottom end"
-        origin="top right"
-      >
-        <template v-slot:activator="{ props }">
-          <v-btn v-bind="props" stacked class="ma-0">
-            <v-avatar :image="my_photo"></v-avatar>
-          </v-btn>
-        </template>
+          {{ link.title }}
+        </v-btn>
+      </div>
 
-        <v-card min-width="310" class="rounded-lg" elevation="10">
-          <v-list-item class="pa-3 mx-3">
-            <template v-slot:prepend>
-              <v-avatar size="48" :image="my_photo" class="mr-2"></v-avatar>
-            </template>
-            <v-list-item-title class="text-h6 font-weight-bold">
-              Laksh Solanki
-            </v-list-item-title>
-            <v-list-item-subtitle class="text-caption text-grey-lighten-1">
-              <v-icon size="small" color="success" class="mr-1"
-                >mdi-check-decagram</v-icon
-              >
-              lakshsolanki848@gmail.com
-            </v-list-item-subtitle>
-          </v-list-item>
+      <div class="d-none d-md-flex align-center">
+        <v-btn
+          color="primary"
+          variant="flat"
+          rounded="xl"
+          class="text-none px-5"
+          @click="scrollToSubscribe"
+        >
+          Let's Collaborate
+        </v-btn>
+      </div>
 
-          <v-divider class="mb-3"></v-divider>
-
-          <v-list density="comfortable" rounded="lg" class="ma-3 pa-0" nav>
-            <v-list-item
-              v-for="(item, i) in userMenu"
-              :key="i"
-              :value="item.title"
-              :to="item.to"
-              :prepend-icon="item.icon"
-              :title="item.title"
-              rounded="lg"
-              :color="item.color"
-            >
-              <template v-slot:append v-if="item.showChip">
-                <v-chip
-                  size="x-small"
-                  color="purple"
-                  variant="flat"
-                  class="font-weight-bold"
-                  >NEW</v-chip
-                >
-              </template>
-            </v-list-item>
-          </v-list>
-        </v-card>
-      </v-menu>
-    </div>
+      <v-btn
+        class="d-flex d-md-none ml-auto"
+        icon="mdi-menu"
+        variant="text"
+        @click="drawer = true"
+      ></v-btn>
+    </v-container>
   </v-app-bar>
 </template>
 
 <style scoped>
-.cursor-pointer {
-  cursor: pointer;
+.portfolio-header {
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(12px);
+  background: rgba(243, 247, 242, 0.82) !important;
+  border-bottom: 1px solid rgba(19, 111, 99, 0.14);
 }
 
-.tracking-tight {
-  letter-spacing: -0.5px;
+.nav-cluster {
+  padding: 5px;
+  border-radius: 999px;
+  border: 1px solid rgba(19, 111, 99, 0.2);
+  background: rgba(255, 255, 255, 0.82);
 }
 
-/* Optional: Fine-tune the blur effect for a glassmorphism feel */
-.v-menu .v-overlay__content > .v-card {
-  backdrop-filter: blur(2px);
-  background-color: rgba(30, 30, 30, 0.95) !important;
+.nav-link {
+  color: #24443e;
+  font-weight: 600;
+}
+
+.nav-link.is-active {
+  color: white;
+  background: linear-gradient(145deg, #136f63, #1f8f7f);
+}
+
+.mobile-drawer {
+  backdrop-filter: blur(10px);
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <v-app theme="dark">
+  <v-app>
     <TopLoader ref="loaderRef" />
     <AppHeader />
     <v-main>
@@ -24,21 +24,21 @@ onMounted(() => {
 });
 </script>
 <style>
-/* Smooth scrollbar for premium feel */
+/* Consistent scrollbar styling across portfolio pages */
 ::-webkit-scrollbar {
-  width: 7px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #ecf1eb;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 2px;
+  background: #c7d2cc;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #9ca8a2;
 }
 </style>

@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 // Library Imports
 import {
   computed,
@@ -73,3 +73,4 @@ onBeforeUnmount(() => clearTimeout(timer));
 <style scoped>
 /* small spacing tweaks if needed */
 </style>
+

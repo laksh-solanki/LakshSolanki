@@ -1,11 +1,9 @@
 <script setup>
-// Library Imports
-import { ref, reactive, onMounted } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import Certificate from "@/components/certificate.vue";
 import Alerts from "@/components/Alerts.vue";
 import { getApiBaseUrl } from "@/utils/apiBaseUrl";
 
-// State & Refs
 const studentForm = ref(null);
 const alertVisible = ref(false);
 const alertMessage = ref("");
@@ -20,11 +18,13 @@ const form = reactive({
   course: "",
 });
 
+const BASE_URL = getApiBaseUrl();
+
+const courseCount = computed(() => courses.value.length);
+
 const goBack = () => {
   window.history.back();
 };
-
-const BASE_URL = getApiBaseUrl();
 
 const showAlert = (message, type) => {
   alertMessage.value = message;
@@ -60,7 +60,7 @@ const previewCertificate = async () => {
   setTimeout(() => {
     loading.value = false;
     dialog.value = true;
-  }, 1000);
+  }, 800);
 };
 
 const generatePdf = async () => {
@@ -70,7 +70,7 @@ const generatePdf = async () => {
   if (pdfSection.value) {
     const options = {
       margin: 0,
-      filename: form.course.name + ".pdf",
+      filename: `${form.course.name}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
@@ -96,46 +96,65 @@ const generatePdf = async () => {
 </script>
 
 <template>
-  <div class="page-wrapper">
-    <v-btn
-      @click="goBack"
-      variant="flat"
-      icon="mdi-arrow-left"
-      color="primary"
-      class="rounded-0 rounded-be-xl back-button"
-      position="fixed"
-      style="z-index: 10; top: 64px"
-      aria-label="Go back"
-    ></v-btn>
-
+  <div class="certificate-page">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
-    <v-sheet
-      class="d-flex align-center justify-center flex-wrap text-center"
-      elevation="0"
-      height="250"
-      dark
-      color="transparent"
-    >
-      <v-container>
-        <v-row justify="center">
-          <v-col cols="12" md="10" lg="8">
-            <div class="text-center mb-8">
-              <div class="text-overline text-medium-emphasis">Tool</div>
-              <h1 class="text-h2 font-weight-bold">Certificate Generator</h1>
-              <p class="text-body-1 text-medium-emphasis mt-2">
-                Create and download your course completion certificate.
-              </p>
+    <section class="hero-shell">
+      <v-container class="py-10 py-md-12">
+        <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-6">
+          <v-btn
+            @click="goBack"
+            variant="tonal"
+            color="primary"
+            prepend-icon="mdi-arrow-left"
+            rounded="xl"
+            class="text-none"
+          >
+            Back
+          </v-btn>
+          <div class="hero-chip">Certificate Tool</div>
+        </div>
+
+        <v-row align="center" class="ga-0">
+          <v-col cols="12" md="8" lg="7" class="pr-md-8">
+            <h1 class="hero-title mb-3">Certificate Generator</h1>
+            <p class="hero-subtitle mb-0">
+              Enter your details, preview your certificate, and download a clean PDF in one flow.
+            </p>
+          </v-col>
+          <v-col cols="12" md="4" lg="5" class="mt-6 mt-md-0">
+            <div class="hero-stats">
+              <div class="stat-item">
+                <span class="stat-value">{{ courseCount }}</span>
+                <span class="stat-label">Available Courses</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">PDF</span>
+                <span class="stat-label">Output Format</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">1 min</span>
+                <span class="stat-label">Average Time</span>
+              </div>
             </div>
           </v-col>
         </v-row>
       </v-container>
-    </v-sheet>
+    </section>
 
-    <v-container>
-      <v-row justify="center">
-        <v-col cols="12" md="10" lg="8">
-          <v-card class="pa-4 pa-md-6 rounded-xl" flat border>
+    <v-container class="py-8 py-md-12">
+      <v-row class="ga-0" align="start">
+        <v-col cols="12" lg="8" class="pr-lg-6 mb-8 mb-lg-0">
+          <v-card class="form-shell pa-5 pa-md-7" rounded="xl" elevation="0">
+            <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
+              <div>
+                <p class="form-kicker mb-1">Fill Certificate Details</p>
+                <h2 class="text-h5 font-weight-bold mb-1">Generate your certificate</h2>
+                <p class="text-body-2 text-medium-emphasis mb-0">Use your full name and select the correct course.</p>
+              </div>
+              <v-icon icon="mdi-file-certificate-outline" color="primary" size="34"></v-icon>
+            </div>
+
             <v-form ref="studentForm" @submit.prevent="previewCertificate">
               <v-row>
                 <v-col cols="12" md="6">
@@ -152,8 +171,10 @@ const generatePdf = async () => {
                     prepend-inner-icon="mdi-account"
                     variant="solo-filled"
                     flat
+                    class="form-input"
                   ></v-text-field>
                 </v-col>
+
                 <v-col cols="12" md="6">
                   <v-select
                     v-model="form.course"
@@ -168,68 +189,84 @@ const generatePdf = async () => {
                     prepend-inner-icon="mdi-school"
                     variant="solo-filled"
                     flat
+                    class="form-input"
                   ></v-select>
                 </v-col>
               </v-row>
 
-              <v-row class="mt-4" justify="center">
-                <v-col cols="auto">
-                  <v-btn
-                    type="submit"
-                    text="Preview Certificate"
-                    :loading="loading"
-                    prepend-icon="mdi-file-certificate-outline"
-                    color="primary"
-                    size="large"
-                    class="rounded-lg"
-                    elevation="2"
-                  ></v-btn>
-                </v-col>
-              </v-row>
+              <div class="d-flex align-center flex-wrap ga-3 mt-2">
+                <v-btn
+                  type="submit"
+                  :loading="loading"
+                  prepend-icon="mdi-eye-outline"
+                  color="primary"
+                  size="large"
+                  rounded="xl"
+                  class="text-none px-6"
+                >
+                  Preview Certificate
+                </v-btn>
+
+                <p class="mb-0 text-body-2 text-medium-emphasis">Preview first, then click download in the dialog.</p>
+              </div>
             </v-form>
           </v-card>
+
           <v-alert
-            class="mt-6 rounded-xl"
+            class="mt-5 rounded-xl note-alert"
             color="primary"
             variant="tonal"
             border="start"
-            elevation="2"
-            icon="mdi-information"
-            prominent
+            icon="mdi-information-outline"
           >
-            <p class="text-body-1">
-              <strong>Note:</strong> Please ensure that you have filled in your
-              full name and selected the correct course before generating the
-              certificate. The certificate will be generated in PDF format,
-              which you can
-              <v-chip class="mx-1" color="secondary" label size="small">
-                Download For Free
-              </v-chip>
-              .
-            </p>
+            Verify your name and selected course before generating. The certificate downloads as a PDF and can be shared directly.
           </v-alert>
+        </v-col>
+
+        <v-col cols="12" lg="4">
+          <v-card class="side-panel pa-5" rounded="xl" elevation="0">
+            <p class="form-kicker mb-1">Quick Guide</p>
+            <h3 class="text-h6 font-weight-bold mb-3">3-step process</h3>
+
+            <div class="step-list">
+              <article class="step-item">
+                <span class="step-index">01</span>
+                <div>
+                  <p class="step-title mb-1">Enter full name</p>
+                  <p class="step-copy mb-0">Use the exact name you want to appear on the certificate.</p>
+                </div>
+              </article>
+
+              <article class="step-item">
+                <span class="step-index">02</span>
+                <div>
+                  <p class="step-title mb-1">Choose course</p>
+                  <p class="step-copy mb-0">Select the completed course from the available list.</p>
+                </div>
+              </article>
+
+              <article class="step-item">
+                <span class="step-index">03</span>
+                <div>
+                  <p class="step-title mb-1">Preview and download</p>
+                  <p class="step-copy mb-0">Check all details in preview, then download the final PDF.</p>
+                </div>
+              </article>
+            </div>
+          </v-card>
         </v-col>
       </v-row>
     </v-container>
 
-    <v-dialog v-model="dialog" max-width="900px">
-      <v-card class="d-flex flex-column fill-height">
-        <v-toolbar color="primary" density="compact">
-          <v-toolbar-title class="text-h6 font-weight-bold">
-            Certificate Preview
-          </v-toolbar-title>
+    <v-dialog v-model="dialog" max-width="980px">
+      <v-card class="preview-dialog d-flex flex-column fill-height" rounded="xl">
+        <v-toolbar color="primary" density="comfortable" class="preview-toolbar">
+          <v-toolbar-title class="text-h6 font-weight-bold">Certificate Preview</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            @click="dialog = false"
-            aria-label="Close dialog"
-          ></v-btn>
+          <v-btn icon="mdi-close" variant="text" @click="dialog = false" aria-label="Close dialog"></v-btn>
         </v-toolbar>
 
-        <v-card-text
-          class="grow d-flex align-center justify-center pa-2 pa-md-4 bg-grey-darken-4"
-        >
+        <v-card-text class="grow d-flex align-center justify-center pa-3 pa-md-5 preview-body">
           <div class="certificate-preview-wrapper">
             <v-responsive :aspect-ratio="1 / 1.414">
               <div ref="pdfSection" class="certificate-bg">
@@ -238,18 +275,31 @@ const generatePdf = async () => {
             </v-responsive>
           </div>
         </v-card-text>
+
         <v-divider></v-divider>
-        <v-card-actions class="pa-4">
-          <v-spacer></v-spacer>
+
+        <v-card-actions class="pa-4 d-flex justify-end ga-3">
+          <v-btn
+            variant="text"
+            color="grey-darken-1"
+            class="text-none"
+            rounded="xl"
+            @click="dialog = false"
+          >
+            Cancel
+          </v-btn>
           <v-btn
             @click="generatePdf"
-            text="Download"
             prepend-icon="mdi-download"
             :loading="loading"
-            variant="tonal"
+            variant="flat"
             color="primary"
             size="large"
-          ></v-btn>
+            rounded="xl"
+            class="text-none px-6"
+          >
+            Download PDF
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -257,20 +307,157 @@ const generatePdf = async () => {
 </template>
 
 <style scoped>
-.page-wrapper {
+.certificate-page {
   position: relative;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(96, 219, 198, 0.18), transparent 28%),
+    radial-gradient(circle at 96% 15%, rgba(255, 199, 120, 0.2), transparent 30%);
 }
 
-.back-button {
-  top: 64px;
-  /* Adjust based on your app bar height */
-  left: 0;
+.hero-shell {
+  border-bottom: 1px solid rgba(19, 111, 99, 0.12);
+  background: linear-gradient(152deg, rgba(246, 252, 250, 0.98), rgba(236, 246, 241, 0.92));
+}
+
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(19, 111, 99, 0.22);
+  color: #136f63;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.hero-title {
+  font-size: clamp(2rem, 3.3vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.hero-subtitle {
+  color: #4d5d59;
+  max-width: 54ch;
+  line-height: 1.7;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stat-item {
+  border: 1px solid rgba(19, 111, 99, 0.15);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #10312b;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.73rem;
+  color: #5f716d;
+}
+
+.form-shell {
+  border: 1px solid rgba(19, 111, 99, 0.17);
+  background: linear-gradient(160deg, #ffffff 0%, #f5fbf8 100%);
+  box-shadow: 0 16px 30px rgba(11, 39, 34, 0.08);
+}
+
+.form-kicker {
+  color: #157568;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.form-input :deep(.v-field) {
+  border-radius: 12px;
+  border: 1px solid rgba(19, 111, 99, 0.12);
+  background: #f8fcfa;
+}
+
+.note-alert {
+  border: 1px solid rgba(19, 111, 99, 0.14);
+}
+
+.side-panel {
+  border: 1px solid rgba(19, 111, 99, 0.17);
+  background:
+    radial-gradient(circle at 90% 12%, rgba(255, 201, 131, 0.2), transparent 34%),
+    linear-gradient(160deg, #ffffff 0%, #f4faf7 100%);
+  box-shadow: 0 16px 30px rgba(11, 39, 34, 0.08);
+}
+
+.step-list {
+  display: grid;
+  gap: 12px;
+}
+
+.step-item {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(19, 111, 99, 0.14);
+  background: rgba(255, 255, 255, 0.84);
+}
+
+.step-index {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #157568;
+  background: rgba(21, 117, 104, 0.12);
+}
+
+.step-title {
+  font-weight: 700;
+  color: #12352f;
+}
+
+.step-copy {
+  color: #556865;
+  font-size: 0.89rem;
+  line-height: 1.5;
+}
+
+.preview-dialog {
+  overflow: hidden;
+}
+
+.preview-toolbar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.preview-body {
+  background:
+    linear-gradient(135deg, rgba(14, 42, 37, 0.98), rgba(10, 29, 26, 0.98));
 }
 
 .certificate-preview-wrapper {
   width: 100%;
-  max-width: 820px;
-  /* A4-like width for desktop */
+  max-width: 840px;
   margin: auto;
 }
 
@@ -287,5 +474,11 @@ const generatePdf = async () => {
   position: relative;
   background-repeat: no-repeat;
   background-size: 100% 100%;
+}
+
+@media (max-width: 960px) {
+  .hero-stats {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

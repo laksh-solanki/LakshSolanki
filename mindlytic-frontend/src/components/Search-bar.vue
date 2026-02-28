@@ -171,7 +171,7 @@
         <div class="flex items-center gap-1">
           Search by
           <span class="text-white font-bold tracking-tighter">
-            <mainsvgicon class="pa-0" />
+            <mainsvgicon :size="18" :show-wordmark="false" class="pa-0" />
           </span>
         </div>
       </div>
