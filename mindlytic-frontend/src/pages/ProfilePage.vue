@@ -275,6 +275,7 @@
 import { ref, onMounted } from "vue";
 import my_photo from "@/assets/Picture/my-pic.jpg";
 import Alerts from "@/components/Alerts.vue";
+import { getApiBaseUrl } from "@/utils/apiBaseUrl";
 
 // Notification State (unified)
 const alertVisible = ref(false);
@@ -317,9 +318,7 @@ const submitProfile = () => {
   showAlert("Profile updated successfully!", "success");
 };
 
-const BASE_URL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
-  ? import.meta.env.VITE_API_URL_1
-  : import.meta.env.VITE_API_URL_2;
+const BASE_URL = getApiBaseUrl();
 const fetchhobbies = async () => {
   try {
     const response = await fetch(`${BASE_URL}/profile`);

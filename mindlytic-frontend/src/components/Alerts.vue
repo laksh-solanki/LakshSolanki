@@ -57,8 +57,12 @@ onBeforeUnmount(() => clearTimeout(timer));
     location="bottom center"
     transition="slide-y-reverse-transition"
   >
-    <span v-if="type === 'success'" class="mr-2">✔</span>
-    <span v-else-if="type === 'error'" class="mr-2">❌</span>
+    <v-icon v-if="type === 'success'" class="mr-2" icon="mdi-check-circle" />
+    <v-icon
+      v-else-if="type === 'error'"
+      class="mr-2"
+      icon="mdi-alert-circle"
+    />
     {{ message }}
     <template #actions>
       <v-btn icon="mdi-close" @click="visible = false"></v-btn>

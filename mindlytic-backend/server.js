@@ -7,22 +7,32 @@ dotenv.config();
 
 const app = fastify({logger: true});
 const port = process.env.PORT || 5001;
+const mongodbUri = process.env.MONGODB_URI;
 
-if (!process.env.MONGODB_URI) {
-  app.log.error("Error: MONGODB_URI is not defined in .env file.");
-  process.exit(1);
+if (!mongodbUri) {
+  app.log.warn("MONGODB_URI is not defined. Database-backed routes will return 503.");
 }
 
 // MongoDB Client Setup
-const client = new MongoClient(process.env.MONGODB_URI, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
+const client = mongodbUri
+  ? new MongoClient(mongodbUri, {
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+      },
+    })
+  : null;
 
 let db;
+
+const ensureDbReady = (reply) => {
+  if (db) return true;
+  reply.status(503).send({
+    error: "Database is not configured. Set MONGODB_URI to enable this endpoint.",
+  });
+  return false;
+};
 
 // Register Plugins
 app.register(cors);
@@ -33,6 +43,8 @@ app.get("/", async (request, reply) => {
 });
 
 app.get("/project/certificate-gen", async (request, reply) => {
+  if (!ensureDbReady(reply)) return;
+
   try {
     const courses = await db.collection("courses").find({}).toArray();
     return courses;
@@ -43,6 +55,8 @@ app.get("/project/certificate-gen", async (request, reply) => {
 });
 
 app.get("/profile", async (request, reply) => {
+  if (!ensureDbReady(reply)) return;
+
   try {
     const hobbies = await db.collection("hobbies").find({}).toArray();
     return hobbies;
@@ -53,6 +67,8 @@ app.get("/profile", async (request, reply) => {
 });
 
 app.post("/api/subscribe", async (request, reply) => {
+  if (!ensureDbReady(reply)) return;
+
   const { email } = request.body;
 
   if (!email) {
@@ -83,11 +99,14 @@ app.post("/api/subscribe", async (request, reply) => {
 
 const start = async () => {
   try {
-    await client.connect();
-    db = client.db("Mindlytic");
+    if (client) {
+      await client.connect();
+      db = client.db("Mindlytic");
 
-    await db.command({ ping: 1 });
-    app.log.info("Connected to MongoDB!");
+      await db.command({ ping: 1 });
+      app.log.info("Connected to MongoDB!");
+    }
+
     await app.listen({
       port: Number(port),
       host: "0.0.0.0",
@@ -103,7 +122,9 @@ const start = async () => {
 start();
 // Graceful Shutdown
 process.on("SIGINT", async () => {
-  await client.close();
+  if (client) {
+    await client.close();
+  }
   await app.close();
   process.exit(0);
 });

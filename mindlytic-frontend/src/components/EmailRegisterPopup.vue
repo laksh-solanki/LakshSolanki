@@ -53,6 +53,7 @@
 // Library Imports
 import { ref, onMounted } from "vue";
 import Alerts from "./Alerts.vue";
+import { getApiBaseUrl } from "@/utils/apiBaseUrl";
 
 // State & Refs
 const isValid = ref(false);
@@ -70,9 +71,7 @@ const emailRules = [
 ];
 
 // API Configuration
-const API_URL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
-  ? import.meta.env.VITE_API_URL_1
-  : import.meta.env.VITE_API_URL_2;
+const API_URL = getApiBaseUrl();
 
 // Lifecycle
 onMounted(() => {

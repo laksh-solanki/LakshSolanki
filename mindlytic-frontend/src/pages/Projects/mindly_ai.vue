@@ -33,15 +33,15 @@
     <div class="chat-input-area border">
       <div class="input-wrapper">
         <div class="input-field-container d-flex align-center justify-center border">
-          <v-textarea v-model="userInput" placeholder="Ask me anything..." auto-grow rows="1" max-rows="5"
+          <v-textarea v-model="userInput" :placeholder="hasApiKey ? 'Ask me anything...' : 'Set VITE_GEMINI_API_KEY to enable chat'" auto-grow rows="1" max-rows="5"
             variant="solo" flat hide-details bg-color="transparent" class="chat-textarea" rounded="lg"
-            @keydown.enter.prevent="sendMessage"></v-textarea>
+            :disabled="loading || !hasApiKey" @keydown.enter.prevent="sendMessage"></v-textarea>
           <v-btn icon="mdi-send" variant="flat" :color="userInput.trim() ? 'indigo-accent-3' : 'indigo-lighten-1'"
-            elevation="3" :loading="loading" :disabled="!userInput.trim()" @click="sendMessage"
+            elevation="3" :loading="loading" :disabled="!hasApiKey || !userInput.trim()" @click="sendMessage"
             class="send-btn"></v-btn>
         </div>
         <p class="powered-by-text">
-          Powered by Mindlyic Ai Studio
+          Powered by Mindlytic AI Studio
         </p>
       </div>
     </div>
@@ -66,13 +66,20 @@ let nextId = 0;
 const goBack = () => window.history.back();
 const userInput = ref('');
 const loading = ref(false);
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY?.trim();
+const hasApiKey = Boolean(API_KEY);
+const genAI = hasApiKey ? new GoogleGenerativeAI(API_KEY) : null;
+
 const messages = ref([
-  { id: nextId++, role: 'model', text: 'Hello! How can I assist you today with the power of Mindly?' }
+  {
+    id: nextId++,
+    role: 'model',
+    text: hasApiKey
+      ? 'Hello! How can I assist you today with the power of Mindly?'
+      : 'AI chat is unavailable. Please add VITE_GEMINI_API_KEY in your frontend .env file.',
+  }
 ]);
 const chatContainer = ref(null);
-
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const genAI = new GoogleGenerativeAI(API_KEY);
 
 const scrollToBottom = async () => {
   await nextTick();
@@ -153,7 +160,7 @@ const handleChatClick = async (event) => {
 };
 
 const sendMessage = async () => {
-  if (!userInput.value.trim() || loading.value) return;
+  if (!hasApiKey || !userInput.value.trim() || loading.value) return;
 
   const prompt = userInput.value;
 

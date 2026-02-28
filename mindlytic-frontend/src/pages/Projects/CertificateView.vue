@@ -3,6 +3,7 @@
 import { ref, reactive, onMounted } from "vue";
 import Certificate from "@/components/certificate.vue";
 import Alerts from "@/components/Alerts.vue";
+import { getApiBaseUrl } from "@/utils/apiBaseUrl";
 
 // State & Refs
 const studentForm = ref(null);
@@ -23,9 +24,7 @@ const goBack = () => {
   window.history.back();
 };
 
-const BASE_URL = ["localhost", "127.0.0.1"].includes(window.location.hostname)
-  ? import.meta.env.VITE_API_URL_1
-  : import.meta.env.VITE_API_URL_2;
+const BASE_URL = getApiBaseUrl();
 
 const showAlert = (message, type) => {
   alertMessage.value = message;
