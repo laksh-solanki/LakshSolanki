@@ -22,6 +22,23 @@ const BASE_URL = getApiBaseUrl();
 
 const courseCount = computed(() => courses.value.length);
 
+let html2CanvasPromise;
+let jsPdfCtorPromise;
+
+const loadCertificatePdfTools = async () => {
+  if (!html2CanvasPromise) {
+    html2CanvasPromise = import("html2canvas").then((module) => module.default);
+  }
+
+  if (!jsPdfCtorPromise) {
+    jsPdfCtorPromise = import("jspdf").then((module) => module.jsPDF);
+  }
+
+  return Promise.all([html2CanvasPromise, jsPdfCtorPromise]);
+};
+
+const sanitizeFileName = (name) => (name || "certificate").replace(/[\\/:*?"<>|]+/g, "-").trim() || "certificate";
+
 const goBack = () => {
   window.history.back();
 };
@@ -65,32 +82,55 @@ const previewCertificate = async () => {
 
 const generatePdf = async () => {
   loading.value = true;
-  const html2pdf = (await import("html2pdf.js")).default;
 
-  if (pdfSection.value) {
-    const options = {
-      margin: 0,
-      filename: `${form.course.name}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-    };
+  try {
+    if (!pdfSection.value) {
+      showAlert("Preview is not ready yet.", "error");
+      return;
+    }
 
-    html2pdf()
-      .set(options)
-      .from(pdfSection.value)
-      .save()
-      .then(() => {
-        showAlert("Certificate downloaded successfully!", "success");
-      })
-      .catch((err) => {
-        console.error(err);
-        showAlert("Failed to generate certificate.", "error");
-      })
-      .finally(() => {
-        loading.value = false;
-        dialog.value = false;
-      });
+    const [html2canvas, JsPdf] = await loadCertificatePdfTools();
+    const canvas = await html2canvas(pdfSection.value, {
+      scale: 2,
+      useCORS: true,
+      scrollY: 0,
+      backgroundColor: "#ffffff",
+      logging: false,
+    });
+
+    const imageData = canvas.toDataURL("image/jpeg", 0.98);
+    const pdf = new JsPdf({
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait",
+    });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const canvasRatio = canvas.width / canvas.height;
+    const pageRatio = pageWidth / pageHeight;
+
+    let targetWidth = pageWidth;
+    let targetHeight = pageHeight;
+
+    if (canvasRatio > pageRatio) {
+      targetHeight = pageWidth / canvasRatio;
+    } else {
+      targetWidth = pageHeight * canvasRatio;
+    }
+
+    const x = (pageWidth - targetWidth) / 2;
+    const y = (pageHeight - targetHeight) / 2;
+    pdf.addImage(imageData, "JPEG", x, y, targetWidth, targetHeight, undefined, "FAST");
+    pdf.save(`${sanitizeFileName(form.course?.name)}.pdf`);
+
+    showAlert("Certificate downloaded successfully!", "success");
+  } catch (err) {
+    console.error(err);
+    showAlert("Failed to generate certificate.", "error");
+  } finally {
+    loading.value = false;
+    dialog.value = false;
   }
 };
 </script>

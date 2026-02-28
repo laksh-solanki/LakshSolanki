@@ -1,6 +1,5 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from "vue";
-import { jsPDF } from "jspdf";
 import { useDisplay } from "vuetify";
 import Alerts from "@/components/Alerts.vue";
 
@@ -17,11 +16,21 @@ const alertMessage = ref("");
 const alertType = ref("success");
 const orientation = ref("p");
 
+let jsPdfCtorPromise;
+
 const totalImages = computed(() => images.value.length);
 const totalSize = computed(() => {
   const bytes = images.value.reduce((sum, item) => sum + item.size, 0);
   return formatFileSize(bytes);
 });
+
+const loadJsPdfCtor = async () => {
+  if (!jsPdfCtorPromise) {
+    jsPdfCtorPromise = import("jspdf").then((module) => module.jsPDF);
+  }
+
+  return jsPdfCtorPromise;
+};
 
 const goBack = () => window.history.back();
 const triggerFileInput = () => fileInput.value?.click();
@@ -159,7 +168,8 @@ const generatePdfWithOrientation = async () => {
   conversionStatus.value = "Initializing PDF document...";
 
   try {
-    const pdf = new jsPDF({
+    const JsPdf = await loadJsPdfCtor();
+    const pdf = new JsPdf({
       orientation: orientation.value,
       unit: "mm",
       format: "a4",

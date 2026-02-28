@@ -41,6 +41,15 @@ let audioChunks = [];
 let activeDisplayStream = null;
 let stopRequested = false;
 let voiceRetryTimers = [];
+let fallbackProgressTimer = null;
+let fallbackLastBoundaryAt = 0;
+let fallbackStartedAt = 0;
+let fallbackPausedAt = 0;
+let fallbackPausedDuration = 0;
+let fallbackEstimatedDurationMs = 0;
+let fallbackBaseOffset = 0;
+let fallbackChunkLength = 0;
+let activeUtteranceToken = 0;
 
 const presets = [
   { id: "natural", label: "Natural", rate: 1, pitch: 1, volume: 1 },
@@ -253,16 +262,70 @@ const cleanupRecordingStream = () => {
   }
 };
 
+const clearFallbackProgress = () => {
+  if (fallbackProgressTimer !== null) {
+    window.clearInterval(fallbackProgressTimer);
+    fallbackProgressTimer = null;
+  }
+
+  fallbackLastBoundaryAt = 0;
+  fallbackStartedAt = 0;
+  fallbackPausedAt = 0;
+  fallbackPausedDuration = 0;
+  fallbackEstimatedDurationMs = 0;
+  fallbackBaseOffset = 0;
+  fallbackChunkLength = 0;
+};
+
+const estimateChunkDurationMs = (chunkText, speechRate) => {
+  const words = chunkText.trim().match(/\S+/g)?.length || 0;
+  if (!words) return 0;
+
+  const normalizedRate = Math.max(0.5, speechRate);
+  const wordsPerSecond = Math.max(0.6, 2.5 * normalizedRate);
+  return Math.max(800, Math.round((words / wordsPerSecond) * 1000));
+};
+
+const startFallbackProgress = (baseOffset, chunkText, chunkLength) => {
+  clearFallbackProgress();
+
+  fallbackBaseOffset = baseOffset;
+  fallbackChunkLength = chunkLength;
+  fallbackEstimatedDurationMs = estimateChunkDurationMs(chunkText, rate.value);
+  fallbackStartedAt = Date.now();
+
+  if (!fallbackChunkLength || !fallbackEstimatedDurationMs) {
+    return;
+  }
+
+  fallbackProgressTimer = window.setInterval(() => {
+    if (!isPlaying.value || isPaused.value) return;
+    if (fallbackLastBoundaryAt && Date.now() - fallbackLastBoundaryAt < 280) return;
+
+    const elapsedMs = Date.now() - fallbackStartedAt - fallbackPausedDuration;
+    const clampedRatio = Math.max(0, Math.min(1, elapsedMs / fallbackEstimatedDurationMs));
+    const approxIndex = Math.min(
+      text.value.length,
+      fallbackBaseOffset + Math.floor(clampedRatio * fallbackChunkLength),
+    );
+
+    if (approxIndex >= currentCharIndex.value) {
+      currentCharIndex.value = approxIndex;
+    }
+  }, 120);
+};
+
 const finalizeSpeechState = () => {
   isPlaying.value = false;
   isPaused.value = false;
+  clearFallbackProgress();
 };
 
 const getActiveTextChunk = () => {
   if (readMode.value === "sentence") {
     return sentenceChunks.value[currentSentenceIndex.value] || "";
   }
-  return text.value.trim();
+  return text.value;
 };
 
 const getBaseOffset = () => {
@@ -318,7 +381,7 @@ const speakFromCurrent = (fromDownload = false) => {
   }
 
   const chunk = getActiveTextChunk();
-  if (!chunk) {
+  if (!chunk.trim()) {
     showAlert("Please enter text first.", "error");
     return;
   }
@@ -347,32 +410,50 @@ const speakFromCurrent = (fromDownload = false) => {
   utterance.volume = volume.value;
 
   const baseOffset = getBaseOffset();
+  const chunkLength = readMode.value === "sentence" ? chunk.length : text.value.length;
+  const utteranceToken = ++activeUtteranceToken;
   currentCharIndex.value = baseOffset;
 
   utterance.onstart = () => {
+    if (utteranceToken !== activeUtteranceToken) return;
     isPlaying.value = true;
     isPaused.value = false;
+    startFallbackProgress(baseOffset, chunk, chunkLength);
+    fallbackStartedAt = Date.now();
+    fallbackPausedAt = 0;
+    fallbackPausedDuration = 0;
   };
 
   utterance.onboundary = (event) => {
+    if (utteranceToken !== activeUtteranceToken) return;
     if (typeof event.charIndex === "number") {
+      fallbackLastBoundaryAt = Date.now();
       currentCharIndex.value = Math.min(text.value.length, baseOffset + event.charIndex);
     }
   };
 
   utterance.onpause = () => {
+    if (utteranceToken !== activeUtteranceToken) return;
     isPaused.value = true;
+    fallbackPausedAt = Date.now();
   };
 
   utterance.onresume = () => {
+    if (utteranceToken !== activeUtteranceToken) return;
     isPaused.value = false;
+    if (fallbackPausedAt) {
+      fallbackPausedDuration += Date.now() - fallbackPausedAt;
+      fallbackPausedAt = 0;
+    }
   };
 
   utterance.onend = () => {
+    if (utteranceToken !== activeUtteranceToken) return;
     handleUtteranceEnd(fromDownload);
   };
 
   utterance.onerror = (event) => {
+    if (utteranceToken !== activeUtteranceToken) return;
     console.error("SpeechSynthesisUtterance error", event);
     finalizeSpeechState();
     if (fromDownload && mediaRecorder?.state === "recording") mediaRecorder.stop();
@@ -406,6 +487,7 @@ const resumeSpeech = () => {
 
 const stop = (notify = true) => {
   stopRequested = true;
+  activeUtteranceToken += 1;
 
   if (mediaRecorder && mediaRecorder.state === "recording") {
     mediaRecorder.stop();

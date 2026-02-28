@@ -49,10 +49,10 @@ defineExpose({ start, finish });
 
 .loader-bar {
   height: 100%;
-  background: #4248b8;
+  background: #136f63;
   transition: width 0.3s ease;
   box-shadow:
-    0 0 10px #4248b8,
-    0 0 20px #4248b8;
+    0 0 10px #136f63,
+    0 0 20px #136f63;
 }
 </style>

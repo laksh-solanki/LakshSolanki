@@ -1,12 +1,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from "vue";
-import * as pdfjsLib from "pdfjs-dist/build/pdf";
-import pdfWorker from "pdfjs-dist/build/pdf.worker.mjs?url";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
 import Alerts from "@/components/Alerts.vue";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const pdfFile = ref(null);
 const images = ref([]);
@@ -23,6 +17,33 @@ const alertType = ref("success");
 
 const convertedCount = computed(() => images.value.length);
 const hasPdf = computed(() => Boolean(pdfFile.value));
+
+let pdfLibPromise;
+let zipToolsPromise;
+
+const loadPdfLib = async () => {
+  if (!pdfLibPromise) {
+    pdfLibPromise = Promise.all([import("pdfjs-dist/build/pdf"), import("pdfjs-dist/build/pdf.worker.mjs?url")]).then(
+      ([pdfjsLib, workerModule]) => {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = workerModule.default;
+        return pdfjsLib;
+      },
+    );
+  }
+
+  return pdfLibPromise;
+};
+
+const loadZipTools = async () => {
+  if (!zipToolsPromise) {
+    zipToolsPromise = Promise.all([import("jszip"), import("file-saver")]).then(([zipModule, fileSaverModule]) => ({
+      JSZip: zipModule.default,
+      saveAs: fileSaverModule.saveAs || fileSaverModule.default || fileSaverModule.default?.saveAs,
+    }));
+  }
+
+  return zipToolsPromise;
+};
 
 const showAlert = (message, type) => {
   alertMessage.value = message;
@@ -69,56 +90,52 @@ const processPdf = async () => {
   conversionStatus.value = "Loading PDF...";
   resetImages();
 
-  const reader = new FileReader();
+  try {
+    const pdfjsLib = await loadPdfLib();
+    const arrayBuffer = await pdfFile.value.arrayBuffer();
+    const typedarray = new Uint8Array(arrayBuffer);
+    const pdf = await pdfjsLib.getDocument(typedarray).promise;
 
-  reader.onload = async (e) => {
-    try {
-      const typedarray = new Uint8Array(e.target.result);
-      const pdf = await pdfjsLib.getDocument(typedarray).promise;
+    conversionStatus.value = `Found ${pdf.numPages} pages. Converting...`;
 
-      conversionStatus.value = `Found ${pdf.numPages} pages. Converting...`;
+    for (let i = 1; i <= pdf.numPages; i++) {
+      conversionProgress.value = Math.round(((i - 1) / pdf.numPages) * 100);
+      conversionStatus.value = `Converting page ${i} of ${pdf.numPages}`;
 
-      for (let i = 1; i <= pdf.numPages; i++) {
-        conversionProgress.value = Math.round(((i - 1) / pdf.numPages) * 100);
-        conversionStatus.value = `Converting page ${i} of ${pdf.numPages}`;
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: 2.0 });
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
 
-        const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale: 2.0 });
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
 
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
+      await page.render({ canvasContext: context, viewport }).promise;
 
-        await page.render({ canvasContext: context, viewport }).promise;
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+      const url = URL.createObjectURL(blob);
 
-        const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
-        const url = URL.createObjectURL(blob);
-
-        images.value.push({
-          id: imageIdCounter.value++,
-          url,
-          blob,
-          name: `${pdfName.value.replace(".pdf", "")}-page-${i}.png`,
-        });
-      }
-
-      conversionProgress.value = 100;
-      conversionStatus.value = "Conversion complete.";
-      showAlert(`PDF converted to ${images.value.length} image(s).`, "success");
-    } catch (error) {
-      console.error("Error processing PDF:", error);
-      showAlert("Error processing PDF.", "error");
-    } finally {
-      window.setTimeout(() => {
-        isConverting.value = false;
-        conversionProgress.value = 0;
-        conversionStatus.value = "";
-      }, 900);
+      images.value.push({
+        id: imageIdCounter.value++,
+        url,
+        blob,
+        name: `${pdfName.value.replace(".pdf", "")}-page-${i}.png`,
+      });
     }
-  };
 
-  reader.readAsArrayBuffer(pdfFile.value);
+    conversionProgress.value = 100;
+    conversionStatus.value = "Conversion complete.";
+    showAlert(`PDF converted to ${images.value.length} image(s).`, "success");
+  } catch (error) {
+    console.error("Error processing PDF:", error);
+    showAlert("Error processing PDF.", "error");
+  } finally {
+    window.setTimeout(() => {
+      isConverting.value = false;
+      conversionProgress.value = 0;
+      conversionStatus.value = "";
+    }, 900);
+  }
 };
 
 const removeImage = (index) => {
@@ -135,8 +152,14 @@ const downloadImage = (url, name) => {
   document.body.removeChild(link);
 };
 
-const downloadAll = () => {
+const downloadAll = async () => {
   if (!images.value.length) return;
+
+  const { JSZip, saveAs } = await loadZipTools();
+  if (!saveAs) {
+    showAlert("Unable to download ZIP right now.", "error");
+    return;
+  }
 
   const zip = new JSZip();
   images.value.forEach((image) => {
