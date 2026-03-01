@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import Alerts from "@/components/Alerts.vue";
 
 const STORAGE_KEY = "mindlytic_web_lab_v1";
@@ -42,6 +43,7 @@ const importRef = ref(null);
 const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
+const router = useRouter();
 
 const metrics = ref({
   domNodes: 0,
@@ -302,7 +304,13 @@ watch([htmlCode, cssCode, jsCode, autoRun, freezeNetwork, device, snapshots, exp
 
 watch(selectedTemplate, (id) => applyTemplate(id));
 
-const goBack = () => window.history.back();
+const goBack = () => {
+  if (window.history.state?.back) {
+    router.back();
+    return;
+  }
+  router.replace({ name: "Projects" });
+};
 
 onMounted(() => {
   window.addEventListener("message", onMessage);

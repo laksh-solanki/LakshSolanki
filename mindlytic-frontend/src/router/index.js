@@ -70,12 +70,6 @@ const routes = [
     ],
   },
   {
-    path: "/profile",
-    name: "Profile",
-    component: () => import("@/pages/ProfilePage.vue"),
-    meta: { title: "Mindlytic | Profile" },
-  },
-  {
     path: "/notfound",
     name: "NotFound",
     component: () => import("@/pages/Not_FoundPage.vue"),

@@ -52,55 +52,6 @@
     <v-container class="py-6">
       <v-row class="ga-0">
         <v-col cols="12" lg="4" class="pr-lg-5 mb-6 mb-lg-0">
-          <v-card class="panel pa-5 mb-5" rounded="xl" elevation="0">
-            <p class="panel-kicker mb-2">Model</p>
-            <v-btn-toggle v-model="selectedModel" class="w-100" mandatory divided>
-              <v-btn
-                v-for="model in modelCatalog"
-                :key="model.id"
-                :value="model.id"
-                :disabled="!model.available"
-                class="text-none"
-              >
-                <v-icon :icon="model.icon" start />
-                {{ model.short }}
-              </v-btn>
-            </v-btn-toggle>
-            <p class="text-body-2 text-medium-emphasis mt-3 mb-0">{{ currentModel.description }}</p>
-          </v-card>
-
-          <v-card class="panel pa-5 mb-5" rounded="xl" elevation="0">
-            <p class="panel-kicker mb-2">Controls</p>
-            <v-select
-              v-model="selectedPersona"
-              :items="personaOptions"
-              item-title="label"
-              item-value="id"
-              label="Assistant Mode"
-              variant="solo-filled"
-              rounded="lg"
-              hide-details
-              class="mb-4"
-            ></v-select>
-            <v-slider v-model="temperature" min="0" max="1.5" step="0.1" thumb-label color="primary" class="mb-3">
-              <template #label>Creativity</template>
-              <template #append><span class="text-caption">{{ temperature.toFixed(1) }}</span></template>
-            </v-slider>
-            <v-slider v-model="maxOutputTokens" min="300" max="2000" step="100" thumb-label color="primary">
-              <template #label>Max Output</template>
-              <template #append><span class="text-caption">{{ maxOutputTokens }}</span></template>
-            </v-slider>
-          </v-card>
-
-          <v-card class="panel pa-5 mb-5" rounded="xl" elevation="0">
-            <p class="panel-kicker mb-2">Quick Prompts</p>
-            <div class="d-flex flex-wrap ga-2">
-              <v-chip v-for="item in quickPrompts" :key="item.id" label color="teal-lighten-5" class="quick-chip" @click="insertPrompt(item)">
-                {{ item.label }}
-              </v-chip>
-            </div>
-          </v-card>
-
           <v-card class="panel pa-5" rounded="xl" elevation="0">
             <p class="panel-kicker mb-2">Session</p>
             <div class="d-flex flex-column ga-2">
@@ -244,35 +195,22 @@ const modelCatalog = [
 
 const personaOptions = [
   {
-    id: "balanced",
-    label: "Balanced Assistant",
-    prompt: "You are Mindlytic AI. Give practical, concise, and structured answers with useful steps.",
-  },
-  {
-    id: "builder",
-    label: "Engineering Builder",
-    prompt: "You are a senior software engineer. Focus on implementation details, edge cases, and testability.",
-  },
-  {
-    id: "mentor",
-    label: "Learning Mentor",
-    prompt: "You are a patient mentor. Explain simply first, then provide deeper detail and action items.",
+    id: "all-in-one",
+    label: "All in One",
+    prompt:
+      "You are Mindlytic AI, an all-in-one assistant. Give practical, structured, and concise answers first, then add implementation details, edge cases, and simple teaching guidance when useful.",
   },
 ];
 
-const quickPrompts = [
-  { id: "plan", label: "Sprint Plan", text: "Create a one-week sprint plan with priorities and acceptance criteria for:" },
-  { id: "debug", label: "Debug Guide", text: "Help me debug this issue step-by-step. Start by asking for key logs:" },
-  { id: "refactor", label: "Refactor", text: "Suggest a safe refactor strategy with concrete before/after examples for:" },
-  { id: "pitch", label: "Product Pitch", text: "Turn this into a concise product pitch with problem/solution/value:" },
-];
+const DEFAULT_TEMPERATURE = 1.5;
+const DEFAULT_MAX_OUTPUT_TOKENS = 2000;
+const DEFAULT_PERSONA = "all-in-one";
+const DEFAULT_MODEL = "gemini";
 
-const fallbackModel = modelCatalog.find((m) => m.available)?.id || "gemini";
-
-const selectedModel = ref(fallbackModel);
-const selectedPersona = ref("balanced");
-const temperature = ref(0.7);
-const maxOutputTokens = ref(900);
+const selectedModel = ref(DEFAULT_MODEL);
+const selectedPersona = ref(DEFAULT_PERSONA);
+const temperature = ref(DEFAULT_TEMPERATURE);
+const maxOutputTokens = ref(DEFAULT_MAX_OUTPUT_TOKENS);
 const userInput = ref("");
 const loading = ref(false);
 const lastResponseMs = ref(0);
@@ -291,7 +229,7 @@ const selectedPersonaData = computed(() => personaOptions.find((p) => p.id === s
 const selectedPersonaLabel = computed(() => selectedPersonaData.value.label);
 const hasSelectedApiKey = computed(() => Boolean(currentModel.value.available));
 const composerPlaceholder = computed(() =>
-  hasSelectedApiKey.value ? `Message ${currentModel.value.short}...` : "Set VITE_GEMINI_API_KEY to enable Gemini",
+  hasSelectedApiKey.value ? `Message Mindlytic AI...` : "Set VITE_GEMINI_API_KEY to enable Gemini",
 );
 const sendDisabled = computed(() => loading.value || !userInput.value.trim() || !hasSelectedApiKey.value);
 const canRegenerate = computed(() => messages.value.some((m) => m.role === "user"));
@@ -486,11 +424,6 @@ const regenerateLastReply = async () => {
   await generateAssistantReply();
 };
 
-const insertPrompt = (item) => {
-  const prefix = userInput.value.trim() ? `${userInput.value.trim()}\n\n` : "";
-  userInput.value = `${prefix}${item.text}`;
-};
-
 const exportChat = () => {
   const lines = [
     "# Mindlytic AI Studio Export",
@@ -543,10 +476,10 @@ const restoreState = () => {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return false;
     const parsed = JSON.parse(raw);
-    if (modelCatalog.some((m) => m.id === parsed.selectedModel)) selectedModel.value = parsed.selectedModel;
-    if (personaOptions.some((p) => p.id === parsed.selectedPersona)) selectedPersona.value = parsed.selectedPersona;
-    if (typeof parsed.temperature === "number") temperature.value = Math.min(1.5, Math.max(0, parsed.temperature));
-    if (typeof parsed.maxOutputTokens === "number") maxOutputTokens.value = Math.min(2000, Math.max(300, parsed.maxOutputTokens));
+    selectedModel.value = DEFAULT_MODEL;
+    selectedPersona.value = DEFAULT_PERSONA;
+    temperature.value = DEFAULT_TEMPERATURE;
+    maxOutputTokens.value = DEFAULT_MAX_OUTPUT_TOKENS;
     if (Array.isArray(parsed.messages)) {
       messages.value = parsed.messages.filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.text === "string");
     }
@@ -559,11 +492,6 @@ const restoreState = () => {
 };
 
 watch([messages, selectedModel, selectedPersona, temperature, maxOutputTokens], saveState, { deep: true });
-
-watch(selectedModel, (value) => {
-  const model = modelCatalog.find((item) => item.id === value);
-  if (model && !model.available) showAlert(`Missing API key for ${model.short}.`, "error");
-});
 
 onMounted(async () => {
   if (!restoreState()) messages.value = [createMessage("assistant", buildWelcomeText(), { model: selectedModel.value })];
@@ -650,10 +578,6 @@ onUnmounted(() => {
   letter-spacing: 0.08em;
   font-size: 0.72rem;
   font-weight: 700;
-}
-
-.quick-chip {
-  cursor: pointer;
 }
 
 .chat-shell {

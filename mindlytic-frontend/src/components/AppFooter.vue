@@ -6,7 +6,6 @@ const quickLinks = [
   { title: "Home", path: "/" },
   { title: "About", path: "/about" },
   { title: "Projects", path: "/projects" },
-  { title: "Profile", path: "/profile" },
 ];
 
 const services = ["Frontend Architecture", "API Development", "UI Engineering", "Performance Optimization"];

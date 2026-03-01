@@ -1,0 +1,96 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="72" y1="28" x2="1135" y2="655" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0A1F2B"/>
+      <stop offset="0.56" stop-color="#0F5964"/>
+      <stop offset="1" stop-color="#2DB39D"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1020 122) rotate(117.22) scale(310 355)">
+      <stop stop-color="#FFD39A" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#FFD39A" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(154 586) rotate(26.18) scale(270 214)">
+      <stop stop-color="#9FF3E1" stop-opacity="0.56"/>
+      <stop offset="1" stop-color="#9FF3E1" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="panel" x1="121" y1="86" x2="1079" y2="594" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111D2E" stop-opacity="0.94"/>
+      <stop offset="1" stop-color="#0F2434" stop-opacity="0.94"/>
+    </linearGradient>
+    <linearGradient id="wave" x1="215" y1="470" x2="485" y2="470" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#55E1C6"/>
+      <stop offset="1" stop-color="#8AB9FF"/>
+    </linearGradient>
+    <linearGradient id="btnPrimary" x1="608" y1="0" x2="729" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#20A78F"/>
+      <stop offset="1" stop-color="#30C9AC"/>
+    </linearGradient>
+    <linearGradient id="btnSecondary" x1="758" y1="0" x2="888" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2B5AB7"/>
+      <stop offset="1" stop-color="#3E79DB"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <circle cx="1020" cy="122" r="235" fill="url(#glowA)"/>
+  <circle cx="154" cy="586" r="190" fill="url(#glowB)"/>
+
+  <rect x="120" y="86" width="960" height="505" rx="26" fill="url(#panel)" stroke="#61E1C7" stroke-opacity="0.3"/>
+
+  <rect x="165" y="128" width="360" height="420" rx="18" fill="#0A1625" stroke="#4CCFB5" stroke-opacity="0.36"/>
+  <rect x="555" y="128" width="480" height="210" rx="18" fill="#0A1625" stroke="#4CCFB5" stroke-opacity="0.36"/>
+  <rect x="555" y="358" width="480" height="190" rx="18" fill="#0A1625" stroke="#4CCFB5" stroke-opacity="0.36"/>
+
+  <circle cx="349" cy="228" r="66" fill="#14263D" stroke="#72E6CF" stroke-opacity="0.5" stroke-width="3"/>
+  <rect x="334" y="180" width="30" height="52" rx="14" fill="#77EAD2"/>
+  <path d="M317 219C317 237.225 331.775 252 350 252C368.225 252 383 237.225 383 219" stroke="#77EAD2" stroke-width="5" stroke-linecap="round"/>
+  <rect x="347.5" y="253" width="5" height="23" rx="2.5" fill="#77EAD2"/>
+  <rect x="332" y="275" width="36" height="6" rx="3" fill="#77EAD2"/>
+
+  <rect x="205" y="344" width="10" height="86" rx="5" fill="url(#wave)"/>
+  <rect x="225" y="326" width="10" height="122" rx="5" fill="url(#wave)"/>
+  <rect x="245" y="362" width="10" height="58" rx="5" fill="url(#wave)"/>
+  <rect x="265" y="314" width="10" height="142" rx="5" fill="url(#wave)"/>
+  <rect x="285" y="350" width="10" height="70" rx="5" fill="url(#wave)"/>
+  <rect x="305" y="300" width="10" height="170" rx="5" fill="url(#wave)"/>
+  <rect x="325" y="336" width="10" height="96" rx="5" fill="url(#wave)"/>
+  <rect x="345" y="320" width="10" height="128" rx="5" fill="url(#wave)"/>
+  <rect x="365" y="356" width="10" height="62" rx="5" fill="url(#wave)"/>
+  <rect x="385" y="322" width="10" height="126" rx="5" fill="url(#wave)"/>
+  <rect x="405" y="345" width="10" height="84" rx="5" fill="url(#wave)"/>
+  <rect x="425" y="332" width="10" height="110" rx="5" fill="url(#wave)"/>
+  <rect x="445" y="360" width="10" height="60" rx="5" fill="url(#wave)"/>
+  <rect x="465" y="338" width="10" height="104" rx="5" fill="url(#wave)"/>
+  <rect x="485" y="350" width="10" height="78" rx="5" fill="url(#wave)"/>
+
+  <text x="585" y="184" fill="#FFD9A9" font-family="Verdana, sans-serif" font-size="30" font-weight="700">TEXT TO SPEECH STUDIO</text>
+  <text x="590" y="222" fill="#BDEFE5" font-family="Verdana, sans-serif" font-size="17">Natural voices, speed and pitch tuning.</text>
+  <text x="590" y="250" fill="#BDEFE5" font-family="Verdana, sans-serif" font-size="17">Built for accessibility-first playback workflows.</text>
+
+  <rect x="590" y="283" width="96" height="30" rx="15" fill="#183849"/>
+  <text x="616" y="303" fill="#83EEDA" font-family="Verdana, sans-serif" font-size="12" font-weight="700">EN-US</text>
+  <rect x="696" y="283" width="96" height="30" rx="15" fill="#183849"/>
+  <text x="725" y="303" fill="#83EEDA" font-family="Verdana, sans-serif" font-size="12" font-weight="700">HI-IN</text>
+  <rect x="802" y="283" width="120" height="30" rx="15" fill="#183849"/>
+  <text x="817" y="303" fill="#83EEDA" font-family="Verdana, sans-serif" font-size="12" font-weight="700">MULTI VOICE</text>
+
+  <text x="590" y="405" fill="#90EFDC" font-family="Verdana, sans-serif" font-size="16" font-weight="700">Rate</text>
+  <rect x="650" y="393" width="328" height="10" rx="5" fill="#1B3B4C"/>
+  <rect x="650" y="393" width="214" height="10" rx="5" fill="#2CC2A8"/>
+  <circle cx="864" cy="398" r="11" fill="#EFFFFA"/>
+
+  <text x="590" y="447" fill="#90EFDC" font-family="Verdana, sans-serif" font-size="16" font-weight="700">Pitch</text>
+  <rect x="650" y="435" width="328" height="10" rx="5" fill="#1B3B4C"/>
+  <rect x="650" y="435" width="176" height="10" rx="5" fill="#4F95F6"/>
+  <circle cx="826" cy="440" r="11" fill="#EFFFFA"/>
+
+  <rect x="610" y="480" width="100" height="48" rx="12" fill="url(#btnPrimary)"/>
+  <path d="M652 495L672 504L652 513V495Z" fill="#E8FFFA"/>
+
+  <rect x="756" y="480" width="100" height="48" rx="12" fill="url(#btnSecondary)"/>
+  <rect x="796" y="495" width="7" height="18" rx="2.5" fill="#EEF4FF"/>
+  <rect x="808" y="495" width="7" height="18" rx="2.5" fill="#EEF4FF"/>
+
+  <rect x="900" y="480" width="100" height="48" rx="12" fill="#B44D4D"/>
+  <path d="M943 503H959M956 497L959 503L956 509" stroke="#FFF1F1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

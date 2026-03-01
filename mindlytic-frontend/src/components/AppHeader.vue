@@ -8,9 +8,8 @@ const drawer = ref(false);
 
 const navLinks = [
   { title: "Home", path: "/" },
-  { title: "About", path: "/about" },
+  { title: "About me", path: "/about" },
   { title: "Projects", path: "/projects" },
-  { title: "Profile", path: "/profile" },
 ];
 
 const isActive = (path) =>

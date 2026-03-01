@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 
-dotenv.config();
+const dotenvResult = dotenv.config({ quiet: true });
+export const envInjectionSuccessful = !dotenvResult.error;
 
 const toPositiveInt = (value, fallback) => {
   const parsed = Number.parseInt(value ?? "", 10);

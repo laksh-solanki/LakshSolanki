@@ -232,7 +232,7 @@ const items = ref([
   {
     id: 5,
     title: "User Profile & Settings",
-    path: "/profile",
+    path: "/about",
     category: "Account",
     icon: "mdi-account-cog-outline",
   },

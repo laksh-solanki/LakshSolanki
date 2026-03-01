@@ -1,5 +1,6 @@
 ﻿<script setup>
 import myPhoto from "@/assets/Picture/my-pic.jpg";
+import PhotoZoomDialog from "@/components/PhotoZoomDialog.vue";
 
 const impactStats = [
   { value: "50+", label: "Projects Delivered" },
@@ -43,13 +44,13 @@ const featuredProjects = [
   {
     title: "Certificate Generator",
     description: "Generate branded certificates in-browser and export polished PDFs.",
-    image: new URL("../assets/Picture/Project-1.png", import.meta.url).href,
+    image: new URL("../assets/project_img/Project-1.png", import.meta.url).href,
     to: "/projects/certificate-gen",
   },
   {
     title: "Mindlytic AI Assistant",
     description: "Prompt-driven coding assistant with markdown rendering and code snippets.",
-    image: new URL("../assets/Picture/Project-5.png", import.meta.url).href,
+    image: new URL("../assets/project_img/Project-5.png", import.meta.url).href,
     to: "/projects/mindly_ai",
   },
   {
@@ -82,7 +83,7 @@ const featuredProjects = [
             <v-btn color="primary" size="large" rounded="xl" class="text-none px-6" to="/projects">
               Explore Projects
             </v-btn>
-            <v-btn variant="outlined" color="primary" size="large" rounded="xl" class="text-none px-6" to="/profile">
+            <v-btn variant="outlined" color="primary" size="large" rounded="xl" class="text-none px-6" to="/about">
               View Full Profile
             </v-btn>
           </div>
@@ -102,7 +103,7 @@ const featuredProjects = [
 
         <v-col cols="12" md="5" class="mt-8 mt-md-0">
           <div class="hero-profile pa-5">
-            <v-avatar size="150" class="mx-auto d-flex profile-ring" :image="myPhoto"></v-avatar>
+            <PhotoZoomDialog :src="myPhoto" alt="Laksh Solanki" :size="150" avatar-class="mx-auto d-flex profile-ring" />
             <h2 class="text-h5 text-center mt-5 mb-1">Laksh Solanki</h2>
             <p class="text-center muted-copy mb-5">Senior Full-Stack Engineer</p>
             <v-divider class="mb-4"></v-divider>
