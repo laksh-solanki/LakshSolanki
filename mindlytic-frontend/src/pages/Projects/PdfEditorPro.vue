@@ -433,7 +433,7 @@ onMounted(async () => {
   border-radius: 14px;
   background: #fff;
   overflow: hidden;
-  min-height: 90vh !important;
+  min-height: auto !important;
 }
 
 .webviewer {

@@ -15,7 +15,6 @@
     <filter id="glow" x="241" y="82" width="738" height="556" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
       <feFlood flood-opacity="0" result="BackgroundImageFix"/>
       <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-      <feGaussianBlur stdDeviation="18" result="effect1_foregroundBlur_201_16"/>
     </filter>
   </defs>
 
@@ -26,7 +25,7 @@
   <path d="M0 493C164 465 274 405 430 351C586 297 738 278 980 295C1106 304 1166 285 1200 262V720H0V493Z" fill="#0B101E" fill-opacity="0.55" />
 
   <g filter="url(#glow)">
-    <rect x="295" y="136" width="610" height="448" rx="22" fill="#101A2F" stroke="#32518F" stroke-opacity="0.7" />
+    <rect x="295" y="125" width="610" height="448" rx="22" fill="#101A2F" stroke="#32518F" stroke-opacity="0.7" />
     <rect x="333" y="192" width="534" height="324" rx="14" fill="#0B1324" stroke="#27426F" />
     <path d="M352 223H520" stroke="#526EA3" stroke-width="8" stroke-linecap="round" />
     <path d="M352 254H458" stroke="#3A537F" stroke-width="8" stroke-linecap="round" />
@@ -45,12 +44,12 @@
     <path d="M560 437L690 437" stroke="#7B91BC" stroke-width="6" stroke-linecap="round" />
   </g>
 
-  <rect x="312" y="96" width="134" height="34" rx="17" fill="#21365C" />
-  <text x="379" y="119" fill="#F8D37D" font-family="Manrope, Arial, sans-serif" font-weight="700" font-size="15" text-anchor="middle">PREMIUM</text>
-  <text x="600" y="628" fill="url(#gold)" font-family="Space Grotesk, Arial, sans-serif" font-weight="700" font-size="56" text-anchor="middle">
+  <rect x="312" y="80" width="134" height="34" rx="17" fill="#21365C" />
+  <text x="379" y="102" fill="#F8D37D" font-family="Manrope, Arial, sans-serif" font-weight="700" font-size="15" text-anchor="middle">PREMIUM</text>
+  <text x="600" y="633" fill="url(#gold)" font-family="Space Grotesk, Arial, sans-serif" font-weight="700" font-size="56" text-anchor="middle">
     PDF Editor Pro
   </text>
-  <text x="600" y="662" fill="#9BA9C7" font-family="Manrope, Arial, sans-serif" font-size="22" text-anchor="middle">
+  <text x="600" y="666" fill="#9BA9C7" font-family="Manrope, Arial, sans-serif" font-size="22" text-anchor="middle">
     Upload, edit, annotate, redact, and export in one workspace.
   </text>
 </svg>
