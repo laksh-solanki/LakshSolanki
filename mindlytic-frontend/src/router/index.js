@@ -67,6 +67,22 @@ const routes = [
         component: () => import("@/pages/Projects/WebLabCompiler.vue"),
         meta: { title: "Mindlytic | Web Lab Compiler" },
       },
+      {
+        path: "pdf-editor-pro",
+        redirect: { name: "PdfEditorUpload" },
+      },
+      {
+        path: "pdf-editor-pro/upload",
+        name: "PdfEditorUpload",
+        component: () => import("@/pages/Projects/PdfEditorUpload.vue"),
+        meta: { title: "Mindlytic | PDF Editor Pro | Upload" },
+      },
+      {
+        path: "pdf-editor-pro/edit",
+        name: "PdfEditorPro",
+        component: () => import("@/pages/Projects/PdfEditorPro.vue"),
+        meta: { title: "Mindlytic | PDF Editor Pro | Edit" },
+      },
     ],
   },
   {

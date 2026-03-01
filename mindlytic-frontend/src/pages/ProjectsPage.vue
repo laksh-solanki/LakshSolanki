@@ -72,6 +72,16 @@ const projects = ref([
     link: "/projects/web-lab-compiler",
     tags: ["HTML/CSS/JS", "Runtime Metrics", "Snapshots"],
   },
+  {
+    id: 8,
+    title: "PDF Editor Pro",
+    category: "Premium Document Suite",
+    description:
+      "Two-step workflow with separate upload and edit pages for true PDF object editing: existing text, images, logos, redaction, and export.",
+    image: new URL("../assets/project_img/Project-8.svg", import.meta.url).href,
+    link: "/projects/pdf-editor-pro",
+    tags: ["Apryse WebViewer", "Content Editing", "Premium Tools"],
+  },
 ]);
 </script>
 

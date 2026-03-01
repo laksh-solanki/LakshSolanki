@@ -1,0 +1,56 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="1180" y1="20" x2="120" y2="690" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#18243D" />
+      <stop offset="1" stop-color="#0D1426" />
+    </linearGradient>
+    <linearGradient id="gold" x1="835" y1="133" x2="322" y2="596" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8D37D" />
+      <stop offset="1" stop-color="#D39A38" />
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#4EC9B0" stop-opacity="0.7" />
+      <stop offset="1" stop-color="#4EC9B0" stop-opacity="0" />
+    </linearGradient>
+    <filter id="glow" x="241" y="82" width="738" height="556" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feGaussianBlur stdDeviation="18" result="effect1_foregroundBlur_201_16"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="720" rx="26" fill="url(#bg)" />
+  <circle cx="1045" cy="108" r="180" fill="#304C89" fill-opacity="0.3" />
+  <circle cx="135" cy="644" r="230" fill="#1C5D72" fill-opacity="0.28" />
+
+  <path d="M0 493C164 465 274 405 430 351C586 297 738 278 980 295C1106 304 1166 285 1200 262V720H0V493Z" fill="#0B101E" fill-opacity="0.55" />
+
+  <g filter="url(#glow)">
+    <rect x="295" y="136" width="610" height="448" rx="22" fill="#101A2F" stroke="#32518F" stroke-opacity="0.7" />
+    <rect x="333" y="192" width="534" height="324" rx="14" fill="#0B1324" stroke="#27426F" />
+    <path d="M352 223H520" stroke="#526EA3" stroke-width="8" stroke-linecap="round" />
+    <path d="M352 254H458" stroke="#3A537F" stroke-width="8" stroke-linecap="round" />
+    <rect x="614" y="216" width="228" height="112" rx="10" fill="#111F3B" />
+    <rect x="632" y="236" width="156" height="13" rx="6" fill="#4EC9B0" fill-opacity="0.6" />
+    <rect x="632" y="263" width="192" height="10" rx="5" fill="#748AB5" fill-opacity="0.58" />
+    <rect x="632" y="286" width="120" height="10" rx="5" fill="#748AB5" fill-opacity="0.42" />
+
+    <rect x="355" y="352" width="148" height="118" rx="12" fill="#132342" stroke="#315184" />
+    <path d="M380 383L470 383" stroke="url(#line)" stroke-width="10" stroke-linecap="round" />
+    <path d="M380 411L445 411" stroke="#6E85B0" stroke-width="8" stroke-linecap="round" />
+
+    <rect x="536" y="352" width="306" height="118" rx="12" fill="#111E39" stroke="#315184" />
+    <path d="M560 383L813 383" stroke="#D39A38" stroke-width="9" stroke-linecap="round" />
+    <path d="M560 411L748 411" stroke="#F8D37D" stroke-width="7" stroke-linecap="round" />
+    <path d="M560 437L690 437" stroke="#7B91BC" stroke-width="6" stroke-linecap="round" />
+  </g>
+
+  <rect x="312" y="96" width="134" height="34" rx="17" fill="#21365C" />
+  <text x="379" y="119" fill="#F8D37D" font-family="Manrope, Arial, sans-serif" font-weight="700" font-size="15" text-anchor="middle">PREMIUM</text>
+  <text x="600" y="628" fill="url(#gold)" font-family="Space Grotesk, Arial, sans-serif" font-weight="700" font-size="56" text-anchor="middle">
+    PDF Editor Pro
+  </text>
+  <text x="600" y="662" fill="#9BA9C7" font-family="Manrope, Arial, sans-serif" font-size="22" text-anchor="middle">
+    Upload, edit, annotate, redact, and export in one workspace.
+  </text>
+</svg>

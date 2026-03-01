@@ -8,3 +8,4 @@ Thumbs.db
 *.tmp
 .idea/
 .vscode/
+mindlytic-frontend/public/lib/webviewer/
