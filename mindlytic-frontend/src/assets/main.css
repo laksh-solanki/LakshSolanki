@@ -23,6 +23,7 @@ html,
 body,
 #app {
   min-height: 100%;
+  overflow-x: clip;
 }
 
 body {
@@ -31,6 +32,19 @@ body {
   font-family: "Manrope", "Segoe UI", sans-serif;
   background: var(--portfolio-gradient);
   background-attachment: fixed;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.v-row > .v-col,
+.v-row > [class*="v-col-"] {
+  min-width: 0;
 }
 
 h1,
@@ -72,5 +86,12 @@ kbd {
 
 .muted-copy {
   color: var(--portfolio-muted);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .section-shell {
+    border-radius: 18px;
+  }
 }
 

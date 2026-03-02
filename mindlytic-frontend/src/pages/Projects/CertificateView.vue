@@ -298,7 +298,7 @@ const generatePdf = async () => {
       </v-row>
     </v-container>
 
-    <v-dialog v-model="dialog" max-width="980px">
+    <v-dialog v-model="dialog" max-width="980px" :fullscreen="$vuetify.display.xs">
       <v-card class="preview-dialog d-flex flex-column fill-height" rounded="xl">
         <v-toolbar color="primary" density="comfortable" class="preview-toolbar">
           <v-toolbar-title class="text-h6 font-weight-bold">Certificate Preview</v-toolbar-title>
@@ -519,6 +519,19 @@ const generatePdf = async () => {
 @media (max-width: 960px) {
   .hero-stats {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .step-item {
+    grid-template-columns: 36px 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .step-index {
+    width: 36px;
+    height: 36px;
   }
 }
 </style>

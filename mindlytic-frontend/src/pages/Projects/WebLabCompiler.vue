@@ -642,4 +642,18 @@ onUnmounted(() => {
     height: 440px;
   }
 }
+
+@media (max-width: 600px) {
+  .preview-stage {
+    padding: 10px;
+  }
+
+  .preview-frame {
+    height: 360px;
+  }
+
+  .snapshot-meta {
+    overflow-wrap: anywhere;
+  }
+}
 </style>

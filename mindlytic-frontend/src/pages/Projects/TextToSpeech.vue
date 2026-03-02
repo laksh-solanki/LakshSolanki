@@ -818,7 +818,7 @@ onUnmounted(() => {
                   Ctrl/Cmd + Enter to play or stop. Alt + arrows for sentence navigation.
                 </p>
               </div>
-              <v-chip label color="teal-lighten-5" class="font-weight-medium">{{ charsCount }} chars</v-chip>
+              <v-chip label color="teal-lighten-1" class="font-weight-medium">{{ charsCount }} chars</v-chip>
             </div>
 
             <v-textarea v-model="text" label="Text" variant="outlined" rows="8" auto-grow clearable rounded="lg"
@@ -1183,6 +1183,18 @@ kbd {
 @media (max-width: 960px) {
   .hero-stats {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .sentence-control,
+  .progress-shell {
+    padding: 10px;
+  }
+
+  .speech-preview-text {
+    font-size: 0.95rem;
+    min-height: 76px;
   }
 }
 </style>

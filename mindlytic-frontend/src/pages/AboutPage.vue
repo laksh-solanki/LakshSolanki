@@ -277,7 +277,7 @@ import { ref } from "vue";
 import Alerts from "@/components/Alerts.vue";
 import PhotoZoomDialog from "@/components/PhotoZoomDialog.vue";
 import aboutPhoto1 from "@/assets/about_img/about_photo_1.svg";
-import aboutPhoto2 from "@/assets/about_img/about_photo_2.jpg";
+import aboutPhoto2 from "@/assets/about_img/about_photo_2.svg";
 import myPhoto from "@/assets/Picture/my-pic.jpg";
 
 const alertVisible = ref(false);
@@ -604,6 +604,12 @@ const scrollToSubscribe = () => {
 }
 
 @media (max-width: 960px) {
+  .hero-title,
+  .hero-copy,
+  .dev-intro-copy {
+    max-width: none;
+  }
+
   .metrics-grid {
     grid-template-columns: 1fr;
   }
@@ -612,8 +618,22 @@ const scrollToSubscribe = () => {
     grid-template-columns: 1fr;
   }
 
+  .dev-profile-card :deep(.v-btn) {
+    width: 100%;
+  }
+
+  .section-shell :deep(.v-timeline-item__opposite) {
+    display: none;
+  }
+
   .dev-profile-card {
     position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-title {
+    letter-spacing: -0.02em;
   }
 }
 </style>

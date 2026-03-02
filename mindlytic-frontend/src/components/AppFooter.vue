@@ -45,7 +45,7 @@ const socialLinks = [
           </div>
         </v-col>
 
-        <v-col cols="6" sm="4" lg="2" class="mb-8 mb-lg-0">
+        <v-col cols="12" sm="4" lg="2" class="mb-8 mb-lg-0">
           <p class="footer-title">Navigation</p>
           <div class="d-flex flex-column ga-2">
             <router-link v-for="item in quickLinks" :key="item.path" :to="item.path" class="footer-link">
@@ -54,7 +54,7 @@ const socialLinks = [
           </div>
         </v-col>
 
-        <v-col cols="6" sm="4" lg="3" class="mb-8 mb-lg-0">
+        <v-col cols="12" sm="4" lg="3" class="mb-8 mb-lg-0">
           <p class="footer-title">Services</p>
           <ul class="service-list">
             <li v-for="service in services" :key="service">{{ service }}</li>
@@ -186,6 +186,16 @@ const socialLinks = [
 @media (max-width: 960px) {
   .cta-btn {
     width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .footer-description {
+    max-width: none;
+  }
+
+  .footer-bottom {
+    align-items: flex-start !important;
   }
 }
 </style>

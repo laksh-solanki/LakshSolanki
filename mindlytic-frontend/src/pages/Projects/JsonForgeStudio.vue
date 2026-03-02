@@ -894,4 +894,15 @@ const goBack = () => window.history.back();
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 600px) {
+  .code-block {
+    padding: 12px;
+    font-size: 0.8rem;
+  }
+
+  .path-code {
+    overflow-wrap: anywhere;
+  }
+}
 </style>

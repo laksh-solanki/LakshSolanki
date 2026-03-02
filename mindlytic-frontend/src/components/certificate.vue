@@ -81,10 +81,11 @@ defineProps({
 </template>
 
 <style scoped>
-/* Main Wrapper to isolate print styles */
 .certificate-wrapper {
-  width: 100%;
-  font-family: "Open Sans", sans-serif;
+  width: min(100%, 794px);
+  margin: 0 auto;
+  padding-inline: clamp(8px, 1.4vw, 16px);
+  font-family: "Open Sans", "Segoe UI", sans-serif;
   color: #222;
 }
 
@@ -93,9 +94,8 @@ defineProps({
   margin: 0;
 }
 
-/* Logo Section */
 .logo-section {
-  margin-top: 155px;
+  margin-top: clamp(44px, 9vw, 155px);
   width: 100%;
   display: flex;
   justify-content: center;
@@ -103,8 +103,8 @@ defineProps({
 }
 
 .logo-section .partner-logo {
-  padding-right: 30px;
-  margin-right: 30px;
+  padding-right: clamp(14px, 2vw, 30px);
+  margin-right: clamp(14px, 2vw, 30px);
   position: relative;
 }
 
@@ -115,19 +115,19 @@ defineProps({
   top: 50%;
   transform: translateY(-50%);
   width: 1px;
-  height: 100px;
+  height: clamp(56px, 12vw, 100px);
   background-color: #707070;
   opacity: 0.5;
 }
 
 .logo-section .partner-logo .figure {
   width: auto;
-  height: 85px;
+  height: clamp(52px, 10vw, 85px);
 }
 
 .logo-section .edutech-logo {
-  width: 175px;
-  height: 85px;
+  width: clamp(112px, 22vw, 175px);
+  height: clamp(52px, 10vw, 85px);
   position: relative;
 }
 
@@ -138,50 +138,48 @@ defineProps({
   object-position: left;
 }
 
-/* Heading */
 .certificate-heading {
-  font-family: "Open Sans", sans-serif;
-  font-size: 34px;
+  font-family: "Open Sans", "Segoe UI", sans-serif;
+  font-size: clamp(1.15rem, 4.1vw, 34px);
   font-weight: 700;
   color: #222;
-  line-height: 38px;
+  line-height: 1.2;
   text-transform: uppercase;
-  margin: 50px auto 0;
+  margin: clamp(20px, 4vw, 50px) auto 0;
   text-align: center;
-  width: 16cm;
+  width: min(100%, 16cm);
 }
 
-/* Name Section */
 .name-content {
-  width: 16cm;
-  margin: 50px auto 40px;
+  width: min(100%, 16cm);
+  margin: clamp(20px, 4vw, 50px) auto clamp(18px, 3.5vw, 40px);
   border-top: 2px solid #222;
   border-bottom: 2px solid #222;
 }
 
 .name-content p {
-  font-family: "Poppins", sans-serif;
-  font-size: 40px;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  font-size: clamp(1.2rem, 4.8vw, 40px);
   font-weight: 700;
   text-align: center;
-  line-height: 46px;
+  line-height: 1.2;
   text-transform: uppercase;
-  margin: 17px 0;
-  letter-spacing: 1px;
+  margin: clamp(8px, 1.8vw, 17px) 0;
+  letter-spacing: clamp(0.2px, 0.15vw, 1px);
+  overflow-wrap: anywhere;
 }
 
-/* Content Body */
 .content-body {
-  width: 18cm;
-  margin: 0 auto 60px;
+  width: min(100%, 18cm);
+  margin: 0 auto clamp(28px, 5vw, 60px);
   text-align: center;
 }
 
 .content-body p {
-  font-family: "Poppins", sans-serif;
-  font-size: 24px;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  font-size: clamp(0.95rem, 2.7vw, 24px);
   font-weight: 400;
-  line-height: 36px;
+  line-height: 1.5;
   width: 100%;
   margin: 0;
 }
@@ -195,30 +193,31 @@ defineProps({
   font-weight: 800;
 }
 
-/* Footer & Signatures */
 .footer-section {
   display: block;
 }
 
 .signatures {
-  width: 16cm;
-  margin: 30px auto 0;
+  width: min(100%, 16cm);
+  margin: clamp(14px, 2.8vw, 30px) auto 0;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  gap: 12px;
 }
 
-.signatures .left {
-  width: 125px;
+.signatures .left,
+.signatures .right {
+  width: clamp(104px, 25%, 145px);
 }
 
 .signatures .prof-logo .figure {
-  width: 135px;
+  width: clamp(92px, 22vw, 135px);
   margin: 0 auto;
 }
 
 .signatures .right .figure {
-  width: 135px;
+  width: clamp(92px, 22vw, 135px);
   margin: 0 auto;
 }
 
@@ -227,19 +226,20 @@ defineProps({
 }
 
 .signer-name {
-  font-family: "Poppins", sans-serif;
-  font-size: 18px;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  font-size: clamp(0.66rem, 2.1vw, 18px);
   font-weight: 800;
   line-height: normal;
   margin: 0;
   text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .signer-title {
-  font-family: "Poppins", sans-serif;
-  font-size: 15px;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  font-size: clamp(0.56rem, 1.7vw, 15px);
   font-weight: 400;
-  line-height: 20px;
+  line-height: 1.35;
   border-top: 1px solid #222;
   text-align: center;
   margin-top: 3px;
@@ -251,17 +251,16 @@ defineProps({
   font-weight: 700;
 }
 
-/* L&T Section */
 .lnt-section {
-  width: 17cm;
-  margin: 40px auto;
+  width: min(100%, 17cm);
+  margin: clamp(18px, 4vw, 40px) auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .lnt-section .border-line {
-  width: calc(100% - 75px);
+  width: calc(100% - clamp(58px, 12vw, 75px));
 }
 
 .lnt-section .border-line > div {
@@ -271,11 +270,25 @@ defineProps({
 }
 
 .lnt-section .logo-small {
-  width: 60px;
-  margin-left: 20px;
+  width: clamp(46px, 8vw, 60px);
+  margin-left: clamp(10px, 2vw, 20px);
 }
 
 .lnt-section .logo-small img {
   width: 100%;
+}
+
+@media (max-width: 600px) {
+  .certificate-wrapper {
+    padding-inline: 10px;
+  }
+
+  .logo-section {
+    margin-top: 30px;
+  }
+
+  .content-body p {
+    line-height: 1.45;
+  }
 }
 </style>

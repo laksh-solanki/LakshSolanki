@@ -56,7 +56,7 @@
             </button>
           </div>
 
-          <p class="palette-label">Suggestions</p>
+          <p class="palette-label mt-3">Suggestions</p>
           <div class="suggestion-list">
             <button
               v-for="term in suggestedTerms"
@@ -105,7 +105,7 @@
         </div>
       </main>
 
-      <footer class="palette-foot">
+      <footer class="palette-foot hidden-xs">
         <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> Navigate</span>
         <span><kbd>Enter</kbd> Open</span>
         <span><kbd>Esc</kbd> Close</span>
@@ -394,7 +394,7 @@ onUnmounted(() => {
 
 <style scoped>
 .search-trigger {
-  min-width: 220px;
+  min-width: 195px;
   justify-content: space-between;
   border-color: color-mix(in srgb, var(--portfolio-primary) 34%, white 66%);
   background: color-mix(in srgb, white 80%, #ebf6f2 20%);
@@ -444,6 +444,7 @@ onUnmounted(() => {
 
 .palette-input {
   flex: 1;
+  min-width: 0;
   border: none;
   background: transparent;
   font-size: 1rem;
@@ -472,6 +473,7 @@ onUnmounted(() => {
 .palette-close kbd {
   border: 1px solid color-mix(in srgb, var(--portfolio-stroke) 85%, #93b8ae 15%);
   border-radius: 6px;
+  display: flex;
   padding: 1px 5px;
   background: #f8fbf9;
 }
@@ -486,7 +488,7 @@ onUnmounted(() => {
 }
 
 .palette-label {
-  margin: 0 0 10px;
+  margin: 0px 0 10px;
   font-size: 0.74rem;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -662,10 +664,27 @@ kbd {
   }
 
   .palette-head {
+    gap: 8px;
     padding: 12px;
   }
 
+  .palette-close {
+    padding: 4px 7px;
+  }
+
   .palette-close span {
+    display: none;
+  }
+
+  .palette-body {
+    padding: 12px 12px 10px;
+  }
+
+  .quick-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .palette-close kbd {
     display: none;
   }
 

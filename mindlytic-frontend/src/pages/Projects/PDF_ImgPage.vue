@@ -585,4 +585,17 @@ onUnmounted(() => {
     padding: 28px 18px;
   }
 }
+
+@media (max-width: 600px) {
+  .step-item {
+    grid-template-columns: 36px 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .step-index {
+    width: 36px;
+    height: 36px;
+  }
+}
 </style>

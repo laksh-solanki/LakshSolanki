@@ -156,5 +156,11 @@ const projects = ref([
 .project-card:hover .project-media {
   transform: scale(1.05);
 }
+
+@media (max-width: 600px) {
+  .intro-copy {
+    max-width: none;
+  }
+}
 </style>
 

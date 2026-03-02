@@ -503,4 +503,14 @@ const generatePassword = () => {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 600px) {
+  .hero-title {
+    line-height: 1.12;
+  }
+
+  .stat-value {
+    font-size: 0.9rem;
+  }
+}
 </style>

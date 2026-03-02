@@ -181,18 +181,18 @@ const goBack = () => {
 }
 
 .orb-a {
-  top: -90px;
-  right: -70px;
-  width: 270px;
-  height: 270px;
+  top: clamp(-90px, -11vw, -48px);
+  right: clamp(-70px, -8vw, -28px);
+  width: clamp(170px, 26vw, 270px);
+  height: clamp(170px, 26vw, 270px);
   background: radial-gradient(circle, rgba(19, 111, 99, 0.28) 0%, rgba(19, 111, 99, 0) 72%);
 }
 
 .orb-b {
-  bottom: -120px;
-  left: -120px;
-  width: 300px;
-  height: 300px;
+  bottom: clamp(-120px, -14vw, -52px);
+  left: clamp(-120px, -14vw, -56px);
+  width: clamp(190px, 30vw, 300px);
+  height: clamp(190px, 30vw, 300px);
   background: radial-gradient(circle, rgba(245, 158, 11, 0.24) 0%, rgba(245, 158, 11, 0) 72%);
 }
 
@@ -238,6 +238,12 @@ const goBack = () => {
 
   .display-code {
     font-size: clamp(4.2rem, 24vw, 7rem);
+  }
+}
+
+@media (max-width: 600px) {
+  .orb-b {
+    display: none;
   }
 }
 </style>
