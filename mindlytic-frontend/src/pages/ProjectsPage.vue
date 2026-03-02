@@ -74,13 +74,13 @@ const projects = ref([
   },
   {
     id: 8,
-    title: "PDF Editor Pro",
-    category: "Premium Document Suite",
+    title: "Dev Utility Hub",
+    category: "All-in-One Utility",
     description:
-      "Two-step workflow with separate upload and edit pages for true PDF object editing: existing text, images, logos, redaction, and export.",
+      "Unified toolbox with text case conversion, URL/Base64 encode-decode, secure password generation, and UUID creation.",
     image: new URL("../assets/project_img/Project-8.svg", import.meta.url).href,
-    link: "/projects/pdf-editor-pro",
-    tags: ["Apryse WebViewer", "Content Editing", "Premium Tools"],
+    link: "/projects/dev-utility-hub",
+    tags: ["Text Tools", "Encoding", "Generators"],
   },
 ]);
 </script>
@@ -97,7 +97,7 @@ const projects = ref([
 
     <v-row>
       <v-col v-for="project in projects" :key="project.id" cols="12" md="6" lg="4">
-        <v-card class="section-shell project-card h-100" :to="project.link" flat>
+        <v-card class="section-shell project-card h-100" :to="project.link" flat hover rounded="lg">
           <v-img :src="project.image" height="200" cover class="project-media"></v-img>
 
           <div class="pa-5 d-flex flex-column h-100">

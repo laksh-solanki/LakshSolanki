@@ -770,14 +770,8 @@ onUnmounted(() => {
     <section class="hero-shell">
       <v-container class="py-10 py-md-12">
         <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-6">
-          <v-btn
-            @click="goBack"
-            variant="tonal"
-            color="primary"
-            prepend-icon="mdi-arrow-left"
-            rounded="xl"
-            class="text-none"
-          >
+          <v-btn @click="goBack" variant="tonal" color="primary" prepend-icon="mdi-arrow-left" rounded="xl"
+            class="text-none">
             Back
           </v-btn>
           <div class="hero-chip">Voice Studio</div>
@@ -787,7 +781,8 @@ onUnmounted(() => {
           <v-col cols="12" md="8" lg="7" class="pr-md-8">
             <h1 class="hero-title mb-3">Text to Speech Studio</h1>
             <p class="hero-subtitle mb-0">
-              Premium text-to-speech with voice presets, sentence mode, live highlighting, keyboard shortcuts, and downloadable audio.
+              Premium text-to-speech with voice presets, sentence mode, live highlighting, keyboard shortcuts, and
+              downloadable audio.
             </p>
           </v-col>
 
@@ -826,17 +821,8 @@ onUnmounted(() => {
               <v-chip label color="teal-lighten-5" class="font-weight-medium">{{ charsCount }} chars</v-chip>
             </div>
 
-            <v-textarea
-              v-model="text"
-              label="Text"
-              variant="solo-filled"
-              rows="8"
-              auto-grow
-              clearable
-              rounded="lg"
-              placeholder="Type something to be spoken..."
-              class="text-input"
-            ></v-textarea>
+            <v-textarea v-model="text" label="Text" variant="outlined" rows="8" auto-grow clearable rounded="lg"
+              placeholder="Type something to be spoken..."></v-textarea>
 
             <div class="d-flex align-center flex-wrap ga-2 mt-2 mb-5">
               <v-btn variant="text" color="primary" class="text-none" @click="copyText">Copy</v-btn>
@@ -847,55 +833,23 @@ onUnmounted(() => {
 
             <v-row>
               <v-col cols="12" md="6">
-                <v-select
-                  v-model="selectedLanguage"
-                  :items="languageOptions"
-                  item-title="label"
-                  item-value="value"
-                  label="Language"
-                  variant="solo-filled"
-                  rounded="lg"
-                  hide-details
-                  class="mb-3"
-                  :disabled="isPlaying"
-                ></v-select>
+                <v-select v-model="selectedLanguage" :items="languageOptions" item-title="label" item-value="value"
+                  label="Language" variant="solo-filled" rounded="lg" hide-details class="mb-3"
+                  :disabled="isPlaying"></v-select>
 
-                <v-text-field
-                  v-model.trim="voiceSearch"
-                  label="Search Voice"
-                  variant="solo-filled"
-                  rounded="lg"
-                  prepend-inner-icon="mdi-magnify"
-                  hide-details
-                  :disabled="isPlaying"
-                ></v-text-field>
+                <v-text-field v-model.trim="voiceSearch" label="Search Voice" variant="solo-filled" rounded="lg"
+                  prepend-inner-icon="mdi-magnify" hide-details :disabled="isPlaying"></v-text-field>
               </v-col>
 
               <v-col cols="12" md="6">
-                <v-select
-                  v-model="selectedVoiceKey"
-                  :items="filteredVoices"
-                  item-title="label"
-                  item-value="key"
-                  label="Select Voice"
-                  variant="solo-filled"
-                  rounded="lg"
-                  :loading="isLoadingVoices"
-                  :disabled="isLoadingVoices || isPlaying"
-                ></v-select>
+                <v-select v-model="selectedVoiceKey" :items="filteredVoices" item-title="label" item-value="key"
+                  label="Select Voice" variant="solo-filled" rounded="lg" :loading="isLoadingVoices"
+                  :disabled="isLoadingVoices || isPlaying"></v-select>
               </v-col>
 
               <v-col cols="12" md="4">
-                <v-slider
-                  v-model="rate"
-                  label="Rate"
-                  min="0.5"
-                  max="2"
-                  step="0.05"
-                  thumb-label
-                  color="primary"
-                  :disabled="isPlaying"
-                >
+                <v-slider v-model="rate" label="Rate" min="0.5" max="2" step="0.05" thumb-label color="primary"
+                  :disabled="isPlaying">
                   <template #append>
                     <span class="text-caption">{{ rate.toFixed(2) }}</span>
                   </template>
@@ -903,16 +857,8 @@ onUnmounted(() => {
               </v-col>
 
               <v-col cols="12" md="4">
-                <v-slider
-                  v-model="pitch"
-                  label="Pitch"
-                  min="0"
-                  max="2"
-                  step="0.05"
-                  thumb-label
-                  color="primary"
-                  :disabled="isPlaying"
-                >
+                <v-slider v-model="pitch" label="Pitch" min="0" max="2" step="0.05" thumb-label color="primary"
+                  :disabled="isPlaying">
                   <template #append>
                     <span class="text-caption">{{ pitch.toFixed(2) }}</span>
                   </template>
@@ -920,16 +866,8 @@ onUnmounted(() => {
               </v-col>
 
               <v-col cols="12" md="4">
-                <v-slider
-                  v-model="volume"
-                  label="Volume"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  thumb-label
-                  color="primary"
-                  :disabled="isPlaying"
-                >
+                <v-slider v-model="volume" label="Volume" min="0" max="1" step="0.05" thumb-label color="primary"
+                  :disabled="isPlaying">
                   <template #append>
                     <span class="text-caption">{{ volume.toFixed(2) }}</span>
                   </template>
@@ -945,29 +883,18 @@ onUnmounted(() => {
                 <v-btn value="sentence" class="text-none">Sentence Mode</v-btn>
               </v-btn-toggle>
 
-              <v-switch
-                v-model="autoAdvanceSentences"
-                color="primary"
-                label="Auto Advance"
-                hide-details
-                density="compact"
-                class="mr-2"
-                :disabled="readMode !== 'sentence'"
-              ></v-switch>
+              <v-switch v-model="autoAdvanceSentences" color="primary" label="Auto Advance" hide-details
+                density="compact" class="mr-2" :disabled="readMode !== 'sentence'"></v-switch>
 
-              <v-switch
-                v-model="loopMode"
-                color="primary"
-                label="Loop"
-                hide-details
-                density="compact"
-              ></v-switch>
+              <v-switch v-model="loopMode" color="primary" label="Loop" hide-details density="compact"></v-switch>
             </div>
 
             <div v-if="readMode === 'sentence'" class="sentence-control mb-4">
               <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-2">
                 <p class="mb-0 text-body-2">
-                  Sentence {{ Math.min(currentSentenceIndex + 1, Math.max(sentenceChunks.length, 1)) }} / {{ sentenceChunks.length }}
+                  Sentence {{ Math.min(currentSentenceIndex + 1, Math.max(sentenceChunks.length, 1)) }} / {{
+                  sentenceChunks.length
+                  }}
                 </p>
                 <div class="d-flex align-center ga-2">
                   <v-btn icon="mdi-skip-previous" variant="tonal" color="primary" @click="prevSentence"></v-btn>
@@ -981,63 +908,32 @@ onUnmounted(() => {
             </div>
 
             <div class="d-flex align-center flex-wrap ga-2 mb-4">
-              <v-btn
-                color="primary"
-                variant="flat"
-                rounded="lg"
-                class="text-none"
-                @click="startSpeaking"
-                :disabled="!text.trim() || isDownloading"
-              >
+              <v-btn color="primary" variant="flat" rounded="lg" class="text-none" @click="startSpeaking"
+                :disabled="!text.trim() || isDownloading">
                 <v-icon start icon="mdi-play"></v-icon>
                 Speak
               </v-btn>
 
-              <v-btn
-                color="secondary"
-                variant="tonal"
-                rounded="lg"
-                class="text-none"
-                @click="pauseSpeech"
-                :disabled="!isPlaying || isPaused"
-              >
+              <v-btn color="secondary" variant="tonal" rounded="lg" class="text-none" @click="pauseSpeech"
+                :disabled="!isPlaying || isPaused">
                 <v-icon start icon="mdi-pause"></v-icon>
                 Pause
               </v-btn>
 
-              <v-btn
-                color="secondary"
-                variant="tonal"
-                rounded="lg"
-                class="text-none"
-                @click="resumeSpeech"
-                :disabled="!isPaused"
-              >
+              <v-btn color="secondary" variant="tonal" rounded="lg" class="text-none" @click="resumeSpeech"
+                :disabled="!isPaused">
                 <v-icon start icon="mdi-play-pause"></v-icon>
                 Resume
               </v-btn>
 
-              <v-btn
-                color="error"
-                variant="tonal"
-                rounded="lg"
-                class="text-none"
-                @click="stop()"
-                :disabled="!isPlaying && !isDownloading"
-              >
+              <v-btn color="error" variant="tonal" rounded="lg" class="text-none" @click="stop()"
+                :disabled="!isPlaying && !isDownloading">
                 <v-icon start icon="mdi-stop"></v-icon>
                 Stop
               </v-btn>
 
-              <v-btn
-                color="primary"
-                variant="outlined"
-                rounded="lg"
-                class="text-none"
-                @click="downloadSpeech"
-                :loading="isDownloading"
-                :disabled="isDownloading || !text.trim()"
-              >
+              <v-btn color="primary" variant="outlined" rounded="lg" class="text-none" @click="downloadSpeech"
+                :loading="isDownloading" :disabled="isDownloading || !text.trim()">
                 <v-icon start icon="mdi-download"></v-icon>
                 Download Audio
               </v-btn>
@@ -1068,15 +964,10 @@ onUnmounted(() => {
             <h3 class="text-h6 font-weight-bold mb-3">Voice mood styles</h3>
 
             <div class="d-flex flex-wrap ga-2">
-              <v-chip
-                v-for="preset in presets"
-                :key="preset.id"
+              <v-chip v-for="preset in presets" :key="preset.id"
                 :color="selectedPreset === preset.id ? 'primary' : 'teal-lighten-5'"
-                :variant="selectedPreset === preset.id ? 'flat' : 'flat'"
-                class="preset-chip"
-                label
-                @click="applyPreset(preset)"
-              >
+                :variant="selectedPreset === preset.id ? 'flat' : 'flat'" class="preset-chip" label
+                @click="applyPreset(preset)">
                 {{ preset.label }}
               </v-chip>
             </div>
@@ -1087,15 +978,8 @@ onUnmounted(() => {
             <h3 class="text-h6 font-weight-bold mb-3">Quick text templates</h3>
 
             <div class="d-flex flex-column ga-2">
-              <v-btn
-                v-for="sample in sampleTemplates"
-                :key="sample.title"
-                variant="tonal"
-                color="primary"
-                class="text-none justify-start"
-                rounded="lg"
-                @click="applySample(sample)"
-              >
+              <v-btn v-for="sample in sampleTemplates" :key="sample.title" variant="tonal" color="primary"
+                class="text-none justify-start" rounded="lg" @click="applySample(sample)">
                 {{ sample.title }}
               </v-btn>
             </div>
@@ -1110,17 +994,13 @@ onUnmounted(() => {
             </div>
 
             <div v-else class="d-flex flex-column ga-2">
-              <v-sheet
-                v-for="snippet in savedSnippets"
-                :key="snippet.id"
-                class="snippet-item pa-3"
-                rounded="lg"
-              >
+              <v-sheet v-for="snippet in savedSnippets" :key="snippet.id" class="snippet-item pa-3" rounded="lg">
                 <div class="d-flex align-start justify-space-between ga-2">
                   <button class="snippet-title" @click="useSnippet(snippet)">
                     {{ snippet.title }}
                   </button>
-                  <v-btn icon="mdi-close" size="x-small" variant="text" color="error" @click="removeSnippet(snippet.id)"></v-btn>
+                  <v-btn icon="mdi-close" size="x-small" variant="text" color="error"
+                    @click="removeSnippet(snippet.id)"></v-btn>
                 </div>
               </v-sheet>
             </div>
@@ -1218,12 +1098,6 @@ onUnmounted(() => {
   letter-spacing: 0.09em;
   font-size: 0.72rem;
   font-weight: 700;
-}
-
-.text-input :deep(.v-field) {
-  border: 1px solid rgba(19, 111, 99, 0.14);
-  border-radius: 12px;
-  background: #f8fcfa;
 }
 
 .sentence-control {

@@ -4,17 +4,15 @@
   "type": "module",
   "version": "2.0.0",
   "scripts": {
-    "copy:webviewer": "node scripts/copy-webviewer-assets.cjs",
-    "dev": "pnpm run copy:webviewer && vite",
-    "build": "pnpm run copy:webviewer && vite build",
-    "preview": "pnpm run copy:webviewer && vite preview"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@fontsource/roboto": "5.2.9",
     "@google/genai": "^1.41.0",
     "@google/generative-ai": "^0.24.1",
     "@mdi/font": "7.4.47",
-    "@pdftron/webviewer": "^11.11.0",
     "@tailwindcss/cli": "^4.1.18",
     "@types/file-saver": "^2.0.7",
     "dompurify": "^3.3.1",

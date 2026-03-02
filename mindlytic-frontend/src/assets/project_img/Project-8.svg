@@ -45,11 +45,11 @@
   </g>
 
   <rect x="312" y="80" width="134" height="34" rx="17" fill="#21365C" />
-  <text x="379" y="102" fill="#F8D37D" font-family="Manrope, Arial, sans-serif" font-weight="700" font-size="15" text-anchor="middle">PREMIUM</text>
+  <text x="379" y="102" fill="#F8D37D" font-family="Manrope, Arial, sans-serif" font-weight="700" font-size="15" text-anchor="middle">TOOLKIT</text>
   <text x="600" y="633" fill="url(#gold)" font-family="Space Grotesk, Arial, sans-serif" font-weight="700" font-size="56" text-anchor="middle">
-    PDF Editor Pro
+    Dev Utility Hub
   </text>
   <text x="600" y="666" fill="#9BA9C7" font-family="Manrope, Arial, sans-serif" font-size="22" text-anchor="middle">
-    Upload, edit, annotate, redact, and export in one workspace.
+    Case conversion, encoding, passwords, and UUIDs in one workspace.
   </text>
 </svg>

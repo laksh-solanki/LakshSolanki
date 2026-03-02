@@ -2,6 +2,7 @@
 import { nextTick, ref } from "vue";
 import { useRoute } from "vue-router";
 import mainsvgicon from "@/assets/mainsvgicon.vue";
+import SearchBar from "@/components/Search-bar.vue";
 
 const route = useRoute();
 const drawer = ref(false);
@@ -86,24 +87,25 @@ const scrollToSubscribe = async () => {
         </v-btn>
       </div>
 
-      <div class="d-none d-md-flex align-center">
+      <div class="d-flex align-center ga-2 ml-auto">
+        <SearchBar />
         <v-btn
+          class="d-none d-md-flex"
           color="primary"
           variant="flat"
           rounded="xl"
-          class="text-none px-5"
           @click="scrollToSubscribe"
         >
           Let's Collaborate
         </v-btn>
-      </div>
 
-      <v-btn
-        class="d-flex d-md-none ml-auto"
-        icon="mdi-menu"
-        variant="text"
-        @click="drawer = true"
-      ></v-btn>
+        <v-btn
+          class="d-flex d-md-none"
+          icon="mdi-menu"
+          variant="text"
+          @click="drawer = true"
+        ></v-btn>
+      </div>
     </v-container>
   </v-app-bar>
 </template>
