@@ -97,7 +97,7 @@ const featuredProjects = [
               </div>
               <div class="d-flex justify-space-between">
                 <span class="muted-copy">Focus</span>
-                <strong>SaaS + Developer Tools</strong>
+                <strong>Developer Tools</strong>
               </div>
             </div>
           </div>
@@ -127,7 +127,7 @@ const featuredProjects = [
         <div class="d-flex align-center justify-space-between mb-5 flex-wrap ga-3 luxe-head">
           <div class="d-flex align-center ga-3">
             <v-avatar size="34" class="luxe-avatar">
-              <v-img :src="myPhoto" alt="Laksh icon"></v-img>
+              <v-img :src="myPhoto" alt="Laksh icon" loading="lazy" decoding="async"></v-img>
             </v-avatar>
             <div>
               <p class="text-overline mb-0 luxe-kicker">PREMIUM STACK</p>
@@ -140,7 +140,7 @@ const featuredProjects = [
         <div class="luxe-flow" aria-label="What I Build tree">
           <span class="luxe-step is-root" style="--d: 0.06s">
             <v-avatar size="20" class="luxe-step-avatar">
-              <v-img :src="myPhoto" alt="Laksh small icon"></v-img>
+              <v-img :src="myPhoto" alt="Laksh small icon" loading="lazy" decoding="async"></v-img>
             </v-avatar>
             html
           </span>
@@ -171,7 +171,7 @@ const featuredProjects = [
       <v-row>
         <v-col v-for="project in featuredProjects" :key="project.title" cols="12" md="4">
           <v-card class="section-shell project-card h-100" :to="project.to" flat>
-            <v-img :src="project.image" height="190" cover class="project-media"></v-img>
+            <v-img :src="project.image" height="190" cover loading="lazy" decoding="async" class="project-media"></v-img>
             <div class="pa-5">
               <h3 class="text-h6 mb-2">{{ project.title }}</h3>
               <p class="muted-copy mb-4">{{ project.description }}</p>

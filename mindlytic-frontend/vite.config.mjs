@@ -22,8 +22,9 @@ export default defineConfig({
         families: [
           {
             name: "Roboto",
-            weights: [100, 300, 400, 500, 700, 900],
-            styles: ["normal", "italic"],
+            weights: [400, 500, 700],
+            styles: ["normal"],
+            subset: "latin",
           },
         ],
       },
@@ -54,10 +55,35 @@ export default defineConfig({
   },
   build: {
     target: "esnext",
+    cssCodeSplit: true,
+    modulePreload: { polyfill: false },
+    sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          "pdf-vendor": ["jspdf"],
+        manualChunks(id) {
+          if (!id.includes("node_modules")) {
+            return undefined;
+          }
+
+          if (id.includes("vuetify")) {
+            return "vuetify";
+          }
+
+          if (
+            id.includes("jspdf") ||
+            id.includes("pdfjs-dist") ||
+            id.includes("jszip") ||
+            id.includes("file-saver") ||
+            id.includes("html2canvas")
+          ) {
+            return "tooling";
+          }
+
+          if (id.includes("marked") || id.includes("prismjs") || id.includes("dompurify")) {
+            return "ai-rendering";
+          }
+
+          return "vendor";
         },
       },
     },

@@ -216,7 +216,7 @@
                       :key="runnerFrameKey"
                       :class="['runner-frame', { 'runner-frame-web': runnerMode === 'web' }]"
                       :srcdoc="runnerSrcdoc"
-                      sandbox="allow-scripts allow-modals"
+                      sandbox="allow-scripts"
                       referrerpolicy="no-referrer"
                     ></iframe>
                   </div>
@@ -355,6 +355,36 @@ const scrollToBottom = async () => {
 
 marked.setOptions({ breaks: true, gfm: true });
 const renderer = new marked.Renderer();
+const emojiShortcodeMap = Object.freeze({
+  smile: "😄",
+  grin: "😁",
+  joy: "😂",
+  laugh: "😆",
+  wink: "😉",
+  blush: "😊",
+  thumbsup: "👍",
+  thumbs_up: "👍",
+  "+1": "👍",
+  thumbsdown: "👎",
+  thumbs_down: "👎",
+  "-1": "👎",
+  clap: "👏",
+  wave: "👋",
+  rocket: "🚀",
+  fire: "🔥",
+  sparkles: "✨",
+  star: "⭐",
+  heart: "❤️",
+  warning: "⚠️",
+  info: "ℹ️",
+  bulb: "💡",
+  check: "✅",
+  x: "❌",
+  tada: "🎉",
+  cool: "😎",
+  thinking: "🤔",
+  party: "🥳",
+});
 const languageAlias = {
   js: "javascript",
   ts: "typescript",
@@ -419,8 +449,16 @@ renderer.code = ({ text, lang }) => {
 };
 marked.use({ renderer });
 
+const replaceEmojiShortcodes = (input = "") =>
+  input.replace(/:([a-z0-9_+-]+):/gi, (fullMatch, rawCode) => {
+    const normalizedCode = rawCode.toLowerCase().replace(/-/g, "_");
+    return emojiShortcodeMap[normalizedCode] || fullMatch;
+  });
+
+const prepareAssistantMarkdown = (input = "") => replaceEmojiShortcodes(String(input || ""));
+
 const parseMessage = (rawText) =>
-  DOMPurify.sanitize(marked.parse(rawText || ""), {
+  DOMPurify.sanitize(marked.parse(prepareAssistantMarkdown(rawText)), {
     ADD_TAGS: ["button"],
     ADD_ATTR: ["class", "aria-label"],
   });
@@ -847,7 +885,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
 
 .ai-page {
   min-height: calc(100vh - 64px);
@@ -954,13 +991,30 @@ onUnmounted(() => {
   flex-wrap: wrap;
 }
 
+.hero-shell :deep(.v-chip),
+.chat-head :deep(.v-chip) {
+  border: 1px solid rgba(16, 88, 74, 0.3);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.hero-shell :deep(.v-chip) {
+  min-height: 24px;
+}
+
+.chat-head :deep(.v-chip) {
+  min-height: 23px;
+  font-size: 0.7rem;
+}
+
 .chat-shell-fullscreen {
   position: fixed;
   inset: 0;
   z-index: 1200;
   width: 100vw;
   height: 100dvh;
-  min-height: 100dvh;
+  min-height: 70vh;
   max-width: none;
   border-radius: 0 !important;
   margin: 0 !important;
@@ -1246,17 +1300,47 @@ onUnmounted(() => {
 }
 
 .markdown-body {
-  line-height: 1.72;
+  font-size: 0.92rem;
+  line-height: 1.66;
   color: #153730;
   overflow-wrap: anywhere;
 }
 
+.markdown-body :deep(h1),
+.markdown-body :deep(h2),
+.markdown-body :deep(h3),
+.markdown-body :deep(h4) {
+  margin: 0.4rem 0 0.35rem;
+  line-height: 1.35;
+}
+
+.markdown-body :deep(h1) {
+  font-size: 1.06rem;
+}
+
+.markdown-body :deep(h2) {
+  font-size: 1rem;
+}
+
+.markdown-body :deep(h3),
+.markdown-body :deep(h4) {
+  font-size: 0.95rem;
+}
+
+.markdown-body :deep(p) {
+  margin: 0 0 0.62rem;
+}
+
 .markdown-body :deep(code:not(pre code)) {
   font-family: "JetBrains Mono", monospace;
-  border-radius: 6px;
-  padding: 2px 7px;
-  border: 1px solid rgba(13, 79, 66, 0.15);
-  background: rgba(14, 95, 78, 0.09);
+  font-size: 0.78rem;
+  font-weight: bolder;
+  line-height: 1.24;
+  border-radius: 5px;
+  padding: 1px 5px;
+  border: 1px solid rgba(13, 79, 66, 0.12);
+  background: rgba(14, 95, 78, 0.07);
+  overflow-wrap: anywhere;
 }
 
 .markdown-body :deep(.code-block-wrapper) {
@@ -1479,6 +1563,10 @@ onUnmounted(() => {
     padding: 12px;
   }
 
+  .markdown-body {
+    font-size: 0.88rem;
+  }
+
   .bubble {
     padding: 10px;
   }
@@ -1501,3 +1589,4 @@ onUnmounted(() => {
   }
 }
 </style>
+

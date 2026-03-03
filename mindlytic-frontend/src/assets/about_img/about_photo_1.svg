@@ -12,10 +12,6 @@
   @keyframes float1 { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
   @keyframes float2 { 0%,100% { transform: translateY(0px); } 50% { transform: translateY(7px); } }
 
-  /* Center diamond slow spin (already works well) */
-  .spinSlow { animation: spin 10s linear infinite; transform-origin: 242px 151px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
   /* LEFT purple disk: better-looking "bob + squash" */
   .leftDisk { animation: leftBob 2.2s ease-in-out infinite; transform-origin: 90px 191px; }
   @keyframes leftBob {

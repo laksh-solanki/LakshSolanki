@@ -92,7 +92,6 @@ const scrollToSubscribe = async () => {
           :key="link.path"
           :to="link.path"
           variant="text"
-          rounded="xl"
           class="nav-link text-none"
           :class="{ 'is-active': isActive(link.path) }"
         >
@@ -145,7 +144,9 @@ const scrollToSubscribe = async () => {
 .nav-link {
   color: #24443e;
   font-weight: 600;
+  font-size: 0.86rem;
   letter-spacing: 0.01em;
+  border-radius: 13px !important;
   transition:
     transform 0.2s ease,
     background-color 0.2s ease,

@@ -95,16 +95,49 @@ const router = createRouter({
   },
 });
 
-router.beforeEach((to, _from, next) => {
-  document.title = to.meta.title || "Mindlytic";
-  next();
-});
+const wrapLegacyGuard = (guard) => {
+  if (typeof guard !== "function" || guard.length < 3) {
+    return guard;
+  }
+
+  // Compatibility bridge for legacy next()-style guards.
+  return (to, from) =>
+    new Promise((resolve, reject) => {
+      let handled = false;
+      const next = (value) => {
+        if (handled) return;
+        handled = true;
+
+        if (value instanceof Error) {
+          reject(value);
+          return;
+        }
+
+        resolve(value);
+      };
+
+      try {
+        guard(to, from, next);
+      } catch (error) {
+        reject(error);
+      }
+    });
+};
+
+const patchGuardRegistrar = (methodName) => {
+  const originalMethod = router[methodName].bind(router);
+  router[methodName] = (guard) => originalMethod(wrapLegacyGuard(guard));
+};
+
+patchGuardRegistrar("beforeEach");
+patchGuardRegistrar("beforeResolve");
 
 export const isGlobalLoading = ref(null);
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
+  document.title = to.meta.title || "Mindlytic";
   if (isGlobalLoading.value) isGlobalLoading.value.start();
-  next();
+  return true;
 });
 
 router.afterEach(() => {

@@ -393,7 +393,7 @@ onUnmounted(() => {
               <v-chip size="small" variant="tonal" color="secondary">{{ runCount }} runs · {{ lastRunMs }} ms</v-chip>
             </div>
             <div class="preview-stage">
-              <iframe :srcdoc="srcdoc" class="preview-frame" :style="{ width: frameWidth }" sandbox="allow-scripts allow-forms allow-modals"></iframe>
+              <iframe :srcdoc="srcdoc" class="preview-frame" :style="{ width: frameWidth }" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
             </div>
           </v-card>
         </v-col>

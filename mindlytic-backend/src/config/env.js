@@ -11,10 +11,32 @@ const toPositiveInt = (value, fallback) => {
   return parsed;
 };
 
+const toBoolean = (value, fallback) => {
+  if (value === undefined || value === null || value === "") {
+    return fallback;
+  }
+
+  const normalized = String(value).trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(normalized)) {
+    return true;
+  }
+  if (["0", "false", "no", "off"].includes(normalized)) {
+    return false;
+  }
+
+  return fallback;
+};
+
+const parseCommaSeparated = (value) =>
+  value
+    ?.split(",")
+    .map((item) => item.trim())
+    .filter(Boolean) ?? [];
+
 const parseCorsOrigins = (value) => {
   const raw = value?.trim();
   if (!raw) return ["*"];
-  return raw.split(",").map((item) => item.trim()).filter(Boolean);
+  return parseCommaSeparated(raw);
 };
 
 export const getEnv = (overrides = {}) => {
@@ -32,5 +54,12 @@ export const getEnv = (overrides = {}) => {
     adminApiKey: source.ADMIN_API_KEY?.trim() || "",
     defaultPageSize: toPositiveInt(source.DEFAULT_PAGE_SIZE, 20),
     maxPageSize: toPositiveInt(source.MAX_PAGE_SIZE, 100),
+    maxRequestBodyBytes: toPositiveInt(source.REQUEST_BODY_LIMIT_BYTES, 262144),
+    rateLimitMax: toPositiveInt(source.RATE_LIMIT_MAX, 120),
+    rateLimitWindowMs: toPositiveInt(source.RATE_LIMIT_WINDOW_MS, 60000),
+    rateLimitAllowList: parseCommaSeparated(source.RATE_LIMIT_ALLOWLIST),
+    enableCompression: toBoolean(source.ENABLE_COMPRESSION, true),
+    enableSecurityHeaders: toBoolean(source.ENABLE_SECURITY_HEADERS, true),
+    trustProxy: toBoolean(source.TRUST_PROXY, false),
   });
 };
