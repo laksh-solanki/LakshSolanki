@@ -18,10 +18,10 @@
         <div class="zoom-toolbar px-4 py-3">
           <p class="text-subtitle-2 font-weight-bold mb-0">{{ alt }}</p>
           <div class="d-flex ga-1">
-            <v-btn icon="mdi-magnify-minus-outline" variant="text" @click="zoomOut" :disabled="zoomLevel <= 1"></v-btn>
-            <v-btn icon="mdi-refresh" variant="text" @click="resetZoom" :disabled="zoomLevel === 1"></v-btn>
-            <v-btn icon="mdi-magnify-plus-outline" variant="text" @click="zoomIn" :disabled="zoomLevel >= 3"></v-btn>
-            <v-btn icon="mdi-close" variant="text" @click="dialogOpen = false"></v-btn>
+            <v-btn icon="mdi-magnify-minus-outline" variant="text" density="comfortable" @click="zoomOut" :disabled="zoomLevel <= 1"></v-btn>
+            <v-btn icon="mdi-refresh" variant="text" density="comfortable" @click="resetZoom" :disabled="zoomLevel === 1"></v-btn>
+            <v-btn icon="mdi-magnify-plus-outline" density="comfortable" variant="text" @click="zoomIn" :disabled="zoomLevel >= 3"></v-btn>
+            <v-btn icon="mdi-close" density="comfortable" variant="text" @click="dialogOpen = false"></v-btn>
           </div>
         </div>
 

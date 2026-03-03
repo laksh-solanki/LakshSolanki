@@ -146,7 +146,7 @@
 
         <v-row>
           <v-col cols="12" md="4" lg="3">
-            <v-card class="section-shell dev-profile-card pa-5" flat>
+            <v-card class="section-shell dev-profile-card pa-5" rounded="xl" variant="elevated">
               <PhotoZoomDialog
                 :src="myPhoto"
                 alt="Laksh Solanki"
@@ -171,16 +171,16 @@
                 </div>
               </div>
 
-              <v-btn block color="primary" rounded="xl" class="text-none mb-3" href="mailto:lakshsolanki848@gmail.com">
+              <v-btn block color="primary" rounded="xl" size="large" class="text-none mb-3" href="mailto:lakshsolanki848@gmail.com">
                 Contact Me
               </v-btn>
-              <v-btn block variant="outlined" color="primary" rounded="xl" class="text-none" @click="copyEmail">
+              <v-btn block variant="outlined" color="primary" size="large" rounded="xl" class="text-none" @click="copyEmail">
                 Copy Email
               </v-btn>
 
               <v-divider class="my-5"></v-divider>
 
-              <div class="d-flex justify-center ga-2">
+              <div class="d-flex align-center justify-center ga-3">
                 <v-btn
                   icon="mdi-github"
                   variant="tonal"
@@ -207,7 +207,7 @@
           </v-col>
 
           <v-col cols="12" md="8" lg="9">
-            <v-card class="section-shell pa-6 pa-md-8 mb-6" flat>
+            <v-card class="section-shell pa-6 pa-md-8 mb-6" variant="elevated" rounded="xl">
               <p class="text-overline text-primary font-weight-bold mb-2">Developer Profile</p>
               <h3 class="text-h4 mb-4">I build products that stay maintainable as they scale.</h3>
               <p class="muted-copy mb-0 dev-intro-copy">
@@ -216,7 +216,7 @@
               </p>
             </v-card>
 
-            <v-card class="section-shell pa-6 pa-md-8 mb-6" flat>
+            <v-card class="section-shell pa-6 pa-md-8 mb-6" variant="elevated" rounded="xl">
               <h3 class="text-h5 mb-4">Career Highlights</h3>
               <v-row>
                 <v-col v-for="item in highlights" :key="item.title" cols="12" sm="6" lg="3">
@@ -229,7 +229,7 @@
               </v-row>
             </v-card>
 
-            <v-card class="section-shell pa-6 pa-md-8 mb-6" flat>
+            <v-card class="section-shell pa-6 pa-md-8 mb-6" variant="elevated" rounded="xl">
               <h3 class="text-h5 mb-3">Experience Timeline</h3>
               <v-timeline side="end" truncate-line="both" density="comfortable">
                 <v-timeline-item
@@ -239,7 +239,7 @@
                   size="small"
                 >
                   <template #opposite>
-                    <span class="text-caption muted-copy">{{ job.period }}</span>
+                    <span class="text-caption">{{ job.period }}</span>
                   </template>
                   <div class="dev-timeline-card pa-4">
                     <p class="text-subtitle-1 font-weight-bold mb-1">{{ job.role }}</p>
@@ -250,7 +250,7 @@
               </v-timeline>
             </v-card>
 
-            <v-card class="section-shell pa-6 pa-md-8" flat>
+            <v-card class="section-shell pa-6 pa-md-8" variant="elevated" rounded="xl">
               <h3 class="text-h5 mb-4">Stack & Expertise</h3>
               <v-row>
                 <v-col v-for="group in skillGroups" :key="group.title" cols="12" md="6">
@@ -339,7 +339,7 @@ const highlights = [
 
 const experiences = [
   {
-    period: "2024 - Present",
+    period: "2024 Present",
     role: "Senior Full-Stack Engineer",
     company: "Mindlytic",
     summary:
@@ -347,7 +347,7 @@ const experiences = [
     dotColor: "primary",
   },
   {
-    period: "2022 - 2024",
+    period: "2022 2024",
     role: "Frontend Engineer",
     company: "Freelance & Product Teams",
     summary:
@@ -355,7 +355,7 @@ const experiences = [
     dotColor: "secondary",
   },
   {
-    period: "2021 - 2022",
+    period: "2021 2022",
     role: "Software Developer",
     company: "Client Projects",
     summary:
@@ -616,10 +616,6 @@ const scrollToSubscribe = () => {
 
   .process-grid {
     grid-template-columns: 1fr;
-  }
-
-  .dev-profile-card :deep(.v-btn) {
-    width: 100%;
   }
 
   .section-shell :deep(.v-timeline-item__opposite) {
