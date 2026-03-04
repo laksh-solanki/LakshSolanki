@@ -132,9 +132,22 @@
                           <span>{{ msg.role === "user" ? "You" : getModelShortName(msg.model || selectedModel) }}</span>
                           <span>{{ formatTime(msg.createdAt) }}</span>
                         </div>
-                        <div v-if="msg.role === 'assistant'" class="markdown-body" v-html="parseMessage(msg.text)"></div>
-                        <p v-else class="mb-0 user-text">{{ replaceEmojiShortcodes(msg.text) }}</p>
-                        <div v-if="msg.role === 'assistant'" class="d-flex justify-end mt-2">
+                        <div v-if="msg.role === 'assistant' && msg.text" class="markdown-body" v-html="parseMessage(msg.text)"></div>
+                        <p v-if="msg.role === 'user'" class="mb-0 user-text">{{ replaceEmojiShortcodes(msg.text) }}</p>
+                        <div v-if="Array.isArray(msg.images) && msg.images.length" class="bubble-media">
+                          <v-img
+                            v-for="(imageUrl, imageIndex) in msg.images"
+                            :key="`${msg.id}-image-${imageIndex}`"
+                            :src="imageUrl"
+                            :alt="msg.imagePrompt ? `Generated image: ${msg.imagePrompt}` : `Generated image ${imageIndex + 1}`"
+                            class="bubble-image"
+                            loading="lazy"
+                            :aspect-ratio="1"
+                            cover
+                            @error="handleImageLoadError($event, msg.imagePrompt)"
+                          />
+                        </div>
+                        <div v-if="msg.role === 'assistant' && msg.text" class="d-flex justify-end mt-2">
                           <button class="mini-btn" @click.stop="copyMessage(msg.text)">Copy reply</button>
                         </div>
                       </div>
@@ -178,10 +191,21 @@
                       :disabled="loading"
                       class="composer-model-select"
                     ></v-select>
+                    <div class="composer-button-stack">
+                      <v-btn
+                        color="secondary"
+                        variant="tonal"
+                        rounded="lg"
+                        class="text-none composer-image-btn"
+                        prepend-icon="mdi-image-outline"
+                        :disabled="loading || !canGenerateImage"
+                        @click="generateImageFromComposer"
+                      >
+                        Image
+                      </v-btn>
                     <v-btn
                       :color="loading ? 'error' : 'primary'"
                       rounded="lg"
-                      height="45  "
                       class="text-none composer-send-btn"
                       :prepend-icon="loading ? 'mdi-stop' : 'mdi-send'"
                       :disabled="primaryActionDisabled"
@@ -189,6 +213,7 @@
                     >
                       {{ loading ? "Stop" : "Send" }}
                     </v-btn>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -257,6 +282,7 @@ const STORAGE_KEY = "mindlytic_ai_studio_v3";
 const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GOOGLE_API_KEY || "").trim();
 const GROQ_API_KEY = (import.meta.env.VITE_GROQ_API_KEY || "").trim();
 const GROQ_API_BASE = (import.meta.env.VITE_GROQ_API_BASE || "https://api.groq.com/openai/v1").trim().replace(/\/+$/, "");
+const GEMINI_IMAGE_MODEL = (import.meta.env.VITE_GEMINI_IMAGE_MODEL || "gemini-2.0-flash-preview-image-generation").trim();
 
 const modelCatalog = [
   {
@@ -343,6 +369,7 @@ const composerPlaceholder = computed(() =>
   hasSelectedApiKey.value ? "Message Mindlytic AI..." : `Set ${currentModel.value.keyEnv} to enable ${currentModel.value.short}`,
 );
 const sendDisabled = computed(() => !userInput.value.trim() || !hasSelectedApiKey.value);
+const canGenerateImage = computed(() => Boolean(userInput.value.trim()));
 const primaryActionDisabled = computed(() => (loading.value ? false : sendDisabled.value));
 const canRegenerate = computed(() => messages.value.some((m) => m.role === "user"));
 const userMessageCount = computed(() => messages.value.filter((m) => m.role === "user").length);
@@ -364,8 +391,26 @@ const createMessage = (role, text, options = {}) => ({
   text,
   model: options.model || null,
   error: Boolean(options.error),
+  images: Array.isArray(options.images) ? options.images.filter((image) => typeof image === "string" && image.trim()) : [],
+  imagePrompt: typeof options.imagePrompt === "string" ? options.imagePrompt : "",
   createdAt: new Date().toISOString(),
 });
+
+const isDataImageUrl = (value = "") => /^data:image\//i.test(String(value || ""));
+const getPersistableImages = (images = []) =>
+  images.filter((image) => typeof image === "string" && image.trim() && !isDataImageUrl(image)).slice(0, 4);
+const escapeXml = (value = "") =>
+  String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+const buildPlaceholderImage = (prompt = "Image unavailable") => {
+  const safePrompt = escapeXml(String(prompt || "Image unavailable").slice(0, 120));
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0f766e"/><stop offset="100%" stop-color="#155e75"/></linearGradient></defs><rect width="1024" height="1024" fill="url(#bg)"/><rect x="44" y="44" width="936" height="936" rx="36" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.26)"/><text x="512" y="470" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="42" fill="#f0fdfa">Image Preview</text><text x="512" y="530" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="28" fill="#d1fae5">${safePrompt}</text></svg>`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+};
 
 const buildWelcomeText = () => {
   const available = modelCatalog.filter((m) => m.available).map((m) => m.short);
@@ -744,6 +789,114 @@ const readApiError = async (response) => {
   }
 };
 
+const extractGeminiImagePayload = (responseData) => {
+  const parts = responseData?.candidates?.[0]?.content?.parts || [];
+  const images = [];
+  const textChunks = [];
+
+  parts.forEach((part) => {
+    if (typeof part?.text === "string" && part.text.trim()) {
+      textChunks.push(part.text.trim());
+    }
+    const bytes = part?.inlineData?.data;
+    const mimeType = part?.inlineData?.mimeType || "";
+    if (bytes && /^image\//i.test(mimeType)) {
+      images.push(`data:${mimeType};base64,${bytes}`);
+    }
+  });
+
+  return { images, text: textChunks.join("\n").trim() };
+};
+
+const requestGeminiImageWithModel = async (prompt, signal, modelName) => {
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    signal,
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: selectedPersonaData.value.prompt }] },
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: `Generate a high-quality image for this prompt:\n${prompt}` }],
+        },
+      ],
+      generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
+    }),
+  });
+
+  if (!response.ok) throw new Error(await readApiError(response));
+  const data = await response.json();
+  const payload = extractGeminiImagePayload(data);
+  if (!payload.images.length) {
+    throw new Error("Gemini image model returned no image data.");
+  }
+  return payload;
+};
+
+const requestGeminiImage = async (prompt, signal) => {
+  if (!GEMINI_API_KEY) {
+    throw new Error("Gemini API key is not configured.");
+  }
+
+  const candidateModels = [
+    GEMINI_IMAGE_MODEL,
+    currentModel.value.provider === "gemini" ? currentModel.value.modelName : "",
+    "gemini-2.0-flash-preview-image-generation",
+    "gemini-2.0-flash-exp-image-generation",
+    "gemini-2.5-flash-image-preview",
+  ].filter(Boolean);
+
+  let lastError = null;
+  for (const modelName of [...new Set(candidateModels)]) {
+    try {
+      return await requestGeminiImageWithModel(prompt, signal, modelName);
+    } catch (error) {
+      lastError = error;
+      console.warn(`gemini image generation failed for model ${modelName}`, error);
+    }
+  }
+
+  throw lastError || new Error("Gemini image generation failed for all configured models.");
+};
+
+const requestFallbackImage = async (prompt, reason = "") => {
+  const fallbackText = reason
+    ? `AI image generation is unavailable right now. Showing a local preview.\n\n${reason}`
+    : `Generated preview for: "${prompt}".`;
+  return {
+    images: [buildPlaceholderImage(prompt)],
+    text: fallbackText,
+  };
+};
+
+const requestGeneratedImage = async (prompt, signal) => {
+  if (GEMINI_API_KEY) {
+    try {
+      return await requestGeminiImage(prompt, signal);
+    } catch (error) {
+      const errorMessage = String(error?.message || "Unknown image generation error");
+      console.warn("gemini image generation failed, using local preview fallback", error);
+      return requestFallbackImage(prompt, errorMessage);
+    }
+  }
+  return requestFallbackImage(prompt, "Gemini API key is missing.");
+};
+
+const handleImageLoadError = (event, prompt = "") => {
+  const imageElement =
+    event?.target instanceof HTMLImageElement
+      ? event.target
+      : event?.target?.querySelector instanceof Function
+        ? event.target.querySelector("img")
+        : null;
+  if (!imageElement) return;
+  if (imageElement.dataset.fallbackApplied === "true") return;
+  imageElement.dataset.fallbackApplied = "true";
+  imageElement.src = buildPlaceholderImage(prompt || "Image unavailable");
+};
+
 const requestGemini = async (signal) => {
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel.value.modelName}:generateContent?key=${encodeURIComponent(
     GEMINI_API_KEY,
@@ -886,6 +1039,50 @@ const sendMessage = async () => {
   await generateAssistantReply();
 };
 
+const generateImageFromComposer = async () => {
+  const prompt = userInput.value.trim();
+  if (!prompt || loading.value) return;
+
+  messages.value.push(createMessage("user", prompt, { model: selectedModel.value }));
+  userInput.value = "";
+  activeController = new AbortController();
+  loading.value = true;
+  const started = Date.now();
+  await scrollToBottom();
+
+  try {
+    const imageReply = await requestGeneratedImage(prompt, activeController.signal);
+    if (!Array.isArray(imageReply.images) || !imageReply.images.length) {
+      throw new Error("Image generation returned no images.");
+    }
+    lastResponseMs.value = Date.now() - started;
+    messages.value.push(
+      createMessage("assistant", imageReply.text || `Generated image for: "${prompt}".`, {
+        model: selectedModel.value,
+        images: imageReply.images,
+        imagePrompt: prompt,
+      }),
+    );
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      showAlert("Image generation stopped.", "error");
+      return;
+    }
+    const errorMessage = String(error?.message || "Unknown error");
+    console.error("image generation error", error);
+    messages.value.push(
+      createMessage("assistant", `Image generation failed.\n\n${errorMessage}`, {
+        model: selectedModel.value,
+        error: true,
+      }),
+    );
+  } finally {
+    loading.value = false;
+    activeController = null;
+    await scrollToBottom();
+  }
+};
+
 const stopGeneration = () => {
   if (activeController) activeController.abort();
 };
@@ -928,6 +1125,15 @@ const exportChat = () => {
     const role = m.role === "user" ? "User" : getModelShortName(m.model || selectedModel.value);
     lines.push(`## ${role} (${formatTime(m.createdAt)})`);
     lines.push(m.text);
+    if (Array.isArray(m.images) && m.images.length) {
+      m.images.forEach((imageUrl, index) => {
+        if (isDataImageUrl(imageUrl)) {
+          lines.push(`[Generated image ${index + 1}] Embedded data URL omitted from export`);
+        } else {
+          lines.push(`![Generated image ${index + 1}](${imageUrl})`);
+        }
+      });
+    }
     lines.push("");
   });
   const blob = new Blob([lines.join("\n")], { type: "text/markdown;charset=utf-8" });
@@ -950,17 +1156,24 @@ const handlePromptKeydown = (event) => {
 };
 
 const saveState = () => {
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify({
-      selectedModel: selectedModel.value,
-      selectedPersona: selectedPersona.value,
-      temperature: temperature.value,
-      maxOutputTokens: maxOutputTokens.value,
-      messages: messages.value.slice(-80),
-      nextId,
-    }),
-  );
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        selectedModel: selectedModel.value,
+        selectedPersona: selectedPersona.value,
+        temperature: temperature.value,
+        maxOutputTokens: maxOutputTokens.value,
+        messages: messages.value.slice(-80).map((message) => ({
+          ...message,
+          images: getPersistableImages(message.images),
+        })),
+        nextId,
+      }),
+    );
+  } catch (error) {
+    console.error("save failed", error);
+  }
 };
 
 const restoreState = () => {
@@ -973,7 +1186,18 @@ const restoreState = () => {
     temperature.value = typeof parsed.temperature === "number" ? parsed.temperature : DEFAULT_TEMPERATURE;
     maxOutputTokens.value = typeof parsed.maxOutputTokens === "number" ? parsed.maxOutputTokens : DEFAULT_MAX_OUTPUT_TOKENS;
     if (Array.isArray(parsed.messages)) {
-      messages.value = parsed.messages.filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.text === "string");
+      messages.value = parsed.messages
+        .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.text === "string")
+        .map((m, index) => ({
+          id: typeof m.id === "number" ? m.id : index + 1,
+          role: m.role,
+          text: m.text,
+          model: typeof m.model === "string" ? m.model : null,
+          error: Boolean(m.error),
+          imagePrompt: typeof m.imagePrompt === "string" ? m.imagePrompt : "",
+          images: getPersistableImages(Array.isArray(m.images) ? m.images : []),
+          createdAt: typeof m.createdAt === "string" ? m.createdAt : new Date().toISOString(),
+        }));
     }
     nextId = typeof parsed.nextId === "number" ? parsed.nextId : Math.max(1, ...messages.value.map((m, i) => (m.id || i) + 1));
     return messages.value.length > 0;
@@ -1397,6 +1621,22 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
+.bubble-media {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.bubble-image {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(13, 79, 66, 0.2);
+  background: #e9f4ef;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
 .typing {
   display: inline-flex;
   gap: 6px;
@@ -1442,8 +1682,14 @@ onUnmounted(() => {
   gap: 12px;
 }
 
+.composer-button-stack {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .composer-model-select {
-  flex: 1 1;
+  flex: 1 1 220px;
   min-width: 180px;
   max-width: 340px;
 }
@@ -1453,6 +1699,10 @@ onUnmounted(() => {
 }
 
 .composer-send-btn {
+  min-width: 120px;
+}
+
+.composer-image-btn {
   min-width: 120px;
 }
 
@@ -1678,6 +1928,10 @@ onUnmounted(() => {
     width: 100%;
   }
 
+  .bubble-media {
+    grid-template-columns: 1fr;
+  }
+
   .chat-head {
     padding: 12px;
   }
@@ -1709,7 +1963,14 @@ onUnmounted(() => {
 
   .composer-actions {
     flex-direction: column;
+    align-items: stretch;
     gap: 10px;
+  }
+
+  .composer-button-stack {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .composer-model-select {
@@ -1718,7 +1979,8 @@ onUnmounted(() => {
     width: 100%;
   }
 
-  .composer-send-btn {
+  .composer-send-btn,
+  .composer-image-btn {
     width: 100%;
   }
 
