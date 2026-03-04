@@ -82,6 +82,16 @@ const projects = ref([
     link: "/projects/dev-utility-hub",
     tags: ["Text Tools", "Encoding", "Generators"],
   },
+  {
+    id: 9,
+    title: "Mindstores",
+    category: "All-in-One Store",
+    description:
+      "Unified toolbox with text case conversion, URL/Base64 encode-decode, secure password generation, and UUID creation.",
+    image: new URL("../assets/project_img/Project-9.svg", import.meta.url).href,
+    link: "",
+    tags: ["Text Tools", "Encoding", "Generators"],
+  },
 ]);
 </script>
 

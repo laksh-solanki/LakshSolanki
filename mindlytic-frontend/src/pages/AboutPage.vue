@@ -277,7 +277,7 @@ import { ref } from "vue";
 import Alerts from "@/components/Alerts.vue";
 import PhotoZoomDialog from "@/components/PhotoZoomDialog.vue";
 import aboutPhoto1 from "@/assets/about_img/about_photo_1.svg";
-import aboutPhoto2 from "@/assets/about_img/about_photo_2.svg";
+import aboutPhoto2 from "@/assets/about_img/about_photo_2.jpg";
 import myPhoto from "@/assets/Picture/my-pic.jpg";
 
 const alertVisible = ref(false);
