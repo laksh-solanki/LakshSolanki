@@ -52,8 +52,8 @@ const routes = [
       {
         path:"mindly_ai",
         name:"mindly_ai",
-        component: () => import("@/pages/Projects/mindly_ai.vue"),
-        meta: { title: "Mindlytic | mindly AI" },
+        component: () => import("@/pages/Projects/mindlytic_ai.vue"),
+        meta: { title: "Mindlytic | mindlytic AI" },
       },
       {
         path: "json-forge",

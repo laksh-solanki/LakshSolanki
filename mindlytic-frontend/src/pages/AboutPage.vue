@@ -49,7 +49,7 @@
                 </div>
               </div>
 
-              <v-img :src="aboutPhoto1" height="210" cover class="rounded-lg mb-4"></v-img>
+              <v-img :src="aboutPhoto1" cover class="rounded-xl mb-4 border-2 border-black"></v-img>
 
               <ul class="hero-points">
                 <li>Vue and Vuetify focused product engineering</li>
@@ -67,7 +67,7 @@
         <div class="section-shell story-panel pa-5 pa-md-8">
           <v-row align="center">
             <v-col cols="12" md="5" class="mb-6 mb-md-0">
-              <v-img :src="aboutPhoto2" height="340" cover class="rounded-xl story-image"></v-img>
+              <v-img :src="aboutPhoto2" cover class="rounded-xl border story-image"></v-img>
             </v-col>
             <v-col cols="12" md="7" class="pl-md-8">
               <p class="section-label mb-2">Mission</p>
@@ -146,7 +146,7 @@
 
         <v-row>
           <v-col cols="12" md="4" lg="3">
-            <v-card class="section-shell dev-profile-card pa-5" rounded="xl" variant="elevated">
+            <v-card class="section-shell dev-profile-card pa-5" height="620" rounded="xl" variant="elevated">
               <PhotoZoomDialog
                 :src="myPhoto"
                 alt="Laksh Solanki"
@@ -502,10 +502,6 @@ const scrollToSubscribe = () => {
   overflow: hidden;
 }
 
-.story-image {
-  border: 1px solid rgba(19, 111, 99, 0.16);
-}
-
 .section-label {
   color: #136f63;
   text-transform: uppercase;
@@ -573,7 +569,7 @@ const scrollToSubscribe = () => {
 }
 
 .profile-merge-wrap {
-  max-width: 1240px;
+  max-width: 1200px;
 }
 
 .dev-profile-card {

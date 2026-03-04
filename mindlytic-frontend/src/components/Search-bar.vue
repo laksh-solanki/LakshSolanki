@@ -671,11 +671,7 @@ kbd {
   .palette-close {
     padding: 4px 7px;
   }
-
-  .palette-close span {
-    display: none;
-  }
-
+  
   .palette-body {
     padding: 12px 12px 10px;
   }

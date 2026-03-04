@@ -165,7 +165,7 @@
                     :disabled="loading || !hasSelectedApiKey"
                     @keydown="handlePromptKeydown"
                   ></v-textarea>
-                  <div class="d-flex align-center justify-between mt-3">
+                  <div class="composer-actions d-flex align-center justify-between mt-3">
                     <v-select
                       v-model="selectedModel"
                       :items="modelSelectItems"
@@ -181,6 +181,7 @@
                     <v-btn
                       :color="loading ? 'error' : 'primary'"
                       rounded="lg"
+                      height="45  "
                       class="text-none composer-send-btn"
                       :prepend-icon="loading ? 'mdi-stop' : 'mdi-send'"
                       :disabled="primaryActionDisabled"
@@ -222,7 +223,7 @@
                       :key="runnerFrameKey"
                       :class="['runner-frame', { 'runner-frame-web': runnerMode === 'web' }]"
                       :srcdoc="runnerSrcdoc"
-                      sandbox="allow-scripts"
+                      sandbox="allow-scripts allow-modals"
                       referrerpolicy="no-referrer"
                     ></iframe>
                   </div>
@@ -468,7 +469,7 @@ const buildWebRunnerDoc = (code, language) => {
 
 const buildConsoleRunnerDoc = (code, language) => {
   if (pythonLanguages.has(language)) {
-    return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{height:100%;margin:0;background:#05080d;color:#d1e7ff;font-family:'JetBrains Mono',Consolas,monospace}#term{height:100%;overflow:auto;padding:14px;white-space:pre-wrap;line-height:1.55}.line-info{color:#75c1ff}.line-error{color:#ff8b8b}.line-result{color:#8ff5b1}.line-log{color:#d1e7ff}</style></head><body><div id="term"></div><script>const term=document.getElementById("term");const write=(text,type="log")=>{const line=document.createElement("div");line.className="line-"+type;line.textContent=String(text??"");term.appendChild(line);term.scrollTop=term.scrollHeight;};const loadScript=(src)=>new Promise((resolve,reject)=>{const script=document.createElement("script");script.src=src;script.onload=resolve;script.onerror=()=>reject(new Error("Failed to load runtime"));document.head.appendChild(script);});(async()=>{write("Loading Python runtime...","info");try{await loadScript("https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.js");const pyodide=await loadPyodide({stdout:(msg)=>write(msg,"log"),stderr:(msg)=>write(msg,"error")});const result=await pyodide.runPythonAsync(${serializeForScript(
+    return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{height:100%;margin:0;background:#05080d;color:#d1e7ff;font-family:'JetBrains Mono',Consolas,monospace}#term{height:100%;overflow:auto;padding:14px;white-space:pre-wrap;line-height:1.55}.line-info{color:#75c1ff}.line-error{color:#ff8b8b}.line-result{color:#8ff5b1}.line-log{color:#d1e7ff}</style></head><body><div id="term"></div><script>const term=document.getElementById("term");const write=(text,type="log")=>{const line=document.createElement("div");line.className="line-"+type;line.textContent=String(text??"");term.appendChild(line);term.scrollTop=term.scrollHeight;};const loadScript=(src)=>new Promise((resolve,reject)=>{const script=document.createElement("script");script.src=src;script.onload=resolve;script.onerror=()=>reject(new Error("Failed to load runtime"));document.head.appendChild(script);});const requestInput=()=>{try{return window.prompt("Python input:")??null;}catch(error){write("input() is unavailable in this runner.","error");return null;}};(async()=>{write("Loading Python runtime...","info");try{await loadScript("https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.js");const pyodide=await loadPyodide({stdout:(msg)=>write(msg,"log"),stderr:(msg)=>write(msg,"error"),stdin:requestInput});if(typeof pyodide.setStdin==="function"){pyodide.setStdin({stdin:requestInput,isatty:true});}const result=await pyodide.runPythonAsync(${serializeForScript(
       code,
     )});if(result!==undefined&&result!==null){write(String(result),"result");}write("Execution completed.","info");}catch(error){write(error?.stack||String(error),"error");}})();<\/script></body></html>`;
   }
@@ -1150,7 +1151,6 @@ onUnmounted(() => {
   z-index: 1200;
   width: 100vw;
   height: 100dvh;
-  min-height: 70vh;
   max-width: none;
   border-radius: 0 !important;
   margin: 0 !important;
@@ -1236,7 +1236,7 @@ onUnmounted(() => {
   flex: 0 0 auto;
   min-width: 320px;
   max-width: 72%;
-  height: 100%;
+  height: 100% !important;
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #eaf7f1, #dff2ea);
@@ -1435,8 +1435,15 @@ onUnmounted(() => {
   background: #f8fcfa;
 }
 
+.composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .composer-model-select {
-  flex: 1 1 220px;
+  flex: 1 1;
   min-width: 180px;
   max-width: 340px;
 }
@@ -1702,7 +1709,7 @@ onUnmounted(() => {
 
   .composer-actions {
     flex-direction: column;
-    align-items: stretch;
+    gap: 10px;
   }
 
   .composer-model-select {
