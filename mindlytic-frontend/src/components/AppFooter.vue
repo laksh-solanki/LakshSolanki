@@ -34,14 +34,14 @@ const socialLinks = [
               :href="social.href"
               target="_blank"
               variant="tonal"
-              color="teal-lighten-3"
+              color="primary"
               size="small"
               :aria-label="social.label"
             ></v-btn>
           </div>
           <div class="meta-chip-wrap">
-            <v-chip color="teal-lighten-4" variant="flat" size="small">Response Time: < 24h</v-chip>
-            <v-chip color="teal-lighten-4" variant="flat" size="small">Timezone: IST</v-chip>
+            <v-chip color="primary" variant="tonal" size="small">Response Time: < 24h</v-chip>
+            <v-chip color="primary" variant="tonal" size="small">Timezone: IST</v-chip>
           </div>
         </v-col>
 
@@ -63,18 +63,15 @@ const socialLinks = [
 
         <v-col id="subscribe-container" cols="12" sm="4" lg="3" class="subscribe-anchor">
           <p class="footer-title">Get Updates</p>
-          <p class="subscribe-note mb-3">
-            Fill this quick form and I will contact you for collaboration updates.
-          </p>
           <EmailRegisterPopup />
         </v-col>
       </v-row>
 
       <div class="footer-bottom mt-8 pt-5 d-flex flex-column flex-md-row align-start align-md-center justify-space-between ga-3">
-        <p class="mb-0 text-caption text-grey-lighten-2">
+        <p class="mb-0 text-caption footer-meta">
           (c) {{ new Date().getFullYear() }} Laksh Solanki. Premium portfolio crafted with Vue and Vuetify.
         </p>
-        <div class="d-flex align-center ga-4 text-caption text-grey-lighten-1">
+        <div class="d-flex align-center ga-4 text-caption footer-meta">
           <span>Built for desktop and mobile</span>
           <span>Version 2.0</span>
         </div>
@@ -86,12 +83,12 @@ const socialLinks = [
 <style scoped>
 .premium-footer {
   position: relative;
-  color: #ecf9f5;
-  border-top: 1px solid rgba(124, 225, 207, 0.24);
+  color: var(--portfolio-ink);
+  border-top: 1px solid rgba(76, 207, 183, 0.18);
   background:
-    radial-gradient(circle at 18% 0%, rgba(37, 161, 140, 0.4), transparent 38%),
-    radial-gradient(circle at 92% 12%, rgba(245, 158, 11, 0.22), transparent 30%),
-    linear-gradient(165deg, #10231f 0%, #0d1f1b 45%, #0a1714 100%);
+    radial-gradient(circle at 18% 0%, rgba(37, 161, 140, 0.24), transparent 38%),
+    radial-gradient(circle at 92% 12%, rgba(245, 158, 11, 0.16), transparent 30%),
+    linear-gradient(165deg, #081312 0%, #06100f 45%, #040b0a 100%);
 }
 
 .cta-band {
@@ -119,30 +116,30 @@ const socialLinks = [
 .footer-title {
   margin-bottom: 10px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--portfolio-ink);
   letter-spacing: 0.02em;
 }
 
 .footer-description {
-  color: #b5cec8;
+  color: var(--portfolio-muted);
   max-width: 44ch;
 }
 
 .footer-link {
-  color: #d9efea;
+  color: var(--portfolio-ink-soft);
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s ease;
 }
 
 .footer-link:hover {
-  color: #7ce1cf;
+  color: var(--portfolio-primary);
 }
 
 .service-list {
   margin: 0;
   padding-left: 18px;
-  color: #cce3de;
+  color: var(--portfolio-muted);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -155,13 +152,33 @@ const socialLinks = [
 }
 
 .footer-bottom {
-  border-top: 1px solid rgba(124, 225, 207, 0.2);
+  border-top: 1px solid rgba(76, 207, 183, 0.16);
 }
 
 .subscribe-note {
-  color: #cce3de;
+  color: var(--portfolio-muted);
   font-size: 0.86rem;
   line-height: 1.45;
+}
+
+.footer-meta {
+  color: var(--portfolio-muted);
+}
+
+.premium-footer :deep(.v-btn--variant-tonal) {
+  background: rgba(76, 207, 183, 0.12);
+  color: var(--portfolio-primary);
+}
+
+.meta-chip-wrap :deep(.v-chip) {
+  border: 1px solid rgba(76, 207, 183, 0.16);
+  background: rgba(76, 207, 183, 0.1);
+  color: var(--portfolio-ink);
+}
+
+.premium-footer :deep(.text-grey-lighten-2),
+.premium-footer :deep(.text-grey-lighten-1) {
+  color: var(--portfolio-muted) !important;
 }
 
 .subscribe-anchor.subscribe-focus {

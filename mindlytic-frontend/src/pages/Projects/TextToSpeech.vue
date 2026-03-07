@@ -818,7 +818,9 @@ onUnmounted(() => {
                   Ctrl/Cmd + Enter to play or stop. Alt + arrows for sentence navigation.
                 </p>
               </div>
-              <v-chip label color="teal-lighten-1" class="font-weight-medium">{{ charsCount }} chars</v-chip>
+              <v-chip label color="primary" variant="tonal" class="font-weight-medium">
+                {{ charsCount }} chars
+              </v-chip>
             </div>
 
             <v-textarea v-model="text" label="Text" variant="outlined" rows="8" auto-grow clearable rounded="lg"
@@ -964,10 +966,15 @@ onUnmounted(() => {
             <h3 class="text-h6 font-weight-bold mb-3">Voice mood styles</h3>
 
             <div class="d-flex flex-wrap ga-2">
-              <v-chip v-for="preset in presets" :key="preset.id"
-                :color="selectedPreset === preset.id ? 'primary' : 'teal-lighten-5'"
-                :variant="selectedPreset === preset.id ? 'flat' : 'flat'" class="preset-chip" label
-                @click="applyPreset(preset)">
+              <v-chip
+                v-for="preset in presets"
+                :key="preset.id"
+                :color="selectedPreset === preset.id ? 'primary' : undefined"
+                :variant="selectedPreset === preset.id ? 'flat' : 'outlined'"
+                class="preset-chip"
+                label
+                @click="applyPreset(preset)"
+              >
                 {{ preset.label }}
               </v-chip>
             </div>

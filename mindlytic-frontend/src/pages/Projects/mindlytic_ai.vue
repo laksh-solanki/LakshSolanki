@@ -8,17 +8,7 @@
           <v-btn @click="goBack" variant="tonal" color="primary" prepend-icon="mdi-arrow-left" rounded="xl" class="text-none">
             Back
           </v-btn>
-          <div class="d-flex align-center ga-2 flex-wrap">
-            <v-chip
-              v-for="model in modelCatalog"
-              :key="model.id"
-              size="small"
-              variant="flat"
-              :color="model.available ? 'teal' : 'grey'"
-            >
-              {{ model.short }}: {{ model.available ? "Ready" : "No key" }}
-            </v-chip>
-          </div>
+          <v-chip size="small" variant="flat" color="primary">Text Chat</v-chip>
         </div>
 
         <v-row align="center" class="ga-0">
@@ -26,7 +16,7 @@
             <p class="hero-kicker mb-2">Mindlytic AI Workspace</p>
             <h1 class="hero-title mb-3">Premium AI Chat Studio</h1>
             <p class="hero-subtitle mb-0">
-              Multi-model chat with richer prompting tools, export, regenerate, stop generation, and markdown/code rendering.
+              Focused AI chat with export, regenerate, stop generation, and markdown/code rendering.
             </p>
           </v-col>
           <v-col cols="12" md="4" class="mt-5 mt-md-0">
@@ -98,9 +88,8 @@
             elevation="0"
           >
             <div class="chat-head">
-              <div class="d-flex align-center ga-2 flex-wrap">
-                <v-chip size="small" color="primary">{{ currentModel.label }}</v-chip>
-                <v-chip size="small" color="teal" variant="outlined">{{ selectedPersonaLabel }}</v-chip>
+              <div class="d-flex align-center ga-1 flex-wrap">
+                <v-chip size="small" color="primary">Mindlytic AI</v-chip>
               </div>
               <div class="chat-head-actions">
                 <v-btn
@@ -127,26 +116,13 @@
                       :key="msg.id"
                       :class="['message-row', msg.role === 'user' ? 'justify-end' : 'justify-start']"
                     >
-                      <div :class="['bubble', msg.role === 'user' ? 'bubble-user' : 'bubble-ai', msg.error ? 'bubble-error' : '']">
-                        <div class="bubble-meta">
-                          <span>{{ msg.role === "user" ? "You" : getModelShortName(msg.model || selectedModel) }}</span>
+                        <div :class="['bubble', msg.role === 'user' ? 'bubble-user' : 'bubble-ai', msg.error ? 'bubble-error' : '']">
+                          <div class="bubble-meta">
+                          <span>{{ msg.role === "user" ? "You" : "Mindlytic AI" }}</span>
                           <span>{{ formatTime(msg.createdAt) }}</span>
-                        </div>
+                          </div>
                         <div v-if="msg.role === 'assistant' && msg.text" class="markdown-body" v-html="parseMessage(msg.text)"></div>
                         <p v-if="msg.role === 'user'" class="mb-0 user-text">{{ replaceEmojiShortcodes(msg.text) }}</p>
-                        <div v-if="Array.isArray(msg.images) && msg.images.length" class="bubble-media">
-                          <v-img
-                            v-for="(imageUrl, imageIndex) in msg.images"
-                            :key="`${msg.id}-image-${imageIndex}`"
-                            :src="imageUrl"
-                            :alt="msg.imagePrompt ? `Generated image: ${msg.imagePrompt}` : `Generated image ${imageIndex + 1}`"
-                            class="bubble-image"
-                            loading="lazy"
-                            :aspect-ratio="1"
-                            cover
-                            @error="handleImageLoadError($event, msg.imagePrompt)"
-                          />
-                        </div>
                         <div v-if="msg.role === 'assistant' && msg.text" class="d-flex justify-end mt-2">
                           <button class="mini-btn" @click.stop="copyMessage(msg.text)">Copy reply</button>
                         </div>
@@ -178,31 +154,8 @@
                     :disabled="loading || !hasSelectedApiKey"
                     @keydown="handlePromptKeydown"
                   ></v-textarea>
-                  <div class="composer-actions d-flex align-center justify-between mt-3">
-                    <v-select
-                      v-model="selectedModel"
-                      :items="modelSelectItems"
-                      item-title="title"
-                      item-value="value"
-                      variant="outlined"
-                      density="comfortable"
-                      rounded="lg"
-                      hide-details
-                      :disabled="loading"
-                      class="composer-model-select"
-                    ></v-select>
+                  <div class="composer-actions d-flex align-center justify-end mt-3">
                     <div class="composer-button-stack">
-                      <v-btn
-                        color="secondary"
-                        variant="tonal"
-                        rounded="lg"
-                        class="text-none composer-image-btn"
-                        prepend-icon="mdi-image-outline"
-                        :disabled="loading || !canGenerateImage"
-                        @click="generateImageFromComposer"
-                      >
-                        Image
-                      </v-btn>
                     <v-btn
                       :color="loading ? 'error' : 'primary'"
                       rounded="lg"
@@ -277,56 +230,19 @@ import "prismjs/components/prism-markup";
 import "prismjs/components/prism-python";
 import "prismjs/components/prism-typescript";
 
-const STORAGE_KEY = "mindlytic_ai_studio_v3";
-
 const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GOOGLE_API_KEY || "").trim();
 const GROQ_API_KEY = (import.meta.env.VITE_GROQ_API_KEY || "").trim();
 const GROQ_API_BASE = (import.meta.env.VITE_GROQ_API_BASE || "https://api.groq.com/openai/v1").trim().replace(/\/+$/, "");
-const GEMINI_IMAGE_MODEL = (import.meta.env.VITE_GEMINI_IMAGE_MODEL || "gemini-2.0-flash-preview-image-generation").trim();
+const STORAGE_KEY = "mindlytic_ai_studio_v4";
+const GEMINI_CHAT_MODEL = (import.meta.env.VITE_GEMINI_CHAT_MODEL || "gemini-2.5-flash").trim();
+const GROQ_CHAT_MODEL = (import.meta.env.VITE_GROQ_CHAT_MODEL || "llama-3.3-70b-versatile").trim();
+const ASSISTANT_LABEL = "Mindlytic AI";
+const ASSISTANT_PERSONA_LABEL = "All in One";
+const ASSISTANT_SYSTEM_PROMPT =
+  "You are Mindlytic AI, an all-in-one assistant. Give practical, structured, and concise answers first, then add implementation details, edge cases, and simple teaching guidance when useful.";
+const REQUEST_TEMPERATURE = 1.5;
+const REQUEST_MAX_OUTPUT_TOKENS = 2000;
 
-const modelCatalog = [
-  {
-    id: "gemini",
-    provider: "gemini",
-    short: "Gemini",
-    label: "Gemini 2.5 Flash",
-    modelName: "gemini-2.5-flash",
-    keyEnv: "VITE_GEMINI_API_KEY",
-    available: Boolean(GEMINI_API_KEY),
-    icon: "mdi-google-circles-communities",
-    description: "Fast reasoning and strong for coding workflows.",
-  },
-  {
-    id: "groq",
-    provider: "groq",
-    short: "Groq",
-    label: "Groq Llama 3.3 70B",
-    modelName: "llama-3.3-70b-versatile",
-    keyEnv: "VITE_GROQ_API_KEY",
-    available: Boolean(GROQ_API_KEY),
-    icon: "mdi-lightning-bolt",
-    description: "Fast Groq inference with strong coding and reasoning quality.",
-  },
-];
-
-const personaOptions = [
-  {
-    id: "all-in-one",
-    label: "All in One",
-    prompt:
-      "You are Mindlytic AI, an all-in-one assistant. Give practical, structured, and concise answers first, then add implementation details, edge cases, and simple teaching guidance when useful.",
-  },
-];
-
-const DEFAULT_TEMPERATURE = 1.5;
-const DEFAULT_MAX_OUTPUT_TOKENS = 2000;
-const DEFAULT_PERSONA = "all-in-one";
-const DEFAULT_MODEL = modelCatalog.find((m) => m.available)?.id || modelCatalog[0].id;
-
-const selectedModel = ref(DEFAULT_MODEL);
-const selectedPersona = ref(DEFAULT_PERSONA);
-const temperature = ref(DEFAULT_TEMPERATURE);
-const maxOutputTokens = ref(DEFAULT_MAX_OUTPUT_TOKENS);
 const userInput = ref("");
 const loading = ref(false);
 const lastResponseMs = ref(0);
@@ -338,8 +254,10 @@ const chatContainer = ref(null);
 const chatShell = ref(null);
 const chatWorkspace = ref(null);
 const viewportWidth = ref(typeof window !== "undefined" ? window.innerWidth : 1280);
+const viewportHeight = ref(typeof window !== "undefined" ? window.innerHeight : 900);
 const isChatFullscreen = ref(false);
 const runnerPanelOpen = ref(false);
+const runnerUsesFullscreen = ref(false);
 const runnerMode = ref("console");
 const runnerLanguageLabel = ref("Code");
 const runnerSrcdoc = ref("");
@@ -355,26 +273,28 @@ const messages = ref([]);
 let nextId = 1;
 let activeController = null;
 
-const currentModel = computed(() => modelCatalog.find((m) => m.id === selectedModel.value) || modelCatalog[0]);
-const modelSelectItems = computed(() =>
-  modelCatalog.map((m) => ({
-    title: m.available ? m.label : `${m.label} (No key)`,
-    value: m.id,
-  })),
-);
-const selectedPersonaData = computed(() => personaOptions.find((p) => p.id === selectedPersona.value) || personaOptions[0]);
-const selectedPersonaLabel = computed(() => selectedPersonaData.value.label);
-const hasSelectedApiKey = computed(() => Boolean(currentModel.value.available));
+const assistantProvider = computed(() => {
+  if (GEMINI_API_KEY) {
+    return { provider: "gemini", modelName: GEMINI_CHAT_MODEL };
+  }
+  if (GROQ_API_KEY) {
+    return { provider: "groq", modelName: GROQ_CHAT_MODEL };
+  }
+  return { provider: "gemini", modelName: GEMINI_CHAT_MODEL };
+});
+const hasSelectedApiKey = computed(() => Boolean(GEMINI_API_KEY || GROQ_API_KEY));
 const composerPlaceholder = computed(() =>
-  hasSelectedApiKey.value ? "Message Mindlytic AI..." : `Set ${currentModel.value.keyEnv} to enable ${currentModel.value.short}`,
+  hasSelectedApiKey.value
+    ? `Message ${ASSISTANT_LABEL}...`
+    : "Set VITE_GEMINI_API_KEY or VITE_GROQ_API_KEY to enable chat",
 );
 const sendDisabled = computed(() => !userInput.value.trim() || !hasSelectedApiKey.value);
-const canGenerateImage = computed(() => Boolean(userInput.value.trim()));
 const primaryActionDisabled = computed(() => (loading.value ? false : sendDisabled.value));
 const canRegenerate = computed(() => messages.value.some((m) => m.role === "user"));
 const userMessageCount = computed(() => messages.value.filter((m) => m.role === "user").length);
 const assistantMessageCount = computed(() => messages.value.filter((m) => m.role === "assistant").length);
 const lastResponseLabel = computed(() => (lastResponseMs.value ? `${(lastResponseMs.value / 1000).toFixed(1)}s` : "--"));
+const isShortScreen = computed(() => viewportWidth.value <= 900 || viewportHeight.value <= 820);
 const isCompactLayout = computed(() => viewportWidth.value <= 900);
 const runnerPanelStyle = computed(() => (isCompactLayout.value ? {} : { width: `${runnerPanelWidth.value}px` }));
 
@@ -389,40 +309,22 @@ const createMessage = (role, text, options = {}) => ({
   id: nextId++,
   role,
   text,
-  model: options.model || null,
   error: Boolean(options.error),
-  images: Array.isArray(options.images) ? options.images.filter((image) => typeof image === "string" && image.trim()) : [],
-  imagePrompt: typeof options.imagePrompt === "string" ? options.imagePrompt : "",
   createdAt: new Date().toISOString(),
 });
 
-const isDataImageUrl = (value = "") => /^data:image\//i.test(String(value || ""));
-const getPersistableImages = (images = []) =>
-  images.filter((image) => typeof image === "string" && image.trim() && !isDataImageUrl(image)).slice(0, 4);
-const escapeXml = (value = "") =>
-  String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-const buildPlaceholderImage = (prompt = "Image unavailable") => {
-  const safePrompt = escapeXml(String(prompt || "Image unavailable").slice(0, 120));
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0f766e"/><stop offset="100%" stop-color="#155e75"/></linearGradient></defs><rect width="1024" height="1024" fill="url(#bg)"/><rect x="44" y="44" width="936" height="936" rx="36" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.26)"/><text x="512" y="470" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="42" fill="#f0fdfa">Image Preview</text><text x="512" y="530" text-anchor="middle" font-family="Segoe UI,Arial,sans-serif" font-size="28" fill="#d1fae5">${safePrompt}</text></svg>`;
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-};
-
 const buildWelcomeText = () => {
-  const available = modelCatalog.filter((m) => m.available).map((m) => m.short);
+  const available = [
+    GEMINI_API_KEY ? "Gemini" : "",
+    GROQ_API_KEY ? "Groq" : "",
+  ].filter(Boolean);
   if (!available.length) {
-    const requiredKeys = [...new Set(modelCatalog.map((m) => m.keyEnv))];
-    return `AI chat is unavailable. Add ${requiredKeys.join(" or ")} in your frontend .env file.`;
+    return "AI chat is unavailable. Add VITE_GEMINI_API_KEY or VITE_GROQ_API_KEY in your frontend .env file.";
   }
-  return `Welcome to Mindlytic AI Studio. Available models: ${available.join(" + ")}.`;
+  return `Welcome to ${ASSISTANT_LABEL}. Configured providers: ${available.join(" + ")}. Text chat uses the first available provider automatically.`;
 };
 
 const formatTime = (iso) => new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-const getModelShortName = (id) => modelCatalog.find((m) => m.id === id)?.short || "Assistant";
 
 const scrollToBottom = async () => {
   await nextTick();
@@ -643,13 +545,26 @@ const startRunnerResize = (event) => {
   window.addEventListener("blur", stopRunnerResize);
 };
 
-const closeCodeRunner = () => {
+const closeCodeRunner = async () => {
   stopRunnerResize();
   runnerPanelOpen.value = false;
+  if (runnerUsesFullscreen.value && document.fullscreenElement) {
+    try {
+      await document.exitFullscreen();
+    } catch (error) {
+      console.error("fullscreen exit failed", error);
+    } finally {
+      isChatFullscreen.value = false;
+      runnerUsesFullscreen.value = false;
+    }
+    return;
+  }
+  runnerUsesFullscreen.value = false;
 };
 
 const handleWindowResize = () => {
   viewportWidth.value = window.innerWidth;
+  viewportHeight.value = window.innerHeight;
   if (isCompactLayout.value) {
     stopRunnerResize();
     return;
@@ -673,28 +588,41 @@ const setRunnerMode = (mode) => {
   renderRunnerDocument(mode);
 };
 
+const getNativeFullscreenTarget = () =>
+  typeof document !== "undefined" ? document.documentElement : null;
+
 const enterChatFullscreen = async () => {
-  const shell = chatShell.value;
-  if (!shell) return;
-  if (document.fullscreenElement === shell) {
+  const target = getNativeFullscreenTarget();
+  if (!target) return false;
+  if (document.fullscreenElement === target) {
     isChatFullscreen.value = true;
-    return;
+    return true;
   }
   if (supportsNativeFullscreen()) {
     try {
-      await shell.requestFullscreen();
-      return;
+      await target.requestFullscreen();
+      return document.fullscreenElement === target;
     } catch (error) {
       console.error("fullscreen entry failed", error);
+      return false;
     }
   }
-  isChatFullscreen.value = true;
+  return false;
 };
 
 const openCodeRunner = async (code, language) => {
   const safeLanguage = normalizeCodeLanguage(language);
+  runnerUsesFullscreen.value = false;
 
-  await enterChatFullscreen();
+  if (isShortScreen.value) {
+    const enteredFullscreen = await enterChatFullscreen();
+    if (!enteredFullscreen) {
+      showAlert("Code runner opens in fullscreen on short screens.", "error");
+      return;
+    }
+    runnerUsesFullscreen.value = true;
+  }
+
   runnerLanguageLabel.value = (language || safeLanguage || "Code").toUpperCase();
   runnerCodeRaw.value = code;
   runnerCodeLanguage.value = safeLanguage;
@@ -737,33 +665,36 @@ const supportsNativeFullscreen = () =>
   Boolean(
     typeof document !== "undefined" &&
       document.fullscreenEnabled &&
-      chatShell.value &&
-      typeof chatShell.value.requestFullscreen === "function",
+      getNativeFullscreenTarget() &&
+      typeof getNativeFullscreenTarget().requestFullscreen === "function",
   );
 
 const handleFullscreenChange = () => {
-  if (!chatShell.value) return;
-  isChatFullscreen.value = document.fullscreenElement === chatShell.value;
+  isChatFullscreen.value = Boolean(document.fullscreenElement);
+  if (runnerUsesFullscreen.value && runnerPanelOpen.value && !document.fullscreenElement) {
+    runnerPanelOpen.value = false;
+    runnerUsesFullscreen.value = false;
+  }
   runnerPanelWidth.value = clampRunnerPanelWidth(runnerPanelWidth.value);
   scrollToBottom();
 };
 
 const handleGlobalKeydown = (event) => {
-  if (event.key === "Escape" && isChatFullscreen.value && document.fullscreenElement !== chatShell.value) {
+  if (event.key === "Escape" && isChatFullscreen.value && !document.fullscreenElement) {
     isChatFullscreen.value = false;
   }
 };
 
 const toggleChatFullscreen = async () => {
-  const shell = chatShell.value;
-  if (!shell) return;
+  const target = getNativeFullscreenTarget();
+  if (!target) return;
 
   if (supportsNativeFullscreen()) {
     try {
-      if (document.fullscreenElement === shell) {
+      if (document.fullscreenElement === target) {
         await document.exitFullscreen();
       } else {
-        await shell.requestFullscreen();
+        await target.requestFullscreen();
       }
       return;
     } catch (error) {
@@ -789,116 +720,8 @@ const readApiError = async (response) => {
   }
 };
 
-const extractGeminiImagePayload = (responseData) => {
-  const parts = responseData?.candidates?.[0]?.content?.parts || [];
-  const images = [];
-  const textChunks = [];
-
-  parts.forEach((part) => {
-    if (typeof part?.text === "string" && part.text.trim()) {
-      textChunks.push(part.text.trim());
-    }
-    const bytes = part?.inlineData?.data;
-    const mimeType = part?.inlineData?.mimeType || "";
-    if (bytes && /^image\//i.test(mimeType)) {
-      images.push(`data:${mimeType};base64,${bytes}`);
-    }
-  });
-
-  return { images, text: textChunks.join("\n").trim() };
-};
-
-const requestGeminiImageWithModel = async (prompt, signal, modelName) => {
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    signal,
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: selectedPersonaData.value.prompt }] },
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: `Generate a high-quality image for this prompt:\n${prompt}` }],
-        },
-      ],
-      generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
-    }),
-  });
-
-  if (!response.ok) throw new Error(await readApiError(response));
-  const data = await response.json();
-  const payload = extractGeminiImagePayload(data);
-  if (!payload.images.length) {
-    throw new Error("Gemini image model returned no image data.");
-  }
-  return payload;
-};
-
-const requestGeminiImage = async (prompt, signal) => {
-  if (!GEMINI_API_KEY) {
-    throw new Error("Gemini API key is not configured.");
-  }
-
-  const candidateModels = [
-    GEMINI_IMAGE_MODEL,
-    currentModel.value.provider === "gemini" ? currentModel.value.modelName : "",
-    "gemini-2.0-flash-preview-image-generation",
-    "gemini-2.0-flash-exp-image-generation",
-    "gemini-2.5-flash-image-preview",
-  ].filter(Boolean);
-
-  let lastError = null;
-  for (const modelName of [...new Set(candidateModels)]) {
-    try {
-      return await requestGeminiImageWithModel(prompt, signal, modelName);
-    } catch (error) {
-      lastError = error;
-      console.warn(`gemini image generation failed for model ${modelName}`, error);
-    }
-  }
-
-  throw lastError || new Error("Gemini image generation failed for all configured models.");
-};
-
-const requestFallbackImage = async (prompt, reason = "") => {
-  const fallbackText = reason
-    ? `AI image generation is unavailable right now. Showing a local preview.\n\n${reason}`
-    : `Generated preview for: "${prompt}".`;
-  return {
-    images: [buildPlaceholderImage(prompt)],
-    text: fallbackText,
-  };
-};
-
-const requestGeneratedImage = async (prompt, signal) => {
-  if (GEMINI_API_KEY) {
-    try {
-      return await requestGeminiImage(prompt, signal);
-    } catch (error) {
-      const errorMessage = String(error?.message || "Unknown image generation error");
-      console.warn("gemini image generation failed, using local preview fallback", error);
-      return requestFallbackImage(prompt, errorMessage);
-    }
-  }
-  return requestFallbackImage(prompt, "Gemini API key is missing.");
-};
-
-const handleImageLoadError = (event, prompt = "") => {
-  const imageElement =
-    event?.target instanceof HTMLImageElement
-      ? event.target
-      : event?.target?.querySelector instanceof Function
-        ? event.target.querySelector("img")
-        : null;
-  if (!imageElement) return;
-  if (imageElement.dataset.fallbackApplied === "true") return;
-  imageElement.dataset.fallbackApplied = "true";
-  imageElement.src = buildPlaceholderImage(prompt || "Image unavailable");
-};
-
 const requestGemini = async (signal) => {
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel.value.modelName}:generateContent?key=${encodeURIComponent(
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${assistantProvider.value.modelName}:generateContent?key=${encodeURIComponent(
     GEMINI_API_KEY,
   )}`;
   const response = await fetch(endpoint, {
@@ -906,9 +729,9 @@ const requestGemini = async (signal) => {
     headers: { "Content-Type": "application/json" },
     signal,
     body: JSON.stringify({
-      system_instruction: { parts: [{ text: selectedPersonaData.value.prompt }] },
+      system_instruction: { parts: [{ text: ASSISTANT_SYSTEM_PROMPT }] },
       contents: buildGeminiHistory(),
-      generationConfig: { temperature: temperature.value, maxOutputTokens: maxOutputTokens.value },
+      generationConfig: { temperature: REQUEST_TEMPERATURE, maxOutputTokens: REQUEST_MAX_OUTPUT_TOKENS },
     }),
   });
   if (!response.ok) throw new Error(await readApiError(response));
@@ -934,10 +757,10 @@ const requestGroq = async (signal) => {
       },
       signal,
       body: JSON.stringify({
-        model: currentModel.value.modelName,
+        model: assistantProvider.value.modelName,
         messages: buildGroqMessages(),
-        temperature: temperature.value,
-        max_tokens: maxOutputTokens.value,
+        temperature: REQUEST_TEMPERATURE,
+        max_tokens: REQUEST_MAX_OUTPUT_TOKENS,
         stream: false,
       }),
     });
@@ -976,19 +799,19 @@ const requestGroq = async (signal) => {
 };
 
 const buildGroqMessages = () => [
-  { role: "system", content: selectedPersonaData.value.prompt },
+  { role: "system", content: ASSISTANT_SYSTEM_PROMPT },
   ...buildConversationHistory().map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text })),
 ];
 
 const requestAssistantReply = async (signal) => {
-  if (currentModel.value.provider === "gemini") return requestGemini(signal);
-  if (currentModel.value.provider === "groq") return requestGroq(signal);
-  throw new Error(`Unsupported provider: ${currentModel.value.provider}`);
+  if (assistantProvider.value.provider === "gemini") return requestGemini(signal);
+  if (assistantProvider.value.provider === "groq") return requestGroq(signal);
+  throw new Error(`Unsupported provider: ${assistantProvider.value.provider}`);
 };
 
 const generateAssistantReply = async () => {
   if (!hasSelectedApiKey.value) {
-    showAlert("Missing API key for selected model.", "error");
+    showAlert("Missing API key for AI chat.", "error");
     return;
   }
   activeController = new AbortController();
@@ -998,7 +821,7 @@ const generateAssistantReply = async () => {
   try {
     const reply = await requestAssistantReply(activeController.signal);
     lastResponseMs.value = Date.now() - started;
-    messages.value.push(createMessage("assistant", reply, { model: selectedModel.value }));
+    messages.value.push(createMessage("assistant", reply));
   } catch (error) {
     if (error?.name === "AbortError") {
       showAlert("Generation stopped.", "error");
@@ -1023,7 +846,7 @@ const generateAssistantReply = async () => {
       userFriendlyMessage = `Sorry, an error occurred.\n\n${errorMessage}`;
     }
 
-    messages.value.push(createMessage("assistant", userFriendlyMessage, { model: selectedModel.value, error: true }));
+    messages.value.push(createMessage("assistant", userFriendlyMessage, { error: true }));
   } finally {
     loading.value = false;
     activeController = null;
@@ -1034,53 +857,9 @@ const generateAssistantReply = async () => {
 const sendMessage = async () => {
   const prompt = userInput.value.trim();
   if (!prompt || loading.value) return;
-  messages.value.push(createMessage("user", prompt, { model: selectedModel.value }));
+  messages.value.push(createMessage("user", prompt));
   userInput.value = "";
   await generateAssistantReply();
-};
-
-const generateImageFromComposer = async () => {
-  const prompt = userInput.value.trim();
-  if (!prompt || loading.value) return;
-
-  messages.value.push(createMessage("user", prompt, { model: selectedModel.value }));
-  userInput.value = "";
-  activeController = new AbortController();
-  loading.value = true;
-  const started = Date.now();
-  await scrollToBottom();
-
-  try {
-    const imageReply = await requestGeneratedImage(prompt, activeController.signal);
-    if (!Array.isArray(imageReply.images) || !imageReply.images.length) {
-      throw new Error("Image generation returned no images.");
-    }
-    lastResponseMs.value = Date.now() - started;
-    messages.value.push(
-      createMessage("assistant", imageReply.text || `Generated image for: "${prompt}".`, {
-        model: selectedModel.value,
-        images: imageReply.images,
-        imagePrompt: prompt,
-      }),
-    );
-  } catch (error) {
-    if (error?.name === "AbortError") {
-      showAlert("Image generation stopped.", "error");
-      return;
-    }
-    const errorMessage = String(error?.message || "Unknown error");
-    console.error("image generation error", error);
-    messages.value.push(
-      createMessage("assistant", `Image generation failed.\n\n${errorMessage}`, {
-        model: selectedModel.value,
-        error: true,
-      }),
-    );
-  } finally {
-    loading.value = false;
-    activeController = null;
-    await scrollToBottom();
-  }
 };
 
 const stopGeneration = () => {
@@ -1097,7 +876,7 @@ const handlePrimaryAction = () => {
 
 const resetChat = () => {
   stopGeneration();
-  messages.value = [createMessage("assistant", buildWelcomeText(), { model: selectedModel.value })];
+  messages.value = [createMessage("assistant", buildWelcomeText())];
   showAlert("New chat started.");
   scrollToBottom();
 };
@@ -1117,23 +896,14 @@ const exportChat = () => {
   const lines = [
     "# Mindlytic AI Studio Export",
     `- Exported: ${new Date().toISOString()}`,
-    `- Model: ${currentModel.value.label}`,
-    `- Persona: ${selectedPersonaLabel.value}`,
+    `- Assistant: ${ASSISTANT_LABEL}`,
+    `- Persona: ${ASSISTANT_PERSONA_LABEL}`,
     "",
   ];
   messages.value.forEach((m) => {
-    const role = m.role === "user" ? "User" : getModelShortName(m.model || selectedModel.value);
+    const role = m.role === "user" ? "User" : ASSISTANT_LABEL;
     lines.push(`## ${role} (${formatTime(m.createdAt)})`);
     lines.push(m.text);
-    if (Array.isArray(m.images) && m.images.length) {
-      m.images.forEach((imageUrl, index) => {
-        if (isDataImageUrl(imageUrl)) {
-          lines.push(`[Generated image ${index + 1}] Embedded data URL omitted from export`);
-        } else {
-          lines.push(`![Generated image ${index + 1}](${imageUrl})`);
-        }
-      });
-    }
     lines.push("");
   });
   const blob = new Blob([lines.join("\n")], { type: "text/markdown;charset=utf-8" });
@@ -1160,14 +930,7 @@ const saveState = () => {
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
-        selectedModel: selectedModel.value,
-        selectedPersona: selectedPersona.value,
-        temperature: temperature.value,
-        maxOutputTokens: maxOutputTokens.value,
-        messages: messages.value.slice(-80).map((message) => ({
-          ...message,
-          images: getPersistableImages(message.images),
-        })),
+        messages: messages.value.slice(-80),
         nextId,
       }),
     );
@@ -1181,10 +944,6 @@ const restoreState = () => {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return false;
     const parsed = JSON.parse(raw);
-    selectedModel.value = modelCatalog.some((m) => m.id === parsed.selectedModel) ? parsed.selectedModel : DEFAULT_MODEL;
-    selectedPersona.value = personaOptions.some((p) => p.id === parsed.selectedPersona) ? parsed.selectedPersona : DEFAULT_PERSONA;
-    temperature.value = typeof parsed.temperature === "number" ? parsed.temperature : DEFAULT_TEMPERATURE;
-    maxOutputTokens.value = typeof parsed.maxOutputTokens === "number" ? parsed.maxOutputTokens : DEFAULT_MAX_OUTPUT_TOKENS;
     if (Array.isArray(parsed.messages)) {
       messages.value = parsed.messages
         .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.text === "string")
@@ -1192,10 +951,7 @@ const restoreState = () => {
           id: typeof m.id === "number" ? m.id : index + 1,
           role: m.role,
           text: m.text,
-          model: typeof m.model === "string" ? m.model : null,
           error: Boolean(m.error),
-          imagePrompt: typeof m.imagePrompt === "string" ? m.imagePrompt : "",
-          images: getPersistableImages(Array.isArray(m.images) ? m.images : []),
           createdAt: typeof m.createdAt === "string" ? m.createdAt : new Date().toISOString(),
         }));
     }
@@ -1220,10 +976,16 @@ watch(isCompactLayout, (compact) => {
   runnerPanelWidth.value = clampRunnerPanelWidth(runnerPanelWidth.value);
 });
 
-watch([messages, selectedModel, selectedPersona, temperature, maxOutputTokens], saveState, { deep: true });
+watch(isShortScreen, (shortScreen) => {
+  if (shortScreen && runnerPanelOpen.value && !runnerUsesFullscreen.value) {
+    closeCodeRunner();
+  }
+});
+
+watch(messages, saveState, { deep: true });
 
 onMounted(async () => {
-  if (!restoreState()) messages.value = [createMessage("assistant", buildWelcomeText(), { model: selectedModel.value })];
+  if (!restoreState()) messages.value = [createMessage("assistant", buildWelcomeText())];
   document.addEventListener("fullscreenchange", handleFullscreenChange);
   window.addEventListener("keydown", handleGlobalKeydown);
   window.addEventListener("resize", handleWindowResize);
@@ -1236,7 +998,7 @@ onUnmounted(() => {
   window.removeEventListener("keydown", handleGlobalKeydown);
   window.removeEventListener("resize", handleWindowResize);
   stopRunnerResize();
-  if (document.fullscreenElement === chatShell.value) {
+  if (isChatFullscreen.value && document.fullscreenElement) {
     document.exitFullscreen().catch(() => {});
   }
   isChatFullscreen.value = false;
@@ -1258,15 +1020,18 @@ onUnmounted(() => {
 }
 
 .hero-shell {
-  border-bottom: 1px solid rgba(13, 79, 66, 0.14);
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.92), rgba(235, 247, 241, 0.88));
+  border-bottom: 1px solid rgba(76, 207, 183, 0.12);
+  background:
+    radial-gradient(circle at 12% 10%, rgba(41, 127, 108, 0.2), transparent 28%),
+    radial-gradient(circle at 88% 14%, rgba(242, 180, 80, 0.12), transparent 24%),
+    linear-gradient(152deg, rgba(15, 34, 30, 0.96), rgba(7, 18, 16, 0.94));
 }
 
 .hero-kicker {
   font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #147a66;
+  color: var(--portfolio-primary);
   font-weight: 700;
 }
 
@@ -1274,11 +1039,11 @@ onUnmounted(() => {
   font-size: clamp(2rem, 3.2vw, 3rem);
   line-height: 1.05;
   letter-spacing: -0.03em;
-  color: #11362e;
+  color: var(--portfolio-ink);
 }
 
 .hero-subtitle {
-  color: #47635c;
+  color: var(--portfolio-muted);
   line-height: 1.7;
 }
 
@@ -1289,9 +1054,9 @@ onUnmounted(() => {
 }
 
 .stat-card {
-  border: 1px solid rgba(13, 79, 66, 0.18);
+  border: 1px solid rgba(76, 207, 183, 0.14);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(10, 24, 22, 0.8);
   padding: 10px 8px;
   text-align: center;
 }
@@ -1300,12 +1065,13 @@ onUnmounted(() => {
   display: block;
   font-size: 1rem;
   font-weight: 700;
+  color: var(--portfolio-ink);
 }
 
 .stat-label {
   display: block;
   font-size: 0.72rem;
-  color: #607972;
+  color: var(--portfolio-muted);
 }
 
 .panel {
@@ -1408,22 +1174,31 @@ onUnmounted(() => {
 }
 
 .chat-shell-compact.chat-shell-runner-open .chat-workspace {
-  flex-direction: column;
+  display: block;
+  height: 100%;
 }
 
 .chat-shell-compact.chat-shell-runner-open .chat-head,
 .chat-shell-compact.chat-shell-runner-open .chat-main {
-  transform: none;
+  display: none;
+}
+
+.chat-shell-compact.chat-shell-runner-open .runner-divider {
+  display: none;
 }
 
 .chat-shell-compact.chat-shell-runner-open .runner-panel {
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  flex: 0 0 min(46dvh, 420px);
-  height: min(46dvh, 420px);
-  border-top: 1px solid rgba(13, 79, 66, 0.2);
-  box-shadow: 0 -8px 18px rgba(5, 24, 20, 0.16);
+  height: 100% !important;
+  flex: 1 1 auto;
+  border-top: none;
+  box-shadow: none;
+}
+
+.chat-shell-compact.chat-shell-runner-open .runner-panel-body {
+  height: 100%;
 }
 
 .runner-divider {
@@ -1621,22 +1396,6 @@ onUnmounted(() => {
   cursor: pointer;
 }
 
-.bubble-media {
-  margin-top: 10px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.bubble-image {
-  width: 100%;
-  border-radius: 10px;
-  border: 1px solid rgba(13, 79, 66, 0.2);
-  background: #e9f4ef;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-}
-
 .typing {
   display: inline-flex;
   gap: 6px;
@@ -1688,21 +1447,7 @@ onUnmounted(() => {
   gap: 10px;
 }
 
-.composer-model-select {
-  flex: 1 1 220px;
-  min-width: 180px;
-  max-width: 340px;
-}
-
-.composer-model-select :deep(.v-field) {
-  background: #ffffff;
-}
-
 .composer-send-btn {
-  min-width: 120px;
-}
-
-.composer-image-btn {
   min-width: 120px;
 }
 
@@ -1928,10 +1673,6 @@ onUnmounted(() => {
     width: 100%;
   }
 
-  .bubble-media {
-    grid-template-columns: 1fr;
-  }
-
   .chat-head {
     padding: 12px;
   }
@@ -1973,14 +1714,7 @@ onUnmounted(() => {
     align-items: stretch;
   }
 
-  .composer-model-select {
-    min-width: 0;
-    max-width: none;
-    width: 100%;
-  }
-
-  .composer-send-btn,
-  .composer-image-btn {
+  .composer-send-btn {
     width: 100%;
   }
 
@@ -2020,6 +1754,33 @@ onUnmounted(() => {
   .chat-shell-runner-open .chat-head,
   .chat-shell-runner-open .chat-main {
     transform: none;
+  }
+}
+
+@media (max-height: 820px) {
+  .chat-shell-fullscreen.chat-shell-runner-open .chat-head,
+  .chat-shell-fullscreen.chat-shell-runner-open .chat-main,
+  .chat-shell-fullscreen.chat-shell-runner-open .runner-divider {
+    display: none;
+  }
+
+  .chat-shell-fullscreen.chat-shell-runner-open .chat-workspace {
+    display: block;
+    height: 100%;
+  }
+
+  .chat-shell-fullscreen.chat-shell-runner-open .runner-panel {
+    width: 100% !important;
+    min-width: 0;
+    max-width: 100%;
+    height: 100% !important;
+    flex: 1 1 auto;
+    box-shadow: none;
+    border-top: none;
+  }
+
+  .chat-shell-fullscreen.chat-shell-runner-open .runner-panel-body {
+    height: 100%;
   }
 }
 </style>

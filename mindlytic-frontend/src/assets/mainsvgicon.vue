@@ -55,11 +55,11 @@ const wordSize = computed(() => `${Math.max(18, Math.round(props.size * 0.52))}p
   font-weight: 800;
   letter-spacing: -0.03em;
   font-family: "Space Grotesk", "Segoe UI", sans-serif;
-  color: #10231f;
+  color: var(--portfolio-ink);
 }
 
 .accent {
-  color: #136f63;
+  color: var(--portfolio-primary);
 }
 
 .variant-inverse .brand-name {

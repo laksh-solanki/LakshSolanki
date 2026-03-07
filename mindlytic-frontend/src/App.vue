@@ -27,18 +27,19 @@ onMounted(() => {
 /* Consistent scrollbar styling across portfolio pages */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #ecf1eb;
+  background: rgba(6, 17, 16, 0.92);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c7d2cc;
+  background: rgba(76, 207, 183, 0.28);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca8a2;
+  background: rgba(76, 207, 183, 0.46);
 }
 </style>

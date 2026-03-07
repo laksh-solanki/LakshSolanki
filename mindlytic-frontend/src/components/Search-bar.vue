@@ -396,22 +396,23 @@ onUnmounted(() => {
 .search-trigger {
   min-width: 195px;
   justify-content: space-between;
-  border-color: color-mix(in srgb, var(--portfolio-primary) 34%, white 66%);
-  background: color-mix(in srgb, white 80%, #ebf6f2 20%);
+  border-color: rgba(76, 207, 183, 0.24);
+  background: rgba(8, 21, 19, 0.82);
+  color: var(--portfolio-ink);
 }
 
 .search-trigger__label {
   font-weight: 600;
-  color: color-mix(in srgb, var(--portfolio-muted) 78%, black 22%);
+  color: var(--portfolio-ink-soft);
 }
 
 .search-trigger__kbd {
   font-size: 0.72rem;
-  border: 1px solid color-mix(in srgb, var(--portfolio-stroke) 88%, #92b7ad 12%);
+  border: 1px solid rgba(76, 207, 183, 0.18);
   border-radius: 8px;
   padding: 2px 7px;
   color: var(--portfolio-muted);
-  background: white;
+  background: rgba(10, 24, 22, 0.94);
 }
 
 .search-trigger--compact {
@@ -420,9 +421,9 @@ onUnmounted(() => {
 
 .palette-shell {
   border-radius: 22px;
-  border: 1px solid color-mix(in srgb, var(--portfolio-primary) 18%, white 82%);
-  background: color-mix(in srgb, var(--portfolio-surface) 90%, #f0f7f3 10%);
-  box-shadow: 0 26px 70px rgba(16, 35, 31, 0.22);
+  border: 1px solid rgba(76, 207, 183, 0.18);
+  background: linear-gradient(165deg, rgba(18, 38, 35, 0.98), rgba(8, 20, 18, 0.98));
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.36);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -433,9 +434,9 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid color-mix(in srgb, var(--portfolio-stroke) 80%, white 20%);
+  border-bottom: 1px solid rgba(76, 207, 183, 0.14);
   padding: 14px 18px;
-  background: linear-gradient(165deg, #ffffff, #edf8f3);
+  background: linear-gradient(165deg, rgba(20, 41, 37, 0.98), rgba(10, 24, 22, 0.98));
 }
 
 .palette-head__icon {
@@ -453,13 +454,13 @@ onUnmounted(() => {
 }
 
 .palette-input::placeholder {
-  color: color-mix(in srgb, var(--portfolio-muted) 70%, white 30%);
+  color: var(--portfolio-muted);
 }
 
 .palette-close {
-  border: 1px solid color-mix(in srgb, var(--portfolio-stroke) 82%, #9cc2b8 18%);
-  background: white;
-  color: var(--portfolio-muted);
+  border: 1px solid rgba(76, 207, 183, 0.16);
+  background: rgba(10, 24, 22, 0.94);
+  color: var(--portfolio-ink-soft);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -471,11 +472,11 @@ onUnmounted(() => {
 }
 
 .palette-close kbd {
-  border: 1px solid color-mix(in srgb, var(--portfolio-stroke) 85%, #93b8ae 15%);
+  border: 1px solid rgba(76, 207, 183, 0.16);
   border-radius: 6px;
   display: flex;
   padding: 1px 5px;
-  background: #f8fbf9;
+  background: rgba(7, 18, 16, 0.96);
 }
 
 .palette-body {
@@ -492,7 +493,7 @@ onUnmounted(() => {
   font-size: 0.74rem;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--portfolio-muted) 76%, white 24%);
+  color: var(--portfolio-muted);
   font-weight: 800;
 }
 
@@ -503,8 +504,8 @@ onUnmounted(() => {
 }
 
 .quick-card {
-  border: 1px solid color-mix(in srgb, var(--portfolio-stroke) 80%, white 20%);
-  background: #ffffff;
+  border: 1px solid rgba(76, 207, 183, 0.12);
+  background: rgba(10, 24, 22, 0.86);
   color: var(--portfolio-ink);
   border-radius: 12px;
   padding: 10px 12px;
@@ -518,9 +519,9 @@ onUnmounted(() => {
 }
 
 .quick-card:hover {
-  border-color: color-mix(in srgb, var(--portfolio-primary) 56%, white 44%);
+  border-color: rgba(76, 207, 183, 0.3);
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(16, 35, 31, 0.09);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .suggestion-list {
@@ -530,9 +531,9 @@ onUnmounted(() => {
 }
 
 .suggestion-chip {
-  border: 1px solid color-mix(in srgb, var(--portfolio-stroke) 78%, #9ec6ba 22%);
-  background: color-mix(in srgb, #ecf7f2 78%, white 22%);
-  color: #2a4c46;
+  border: 1px solid rgba(76, 207, 183, 0.16);
+  background: rgba(76, 207, 183, 0.08);
+  color: var(--portfolio-ink-soft);
   border-radius: 999px;
   padding: 6px 11px;
   font-size: 0.78rem;
@@ -565,7 +566,7 @@ onUnmounted(() => {
   border-radius: 10px;
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--portfolio-primary) 11%, white 89%);
+  background: rgba(76, 207, 183, 0.12);
   color: var(--portfolio-primary);
 }
 
@@ -587,24 +588,24 @@ onUnmounted(() => {
 
 .search-hit__route {
   font-size: 0.73rem;
-  color: color-mix(in srgb, var(--portfolio-muted) 74%, white 26%);
+  color: var(--portfolio-muted);
   padding-left: 8px;
 }
 
 .search-hit:hover,
 .search-hit.is-active {
-  border-color: color-mix(in srgb, var(--portfolio-primary) 42%, white 58%);
+  border-color: rgba(76, 207, 183, 0.28);
   background: linear-gradient(
     128deg,
-    rgba(19, 111, 99, 0.12),
-    rgba(31, 143, 127, 0.04)
+    rgba(76, 207, 183, 0.14),
+    rgba(39, 170, 149, 0.05)
   );
 }
 
 .empty-state {
   min-height: 220px;
   border-radius: 14px;
-  border: 1px dashed color-mix(in srgb, var(--portfolio-stroke) 82%, white 18%);
+  border: 1px dashed rgba(76, 207, 183, 0.18);
   display: grid;
   place-content: center;
   justify-items: center;
@@ -614,8 +615,8 @@ onUnmounted(() => {
 }
 
 .palette-foot {
-  border-top: 1px solid color-mix(in srgb, var(--portfolio-stroke) 80%, white 20%);
-  background: color-mix(in srgb, #f2f8f5 70%, white 30%);
+  border-top: 1px solid rgba(76, 207, 183, 0.14);
+  background: rgba(7, 18, 16, 0.88);
   color: var(--portfolio-muted);
   padding: 10px 16px;
   display: flex;
@@ -633,10 +634,10 @@ onUnmounted(() => {
 }
 
 kbd {
-  border: 1px solid color-mix(in srgb, var(--portfolio-stroke) 85%, #93b9af 15%);
+  border: 1px solid rgba(76, 207, 183, 0.16);
   border-radius: 6px;
   padding: 2px 6px;
-  background: white;
+  background: rgba(7, 18, 16, 0.96);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -648,12 +649,12 @@ kbd {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(19, 111, 99, 0.25);
+  background: rgba(76, 207, 183, 0.3);
   border-radius: 999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(19, 111, 99, 0.4);
+  background: rgba(76, 207, 183, 0.46);
 }
 
 @media (max-width: 600px) {

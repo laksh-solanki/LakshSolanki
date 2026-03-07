@@ -127,22 +127,22 @@ const scrollToSubscribe = async () => {
 .portfolio-header {
   position: sticky;
   top: 0;
-  backdrop-filter: blur(12px);
-  background: rgba(243, 247, 242, 0.82) !important;
-  border-bottom: 1px solid rgba(19, 111, 99, 0.14);
-  box-shadow: 0 8px 24px rgba(19, 111, 99, 0.08);
+  backdrop-filter: blur(14px);
+  background: rgba(5, 16, 15, 0.82) !important;
+  border-bottom: 1px solid rgba(76, 207, 183, 0.12);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
 }
 
 .nav-cluster {
   padding: 6px;
   border-radius: 18px;
-  border: 1px solid rgba(19, 111, 99, 0.2);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(243, 247, 242, 0.9));
-  box-shadow: 0 10px 24px rgba(19, 111, 99, 0.08);
+  border: 1px solid rgba(76, 207, 183, 0.14);
+  background: linear-gradient(180deg, rgba(16, 33, 30, 0.96), rgba(8, 20, 18, 0.9));
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
 }
 
 .nav-link {
-  color: #24443e;
+  color: var(--portfolio-ink-soft);
   font-weight: 600;
   font-size: 0.86rem;
   letter-spacing: 0.01em;
@@ -162,8 +162,8 @@ const scrollToSubscribe = async () => {
 
 .nav-link:hover {
   transform: translateY(-1px);
-  background: rgba(19, 111, 99, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(19, 111, 99, 0.14);
+  background: rgba(76, 207, 183, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(76, 207, 183, 0.14);
 }
 
 .nav-link:hover .nav-link-icon {
@@ -172,9 +172,9 @@ const scrollToSubscribe = async () => {
 }
 
 .nav-link.is-active {
-  color: white;
-  background: linear-gradient(145deg, #136f63, #1f8f7f);
-  box-shadow: 0 8px 18px rgba(19, 111, 99, 0.28);
+  color: #04100e;
+  background: linear-gradient(145deg, var(--portfolio-primary), #28b79f);
+  box-shadow: 0 8px 18px rgba(76, 207, 183, 0.24);
 }
 
 .nav-link.is-active .nav-link-icon {
@@ -187,8 +187,9 @@ const scrollToSubscribe = async () => {
 
 .mobile-drawer :deep(.v-navigation-drawer__content) {
   background:
-    radial-gradient(circle at 15% -15%, rgba(102, 209, 177, 0.25), transparent 45%),
-    linear-gradient(180deg, #f8fdfb 0%, #eef6f2 100%);
+    radial-gradient(circle at 15% -15%, rgba(76, 207, 183, 0.22), transparent 45%),
+    linear-gradient(180deg, rgba(12, 28, 25, 0.98) 0%, rgba(6, 17, 16, 1) 100%);
+  color: var(--portfolio-ink);
 }
 
 .drawer-shell {
@@ -199,17 +200,17 @@ const scrollToSubscribe = async () => {
 .drawer-head {
   padding: 12px 14px;
   border-radius: 16px;
-  border: 1px solid rgba(19, 111, 99, 0.14);
-  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(76, 207, 183, 0.14);
+  background: rgba(10, 24, 22, 0.84);
 }
 
 .drawer-close {
-  background: rgba(19, 111, 99, 0.08);
+  background: rgba(76, 207, 183, 0.1);
 }
 
 .drawer-tagline {
   margin: 12px 4px 10px;
-  color: #52736b;
+  color: var(--portfolio-muted);
   font-size: 0.86rem;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -218,8 +219,8 @@ const scrollToSubscribe = async () => {
 .drawer-links {
   padding: 8px;
   border-radius: 18px;
-  border: 1px solid rgba(19, 111, 99, 0.14);
-  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(76, 207, 183, 0.14);
+  background: rgba(10, 24, 22, 0.72);
 }
 
 .drawer-link {
@@ -238,16 +239,17 @@ const scrollToSubscribe = async () => {
 
 .drawer-link:hover {
   transform: translateX(2px);
-  border-color: rgba(19, 111, 99, 0.14);
-  background: rgba(19, 111, 99, 0.08);
+  border-color: rgba(76, 207, 183, 0.18);
+  background: rgba(76, 207, 183, 0.08);
 }
 
 .drawer-link :deep(.v-list-item-title) {
   font-weight: 600;
+  color: var(--portfolio-ink-soft);
 }
 
 .drawer-link :deep(.v-icon) {
-  color: #2a4f47;
+  color: var(--portfolio-ink-soft);
 }
 
 .drawer-link :deep(.v-list-item__append .v-icon) {
@@ -263,21 +265,21 @@ const scrollToSubscribe = async () => {
 }
 
 .drawer-link.is-active {
-  border-color: rgba(19, 111, 99, 0.4);
-  color: #fff;
-  background: linear-gradient(145deg, #136f63, #1f8f7f);
-  box-shadow: 0 10px 20px rgba(19, 111, 99, 0.28);
+  border-color: rgba(76, 207, 183, 0.34);
+  color: #04100e;
+  background: linear-gradient(145deg, var(--portfolio-primary), #28b79f);
+  box-shadow: 0 10px 20px rgba(76, 207, 183, 0.24);
 }
 
 .drawer-link.is-active :deep(.v-list-item-title),
 .drawer-link.is-active :deep(.v-icon) {
-  color: #fff !important;
+  color: #04100e !important;
 }
 
 .drawer-cta {
   margin-top: 14px;
   padding-top: 14px;
-  border-top: 1px solid rgba(19, 111, 99, 0.14);
+  border-top: 1px solid rgba(76, 207, 183, 0.14);
 }
 
 .drawer-cta-btn {

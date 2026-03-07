@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref } from "vue";
 import Certificate from "@/components/certificate.vue";
 import Alerts from "@/components/Alerts.vue";
+import PhotoZoomDialog from "@/components/PhotoZoomDialog.vue";
 import { getApiBaseUrl } from "@/utils/apiBaseUrl";
 
 const studentForm = ref(null);
@@ -19,6 +20,8 @@ const form = reactive({
 });
 
 const BASE_URL = getApiBaseUrl();
+const A4_WIDTH_PX = 794;
+const A4_HEIGHT_PX = 1123;
 
 const courseCount = computed(() => courses.value.length);
 
@@ -91,14 +94,19 @@ const generatePdf = async () => {
 
     const [html2canvas, JsPdf] = await loadCertificatePdfTools();
     const canvas = await html2canvas(pdfSection.value, {
-      scale: 2,
+      scale: 3,
       useCORS: true,
+      scrollX: 0,
       scrollY: 0,
       backgroundColor: "#ffffff",
+      width: A4_WIDTH_PX,
+      height: A4_HEIGHT_PX,
+      windowWidth: A4_WIDTH_PX,
+      windowHeight: A4_HEIGHT_PX,
       logging: false,
     });
 
-    const imageData = canvas.toDataURL("image/jpeg", 0.98);
+    const imageData = canvas.toDataURL("image/png");
     const pdf = new JsPdf({
       unit: "mm",
       format: "a4",
@@ -107,21 +115,7 @@ const generatePdf = async () => {
 
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
-    const canvasRatio = canvas.width / canvas.height;
-    const pageRatio = pageWidth / pageHeight;
-
-    let targetWidth = pageWidth;
-    let targetHeight = pageHeight;
-
-    if (canvasRatio > pageRatio) {
-      targetHeight = pageWidth / canvasRatio;
-    } else {
-      targetWidth = pageHeight * canvasRatio;
-    }
-
-    const x = (pageWidth - targetWidth) / 2;
-    const y = (pageHeight - targetHeight) / 2;
-    pdf.addImage(imageData, "JPEG", x, y, targetWidth, targetHeight, undefined, "FAST");
+    pdf.addImage(imageData, "PNG", 0, 0, pageWidth, pageHeight, undefined, "FAST");
     pdf.save(`${sanitizeFileName(form.course?.name)}.pdf`);
 
     showAlert("Certificate downloaded successfully!", "success");
@@ -157,9 +151,9 @@ const generatePdf = async () => {
 
         <v-row align="center" class="ga-0">
           <v-col cols="12" md="8" lg="7" class="pr-md-8">
-            <h1 class="hero-title mb-3">Certificate Generator</h1>
+            <h1 class="hero-title mb-3">Premium Certificate Generator</h1>
             <p class="hero-subtitle mb-0">
-              Enter your details, preview your certificate, and download a clean PDF in one flow.
+              Enter your details, preview a custom premium certificate, and download a polished PDF in one flow.
             </p>
           </v-col>
           <v-col cols="12" md="4" lg="5" class="mt-6 mt-md-0">
@@ -189,7 +183,7 @@ const generatePdf = async () => {
             <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
               <div>
                 <p class="form-kicker mb-1">Fill Certificate Details</p>
-                <h2 class="text-h5 font-weight-bold mb-1">Generate your certificate</h2>
+                <h2 class="text-h5 font-weight-bold mb-1">Generate your premium certificate</h2>
                 <p class="text-body-2 text-medium-emphasis mb-0">Use your full name and select the correct course.</p>
               </div>
               <v-icon icon="mdi-file-certificate-outline" color="primary" size="34"></v-icon>
@@ -247,7 +241,7 @@ const generatePdf = async () => {
                   Preview Certificate
                 </v-btn>
 
-                <p class="mb-0 text-body-2 text-medium-emphasis">Preview first, then click download in the dialog.</p>
+                <p class="mb-0 text-body-2 text-medium-emphasis">Preview first, then download from the zoom dialog.</p>
               </div>
             </v-form>
           </v-card>
@@ -259,7 +253,7 @@ const generatePdf = async () => {
             border="start"
             icon="mdi-information-outline"
           >
-            Verify your name and selected course before generating. The certificate downloads as a PDF and can be shared directly.
+            Verify your name and selected course before generating. The premium certificate downloads as a PDF and can be shared directly.
           </v-alert>
         </v-col>
 
@@ -289,7 +283,7 @@ const generatePdf = async () => {
                 <span class="step-index">03</span>
                 <div>
                   <p class="step-title mb-1">Preview and download</p>
-                  <p class="step-copy mb-0">Check all details in preview, then download the final PDF.</p>
+                  <p class="step-copy mb-0">Check all details in the zoom preview, then download the final PDF.</p>
                 </div>
               </article>
             </div>
@@ -298,51 +292,39 @@ const generatePdf = async () => {
       </v-row>
     </v-container>
 
-    <v-dialog v-model="dialog" max-width="980px" :fullscreen="$vuetify.display.xs">
-      <v-card class="preview-dialog d-flex flex-column fill-height" rounded="xl">
-        <v-toolbar color="primary" density="comfortable" class="preview-toolbar">
-          <v-toolbar-title class="text-h6 font-weight-bold">Certificate Preview</v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-btn icon="mdi-close" variant="text" @click="dialog = false" aria-label="Close dialog"></v-btn>
-        </v-toolbar>
+    <PhotoZoomDialog
+      v-model="dialog"
+      content-mode="custom"
+      hide-trigger
+      dialog-title="Premium Certificate Preview"
+      :max-width="1280"
+      :content-width="A4_WIDTH_PX"
+      :content-height="A4_HEIGHT_PX"
+    >
+      <template #toolbar-actions>
+        <v-btn
+          @click="generatePdf"
+          prepend-icon="mdi-download"
+          :loading="loading"
+          variant="flat"
+          color="primary"
+          rounded="lg"
+          class="text-none px-4"
+        >
+          Download PDF
+        </v-btn>
+      </template>
 
-        <v-card-text class="grow d-flex align-center justify-center pa-3 pa-md-5 preview-body">
-          <div class="certificate-preview-wrapper">
-            <v-responsive :aspect-ratio="1 / 1.414">
-              <div ref="pdfSection" class="certificate-bg">
-                <Certificate :form="form" />
-              </div>
-            </v-responsive>
-          </div>
-        </v-card-text>
+      <div class="certificate-sheet certificate-sheet--preview">
+        <Certificate :form="form" />
+      </div>
+    </PhotoZoomDialog>
 
-        <v-divider></v-divider>
-
-        <v-card-actions class="pa-4 d-flex justify-end ga-3">
-          <v-btn
-            variant="text"
-            color="grey-darken-1"
-            class="text-none"
-            rounded="xl"
-            @click="dialog = false"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            @click="generatePdf"
-            prepend-icon="mdi-download"
-            :loading="loading"
-            variant="flat"
-            color="primary"
-            size="large"
-            rounded="xl"
-            class="text-none px-6"
-          >
-            Download PDF
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <div class="certificate-export-root" aria-hidden="true">
+      <div ref="pdfSection" class="certificate-sheet certificate-sheet--export">
+        <Certificate :form="form" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -482,38 +464,30 @@ const generatePdf = async () => {
   line-height: 1.5;
 }
 
-.preview-dialog {
-  overflow: hidden;
-}
-
-.preview-toolbar {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.preview-body {
-  background:
-    linear-gradient(135deg, rgba(14, 42, 37, 0.98), rgba(10, 29, 26, 0.98));
-}
-
-.certificate-preview-wrapper {
-  width: 100%;
-  max-width: 840px;
-  margin: auto;
-}
-
-.certificate-bg {
-  background-image: url(@/assets/Picture/CoursePathway_BG.jpg);
-  padding: 0;
-  margin: 0;
+.certificate-sheet {
   width: 100%;
   height: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
-  position: relative;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
+  background: #fff;
+}
+
+.certificate-sheet--preview {
+  width: 794px;
+  height: 1123px;
+  flex: 0 0 auto;
+}
+
+.certificate-sheet--export {
+  width: 794px;
+  height: 1123px;
+}
+
+.certificate-export-root {
+  position: fixed;
+  left: -99999px;
+  top: 0;
+  pointer-events: none;
 }
 
 @media (max-width: 960px) {

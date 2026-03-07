@@ -15,19 +15,21 @@ export default createVuetify({
     },
   },
   theme: {
-    defaultTheme: "portfolioLight",
+    defaultTheme: "portfolioDark",
     themes: {
-      portfolioLight: {
-        dark: false,
+      portfolioDark: {
+        dark: true,
         colors: {
-          background: "#f3f7f2",
-          surface: "#ffffff",
-          primary: "#136f63",
-          secondary: "#f59e0b",
-          error: "#dc2626",
-          info: "#2563eb",
-          success: "#15803d",
-          warning: "#d97706",
+          background: "#061110",
+          surface: "#0d1d1a",
+          "surface-bright": "#17302b",
+          "surface-light": "#122623",
+          primary: "#4ccfb7",
+          secondary: "#f2b450",
+          error: "#f87171",
+          info: "#60a5fa",
+          success: "#34d399",
+          warning: "#f59e0b",
         },
       },
     },

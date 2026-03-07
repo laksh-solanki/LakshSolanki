@@ -419,8 +419,11 @@ const generatePassword = () => {
 }
 
 .hero-shell {
-  border-bottom: 1px solid rgba(21, 47, 74, 0.16);
-  background: linear-gradient(145deg, rgba(248, 253, 255, 0.98), rgba(235, 246, 255, 0.96));
+  border-bottom: 1px solid rgba(76, 207, 183, 0.12);
+  background:
+    radial-gradient(circle at 12% 10%, rgba(41, 127, 108, 0.2), transparent 28%),
+    radial-gradient(circle at 88% 14%, rgba(242, 180, 80, 0.12), transparent 24%),
+    linear-gradient(152deg, rgba(15, 34, 30, 0.96), rgba(7, 18, 16, 0.94));
 }
 
 .hero-chip {
@@ -428,9 +431,9 @@ const generatePassword = () => {
   align-items: center;
   border-radius: 999px;
   padding: 6px 13px;
-  border: 1px solid rgba(27, 88, 69, 0.35);
-  color: #1d5b49;
-  background: rgba(199, 240, 221, 0.7);
+  border: 1px solid rgba(76, 207, 183, 0.18);
+  color: var(--portfolio-primary);
+  background: rgba(17, 41, 36, 0.72);
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -439,11 +442,11 @@ const generatePassword = () => {
 
 .hero-title {
   font-size: clamp(2rem, 3.4vw, 3rem);
-  color: #153455;
+  color: var(--portfolio-ink);
 }
 
 .hero-subtitle {
-  color: #516786;
+  color: var(--portfolio-muted);
   line-height: 1.7;
 }
 
@@ -454,24 +457,24 @@ const generatePassword = () => {
 }
 
 .stat-item {
-  border: 1px solid rgba(34, 63, 110, 0.16);
+  border: 1px solid rgba(76, 207, 183, 0.14);
   border-radius: 12px;
   padding: 12px 10px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(10, 24, 22, 0.8);
 }
 
 .stat-value {
   display: block;
   font-size: 0.95rem;
   font-weight: 800;
-  color: #13365b;
+  color: var(--portfolio-ink);
 }
 
 .stat-label {
   display: block;
   font-size: 0.72rem;
-  color: #667b9a;
+  color: var(--portfolio-muted);
 }
 
 .tool-shell {

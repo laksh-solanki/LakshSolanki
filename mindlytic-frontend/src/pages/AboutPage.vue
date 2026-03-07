@@ -6,16 +6,16 @@
       <v-container class="py-12 py-md-16">
         <v-row align="center" class="ga-0">
           <v-col cols="12" md="7" class="pr-md-8">
-            <p class="hero-kicker mb-3">About Mindlytic</p>
-            <h1 class="hero-title mb-4">
+            <p class="hero-kicker mb-3 startup-item" style="--delay: 0.08s">About Mindlytic</p>
+            <h1 class="hero-title mb-4 startup-item" style="--delay: 0.16s">
               Crafting developer-first products with premium UI and clean architecture.
             </h1>
-            <p class="hero-copy mb-0">
+            <p class="hero-copy mb-0 startup-item" style="--delay: 0.24s">
               I build fast, maintainable web experiences where design quality and engineering quality move together.
               From idea to launch, every detail is built to feel polished and perform reliably.
             </p>
 
-            <div class="d-flex flex-wrap ga-3 mt-7">
+            <div class="d-flex flex-wrap ga-3 mt-7 startup-item" style="--delay: 0.32s">
               <v-btn color="primary" rounded="xl" size="large" class="text-none px-6" @click="scrollToSubscribe">
                 Let's Collaborate
               </v-btn>
@@ -32,7 +32,7 @@
             </div>
 
             <div class="metrics-grid mt-8">
-              <article v-for="item in stats" :key="item.label" class="metric-card">
+              <article v-for="(item, index) in stats" :key="item.label" class="metric-card startup-item" :style="`--delay: ${0.4 + index * 0.08}s`">
                 <p class="metric-value mb-1">{{ item.value }}</p>
                 <p class="metric-label mb-0">{{ item.label }}</p>
               </article>
@@ -40,7 +40,7 @@
           </v-col>
 
           <v-col cols="12" md="5" class="mt-8 mt-md-0">
-            <v-card rounded="xl" elevation="0" class="hero-profile-card pa-5 pa-md-6">
+            <v-card rounded="xl" elevation="0" class="hero-profile-card pa-5 pa-md-6 startup-card" style="--delay: 0.3s">
               <div class="d-flex align-center ga-3 mb-4">
                 <PhotoZoomDialog :src="myPhoto" alt="Laksh Solanki" :size="54" avatar-class="about-avatar" />
                 <div>
@@ -64,7 +64,7 @@
 
     <section>
       <v-container class="py-10 py-md-14">
-        <div class="section-shell story-panel pa-5 pa-md-8">
+        <div class="section-shell story-panel pa-5 pa-md-8 startup-card" style="--delay: 0.5s">
           <v-row align="center">
             <v-col cols="12" md="5" class="mb-6 mb-md-0">
               <v-img :src="aboutPhoto2" cover class="rounded-xl border story-image"></v-img>
@@ -107,8 +107,8 @@
           </div>
 
           <v-row>
-            <v-col v-for="card in strengths" :key="card.title" cols="12" sm="6" md="4">
-              <v-card class="strength-card pa-5 h-100" rounded="xl" elevation="0">
+            <v-col v-for="(card, index) in strengths" :key="card.title" cols="12" sm="6" md="4">
+              <v-card class="strength-card pa-5 h-100 startup-card" rounded="xl" elevation="0" :style="`--delay: ${0.1 + index * 0.1}s`">
                 <v-avatar size="46" color="teal-lighten-5" class="mb-4">
                   <v-icon :icon="card.icon" color="teal-darken-2"></v-icon>
                 </v-avatar>
@@ -128,7 +128,7 @@
           <h2 class="text-h4 font-weight-bold mb-6">How projects are delivered</h2>
 
           <div class="process-grid">
-            <article v-for="(step, index) in processSteps" :key="step.title" class="process-card">
+            <article v-for="(step, index) in processSteps" :key="step.title" class="process-card startup-card" :style="`--delay: ${0.1 + index * 0.1}s`">
               <span class="process-index">0{{ index + 1 }}</span>
               <h3 class="text-h6 font-weight-bold mb-2">{{ step.title }}</h3>
               <p class="muted-copy mb-0">{{ step.description }}</p>
@@ -146,7 +146,7 @@
 
         <v-row>
           <v-col cols="12" md="4" lg="3">
-            <v-card class="section-shell dev-profile-card pa-5" height="620" rounded="xl" variant="elevated">
+            <v-card class="section-shell dev-profile-card pa-5 startup-card" height="620" rounded="xl" variant="elevated" style="--delay: 0.1s">
               <PhotoZoomDialog
                 :src="myPhoto"
                 alt="Laksh Solanki"
@@ -207,7 +207,7 @@
           </v-col>
 
           <v-col cols="12" md="8" lg="9">
-            <v-card class="section-shell pa-6 pa-md-8 mb-6" variant="elevated" rounded="xl">
+            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" variant="elevated" rounded="xl" style="--delay: 0.2s">
               <p class="text-overline text-primary font-weight-bold mb-2">Developer Profile</p>
               <h3 class="text-h4 mb-4">I build products that stay maintainable as they scale.</h3>
               <p class="muted-copy mb-0 dev-intro-copy">
@@ -216,7 +216,7 @@
               </p>
             </v-card>
 
-            <v-card class="section-shell pa-6 pa-md-8 mb-6" variant="elevated" rounded="xl">
+            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" variant="elevated" rounded="xl" style="--delay: 0.3s">
               <h3 class="text-h5 mb-4">Career Highlights</h3>
               <v-row>
                 <v-col v-for="item in highlights" :key="item.title" cols="12" sm="6" lg="3">
@@ -229,7 +229,7 @@
               </v-row>
             </v-card>
 
-            <v-card class="section-shell pa-6 pa-md-8 mb-6" variant="elevated" rounded="xl">
+            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" variant="elevated" rounded="xl" style="--delay: 0.4s">
               <h3 class="text-h5 mb-3">Experience Timeline</h3>
               <v-timeline side="end" truncate-line="both" density="comfortable">
                 <v-timeline-item
@@ -250,7 +250,7 @@
               </v-timeline>
             </v-card>
 
-            <v-card class="section-shell pa-6 pa-md-8" variant="elevated" rounded="xl">
+            <v-card class="section-shell pa-6 pa-md-8 startup-card" variant="elevated" rounded="xl" style="--delay: 0.5s">
               <h3 class="text-h5 mb-4">Stack & Expertise</h3>
               <v-row>
                 <v-col v-for="group in skillGroups" :key="group.title" cols="12" md="6">
@@ -626,6 +626,53 @@ const scrollToSubscribe = () => {
 @media (max-width: 600px) {
   .hero-title {
     letter-spacing: -0.02em;
+  }
+}
+
+.startup-item,
+.startup-card {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.startup-item {
+  animation: startup-rise 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--delay, 0s);
+}
+
+.startup-card {
+  animation: startup-panel 0.78s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes startup-rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes startup-panel {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .startup-item,
+  .startup-card {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }
 </style>

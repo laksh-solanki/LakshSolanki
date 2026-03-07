@@ -1,6 +1,5 @@
 <template>
   <v-card class="newsletter-card pa-4 pa-md-5" rounded="xl" elevation="0">
-    <div class="newsletter-glow"></div>
     <div class="newsletter-head mb-4">
       <div class="eyebrow-chip">Let's collaborate better</div>
       <div class="d-flex align-start justify-space-between ga-3">
@@ -14,9 +13,9 @@
     </div>
 
     <div class="d-flex flex-wrap ga-2 mb-4 benefit-chips">
-      <v-chip size="x-small" color="teal-lighten-4" variant="flat" rounded="lg">No spam</v-chip>
-      <v-chip size="x-small" color="teal-lighten-4" variant="flat" rounded="lg">1 mail / month</v-chip>
-      <v-chip size="x-small" color="teal-lighten-4" variant="flat" rounded="lg">Unsubscribe anytime</v-chip>
+      <v-chip size="x-small" color="primary" variant="tonal" rounded="lg">No spam</v-chip>
+      <v-chip size="x-small" color="primary" variant="tonal" rounded="lg">1 mail / month</v-chip>
+      <v-chip size="x-small" color="primary" variant="tonal" rounded="lg">Unsubscribe anytime</v-chip>
     </div>
 
     <v-form ref="formRef" v-model="isValid" @submit.prevent="handleSubscribe">
@@ -131,26 +130,12 @@ const handleSubscribe = async () => {
 .newsletter-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(126, 232, 213, 0.24);
-  background:
-    radial-gradient(circle at 92% 6%, rgba(255, 193, 109, 0.2), transparent 38%),
-    radial-gradient(circle at 10% 14%, rgba(92, 237, 210, 0.19), transparent 42%),
-    linear-gradient(160deg, rgba(19, 61, 55, 0.95), rgba(10, 33, 29, 0.94));
+  border: 1px solid rgba(76, 207, 183, 0.2);
+  background: transparent;
   box-shadow:
     0 20px 36px rgba(0, 0, 0, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     inset 0 -1px 0 rgba(255, 255, 255, 0.05);
-}
-
-.newsletter-glow {
-  position: absolute;
-  right: -38px;
-  top: -38px;
-  width: 120px;
-  height: 120px;
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(126, 232, 213, 0.28), transparent 70%);
-  pointer-events: none;
 }
 
 .newsletter-head {
@@ -182,16 +167,22 @@ const handleSubscribe = async () => {
 }
 
 .copy-muted {
-  color: #c7e2dc;
+  color: var(--portfolio-muted);
 }
 
 .newsletter-card h3 {
-  color: #f4fffc;
+  color: var(--portfolio-ink);
 }
 
 .benefit-chips {
   position: relative;
   z-index: 1;
+}
+
+.benefit-chips :deep(.v-chip) {
+  border: 1px solid rgba(76, 207, 183, 0.16);
+  background: rgba(76, 207, 183, 0.1);
+  color: var(--portfolio-ink);
 }
 
 .newsletter-input :deep(.v-field) {
@@ -209,9 +200,9 @@ const handleSubscribe = async () => {
 .subscribe-btn {
   font-weight: 700;
   letter-spacing: 0.01em;
-  color: #082621;
-  background: linear-gradient(145deg, #9cf0df, #5ed5be);
-  box-shadow: 0 12px 18px rgba(32, 153, 133, 0.34);
+  color: #04100e;
+  background: linear-gradient(145deg, var(--portfolio-primary), #5ed5be);
+  box-shadow: 0 12px 18px rgba(32, 153, 133, 0.28);
 }
 
 .subscribe-btn:hover {

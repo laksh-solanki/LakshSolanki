@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import Alerts from "@/components/Alerts.vue";
+import PhotoZoomDialog from "@/components/PhotoZoomDialog.vue";
 
 const pdfFile = ref(null);
 const images = ref([]);
@@ -338,7 +339,15 @@ onUnmounted(() => {
                       </v-card-actions>
 
                       <div class="pa-2">
-                        <v-img :src="image.url" :alt="image.name" height="210" contain class="rounded-lg"></v-img>
+                        <PhotoZoomDialog
+                          :src="image.url"
+                          :alt="image.name"
+                          trigger-variant="image"
+                          image-height="210"
+                          :img-cover="false"
+                          trigger-class="converted-image-trigger"
+                          image-class="rounded-lg converted-image-preview"
+                        />
                       </div>
 
                       <v-card-text class="pt-1 pb-3 text-body-2 text-medium-emphasis text-truncate">
@@ -516,6 +525,14 @@ onUnmounted(() => {
 .image-card {
   border: 1px solid rgba(19, 111, 99, 0.14);
   background: #ffffff;
+}
+
+.converted-image-trigger {
+  display: block;
+}
+
+.converted-image-preview {
+  background: rgba(19, 111, 99, 0.04);
 }
 
 .side-panel {

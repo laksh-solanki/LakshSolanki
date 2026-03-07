@@ -82,17 +82,8 @@ const projects = ref([
     link: "/projects/dev-utility-hub",
     tags: ["Text Tools", "Encoding", "Generators"],
   },
-  {
-    id: 9,
-    title: "Mindstores",
-    category: "All-in-One Store",
-    description:
-      "Unified toolbox with text case conversion, URL/Base64 encode-decode, secure password generation, and UUID creation.",
-    image: new URL("../assets/project_img/Project-9.svg", import.meta.url).href,
-    link: "",
-    tags: ["Text Tools", "Encoding", "Generators"],
-  },
 ]);
+
 </script>
 
 <template>
@@ -110,20 +101,20 @@ const projects = ref([
         <v-card class="section-shell project-card h-100" :to="project.link" flat hover rounded="lg">
           <v-img :src="project.image" height="200" cover class="project-media"></v-img>
 
-          <div class="pa-5 d-flex flex-column h-100">
+          <div class="pa-5 d-flex flex-5 flex-column h-100">
             <p class="text-caption text-primary font-weight-bold text-uppercase mb-2">
               {{ project.category }}
             </p>
             <h2 class="text-h6 mb-2">{{ project.title }}</h2>
-            <p class="muted-copy mb-4">{{ project.description }}</p>
+            <p class="muted-copy mb-1">{{ project.description }}</p>
 
-            <div class="d-flex flex-wrap ga-2 mt-auto mb-4">
+            <div class="d-flex flex-wrap ga-2 mt-3 mb-2">
               <v-chip
                 v-for="tag in project.tags"
                 :key="tag"
-                color="primary"
-                variant="tonal"
-                size="x-small"
+                flat
+                class="project-tag"
+                :text="tag"
               >
                 {{ tag }}
               </v-chip>
@@ -147,6 +138,47 @@ const projects = ref([
 
 .header-card {
   position: relative;
+}
+
+.filter-label {
+  letter-spacing: 0.08em;
+}
+
+.filter-chip,
+.project-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 12px;
+  border: 1px solid rgba(76, 207, 183, 0.24);
+  border-radius: 999px;
+  background: rgba(76, 207, 183, 0.08);
+  color: var(--portfolio-primary);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.filter-chip:hover,
+.project-tag:hover {
+  border-color: rgba(76, 207, 183, 0.48);
+  background: rgba(76, 207, 183, 0.14);
+}
+
+.filter-chip.is-active,
+.project-tag.is-active {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--portfolio-primary), #2fb49d);
+  color: #04100e;
 }
 
 .project-card {
@@ -173,4 +205,3 @@ const projects = ref([
   }
 }
 </style>
-
