@@ -34,8 +34,8 @@
       </button>
     </template>
 
-    <v-dialog v-model="dialogOpen" :max-width="maxWidth" :fullscreen="$vuetify.display.xs && fullscreenOnMobile">
-      <v-card class="zoom-card" :class="{ 'is-custom-card': isCustomMode }" rounded="xl">
+    <v-dialog v-model="dialogOpen" :max-width="maxWidth" :fullscreen="$vuetify.display.xs && fullscreenOnMobile" :scrollable="true">
+      <v-card class="zoom-card border" :class="{ 'is-custom-card': isCustomMode }" rounded="xl">
         <div class="zoom-toolbar px-4 py-3">
           <p class="text-subtitle-2 font-weight-bold mb-0">{{ dialogLabel }}</p>
           <div class="d-flex align-center ga-1 flex-wrap justify-end">
@@ -578,8 +578,6 @@ onBeforeUnmount(() => {
 }
 
 .zoom-card {
-  overflow: hidden;
-  border: 1px solid rgba(76, 207, 183, 0.16);
   background: linear-gradient(165deg, rgba(18, 38, 35, 0.98), rgba(8, 20, 18, 0.98));
 }
 
@@ -657,11 +655,6 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 600px) {
-  .zoom-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   .zoom-stage {
     min-height: 100dvh;
     max-height: 100dvh;

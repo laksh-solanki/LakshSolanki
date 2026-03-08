@@ -51,11 +51,6 @@
 
               <v-img :src="aboutPhoto1" cover class="rounded-xl mb-4 border-2 border-black"></v-img>
 
-              <ul class="hero-points">
-                <li>Vue and Vuetify focused product engineering</li>
-                <li>API integration and clean state architecture</li>
-                <li>Performance and responsive quality on every screen</li>
-              </ul>
             </v-card>
           </v-col>
         </v-row>
@@ -146,7 +141,7 @@
 
         <v-row>
           <v-col cols="12" md="4" lg="3">
-            <v-card class="section-shell dev-profile-card pa-5 startup-card" height="620" rounded="xl" variant="elevated" style="--delay: 0.1s">
+            <v-card class="section-shell dev-profile-card pa-5 startup-card" border="" rounded="xl" variant="elevated" style="--delay: 0.1s">
               <PhotoZoomDialog
                 :src="myPhoto"
                 alt="Laksh Solanki"
@@ -207,7 +202,7 @@
           </v-col>
 
           <v-col cols="12" md="8" lg="9">
-            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" variant="elevated" rounded="xl" style="--delay: 0.2s">
+            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" border variant="elevated" rounded="xl" style="--delay: 0.2s">
               <p class="text-overline text-primary font-weight-bold mb-2">Developer Profile</p>
               <h3 class="text-h4 mb-4">I build products that stay maintainable as they scale.</h3>
               <p class="muted-copy mb-0 dev-intro-copy">
@@ -216,7 +211,7 @@
               </p>
             </v-card>
 
-            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" variant="elevated" rounded="xl" style="--delay: 0.3s">
+            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" border variant="elevated" rounded="xl" style="--delay: 0.3s">
               <h3 class="text-h5 mb-4">Career Highlights</h3>
               <v-row>
                 <v-col v-for="item in highlights" :key="item.title" cols="12" sm="6" lg="3">
@@ -229,7 +224,7 @@
               </v-row>
             </v-card>
 
-            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" variant="elevated" rounded="xl" style="--delay: 0.4s">
+            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" border variant="elevated" rounded="xl" style="--delay: 0.4s">
               <h3 class="text-h5 mb-3">Experience Timeline</h3>
               <v-timeline side="end" truncate-line="both" density="comfortable">
                 <v-timeline-item
@@ -250,7 +245,7 @@
               </v-timeline>
             </v-card>
 
-            <v-card class="section-shell pa-6 pa-md-8 startup-card" variant="elevated" rounded="xl" style="--delay: 0.5s">
+            <v-card class="section-shell pa-6 pa-md-8 startup-card" border variant="elevated" rounded="xl" style="--delay: 0.5s">
               <h3 class="text-h5 mb-4">Stack & Expertise</h3>
               <v-row>
                 <v-col v-for="group in skillGroups" :key="group.title" cols="12" md="6">
@@ -486,16 +481,6 @@ const scrollToSubscribe = () => {
 
 .profile-role {
   color: #58706a;
-}
-
-.hero-points {
-  margin: 0;
-  padding-left: 16px;
-  color: #38514d;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-size: 0.92rem;
 }
 
 .story-panel {
