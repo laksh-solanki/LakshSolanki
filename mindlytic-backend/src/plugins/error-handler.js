@@ -21,6 +21,10 @@ export const registerErrorHandler = async (app, { nodeEnv }) => {
       error: statusCode >= 500 ? "Internal Server Error" : error.message,
     };
 
+    if (statusCode < 500 && error.course) {
+      payload.data = error.course;
+    }
+
     if (statusCode >= 500 && nodeEnv !== "production") {
       payload.details = error.message;
     }

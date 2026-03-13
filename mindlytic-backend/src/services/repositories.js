@@ -1,12 +1,26 @@
 import { randomUUID } from "node:crypto";
-import { DEFAULT_COURSES, DEFAULT_HOBBIES } from "../constants/defaultData.js";
 import { normalizeEmail } from "../lib/email.js";
 
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+const normalizeCourseName = (value) => value.trim().replace(/\s+/g, " ").toLowerCase();
+
+const createCourseRecord = ({ name, category, level, durationHours, tags = [] }) => {
+  const trimmedName = name.trim().replace(/\s+/g, " ");
+
+  return {
+    name: trimmedName,
+    normalizedName: normalizeCourseName(trimmedName),
+    category: category?.trim() || null,
+    level: level?.trim() || null,
+    durationHours: Number.isFinite(durationHours) ? durationHours : null,
+    tags: Array.isArray(tags) ? tags.map((tag) => String(tag).trim()).filter(Boolean) : [],
+  };
+};
+
 const toPublicDocument = (document) => {
   if (!document) return null;
-  const { _id, ...rest } = document;
+  const { _id, normalizedName, ...rest } = document;
   return {
     id: _id ? _id.toString() : rest.id,
     ...rest,
@@ -14,16 +28,6 @@ const toPublicDocument = (document) => {
 };
 
 const nowIso = () => new Date().toISOString();
-
-const createSeededRecords = (items, prefix) => {
-  const now = nowIso();
-  return items.map((item, index) => ({
-    id: `${prefix}-${index + 1}`,
-    ...item,
-    createdAt: now,
-    updatedAt: now,
-  }));
-};
 
 const clone = (value) => {
   if (typeof globalThis.structuredClone === "function") {
@@ -34,13 +38,11 @@ const clone = (value) => {
 
 export const createRepositories = ({ db, logger }) => {
   const memoryStore = {
-    courses: createSeededRecords(DEFAULT_COURSES, "course"),
-    hobbies: createSeededRecords(DEFAULT_HOBBIES, "hobby"),
+    courses: [],
     subscriptions: [],
   };
 
   const coursesCollection = db?.collection("courses");
-  const hobbiesCollection = db?.collection("hobbies");
   const subscriptionsCollection = db?.collection("subscriptions");
 
   const listCourses = async ({ search = "", limit = 50, sort = "asc" }) => {
@@ -71,68 +73,59 @@ export const createRepositories = ({ db, logger }) => {
   const addCourse = async ({ name, category, level, durationHours, tags = [] }) => {
     const now = nowIso();
     const course = {
-      name: name.trim(),
-      category: category?.trim() || "General",
-      level: level?.trim() || "Beginner",
-      durationHours: Number.isFinite(durationHours) ? durationHours : 20,
-      tags: Array.isArray(tags) ? tags.map((tag) => String(tag).trim()).filter(Boolean) : [],
+      ...createCourseRecord({ name, category, level, durationHours, tags }),
       createdAt: now,
       updatedAt: now,
     };
 
     if (coursesCollection) {
-      const result = await coursesCollection.insertOne(course);
-      return toPublicDocument({ _id: result.insertedId, ...course });
+      const existingCourse = await coursesCollection.findOne({
+        $or: [
+          { normalizedName: course.normalizedName },
+          { name: { $regex: `^${escapeRegExp(course.name)}$`, $options: "i" } },
+        ],
+      });
+
+      if (existingCourse) {
+        const error = new Error("Course already exists");
+        error.statusCode = 409;
+        error.course = toPublicDocument(existingCourse);
+        throw error;
+      }
+
+      try {
+        const result = await coursesCollection.insertOne(course);
+        return toPublicDocument({ _id: result.insertedId, ...course });
+      } catch (error) {
+        if (error?.code === 11000) {
+          const existingDuplicate = await coursesCollection.findOne({
+            $or: [
+              { normalizedName: course.normalizedName },
+              { name: { $regex: `^${escapeRegExp(course.name)}$`, $options: "i" } },
+            ],
+          });
+          const duplicateError = new Error("Course already exists");
+          duplicateError.statusCode = 409;
+          duplicateError.course = toPublicDocument(existingDuplicate);
+          throw duplicateError;
+        }
+        throw error;
+      }
+    }
+
+    const existingCourse = memoryStore.courses.find(
+      (record) => record.normalizedName === course.normalizedName,
+    );
+    if (existingCourse) {
+      const error = new Error("Course already exists");
+      error.statusCode = 409;
+      error.course = toPublicDocument(existingCourse);
+      throw error;
     }
 
     const record = { id: randomUUID(), ...course };
     memoryStore.courses.push(record);
-    return clone(record);
-  };
-
-  const listHobbies = async ({ search = "", limit = 50, sort = "asc" }) => {
-    const normalizedSearch = search.trim();
-    const direction = sort === "desc" ? -1 : 1;
-
-    if (hobbiesCollection) {
-      const filter = normalizedSearch
-        ? { name: { $regex: escapeRegExp(normalizedSearch), $options: "i" } }
-        : {};
-
-      const hobbies = await hobbiesCollection.find(filter).sort({ name: direction }).limit(limit).toArray();
-      return hobbies.map(toPublicDocument);
-    }
-
-    const lowered = normalizedSearch.toLowerCase();
-    const filtered = memoryStore.hobbies.filter((hobby) =>
-      normalizedSearch ? hobby.name.toLowerCase().includes(lowered) : true,
-    );
-
-    const sorted = filtered.sort((a, b) =>
-      direction === 1 ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name),
-    );
-
-    return clone(sorted.slice(0, limit));
-  };
-
-  const addHobby = async ({ name, type, frequency }) => {
-    const now = nowIso();
-    const hobby = {
-      name: name.trim(),
-      type: type?.trim() || "General",
-      frequency: frequency?.trim() || "Weekly",
-      createdAt: now,
-      updatedAt: now,
-    };
-
-    if (hobbiesCollection) {
-      const result = await hobbiesCollection.insertOne(hobby);
-      return toPublicDocument({ _id: result.insertedId, ...hobby });
-    }
-
-    const record = { id: randomUUID(), ...hobby };
-    memoryStore.hobbies.push(record);
-    return clone(record);
+    return toPublicDocument(record);
   };
 
   const subscribe = async ({ email, name = "", source = "web", ip = "", userAgent = "" }) => {
@@ -299,111 +292,11 @@ export const createRepositories = ({ db, logger }) => {
     return { status: "unsubscribed", subscription: clone(subscription) };
   };
 
-  const listSubscriptions = async ({ page, pageSize, status = "", search = "" }) => {
-    const normalizedStatus = status.trim();
-    const normalizedSearch = search.trim();
-
-    if (subscriptionsCollection) {
-      const filter = {};
-      if (normalizedStatus) {
-        filter.status = normalizedStatus;
-      }
-      if (normalizedSearch) {
-        const regex = { $regex: escapeRegExp(normalizedSearch), $options: "i" };
-        filter.$or = [{ email: regex }, { name: regex }];
-      }
-
-      const total = await subscriptionsCollection.countDocuments(filter);
-      const data = await subscriptionsCollection
-        .find(filter)
-        .sort({ createdAt: -1 })
-        .skip((page - 1) * pageSize)
-        .limit(pageSize)
-        .toArray();
-
-      return { data: data.map(toPublicDocument), total };
-    }
-
-    const loweredSearch = normalizedSearch.toLowerCase();
-    let filtered = memoryStore.subscriptions;
-
-    if (normalizedStatus) {
-      filtered = filtered.filter((item) => item.status === normalizedStatus);
-    }
-
-    if (normalizedSearch) {
-      filtered = filtered.filter((item) => {
-        const emailMatch = item.email.toLowerCase().includes(loweredSearch);
-        const nameMatch = item.name?.toLowerCase().includes(loweredSearch);
-        return emailMatch || nameMatch;
-      });
-    }
-
-    const sorted = [...filtered].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    const start = (page - 1) * pageSize;
-    const data = sorted.slice(start, start + pageSize);
-
-    return {
-      data: clone(data),
-      total: sorted.length,
-    };
-  };
-
-  const getStats = async () => {
-    if (db) {
-      const [courseCount, hobbyCount, subscriptionCount, statusRows] = await Promise.all([
-        coursesCollection.countDocuments({}),
-        hobbiesCollection.countDocuments({}),
-        subscriptionsCollection.countDocuments({}),
-        subscriptionsCollection.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]).toArray(),
-      ]);
-
-      const statusCounts = {
-        active: 0,
-        unsubscribed: 0,
-      };
-
-      for (const row of statusRows) {
-        statusCounts[row._id] = row.count;
-      }
-
-      return {
-        totals: {
-          courses: courseCount,
-          hobbies: hobbyCount,
-          subscriptions: subscriptionCount,
-        },
-        subscriptionsByStatus: statusCounts,
-      };
-    }
-
-    const statusCounts = memoryStore.subscriptions.reduce(
-      (acc, subscription) => {
-        acc[subscription.status] = (acc[subscription.status] || 0) + 1;
-        return acc;
-      },
-      { active: 0, unsubscribed: 0 },
-    );
-
-    return {
-      totals: {
-        courses: memoryStore.courses.length,
-        hobbies: memoryStore.hobbies.length,
-        subscriptions: memoryStore.subscriptions.length,
-      },
-      subscriptionsByStatus: statusCounts,
-    };
-  };
-
   return {
     listCourses,
     addCourse,
-    listHobbies,
-    addHobby,
     subscribe,
     getSubscriptionStatus,
     unsubscribe,
-    listSubscriptions,
-    getStats,
   };
 };

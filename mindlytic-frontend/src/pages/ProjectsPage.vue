@@ -1,5 +1,6 @@
 ﻿<script setup>
 import { ref } from "vue";
+import { getMediaUrl } from "@/utils/mediaUrl";
 
 const projects = ref([
   {
@@ -8,7 +9,7 @@ const projects = ref([
     category: "Developer Utility",
     description:
       "Form-based certificate creation with live preview and one-click PDF export for course completion workflows.",
-    image: new URL("../assets/project_img/Project-1.png", import.meta.url).href,
+    image: getMediaUrl("project_img/Project-1.png"),
     link: "/projects/certificate-gen",
     tags: ["Vue", "Vuetify", "HTML2PDF"],
   },
@@ -18,7 +19,7 @@ const projects = ref([
     category: "Productivity Tool",
     description:
       "Batch image import, ordering, and conversion to downloadable PDFs with a clean browser-first UX.",
-    image: new URL("../assets/project_img/Project-2.png", import.meta.url).href,
+    image: getMediaUrl("project_img/Project-2.png"),
     link: "/projects/img-pdf",
     tags: ["Vue", "File Processing", "UX"],
   },
@@ -28,7 +29,7 @@ const projects = ref([
     category: "Document Tooling",
     description:
       "Extract and export high-quality page images from PDFs with performant rendering and easy downloads.",
-    image: new URL("../assets/Picture/Project-3.jpg", import.meta.url).href,
+    image: getMediaUrl("Picture/Project-3.jpg"),
     link: "/projects/pdf-img",
     tags: ["PDF.js", "Performance", "Vue"],
   },
@@ -38,7 +39,7 @@ const projects = ref([
     category: "Web API Experiment",
     description:
       "Natural text-to-speech controls powered by browser speech APIs with voice, pitch, and speed tuning.",
-    image: new URL("../assets/project_img/Project-4.svg", import.meta.url).href,
+    image: getMediaUrl("project_img/Project-4.svg"),
     link: "/projects/text-to-speech",
     tags: ["Web Speech API", "Accessibility", "UI"],
   },
@@ -48,7 +49,7 @@ const projects = ref([
     category: "AI Interface",
     description:
       "Prompt-driven chat interface with markdown rendering, code highlighting, and clipboard-ready snippets.",
-    image: new URL("../assets/project_img/Project-5.png", import.meta.url).href,
+    image: getMediaUrl("project_img/Project-5.png"),
     link: "/projects/mindly_ai",
     tags: ["Gemini API", "Markdown", "Prism"],
   },
@@ -58,7 +59,7 @@ const projects = ref([
     category: "Developer Power Tool",
     description:
       "Premium JSON workspace with validation, format/minify, key sorting, deep compare, key explorer, import/export, and syntax-highlighted output.",
-    image: new URL("../assets/project_img/Project-6.svg", import.meta.url).href,
+    image: getMediaUrl("project_img/Project-6.svg"),
     link: "/projects/json-forge",
     tags: ["JSON", "Diff Engine", "Syntax UI"],
   },
@@ -68,7 +69,7 @@ const projects = ref([
     category: "Frontend Engineering",
     description:
       "Advanced HTML/CSS/JS compiler with live preview, runtime console telemetry, freeze-network mode, analytics scan, and time-capsule snapshots.",
-    image: new URL("../assets/project_img/Project-7.svg", import.meta.url).href,
+    image: getMediaUrl("project_img/Project-7.svg"),
     link: "/projects/web-lab-compiler",
     tags: ["HTML/CSS/JS", "Runtime Metrics", "Snapshots"],
   },
@@ -78,7 +79,7 @@ const projects = ref([
     category: "All-in-One Utility",
     description:
       "Unified toolbox with text case conversion, URL/Base64 encode-decode, secure password generation, and UUID creation.",
-    image: new URL("../assets/project_img/Project-8.svg", import.meta.url).href,
+    image: getMediaUrl("project_img/Project-8.svg"),
     link: "/projects/dev-utility-hub",
     tags: ["Text Tools", "Encoding", "Generators"],
   },

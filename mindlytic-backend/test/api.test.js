@@ -5,7 +5,6 @@ import { buildApp } from "../src/app.js";
 const testEnv = {
   NODE_ENV: "test",
   MONGODB_URI: "",
-  ADMIN_API_KEY: "test-admin",
   CORS_ORIGIN: "*",
 };
 
@@ -32,19 +31,38 @@ test("GET / returns backend status", async (t) => {
   assert.equal(body.mode, "memory");
 });
 
-test("GET /project/certificate-gen returns courses for certificate generator", async (t) => {
+test("course endpoints create and list courses for the certificate generator", async (t) => {
   const app = await createTestApp();
   t.after(async () => {
     await app.close();
   });
 
-  const response = await app.inject({ method: "GET", url: "/project/certificate-gen?limit=3" });
-  const body = response.json();
+  const createResponse = await app.inject({
+    method: "POST",
+    url: "/api/courses",
+    payload: {
+      name: "Full Stack Web Development",
+      category: "Software Development",
+      level: "Intermediate",
+      durationHours: 42,
+    },
+  });
+  assert.equal(createResponse.statusCode, 201);
+  assert.equal(createResponse.json().data.name, "Full Stack Web Development");
 
-  assert.equal(response.statusCode, 200);
-  assert.equal(Array.isArray(body), true);
-  assert.equal(body.length, 3);
-  assert.equal(typeof body[0].name, "string");
+  const duplicateResponse = await app.inject({
+    method: "POST",
+    url: "/api/courses",
+    payload: {
+      name: " full stack web development ",
+    },
+  });
+  assert.equal(duplicateResponse.statusCode, 409);
+
+  const apiResponse = await app.inject({ method: "GET", url: "/api/courses?limit=3" });
+  assert.equal(apiResponse.statusCode, 200);
+  assert.equal(apiResponse.json().count, 1);
+  assert.equal(apiResponse.json().data[0].name, "Full Stack Web Development");
 });
 
 test("subscription lifecycle works end-to-end", async (t) => {
@@ -89,29 +107,3 @@ test("subscription lifecycle works end-to-end", async (t) => {
   assert.equal(statusAfterUnsubscribe.json().subscribed, false);
 });
 
-test("admin endpoints enforce key and return stats", async (t) => {
-  const app = await createTestApp();
-  t.after(async () => {
-    await app.close();
-  });
-
-  const unauthorized = await app.inject({
-    method: "GET",
-    url: "/api/admin/stats",
-  });
-  assert.equal(unauthorized.statusCode, 401);
-
-  const authorized = await app.inject({
-    method: "GET",
-    url: "/api/admin/stats",
-    headers: {
-      "x-admin-key": "test-admin",
-    },
-  });
-  assert.equal(authorized.statusCode, 200);
-
-  const body = authorized.json();
-  assert.equal(typeof body.totals.courses, "number");
-  assert.equal(typeof body.totals.hobbies, "number");
-  assert.equal(typeof body.totals.subscriptions, "number");
-});

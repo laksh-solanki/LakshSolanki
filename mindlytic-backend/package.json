@@ -16,7 +16,6 @@
 	},
 	"scripts": {
 		"dev": "node --watch src/server.js",
-		"seed": "node seed.js",
 		"server": "node src/server.js",
 		"test": "node --test"
 	}

@@ -1,6 +1,8 @@
 <script setup>
-import myPhoto from "@/assets/Picture/my-pic.jpg";
 import PhotoZoomDialog from "@/components/PhotoZoomDialog.vue";
+import { getMediaUrl } from "@/utils/mediaUrl";
+
+const myPhoto = getMediaUrl("Picture/my-pic.jpg");
 
 const impactStats = [
   { value: "50+", label: "Projects Delivered" },
@@ -29,19 +31,19 @@ const featuredProjects = [
   {
     title: "Certificate Generator",
     description: "Generate branded certificates in-browser and export polished PDFs.",
-    image: new URL("../assets/project_img/Project-1.png", import.meta.url).href,
+    image: getMediaUrl("project_img/Project-1.png"),
     to: "/projects/certificate-gen",
   },
   {
     title: "Mindlytic AI Assistant",
     description: "Prompt-driven coding assistant with markdown rendering and code snippets.",
-    image: new URL("../assets/project_img/Project-5.png", import.meta.url).href,
+    image: getMediaUrl("project_img/Project-5.png"),
     to: "/projects/mindly_ai",
   },
   {
     title: "PDF to Image Utility",
     description: "Fast conversion utility for extracting high quality images from PDFs.",
-    image: new URL("../assets/Picture/Project-3.jpg", import.meta.url).href,
+    image: getMediaUrl("Picture/Project-3.jpg"),
     to: "/projects/pdf-img",
   },
 ];

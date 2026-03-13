@@ -6,7 +6,7 @@ export const registerHealthRoutes = async (app) => {
   }));
 
   app.get("/ready", async (request, reply) => {
-    const ready = app.dbStatus.mode === "memory" || app.dbStatus.connected;
+    const ready = !app.envConfig.mongodbUri || app.dbStatus.connected;
     reply.code(ready ? 200 : 503);
 
     return {

@@ -20,7 +20,16 @@ const ensureIndexes = async (db, log) => {
   try {
     await Promise.all([
       db.collection("courses").createIndex({ name: 1 }, { name: "idx_course_name" }),
-      db.collection("hobbies").createIndex({ name: 1 }, { name: "idx_hobby_name" }),
+      db.collection("courses").createIndex(
+        { normalizedName: 1 },
+        {
+          name: "uq_course_normalized_name",
+          unique: true,
+          partialFilterExpression: {
+            normalizedName: { $type: "string" },
+          },
+        },
+      ),
       db.collection("subscriptions").createIndex(
         { normalizedEmail: 1 },
         { unique: true, name: "uq_subscription_normalized_email" },

@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from "vue";
-import logoSrc from "@/assets/Picture/mindlytic.svg";
+import { getMediaUrl } from "@/utils/mediaUrl";
 
 const props = defineProps({
   size: {
@@ -19,6 +19,7 @@ const props = defineProps({
 
 const markSize = computed(() => `${props.size}px`);
 const wordSize = computed(() => `${Math.max(18, Math.round(props.size * 0.52))}px`);
+const logoSrc = getMediaUrl("Picture/mindlytic.svg");
 </script>
 
 <template>

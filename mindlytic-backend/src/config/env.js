@@ -42,6 +42,11 @@ const parseCorsOrigins = (value) => {
 export const getEnv = (overrides = {}) => {
   const source = { ...process.env, ...overrides };
   const nodeEnv = source.NODE_ENV?.trim() || "development";
+  const mongodbDbName =
+    source.MONGODB_DB_NAME?.trim() ||
+    source.MONGODB_DB?.trim() ||
+    source.DB_NAME?.trim() ||
+    "Mindlytic";
 
   return Object.freeze({
     nodeEnv,
@@ -49,11 +54,8 @@ export const getEnv = (overrides = {}) => {
     port: toPositiveInt(source.PORT, 5001),
     logLevel: source.LOG_LEVEL?.trim() || (nodeEnv === "production" ? "info" : "debug"),
     mongodbUri: source.MONGODB_URI?.trim() || "",
-    mongodbDbName: source.MONGODB_DB?.trim() || "Mindlytic",
+    mongodbDbName,
     corsOrigins: parseCorsOrigins(source.CORS_ORIGIN),
-    adminApiKey: source.ADMIN_API_KEY?.trim() || "",
-    defaultPageSize: toPositiveInt(source.DEFAULT_PAGE_SIZE, 20),
-    maxPageSize: toPositiveInt(source.MAX_PAGE_SIZE, 100),
     maxRequestBodyBytes: toPositiveInt(source.REQUEST_BODY_LIMIT_BYTES, 262144),
     rateLimitMax: toPositiveInt(source.RATE_LIMIT_MAX, 120),
     rateLimitWindowMs: toPositiveInt(source.RATE_LIMIT_WINDOW_MS, 60000),

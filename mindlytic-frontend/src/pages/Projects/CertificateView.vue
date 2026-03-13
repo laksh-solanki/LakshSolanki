@@ -10,20 +10,34 @@ const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
 const courses = ref([]);
+const coursesLoading = ref(false);
+const savingCourse = ref(false);
 const loading = ref(false);
 const dialog = ref(false);
 const pdfSection = ref(null);
+const showAddCourse = ref(false);
 
 const form = reactive({
   fname: "",
-  course: "",
+  course: null,
+});
+
+const newCourse = reactive({
+  name: "",
+  category: "",
+  level: "Beginner",
+  durationHours: "",
 });
 
 const BASE_URL = getApiBaseUrl();
 const A4_WIDTH_PX = 794;
 const A4_HEIGHT_PX = 1123;
+const COURSE_LEVELS = ["Beginner", "Intermediate", "Advanced"];
 
 const courseCount = computed(() => courses.value.length);
+
+const normalizeCourseName = (value = "") => value.trim().replace(/\s+/g, " ").toLowerCase();
+const sortCourses = (items) => [...items].sort((a, b) => (a?.name || "").localeCompare(b?.name || ""));
 
 let html2CanvasPromise;
 let jsPdfCtorPromise;
@@ -53,21 +67,115 @@ const showAlert = (message, type) => {
 };
 
 const fetchCourses = async () => {
+  coursesLoading.value = true;
+
   try {
-    const response = await fetch(`${BASE_URL}/project/certificate-gen`);
+    const response = await fetch(`${BASE_URL}/api/courses`);
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
-    courses.value = await response.json();
+
+    const payload = await response.json();
+    const items = Array.isArray(payload) ? payload : payload.data ?? [];
+    courses.value = sortCourses(items);
+    showAddCourse.value = courses.value.length === 0;
   } catch (error) {
     console.error("There was a problem with the fetch operation:", error);
     showAlert("Failed to load courses.", "error");
+  } finally {
+    coursesLoading.value = false;
   }
 };
 
 onMounted(() => {
-  fetchCourses();
+  void fetchCourses();
 });
+
+const resetNewCourseForm = () => {
+  newCourse.name = "";
+  newCourse.category = "";
+  newCourse.level = "Beginner";
+  newCourse.durationHours = "";
+};
+
+const upsertCourse = (course) => {
+  const nextCourses = [...courses.value];
+  const courseIndex = nextCourses.findIndex((item) => item.id === course.id);
+
+  if (courseIndex >= 0) {
+    nextCourses.splice(courseIndex, 1, course);
+  } else {
+    nextCourses.push(course);
+  }
+
+  courses.value = sortCourses(nextCourses);
+};
+
+const addCourse = async () => {
+  const normalizedName = normalizeCourseName(newCourse.name);
+  if (!normalizedName) {
+    showAlert("Course name is required.", "error");
+    return;
+  }
+
+  savingCourse.value = true;
+
+  try {
+    const payload = {
+      name: newCourse.name.trim(),
+      category: newCourse.category.trim() || undefined,
+      level: newCourse.level || undefined,
+      durationHours: newCourse.durationHours ? Number(newCourse.durationHours) : undefined,
+    };
+
+    const response = await fetch(`${BASE_URL}/api/courses`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const responseBody = await response.json().catch(() => ({}));
+
+    if (response.status === 409) {
+      const existingCourse =
+        responseBody?.data ||
+        courses.value.find((course) => normalizeCourseName(course.name) === normalizedName) ||
+        null;
+
+      if (existingCourse) {
+        upsertCourse(existingCourse);
+        form.course = existingCourse;
+      }
+
+      showAddCourse.value = false;
+      resetNewCourseForm();
+      showAlert("Course already exists. The existing course has been selected.", "success");
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(responseBody?.error || "Failed to create course");
+    }
+
+    const createdCourse = responseBody?.data;
+    if (!createdCourse) {
+      throw new Error("Course was created but no course data was returned");
+    }
+
+    upsertCourse(createdCourse);
+    form.course = createdCourse;
+    showAddCourse.value = false;
+    resetNewCourseForm();
+    showAlert("Course added successfully.", "success");
+  } catch (error) {
+    console.error("There was a problem while adding the course:", error);
+    showAlert(error.message || "Failed to add course.", "error");
+  } finally {
+    savingCourse.value = false;
+  }
+};
 
 const previewCertificate = async () => {
   const { valid } = await studentForm.value.validate();
@@ -225,8 +333,120 @@ const generatePdf = async () => {
                     flat
                     class="form-input"
                   ></v-select>
+
+                  <div class="d-flex align-center justify-space-between flex-wrap ga-2 mt-3">
+                    <p class="mb-0 text-body-2 text-medium-emphasis">
+                      {{ coursesLoading ? "Loading courses..." : "Course not available? Add it directly to MongoDB." }}
+                    </p>
+                    <v-btn
+                      variant="text"
+                      color="primary"
+                      class="text-none px-0"
+                      :disabled="coursesLoading"
+                      @click="showAddCourse = !showAddCourse"
+                    >
+                      {{ showAddCourse ? "Hide Add Course" : "Add New Course" }}
+                    </v-btn>
+                  </div>
                 </v-col>
               </v-row>
+
+              <v-expand-transition>
+                <div v-show="showAddCourse" class="add-course-panel mt-2">
+                  <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-4">
+                    <div>
+                      <p class="form-kicker mb-1">Course Collection</p>
+                      <h3 class="text-h6 font-weight-bold mb-1">Add a new course</h3>
+                      <p class="text-body-2 text-medium-emphasis mb-0">
+                        This saves the course directly to your MongoDB `courses` collection.
+                      </p>
+                    </div>
+                    <v-chip color="primary" variant="tonal" size="small">MongoDB</v-chip>
+                  </div>
+
+                  <v-row>
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model.trim="newCourse.name"
+                        label="Course Name"
+                        placeholder="Enter course name"
+                        rounded="lg"
+                        prepend-inner-icon="mdi-book-education-outline"
+                        variant="solo-filled"
+                        flat
+                        class="form-input"
+                      ></v-text-field>
+                    </v-col>
+
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model.trim="newCourse.category"
+                        label="Category"
+                        placeholder="Software Development"
+                        rounded="lg"
+                        prepend-inner-icon="mdi-shape-outline"
+                        variant="solo-filled"
+                        flat
+                        class="form-input"
+                      ></v-text-field>
+                    </v-col>
+
+                    <v-col cols="12" md="6">
+                      <v-select
+                        v-model="newCourse.level"
+                        :items="COURSE_LEVELS"
+                        label="Level"
+                        rounded="lg"
+                        prepend-inner-icon="mdi-ladder"
+                        variant="solo-filled"
+                        flat
+                        class="form-input"
+                      ></v-select>
+                    </v-col>
+
+                    <v-col cols="12" md="6">
+                      <v-text-field
+                        v-model="newCourse.durationHours"
+                        label="Duration Hours"
+                        placeholder="24"
+                        type="number"
+                        min="1"
+                        rounded="lg"
+                        prepend-inner-icon="mdi-timer-outline"
+                        variant="solo-filled"
+                        flat
+                        class="form-input"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+
+                  <div class="d-flex align-center flex-wrap ga-3 mt-2">
+                    <v-btn
+                      color="primary"
+                      rounded="xl"
+                      class="text-none px-6"
+                      prepend-icon="mdi-plus"
+                      :loading="savingCourse"
+                      @click="addCourse"
+                    >
+                      Save Course
+                    </v-btn>
+
+                    <v-btn
+                      variant="text"
+                      color="primary"
+                      class="text-none"
+                      :disabled="savingCourse"
+                      @click="
+                        showAddCourse = false;
+                        resetNewCourseForm();
+                      "
+                    >
+                      Cancel
+                    </v-btn>
+                  </div>
+                </div>
+              </v-expand-transition>
 
               <div class="d-flex align-center flex-wrap ga-3 mt-2">
                 <v-btn
@@ -415,6 +635,15 @@ const generatePdf = async () => {
 
 .note-alert {
   border: 1px solid rgba(19, 111, 99, 0.14);
+}
+
+.add-course-panel {
+  padding: 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(19, 111, 99, 0.14);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 199, 120, 0.12), transparent 32%),
+    linear-gradient(155deg, rgba(255, 255, 255, 0.96), rgba(240, 249, 245, 0.98));
 }
 
 .side-panel {
