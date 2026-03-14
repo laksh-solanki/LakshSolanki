@@ -1,0 +1,47 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="40" y1="40" x2="1160" y2="660" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0E2A25" />
+      <stop offset="1" stop-color="#0B1E1B" />
+    </linearGradient>
+    <linearGradient id="card" x1="265" y1="160" x2="938" y2="542" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#123A33" />
+      <stop offset="1" stop-color="#0F2D28" />
+    </linearGradient>
+    <linearGradient id="accent" x1="283" y1="192" x2="917" y2="192" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4CCFB7" />
+      <stop offset="1" stop-color="#2CA792" />
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="700" rx="28" fill="url(#bg)" />
+  <rect x="240" y="140" width="720" height="420" rx="24" fill="url(#card)" stroke="#1E5C51" stroke-width="2" />
+  <rect x="282" y="182" width="636" height="56" rx="16" fill="url(#accent)" fill-opacity="0.18" />
+
+  <rect x="282" y="272" width="286" height="214" rx="16" fill="#102F2A" stroke="#27695D" />
+  <rect x="590" y="272" width="328" height="214" rx="16" fill="#102F2A" stroke="#27695D" />
+
+  <rect x="306" y="300" width="170" height="12" rx="6" fill="#5EDBC4" fill-opacity="0.55" />
+  <rect x="306" y="328" width="238" height="10" rx="5" fill="#4EA894" fill-opacity="0.6" />
+  <rect x="306" y="350" width="220" height="10" rx="5" fill="#4EA894" fill-opacity="0.52" />
+  <rect x="306" y="372" width="186" height="10" rx="5" fill="#4EA894" fill-opacity="0.45" />
+
+  <rect x="614" y="300" width="184" height="12" rx="6" fill="#80E8D4" fill-opacity="0.56" />
+  <rect x="614" y="328" width="262" height="10" rx="5" fill="#56B8A2" fill-opacity="0.62" />
+  <rect x="614" y="350" width="248" height="10" rx="5" fill="#56B8A2" fill-opacity="0.54" />
+  <rect x="614" y="372" width="204" height="10" rx="5" fill="#56B8A2" fill-opacity="0.47" />
+
+  <rect x="546" y="334" width="38" height="38" rx="12" fill="#1B5A4E" stroke="#4CCFB7" />
+  <path d="M558 348H572M572 348V362M572 348L558 362" stroke="#8EE9D8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+  <rect x="282" y="514" width="636" height="22" rx="11" fill="#153B34" />
+  <rect x="282" y="182" width="636" height="56" rx="16" stroke="#4CCFB7" stroke-opacity="0.28" />
+
+  <circle cx="320" cy="210" r="8" fill="#4CCFB7" />
+  <circle cx="347" cy="210" r="8" fill="#3AB69F" />
+  <circle cx="374" cy="210" r="8" fill="#2CA792" />
+
+  <text x="402" y="219" fill="#B8F2E7" font-size="28" font-family="Segoe UI, Arial, sans-serif" font-weight="600">
+    Translate Studio
+  </text>
+</svg>

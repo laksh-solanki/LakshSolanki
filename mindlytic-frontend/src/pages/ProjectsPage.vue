@@ -83,6 +83,16 @@ const projects = ref([
     link: "/projects/dev-utility-hub",
     tags: ["Text Tools", "Encoding", "Generators"],
   },
+  {
+    id: 9,
+    title: "Translate Studio",
+    category: "Language Tool",
+    description:
+      "Minimal translator with auto language detection, quick swap, voice playback, local history, and downloadable output.",
+    image: getMediaUrl("project_img/Project-9.svg"),
+    link: "/projects/translate-studio",
+    tags: ["Translation", "Speech", "Productivity"],
+  },
 ]);
 
 </script>

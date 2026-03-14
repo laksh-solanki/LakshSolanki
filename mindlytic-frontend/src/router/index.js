@@ -73,6 +73,12 @@ const routes = [
         component: () => import("@/pages/Projects/DevUtilityHub.vue"),
         meta: { title: "Mindlytic | Dev Utility Hub" },
       },
+      {
+        path: "translate-studio",
+        name: "TranslateStudio",
+        component: () => import("@/pages/Projects/TranslateStudio.vue"),
+        meta: { title: "Mindlytic | Translate Studio" },
+      },
     ],
   },
   {

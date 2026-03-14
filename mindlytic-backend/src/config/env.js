@@ -11,6 +11,20 @@ const toPositiveInt = (value, fallback) => {
   return parsed;
 };
 
+const toNumberInRange = (value, fallback, { min, max }) => {
+  const parsed = Number.parseFloat(value ?? "");
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+  if (Number.isFinite(min) && parsed < min) {
+    return min;
+  }
+  if (Number.isFinite(max) && parsed > max) {
+    return max;
+  }
+  return parsed;
+};
+
 const toBoolean = (value, fallback) => {
   if (value === undefined || value === null || value === "") {
     return fallback;
@@ -39,6 +53,14 @@ const parseCorsOrigins = (value) => {
   return parseCommaSeparated(raw);
 };
 
+const parseAiProvider = (value) => {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  if (["auto", "gemini", "groq"].includes(normalized)) {
+    return normalized;
+  }
+  return "auto";
+};
+
 export const getEnv = (overrides = {}) => {
   const source = { ...process.env, ...overrides };
   const nodeEnv = source.NODE_ENV?.trim() || "development";
@@ -63,5 +85,20 @@ export const getEnv = (overrides = {}) => {
     enableCompression: toBoolean(source.ENABLE_COMPRESSION, true),
     enableSecurityHeaders: toBoolean(source.ENABLE_SECURITY_HEADERS, true),
     trustProxy: toBoolean(source.TRUST_PROXY, false),
+    geminiApiKey: source.GEMINI_API_KEY?.trim() || source.GOOGLE_API_KEY?.trim() || "",
+    geminiChatModel: source.GEMINI_CHAT_MODEL?.trim() || "gemini-2.5-flash",
+    groqApiKey: source.GROQ_API_KEY?.trim() || "",
+    groqApiBase: source.GROQ_API_BASE?.trim().replace(/\/+$/, "") || "https://api.groq.com/openai/v1",
+    groqChatModel: source.GROQ_CHAT_MODEL?.trim() || "llama-3.3-70b-versatile",
+    aiDefaultProvider: parseAiProvider(source.AI_DEFAULT_PROVIDER),
+    aiSystemPrompt:
+      source.AI_SYSTEM_PROMPT?.trim() ||
+      "You are Mindlytic AI, an all-in-one assistant. Give practical, structured, and concise answers first, then add implementation details, edge cases, and simple teaching guidance when useful.",
+    aiTemperature: toNumberInRange(source.AI_TEMPERATURE, 1.5, { min: 0, max: 2 }),
+    aiMaxOutputTokens: toPositiveInt(source.AI_MAX_OUTPUT_TOKENS, 2000),
+    imageApiKey: source.IMAGE_API_KEY?.trim() || "",
+    imageInvokeUrl: source.IMAGE_INVOKE_URL?.trim() || "",
+    imageModel: source.IMAGE_MODEL?.trim() || "",
+    imageSize: source.IMAGE_SIZE?.trim() || "1024x1024",
   });
 };

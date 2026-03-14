@@ -224,9 +224,18 @@ const searchItems = [
     icon: "mdi-tools",
     keywords: ["developer", "utility", "generator"],
   },
+  {
+    id: "translate",
+    title: "Translate Studio",
+    description: "Translate text with history and voice playback",
+    category: "Tools",
+    path: "/projects/translate-studio",
+    icon: "mdi-translate",
+    keywords: ["translate", "language", "translator", "speech"],
+  },
 ];
 
-const suggestedTerms = ["projects", "pdf", "certificate", "ai", "profile"];
+const suggestedTerms = ["projects", "translate", "pdf", "certificate", "ai"];
 
 const quickActions = searchItems.filter((item) => item.category === "Pages");
 

@@ -6,6 +6,7 @@
       <RouterView />
     </v-main>
     <AppFooter />
+    <CookieConsentBanner />
   </v-app>
 </template>
 
@@ -13,6 +14,7 @@
 import { defineAsyncComponent, onMounted, ref } from "vue";
 import { RouterView } from "vue-router";
 import AppHeader from "@/components/AppHeader.vue";
+import CookieConsentBanner from "@/components/CookieConsentBanner.vue";
 import TopLoader from "./components/TopLoader.vue";
 import { isGlobalLoading } from "@/router/index.js";
 
@@ -41,5 +43,49 @@ onMounted(() => {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(76, 207, 183, 0.46);
+}
+
+/* Unified minimal background for all project tool pages */
+.ai-page,
+.tool-page,
+.hub-page,
+.forge-page,
+.lab-page,
+.certificate-page {
+  background: rgb(var(--v-theme-background)) !important;
+}
+
+.ai-page .hero-shell,
+.tool-page .hero-shell,
+.hub-page .hero-shell,
+.forge-page .hero-shell,
+.lab-page .hero-shell,
+.certificate-page .hero-shell {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
+}
+
+/* Match project main containers with AI chat main container background */
+.tool-page > .v-container,
+.hub-page > .v-container,
+.forge-page > .v-container,
+.lab-page > .v-container,
+.certificate-page > .v-container {
+  background: rgb(var(--v-theme-background)) !important;
+}
+
+.tool-page .tool-shell,
+.tool-page .side-panel,
+.tool-page .image-card,
+.hub-page .tool-shell,
+.forge-page .tool-shell,
+.forge-page .output-shell,
+.forge-page .side-panel,
+.lab-page .tool-shell,
+.lab-page .side-panel,
+.certificate-page .form-shell,
+.certificate-page .side-panel {
+  background: rgb(var(--v-theme-surface)) !important;
+  border-color: rgba(var(--v-theme-on-surface), 0.14) !important;
 }
 </style>

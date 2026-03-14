@@ -107,3 +107,37 @@ test("subscription lifecycle works end-to-end", async (t) => {
   assert.equal(statusAfterUnsubscribe.json().subscribed, false);
 });
 
+test("image generation route returns validation error when invoke URL is missing", async (t) => {
+  const app = await createTestApp();
+  t.after(async () => {
+    await app.close();
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/api/ai/image",
+    payload: { prompt: "generate a mountain landscape" },
+  });
+
+  assert.equal(response.statusCode, 400);
+  assert.match(response.json().error, /invoke URL/i);
+});
+
+test("text chat route returns configuration error when provider keys are missing", async (t) => {
+  const app = await createTestApp();
+  t.after(async () => {
+    await app.close();
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/api/ai/chat",
+    payload: {
+      messages: [{ role: "user", text: "hello" }],
+    },
+  });
+
+  assert.equal(response.statusCode, 503);
+  assert.match(response.json().error, /No AI text provider is configured/i);
+});
+
