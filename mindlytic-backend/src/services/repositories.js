@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { normalizeEmail } from "../lib/email.js";
 
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -28,6 +27,13 @@ const toPublicDocument = (document) => {
 };
 
 const nowIso = () => new Date().toISOString();
+const generateId = () => {
+  if (typeof globalThis.crypto?.randomUUID === "function") {
+    return globalThis.crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+};
 
 const clone = (value) => {
   if (typeof globalThis.structuredClone === "function") {
@@ -123,7 +129,7 @@ export const createRepositories = ({ db, logger }) => {
       throw error;
     }
 
-    const record = { id: randomUUID(), ...course };
+    const record = { id: generateId(), ...course };
     memoryStore.courses.push(record);
     return toPublicDocument(record);
   };
@@ -202,7 +208,7 @@ export const createRepositories = ({ db, logger }) => {
     }
 
     const subscription = {
-      id: randomUUID(),
+      id: generateId(),
       email: normalized,
       normalizedEmail: normalized,
       name: name.trim(),

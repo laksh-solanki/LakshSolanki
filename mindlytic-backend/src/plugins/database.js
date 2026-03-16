@@ -1,4 +1,15 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
+let mongoRuntimePromise;
+
+const getMongoRuntime = async () => {
+  if (!mongoRuntimePromise) {
+    mongoRuntimePromise = import("mongodb").then((module) => ({
+      MongoClient: module.MongoClient,
+      ServerApiVersion: module.ServerApiVersion,
+    }));
+  }
+
+  return mongoRuntimePromise;
+};
 
 const createDisconnectedStatus = (reason) => ({
   mode: "memory",
@@ -53,12 +64,27 @@ export const registerDatabase = async (app, env) => {
     return;
   }
 
+  let mongoRuntime;
+  try {
+    mongoRuntime = await getMongoRuntime();
+  } catch (error) {
+    app.decorate("mongoClient", null);
+    app.decorate("db", null);
+    app.decorate("dbStatus", createDisconnectedStatus("MongoDB driver could not be loaded"));
+    app.log.error({ err: error }, "MongoDB driver failed to load in this runtime. Falling back to memory mode.");
+    return;
+  }
+
+  const { MongoClient, ServerApiVersion } = mongoRuntime;
+
   const client = new MongoClient(env.mongodbUri, {
     serverApi: {
       version: ServerApiVersion.v1,
       strict: true,
       deprecationErrors: true,
     },
+    serverSelectionTimeoutMS: env.mongodbServerSelectionTimeoutMs,
+    connectTimeoutMS: env.mongodbConnectTimeoutMs,
   });
 
   try {

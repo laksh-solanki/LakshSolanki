@@ -1,8 +1,10 @@
+import { getUptimeSeconds } from "../lib/runtime.js";
+
 export const registerHealthRoutes = async (app) => {
   app.get("/health", async () => ({
     status: "ok",
     timestamp: new Date().toISOString(),
-    uptimeSeconds: Number(process.uptime().toFixed(1)),
+    uptimeSeconds: getUptimeSeconds(),
   }));
 
   app.get("/ready", async (request, reply) => {

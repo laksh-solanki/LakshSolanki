@@ -77,6 +77,8 @@ export const getEnv = (overrides = {}) => {
     logLevel: source.LOG_LEVEL?.trim() || (nodeEnv === "production" ? "info" : "debug"),
     mongodbUri: source.MONGODB_URI?.trim() || "",
     mongodbDbName,
+    mongodbServerSelectionTimeoutMs: toPositiveInt(source.MONGODB_SERVER_SELECTION_TIMEOUT_MS, 5000),
+    mongodbConnectTimeoutMs: toPositiveInt(source.MONGODB_CONNECT_TIMEOUT_MS, 5000),
     corsOrigins: parseCorsOrigins(source.CORS_ORIGIN),
     maxRequestBodyBytes: toPositiveInt(source.REQUEST_BODY_LIMIT_BYTES, 262144),
     rateLimitMax: toPositiveInt(source.RATE_LIMIT_MAX, 120),
