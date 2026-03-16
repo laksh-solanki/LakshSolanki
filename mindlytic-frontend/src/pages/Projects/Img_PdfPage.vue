@@ -15,6 +15,7 @@ const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
 const orientation = ref("p");
+const generatedPdfPath = ref("");
 
 let jsPdfCtorPromise;
 
@@ -72,6 +73,8 @@ const processFiles = (files) => {
     };
     reader.readAsDataURL(file);
   });
+
+  generatedPdfPath.value = "";
 };
 
 const rotateImage = (index) => {
@@ -98,6 +101,7 @@ const moveDown = (index) => {
 
 const clearAll = () => {
   images.value = [];
+  generatedPdfPath.value = "";
   if (fileInput.value) fileInput.value.value = "";
   showAlert("All images cleared.", "error");
 };
@@ -187,7 +191,9 @@ const generatePdfWithOrientation = async () => {
     conversionStatus.value = "Finalizing PDF...";
     const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
     const orientationName = orientation.value === "p" ? "portrait" : "landscape";
-    pdf.save(`images-to-pdf-${orientationName}-${timestamp}.pdf`);
+    const fileName = `images-to-pdf-${orientationName}-${timestamp}.pdf`;
+    pdf.save(fileName);
+    generatedPdfPath.value = getGeneratedPdfPath(fileName);
 
     conversionProgress.value = 100;
     showAlert("PDF generated successfully!", "success");
@@ -236,14 +242,8 @@ onUnmounted(() => {
     <section class="hero-shell">
       <v-container class="py-10 py-md-12">
         <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-6">
-          <v-btn
-            @click="goBack"
-            variant="tonal"
-            color="primary"
-            prepend-icon="mdi-arrow-left"
-            rounded="xl"
-            class="text-none"
-          >
+          <v-btn @click="goBack" variant="tonal" color="primary" prepend-icon="mdi-arrow-left" rounded="xl"
+            class="text-none">
             Back
           </v-btn>
           <div class="hero-chip">Project Tool</div>
@@ -278,7 +278,7 @@ onUnmounted(() => {
 
     <v-container class="py-8 py-md-12">
       <v-row class="ga-0" align="start">
-        <v-col cols="12" lg="8" class="pr-lg-6 mb-8 mb-lg-0">
+        <v-col cols="12" lg="6" class="pr-lg-6">
           <v-card class="tool-shell pa-5 pa-md-7" rounded="xl" elevation="0">
             <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
               <div>
@@ -289,25 +289,11 @@ onUnmounted(() => {
               <v-icon icon="mdi-file-image" color="primary" size="34"></v-icon>
             </div>
 
-            <v-sheet
-              :class="['upload-zone', { 'drag-over': isDragging }]"
-              rounded="xl"
-              border
-              @click="triggerFileInput"
-              @dragenter.prevent="isDragging = true"
-              @dragover.prevent
-              @dragleave.prevent="isDragging = false"
-              @drop="handleDrop"
-            >
-              <input
-                ref="fileInput"
-                type="file"
-                multiple
-                accept="image/*"
-                @change="handleFileSelect"
-                class="file-input"
-                required
-              />
+            <v-sheet :class="['upload-zone', { 'drag-over': isDragging }]" rounded="xl" border @click="triggerFileInput"
+              @dragenter.prevent="isDragging = true" @dragover.prevent @dragleave.prevent="isDragging = false"
+              @drop="handleDrop">
+              <input ref="fileInput" type="file" multiple accept="image/*" @change="handleFileSelect" class="file-input"
+                required />
 
               <div class="d-flex flex-column align-center ga-4 justify-center text-center">
                 <v-icon size="72" color="primary">mdi-cloud-upload-outline</v-icon>
@@ -319,22 +305,12 @@ onUnmounted(() => {
 
             <div class="d-flex align-center flex-wrap ga-2 mt-5">
               <span class="text-body-2 text-medium-emphasis">PDF Orientation:</span>
-              <v-btn
-                @click="setOrientation('p')"
-                :variant="orientation === 'p' ? 'flat' : 'outlined'"
-                :color="orientation === 'p' ? 'primary' : 'primary'"
-                rounded="lg"
-                class="text-none"
-              >
+              <v-btn @click="setOrientation('p')" :variant="orientation === 'p' ? 'flat' : 'outlined'"
+                :color="orientation === 'p' ? 'primary' : 'primary'" rounded="lg" class="text-none">
                 Portrait
               </v-btn>
-              <v-btn
-                @click="setOrientation('l')"
-                :variant="orientation === 'l' ? 'flat' : 'outlined'"
-                :color="orientation === 'l' ? 'primary' : 'primary'"
-                rounded="lg"
-                class="text-none"
-              >
+              <v-btn @click="setOrientation('l')" :variant="orientation === 'l' ? 'flat' : 'outlined'"
+                :color="orientation === 'l' ? 'primary' : 'primary'" rounded="lg" class="text-none">
                 Landscape
               </v-btn>
             </div>
@@ -344,12 +320,15 @@ onUnmounted(() => {
                 <span class="text-body-2">{{ conversionStatus }}</span>
                 <span class="text-caption">{{ conversionProgress }}%</span>
               </div>
-              <v-progress-linear :model-value="conversionProgress" color="primary" rounded height="8"></v-progress-linear>
+              <v-progress-linear :model-value="conversionProgress" color="primary" rounded
+                height="8"></v-progress-linear>
             </div>
           </v-card>
+        </v-col>
 
+        <v-col cols="12" lg="6">
           <transition name="slide-up">
-            <div v-if="images.length > 0" class="mt-6">
+            <div v-if="images.length > 0">
               <v-card class="tool-shell pa-4 pa-md-5" rounded="xl" elevation="0">
                 <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-5">
                   <h3 class="text-h6 font-weight-bold mb-0">Image Pages ({{ images.length }})</h3>
@@ -357,74 +336,34 @@ onUnmounted(() => {
                     <v-btn variant="tonal" color="error" rounded="lg" @click="clearAll" class="text-none">
                       Clear All
                     </v-btn>
-                    <v-btn
-                      variant="flat"
-                      color="primary"
-                      rounded="lg"
-                      @click="generatePdfWithOrientation"
-                      :disabled="isConverting || images.length === 0"
-                      class="text-none"
-                    >
+                    <v-btn variant="flat" color="primary" rounded="lg" @click="generatePdfWithOrientation"
+                      :disabled="isConverting || images.length === 0" class="text-none">
                       {{ isConverting ? "Converting..." : "Download PDF" }}
                     </v-btn>
                   </div>
                 </div>
 
                 <v-row>
-                  <v-col
-                    v-for="(image, index) in images"
-                    :key="image.id"
-                    cols="12"
-                    sm="6"
-                    md="6"
-                    lg="4"
-                  >
+                  <v-col v-for="(image, index) in images" :key="image.id" cols="12" sm="6" md="6" lg="4">
                     <v-card class="image-card" rounded="lg" elevation="0">
                       <v-card-actions class="d-flex justify-end ga-1 pa-2">
-                        <v-btn
-                          @click="rotateImage(index)"
-                          icon="mdi-rotate-right"
-                          size="small"
-                          variant="tonal"
-                          color="warning"
-                        ></v-btn>
-                        <v-btn
-                          @click="moveUp(index)"
-                          :disabled="index === 0"
-                          :icon="xs ? 'mdi-arrow-up' : 'mdi-arrow-left'"
-                          size="small"
-                          variant="tonal"
-                          color="primary"
-                        ></v-btn>
-                        <v-btn
-                          @click="moveDown(index)"
-                          :disabled="index === images.length - 1"
-                          :icon="xs ? 'mdi-arrow-down' : 'mdi-arrow-right'"
-                          size="small"
-                          variant="tonal"
-                          color="primary"
-                        ></v-btn>
-                        <v-btn
-                          @click="removeImage(index)"
-                          icon="mdi-close"
-                          size="small"
-                          variant="tonal"
-                          color="error"
-                        ></v-btn>
+                        <v-btn @click="rotateImage(index)" icon="mdi-rotate-right" size="small" variant="tonal"
+                          color="warning"></v-btn>
+                        <v-btn @click="moveUp(index)" :disabled="index === 0"
+                          :icon="xs ? 'mdi-arrow-up' : 'mdi-arrow-left'" size="small" variant="tonal"
+                          color="primary"></v-btn>
+                        <v-btn @click="moveDown(index)" :disabled="index === images.length - 1"
+                          :icon="xs ? 'mdi-arrow-down' : 'mdi-arrow-right'" size="small" variant="tonal"
+                          color="primary"></v-btn>
+                        <v-btn @click="removeImage(index)" icon="mdi-close" size="small" variant="tonal"
+                          color="error"></v-btn>
                       </v-card-actions>
 
                       <div class="pa-2 d-flex justify-center overflow-hidden">
-                        <v-img
-                          :src="image.url"
-                          :alt="image.name"
-                          height="210"
-                          contain
-                          class="rounded-lg"
-                          :style="{
-                            transform: `rotate(${image.rotation}deg)`,
-                            transition: 'transform 0.3s ease',
-                          }"
-                        ></v-img>
+                        <v-img :src="image.url" :alt="image.name" height="210" contain class="rounded-lg" :style="{
+                          transform: `rotate(${image.rotation}deg)`,
+                          transition: 'transform 0.3s ease',
+                        }"></v-img>
                       </div>
 
                       <v-card-text class="pt-1 pb-3">
@@ -437,39 +376,6 @@ onUnmounted(() => {
               </v-card>
             </div>
           </transition>
-        </v-col>
-
-        <v-col cols="12" lg="4">
-          <v-card class="side-panel pa-5" rounded="xl" elevation="0">
-            <p class="panel-kicker mb-1">Quick Guide</p>
-            <h3 class="text-h6 font-weight-bold mb-3">Best workflow</h3>
-
-            <div class="step-list">
-              <article class="step-item">
-                <span class="step-index">01</span>
-                <div>
-                  <p class="step-title mb-1">Upload images</p>
-                  <p class="step-copy mb-0">Add one or many images from your local device.</p>
-                </div>
-              </article>
-
-              <article class="step-item">
-                <span class="step-index">02</span>
-                <div>
-                  <p class="step-title mb-1">Adjust order and angle</p>
-                  <p class="step-copy mb-0">Use arrows to reorder and rotate buttons to correct orientation.</p>
-                </div>
-              </article>
-
-              <article class="step-item">
-                <span class="step-index">03</span>
-                <div>
-                  <p class="step-title mb-1">Export PDF</p>
-                  <p class="step-copy mb-0">Choose portrait or landscape and download the final PDF.</p>
-                </div>
-              </article>
-            </div>
-          </v-card>
         </v-col>
       </v-row>
     </v-container>
@@ -602,43 +508,57 @@ onUnmounted(() => {
   box-shadow: 0 16px 30px rgba(11, 39, 34, 0.08);
 }
 
-.step-list {
-  display: grid;
-  gap: 12px;
+.output-empty {
+  border: 1px solid rgba(19, 111, 99, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.84);
+  padding: 12px;
+  color: #556865;
+  font-size: 0.9rem;
 }
 
-.step-item {
+.output-list {
   display: grid;
-  grid-template-columns: 42px 1fr;
   gap: 12px;
-  padding: 12px;
+  max-height: 460px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.output-item {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
   border-radius: 12px;
   border: 1px solid rgba(19, 111, 99, 0.14);
   background: rgba(255, 255, 255, 0.84);
 }
 
-.step-index {
-  width: 42px;
-  height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  font-size: 0.76rem;
-  font-weight: 800;
-  color: #157568;
-  background: rgba(21, 117, 104, 0.12);
+.output-thumb {
+  border: 1px solid rgba(19, 111, 99, 0.18);
+  background: rgba(19, 111, 99, 0.05);
 }
 
-.step-title {
+.output-name {
   font-weight: 700;
   color: #12352f;
+  font-size: 0.88rem;
 }
 
-.step-copy {
+.output-path {
   color: #556865;
-  font-size: 0.89rem;
-  line-height: 1.5;
+  font-size: 0.79rem;
+  line-height: 1.45;
+  word-break: break-all;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.pdf-label {
+  font-weight: 700;
+  color: #12352f;
+  font-size: 0.86rem;
 }
 
 .slide-up-enter-active,
@@ -663,15 +583,10 @@ onUnmounted(() => {
 }
 
 @media (max-width: 600px) {
-  .step-item {
-    grid-template-columns: 36px 1fr;
+  .output-item {
+    grid-template-columns: 72px 1fr;
     gap: 10px;
     padding: 10px;
-  }
-
-  .step-index {
-    width: 36px;
-    height: 36px;
   }
 }
 </style>

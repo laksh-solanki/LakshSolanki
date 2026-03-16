@@ -63,8 +63,8 @@
                   </div>
                 </template>
                 <div class="chat-toolbar-actions">
-                  <v-btn :size="showChatActionLabels ? 'small' : 'x-small'" color="primary" variant="tonal"
-                    rounded="lg" class="text-none" :icon="!showChatActionLabels" title="New Chat" aria-label="New Chat"
+                  <v-btn :size="showChatActionLabels ? 'small' : 'x-small'" color="primary" variant="tonal" rounded="lg"
+                    class="text-none" :icon="!showChatActionLabels" title="New Chat" aria-label="New Chat"
                     @click="resetChat">
                     <v-icon v-if="!showChatActionLabels" icon="mdi-plus" />
                     <template v-else>
@@ -81,18 +81,33 @@
                       Regenerate
                     </template>
                   </v-btn>
-                  <v-btn :size="showChatActionLabels ? 'small' : 'x-small'" variant="tonal" color="primary"
-                    rounded="lg" class="text-none" :icon="!showChatActionLabels"
+                  <v-btn :size="showChatActionLabels ? 'small' : 'x-small'" variant="tonal" color="primary" rounded="lg"
+                    class="text-none" :icon="!showChatActionLabels"
                     :title="isChatFullscreen ? 'Exit Full Screen' : 'Full Screen'"
                     :aria-label="isChatFullscreen ? 'Exit Full Screen' : 'Full Screen'" @click="toggleChatFullscreen">
-                    <v-icon v-if="!showChatActionLabels" :icon="isChatFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" />
+                    <v-icon v-if="!showChatActionLabels"
+                      :icon="isChatFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" />
                     <template v-else>
                       <v-icon start :icon="isChatFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" />
                       {{ isChatFullscreen ? "Exit Full Screen" : "Full Screen" }}
                     </template>
                   </v-btn>
+                  <v-btn density="comfortable" variant="tonal" color="primary" rounded="lg"
+                    :title="searchOpen ? 'Close search' : 'Search messages'" @click="toggleSearch">
+                    <v-icon size="16">{{ searchOpen ? "mdi-close" : "mdi-magnify" }}</v-icon>
+                  </v-btn>
+                  <v-select v-model="selectedModel" :items="availableModels" item-title="label" item-value="value"
+                    density="compact" variant="outlined" rounded="lg" hide-details class="model-select"
+                    :disabled="loading || !hasSelectedApiKey" title="Select AI model" />
                 </div>
               </v-toolbar>
+              <v-expand-transition>
+                <div v-if="searchOpen" class="search-bar-wrap px-3 pb-2">
+                  <v-text-field v-model="searchQuery" density="compact" variant="outlined" rounded="lg" hide-details
+                    placeholder="Search messages..." prepend-inner-icon="mdi-magnify" clearable autofocus
+                    @click:clear="searchQuery = ''" />
+                </div>
+              </v-expand-transition>
             </div>
 
             <div ref="chatWorkspace" class="chat-workspace">
@@ -102,10 +117,11 @@
                     <div class="chat-inner">
                       <div v-for="msg in messages" :key="msg.id" class="d-flex w-100 mb-2"
                         :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
-                        <div :class="['message-stack', msg.role === 'user' ? 'message-stack-user' : 'message-stack-ai']">
+                        <div
+                          :class="['message-stack', msg.role === 'user' ? 'message-stack-user' : 'message-stack-ai']">
                           <v-avatar class="message-avatar" size="28"
-                            :color="msg.role === 'user' ? 'primary' : 'primary'" :variant="msg.role === 'user' ? 'flat' : 'tonal'"
-                            aria-hidden="true">
+                            :color="msg.role === 'user' ? 'primary' : 'primary'"
+                            :variant="msg.role === 'user' ? 'flat' : 'tonal'" aria-hidden="true">
                             <v-icon size="16">{{ msg.role === "user" ? "mdi-account" : "mdi-robot-outline" }}</v-icon>
                           </v-avatar>
 
@@ -113,6 +129,9 @@
                             'message-card',
                             msg.role === 'user' ? 'message-card-user' : 'message-card-ai',
                             msg.error ? 'message-card-error' : '',
+                            searchActive && isMessageSearchMatch(msg) ? 'message-card-search-hit' : '',
+                            searchActive && !isMessageSearchMatch(msg) ? 'message-card-search-dim' : '',
+                            searchActive && msg.id === editingMessageId ? 'message-card-search-focus' : '',
                           ]" rounded="xl" elevation="1">
                             <v-card-text class="message-card-body">
                               <div class="message-meta d-flex align-center justify-space-between flex-wrap ga-2 mb-2">
@@ -129,7 +148,8 @@
                                   <button type="button" class="generated-image-trigger"
                                     :aria-label="msg.text ? `Open generated image: ${msg.text}` : 'Open generated image preview'"
                                     @click.stop="openGeneratedImagePreview(msg)">
-                                    <img :src="msg.imageUrl" class="generated-image" alt="Generated by Mindlytic AI" loading="lazy" />
+                                    <img :src="msg.imageUrl" class="generated-image" alt="Generated by Mindlytic AI"
+                                      loading="lazy" />
                                   </button>
                                   <p v-if="msg.text" class="image-caption mb-0">{{ msg.text }}</p>
                                   <div class="d-flex justify-end mt-2">
@@ -142,12 +162,14 @@
                                 <p v-else class="mb-0 image-error">{{ msg.text || "Unable to generate image." }}</p>
                               </div>
 
-                              <div v-else-if="msg.role === 'assistant' && msg.text" class="markdown-body" v-html="parseMessage(msg.text)">
+                              <div v-else-if="msg.role === 'assistant' && msg.text" class="markdown-body"
+                                v-html="parseMessage(msg.text)">
                               </div>
 
                               <p v-if="msg.role === 'user'" class="user-text">{{ replaceEmojiShortcodes(msg.text) }}</p>
 
-                              <div v-if="msg.role === 'assistant' && msg.kind !== 'image' && msg.text" class="d-flex justify-end mt-2">
+                              <div v-if="msg.role === 'assistant' && msg.kind !== 'image' && msg.text"
+                                class="d-flex justify-end mt-2">
                                 <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
                                   @click.stop="copyMessage(msg.text)">
                                   Copy reply
@@ -156,6 +178,11 @@
                             </v-card-text>
                           </v-card>
                         </div>
+                      </div>
+
+                      <div v-if="searchOpen && normalizedSearchQuery && !hasSearchResults"
+                        class="search-empty px-2 px-sm-3 py-2">
+                        No messages found for "{{ searchQuery }}".
                       </div>
 
                       <div v-if="loading && activeGenerationMode !== 'image'" class="d-flex w-100 justify-start mb-2">
@@ -181,11 +208,11 @@
                 <div class="composer">
                   <v-sheet color="transparent" class="pa-3 pa-sm-4">
                     <div class="composer-inline">
-                      <v-textarea v-model="userInput" class="composer-input" :placeholder="composerPlaceholder" auto-grow rows="1"
-                        max-rows="5" variant="outlined" rounded="lg" hide-details :disabled="loading || !hasAnyAiProvider"
-                        @keydown="handlePromptKeydown"></v-textarea>
+                      <v-textarea v-model="userInput" class="composer-input" :placeholder="composerPlaceholder"
+                        auto-grow rows="1" max-rows="5" variant="outlined" rounded="lg" hide-details
+                        :disabled="loading || !hasAnyAiProvider" @keydown="handlePromptKeydown"></v-textarea>
                       <v-btn :color="loading ? 'error' : 'primary'" rounded="lg" class="text-none composer-send-btn"
-                        :icon="loading ? 'mdi-stop' : 'mdi-send'" :aria-label="loading ? 'Stop' : 'Send'"
+                        :icon="loading ? 'mdi-stop-circle-outline' : 'mdi-arrow-right-thin-circle-outline'" :aria-label="loading ? 'Stop' : 'Send'"
                         :disabled="primaryActionDisabled" @click="handlePrimaryAction" />
                     </div>
                   </v-sheet>
@@ -295,6 +322,8 @@ const IMAGE_PROXY_URLS = collectUnique([
   ...API_BASE_URLS.map((base) => toApiUrl(base, AI_IMAGE_PATH)),
 ]);
 const STORAGE_KEY = "mindlytic_ai_studio_v4";
+const MODEL_STORAGE_KEY = "mindlytic_model";
+const TEMPERATURE_STORAGE_KEY = "mindlytic_temp";
 const GEMINI_CHAT_MODEL = (import.meta.env.VITE_GEMINI_CHAT_MODEL || "gemini-2.5-flash").trim();
 const GROQ_CHAT_MODEL = (import.meta.env.VITE_GROQ_CHAT_MODEL || "llama-3.3-70b-versatile").trim();
 const ASSISTANT_LABEL = "Mindlytic AI";
@@ -302,11 +331,33 @@ const ASSISTANT_SYSTEM_PROMPT =
   "You are Mindlytic AI, an all-in-one assistant. Give practical, structured, and concise answers first, then add implementation details, edge cases, and simple teaching guidance when useful.";
 const REQUEST_TEMPERATURE = 1.5;
 const REQUEST_MAX_OUTPUT_TOKENS = 2000;
+const readStoredValue = (key, fallback = "") => {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const value = window.localStorage.getItem(key);
+    return value == null ? fallback : value;
+  } catch {
+    return fallback;
+  }
+};
+const writeStoredValue = (key, value) => {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(key, value);
+  } catch (error) {
+    console.error("localStorage write failed", error);
+  }
+};
 
 const userInput = ref("");
 const loading = ref(false);
 const activeGenerationMode = ref(null);
 const lastResponseMs = ref(0);
+const selectedModel = ref(readStoredValue(MODEL_STORAGE_KEY, "gemini-default"));
+const currentTemperature = ref(Number(readStoredValue(TEMPERATURE_STORAGE_KEY, String(REQUEST_TEMPERATURE))) || REQUEST_TEMPERATURE);
+const searchOpen = ref(false);
+const searchQuery = ref("");
+const editingMessageId = ref(null);
 
 const alertVisible = ref(false);
 const alertMessage = ref("");
@@ -338,14 +389,52 @@ const messages = ref([]);
 let nextId = 1;
 let activeController = null;
 
-const assistantProvider = computed(() => {
+const resolveModelName = (key) => {
+  const map = {
+    "gemini-flash": "gemini-2.5-flash",
+    "gemini-default": GEMINI_CHAT_MODEL,
+    "groq-llama": "llama-3.3-70b-versatile",
+    "groq-mixtral": "mixtral-8x7b-32768",
+    "groq-default": GROQ_CHAT_MODEL,
+  };
+  return map[key] || GEMINI_CHAT_MODEL;
+};
+const resolveModelProvider = (key) => (String(key || "").startsWith("groq-") ? "groq" : "gemini");
+const availableModels = computed(() => {
+  const models = [];
   if (GEMINI_API_KEY) {
-    return { provider: "gemini", modelName: GEMINI_CHAT_MODEL };
+    models.push({ label: "Gemini 2.5 Flash", value: "gemini-flash" });
+    if (GEMINI_CHAT_MODEL !== "gemini-2.5-flash") {
+      models.push({ label: `Gemini (${GEMINI_CHAT_MODEL})`, value: "gemini-default" });
+    }
   }
   if (GROQ_API_KEY) {
-    return { provider: "groq", modelName: GROQ_CHAT_MODEL };
+    models.push({ label: "Llama 3.3 70B", value: "groq-llama" });
+    models.push({ label: "Mixtral 8x7B", value: "groq-mixtral" });
+    if (!["llama-3.3-70b-versatile", "mixtral-8x7b-32768"].includes(GROQ_CHAT_MODEL)) {
+      models.push({ label: `Groq (${GROQ_CHAT_MODEL})`, value: "groq-default" });
+    }
+  }
+  if (!models.length) {
+    models.push({ label: "No model configured", value: "gemini-default", disabled: true });
+  }
+  return models;
+});
+const assistantProvider = computed(() => {
+  const provider = resolveModelProvider(selectedModel.value);
+  const modelName = resolveModelName(selectedModel.value);
+  if (provider === "gemini" && GEMINI_API_KEY) return { provider, modelName };
+  if (provider === "groq" && GROQ_API_KEY) return { provider, modelName };
+  const fallback = availableModels.value.find((item) => !item.disabled);
+  if (fallback) {
+    return { provider: resolveModelProvider(fallback.value), modelName: resolveModelName(fallback.value) };
   }
   return { provider: "gemini", modelName: GEMINI_CHAT_MODEL };
+});
+const normalizedTemperature = computed(() => {
+  const value = Number(currentTemperature.value);
+  if (!Number.isFinite(value)) return REQUEST_TEMPERATURE;
+  return Math.min(2, Math.max(0, value));
 });
 const hasSelectedApiKey = computed(() => Boolean(GEMINI_API_KEY || GROQ_API_KEY));
 const hasImageProvider = computed(() => Boolean((IMAGE_API_KEY && IMAGE_INVOKE_URL) || IMAGE_USE_PROXY));
@@ -361,9 +450,21 @@ const canRegenerate = computed(() => messages.value.some((m) => m.role === "user
 const userMessageCount = computed(() => messages.value.filter((m) => m.role === "user").length);
 const assistantMessageCount = computed(() => messages.value.filter((m) => m.role === "assistant").length);
 const lastResponseLabel = computed(() => (lastResponseMs.value ? `${(lastResponseMs.value / 1000).toFixed(1)}s` : "--"));
+const normalizedSearchQuery = computed(() => searchQuery.value.trim().toLowerCase());
+const isMessageSearchMatch = (message) => {
+  const query = normalizedSearchQuery.value;
+  if (!query) return false;
+  return String(message?.text || "").toLowerCase().includes(query);
+};
+const filteredMessages = computed(() => {
+  if (!normalizedSearchQuery.value) return messages.value;
+  return messages.value.filter((message) => isMessageSearchMatch(message));
+});
+const searchActive = computed(() => searchOpen.value && Boolean(normalizedSearchQuery.value));
+const hasSearchResults = computed(() => filteredMessages.value.length > 0);
 const isShortScreen = computed(() => viewportWidth.value <= 900 || viewportHeight.value <= 820);
 const isCompactLayout = computed(() => viewportWidth.value <= 900);
-const showChatActionLabels = computed(() => viewportWidth.value > 760);
+const showChatActionLabels = computed(() => viewportWidth.value > 1024);
 const runnerPanelStyle = computed(() => (isCompactLayout.value ? {} : { width: `${runnerPanelWidth.value}px` }));
 
 const goBack = () => window.history.back();
@@ -371,6 +472,13 @@ const showAlert = (message, type = "success") => {
   alertMessage.value = message;
   alertType.value = type === "error" ? "error" : "success";
   alertVisible.value = true;
+};
+const toggleSearch = () => {
+  searchOpen.value = !searchOpen.value;
+  if (!searchOpen.value) {
+    searchQuery.value = "";
+    editingMessageId.value = null;
+  }
 };
 
 const createMessage = (role, text, options = {}) => ({
@@ -1145,7 +1253,7 @@ const requestGemini = async (signal) => {
     body: JSON.stringify({
       system_instruction: { parts: [{ text: ASSISTANT_SYSTEM_PROMPT }] },
       contents: buildGeminiHistory(),
-      generationConfig: { temperature: REQUEST_TEMPERATURE, maxOutputTokens: REQUEST_MAX_OUTPUT_TOKENS },
+      generationConfig: { temperature: normalizedTemperature.value, maxOutputTokens: REQUEST_MAX_OUTPUT_TOKENS },
     }),
   });
   if (!response.ok) throw new Error(await readApiError(response));
@@ -1173,7 +1281,7 @@ const requestGroq = async (signal) => {
       body: JSON.stringify({
         model: assistantProvider.value.modelName,
         messages: buildGroqMessages(),
-        temperature: REQUEST_TEMPERATURE,
+        temperature: normalizedTemperature.value,
         max_tokens: REQUEST_MAX_OUTPUT_TOKENS,
         stream: false,
       }),
@@ -1397,6 +1505,41 @@ const restoreState = () => {
     return false;
   }
 };
+
+watch(
+  availableModels,
+  (models) => {
+    const hasCurrent = models.some((model) => model.value === selectedModel.value && !model.disabled);
+    if (hasCurrent) return;
+    const fallback = models.find((model) => !model.disabled) || models[0];
+    selectedModel.value = fallback?.value || "gemini-default";
+  },
+  { immediate: true },
+);
+watch(
+  selectedModel,
+  (value) => {
+    writeStoredValue(MODEL_STORAGE_KEY, String(value || "gemini-default"));
+  },
+  { immediate: true },
+);
+watch(
+  normalizedTemperature,
+  (value) => {
+    if (value !== currentTemperature.value) currentTemperature.value = value;
+    writeStoredValue(TEMPERATURE_STORAGE_KEY, String(value));
+  },
+  { immediate: true },
+);
+watch(searchQuery, (value) => {
+  if (!String(value || "").trim()) {
+    editingMessageId.value = null;
+  }
+});
+watch(filteredMessages, (list) => {
+  if (!normalizedSearchQuery.value) return;
+  editingMessageId.value = list[0]?.id ?? null;
+});
 
 watch(runnerPanelWidth, (value) => {
   const clamped = clampRunnerPanelWidth(value);
@@ -2755,11 +2898,9 @@ onUnmounted(() => {
 }
 
 .message-card-user {
-  background: linear-gradient(
-    155deg,
-    rgb(var(--v-theme-primary)),
-    rgba(var(--v-theme-primary), 0.8)
-  );
+  background: linear-gradient(155deg,
+      rgb(var(--v-theme-primary)),
+      rgba(var(--v-theme-primary), 0.8));
   color: #ffffff;
   border-color: rgba(var(--v-theme-primary), 0.58);
 }
@@ -2933,11 +3074,9 @@ onUnmounted(() => {
 
 .hero-shell {
   border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.12);
-  background: linear-gradient(
-    180deg,
-    rgba(var(--v-theme-surface), 0.96),
-    rgba(var(--v-theme-surface), 0.9)
-  );
+  background: linear-gradient(180deg,
+      rgba(var(--v-theme-surface), 0.96),
+      rgba(var(--v-theme-surface), 0.9));
 }
 
 .hero-kicker {
@@ -3061,6 +3200,90 @@ onUnmounted(() => {
 
 .chat-toolbar :deep(.v-toolbar__content) {
   justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 8px;
+}
+
+.chat-toolbar :deep(.v-toolbar__prepend) {
+  margin-inline-end: 0;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.chat-toolbar :deep(.v-toolbar__prepend .v-avatar) {
+  flex: 0 0 auto;
+}
+
+.chat-title-wrap {
+  min-width: 0;
+}
+
+.chat-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-toolbar-actions {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: visible;
+  overflow-y: visible;
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+
+.chat-toolbar-actions :deep(.v-btn) {
+  flex: 0 0 auto;
+}
+
+.model-select :deep(.v-field) {
+  font-size: 0.78rem;
+  border-radius: 10px;
+}
+
+.model-select {
+  flex: 1 1 176px;
+  min-width: 132px;
+  max-width: 190px;
+}
+
+.model-select :deep(.v-field__input) {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  min-height: 32px;
+}
+
+.search-bar-wrap {
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  background: rgba(var(--v-theme-surface), 0.97);
+}
+
+.search-bar-wrap :deep(.v-field) {
+  font-size: 0.84rem;
+}
+
+.search-empty {
+  font-size: 0.78rem;
+  color: rgba(var(--v-theme-on-surface), 0.66);
+}
+
+.message-card-search-hit {
+  border-color: rgba(var(--v-theme-primary), 0.54) !important;
+}
+
+.message-card-search-focus {
+  box-shadow: 0 0 0 1px rgba(var(--v-theme-primary), 0.52) !important;
+}
+
+.message-card-search-dim {
+  filter: blur(1.8px) saturate(0.58);
+  opacity: 0.42;
+  transform: scale(0.994);
+  transition: filter 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
 }
 
 .composer-inline {
@@ -3109,6 +3332,18 @@ onUnmounted(() => {
   border-left-color: rgba(var(--v-theme-on-surface), 0.14) !important;
 }
 
+@media (max-width: 1180px) {
+  .chat-toolbar-actions {
+    gap: 5px;
+  }
+
+  .model-select {
+    flex-basis: 156px;
+    min-width: 120px;
+    max-width: 168px;
+  }
+}
+
 @media (min-width: 961px) {
   .chat-shell {
     min-height: 620px !important;
@@ -3130,11 +3365,47 @@ onUnmounted(() => {
 }
 
 @media (max-width: 760px) {
+  .chat-toolbar {
+    min-height: auto;
+  }
+
+  .chat-toolbar :deep(.v-toolbar__content) {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .chat-toolbar :deep(.v-toolbar__prepend) {
+    flex: 1 1 100%;
+    width: 100%;
+    margin: 0;
+  }
+
+  .chat-title {
+    font-size: 0.9rem;
+  }
+
   .chat-toolbar-actions {
-    width: auto;
-    margin-left: auto;
-    justify-content: flex-end;
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-start;
+    flex-wrap: wrap;
     gap: 6px;
+    row-gap: 6px;
+  }
+
+  .chat-toolbar-actions :deep(.v-btn) {
+    min-width: 34px;
+    height: 34px;
+    padding-inline: 10px;
+  }
+
+  .model-select {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .message-avatar {
@@ -3151,6 +3422,24 @@ onUnmounted(() => {
 }
 
 @media (max-width: 600px) {
+  .chat-toolbar :deep(.v-toolbar__content) {
+    row-gap: 6px;
+  }
+
+  .chat-toolbar-actions {
+    gap: 5px;
+  }
+
+  .chat-toolbar-actions :deep(.v-btn) {
+    min-width: 32px;
+    height: 32px;
+    padding-inline: 8px;
+  }
+
+  .model-select :deep(.v-field__input) {
+    min-height: 30px;
+  }
+
   .chat-shell {
     min-height: calc(100dvh - 132px) !important;
     height: calc(100dvh - 132px) !important;

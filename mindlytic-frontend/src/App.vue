@@ -65,6 +65,25 @@ onMounted(() => {
   border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
 }
 
+/* Use fluid project containers with lower side margins */
+.ai-page > .v-container,
+.ai-page .hero-shell > .v-container,
+.tool-page > .v-container,
+.tool-page .hero-shell > .v-container,
+.hub-page > .v-container,
+.hub-page .hero-shell > .v-container,
+.forge-page > .v-container,
+.forge-page .hero-shell > .v-container,
+.lab-page > .v-container,
+.lab-page .hero-shell > .v-container,
+.certificate-page > .v-container,
+.certificate-page .hero-shell > .v-container {
+  max-width: none !important;
+  width: 100% !important;
+  padding-left: clamp(12px, 2vw, 28px) !important;
+  padding-right: clamp(12px, 2vw, 28px) !important;
+}
+
 /* Match project main containers with AI chat main container background */
 .tool-page > .v-container,
 .hub-page > .v-container,
@@ -87,5 +106,17 @@ onMounted(() => {
 .certificate-page .side-panel {
   background: rgb(var(--v-theme-surface)) !important;
   border-color: rgba(var(--v-theme-on-surface), 0.14) !important;
+}
+
+/* Hide project hero stats cards on mobile screens */
+@media (max-width: 768px) {
+  .ai-page .hero-stats,
+  .tool-page .hero-stats,
+  .hub-page .hero-stats,
+  .forge-page .hero-stats,
+  .lab-page .hero-stats,
+  .certificate-page .hero-stats {
+    display: none !important;
+  }
 }
 </style>
