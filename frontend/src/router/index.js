@@ -141,7 +141,7 @@ patchGuardRegistrar("beforeResolve");
 export const isGlobalLoading = ref(null);
 
 router.beforeEach((to) => {
-  document.title = to.meta.title || "Mindlytic";
+  document.title = to.meta.title || "LakshSolanki";
   if (isGlobalLoading.value) isGlobalLoading.value.start();
   return true;
 });

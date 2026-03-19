@@ -255,7 +255,6 @@ const generatePassword = () => {
                 <p class="panel-kicker mb-1">Text Transformer</p>
                 <h2 class="text-h5 font-weight-bold mb-1">Convert naming and casing instantly</h2>
               </div>
-              <v-icon icon="mdi-format-letter-case" color="primary" size="34"></v-icon>
             </div>
 
             <v-row>

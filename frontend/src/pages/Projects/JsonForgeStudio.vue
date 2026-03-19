@@ -499,7 +499,6 @@ const goBack = () => window.history.back();
                 <h2 class="text-h5 font-weight-bold mb-1">Source and compare JSON</h2>
                 <p class="text-body-2 text-medium-emphasis mb-0">Left is source JSON, right is optional compare JSON.</p>
               </div>
-              <v-icon icon="mdi-code-json" color="primary" size="34"></v-icon>
             </div>
 
             <v-row>
