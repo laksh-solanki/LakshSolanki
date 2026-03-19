@@ -8,6 +8,7 @@ const METHODS_WITHOUT_BODY = new Set(["GET", "HEAD"]);
 
 let workerStatePromise;
 let workerStateKey = "";
+let mongoRuntimePromise;
 
 const logger = {
   info: (...args) => console.log(...args),
@@ -73,6 +74,59 @@ const parseAiProvider = (value) => {
   return "auto";
 };
 
+const getMongoRuntime = async () => {
+  if (!mongoRuntimePromise) {
+    mongoRuntimePromise = import("mongodb").then((module) => ({
+      MongoClient: module.MongoClient,
+      ServerApiVersion: module.ServerApiVersion,
+    }));
+  }
+
+  return mongoRuntimePromise;
+};
+
+const ensureIndexes = async (db) => {
+  try {
+    await Promise.all([
+      db.collection("courses").createIndex({ name: 1 }, { name: "idx_course_name" }),
+      db.collection("courses").createIndex(
+        { normalizedName: 1 },
+        {
+          name: "uq_course_normalized_name",
+          unique: true,
+          partialFilterExpression: {
+            normalizedName: { $type: "string" },
+          },
+        },
+      ),
+      db.collection("media").createIndex(
+        { normalizedKey: 1 },
+        {
+          name: "uq_media_normalized_key",
+          unique: true,
+          partialFilterExpression: {
+            normalizedKey: { $type: "string" },
+          },
+        },
+      ),
+      db.collection("media").createIndex(
+        { type: 1, createdAt: -1 },
+        { name: "idx_media_type_created" },
+      ),
+      db.collection("subscriptions").createIndex(
+        { normalizedEmail: 1 },
+        { unique: true, name: "uq_subscription_normalized_email" },
+      ),
+      db.collection("subscriptions").createIndex(
+        { status: 1, createdAt: -1 },
+        { name: "idx_subscription_status_created" },
+      ),
+    ]);
+  } catch (error) {
+    logger.warn("Index creation skipped due to existing index/conflicting data.", error);
+  }
+};
+
 const getEnvConfig = (bindings = {}) => {
   const source = bindings;
   const nodeEnv = source.NODE_ENV?.trim() || "production";
@@ -84,11 +138,13 @@ const getEnvConfig = (bindings = {}) => {
       source.MONGODB_DB_NAME?.trim() ||
       source.MONGODB_DB?.trim() ||
       source.DB_NAME?.trim() ||
-      "Mindlytic",
+      "LakshSolanki",
     mongodbDataApiUrl: source.MONGODB_DATA_API_URL?.trim() || "",
     mongodbDataApiKey: source.MONGODB_DATA_API_KEY?.trim() || "",
     mongodbDataSource: source.MONGODB_DATA_SOURCE?.trim() || "Cluster0",
     mongodbDataApiTimeoutMs: toPositiveInt(source.MONGODB_DATA_API_TIMEOUT_MS, 8000),
+    mongodbServerSelectionTimeoutMs: toPositiveInt(source.MONGODB_SERVER_SELECTION_TIMEOUT_MS, 6000),
+    mongodbConnectTimeoutMs: toPositiveInt(source.MONGODB_CONNECT_TIMEOUT_MS, 6000),
     corsOrigins: parseCorsOrigins(source.CORS_ORIGIN),
     maxRequestBodyBytes: toPositiveInt(source.REQUEST_BODY_LIMIT_BYTES, 262144),
     enableSecurityHeaders: toBoolean(source.ENABLE_SECURITY_HEADERS, true),
@@ -142,7 +198,23 @@ const createDataApiDisconnectedStatus = (reason) =>
     reason,
   });
 
-const getMemoryFallbackReason = (envConfig) => {
+const createMongoConnectedStatus = () =>
+  createDatabaseStatus({
+    mode: "mongo",
+    enabled: true,
+    connected: true,
+    reason: "",
+  });
+
+const createMongoDisconnectedStatus = (reason) =>
+  createDatabaseStatus({
+    mode: "mongo",
+    enabled: true,
+    connected: false,
+    reason,
+  });
+
+const getUnconfiguredReason = (envConfig) => {
   if (!envConfig.mongodbUri && !envConfig.mongodbDataApiUrl && !envConfig.mongodbDataApiKey) {
     return "MongoDB is not configured.";
   }
@@ -155,11 +227,29 @@ const getMemoryFallbackReason = (envConfig) => {
     return "MONGODB_DATA_API_KEY is set but MONGODB_DATA_API_URL is missing.";
   }
 
-  if (envConfig.mongodbUri && !envConfig.mongodbDataApiUrl) {
-    return "Cloudflare Worker mode requires MONGODB_DATA_API_URL and MONGODB_DATA_API_KEY.";
-  }
-
   return "Worker is running in memory mode.";
+};
+
+const connectNativeMongo = async (envConfig) => {
+  const mongoRuntime = await getMongoRuntime();
+  const { MongoClient, ServerApiVersion } = mongoRuntime;
+
+  const client = new MongoClient(envConfig.mongodbUri, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+    serverSelectionTimeoutMS: envConfig.mongodbServerSelectionTimeoutMs,
+    connectTimeoutMS: envConfig.mongodbConnectTimeoutMs,
+  });
+
+  await client.connect();
+  const db = client.db(envConfig.mongodbDbName);
+  await db.command({ ping: 1 });
+  await ensureIndexes(db);
+
+  return { client, db };
 };
 
 const getState = async (bindings) => {
@@ -170,6 +260,8 @@ const getState = async (bindings) => {
     mongodbDataApiUrl: bindings?.MONGODB_DATA_API_URL || "",
     mongodbDataApiKey: bindings?.MONGODB_DATA_API_KEY || "",
     mongodbDataSource: bindings?.MONGODB_DATA_SOURCE || "",
+    mongodbServerSelectionTimeoutMs: bindings?.MONGODB_SERVER_SELECTION_TIMEOUT_MS || "",
+    mongodbConnectTimeoutMs: bindings?.MONGODB_CONNECT_TIMEOUT_MS || "",
   });
 
   if (!workerStatePromise || workerStateKey !== stateKey) {
@@ -177,10 +269,27 @@ const getState = async (bindings) => {
     workerStatePromise = (async () => {
       const envConfig = getEnvConfig(bindings);
       let db = null;
-      let dbStatus = createMemoryOnlyStatus(getMemoryFallbackReason(envConfig));
+      let dbStatus = createMemoryOnlyStatus(getUnconfiguredReason(envConfig));
+      let mongoClient = null;
+
+      if (envConfig.mongodbUri) {
+        try {
+          const connected = await connectNativeMongo(envConfig);
+          mongoClient = connected.client;
+          db = connected.db;
+          dbStatus = createMongoConnectedStatus();
+          logger.info("MongoDB URI connected for Worker runtime.");
+        } catch (error) {
+          logger.error("MongoDB URI connection failed in Worker runtime.", error);
+          dbStatus = createMongoDisconnectedStatus(
+            "MongoDB URI connection failed. Check MONGODB_URI network/auth settings.",
+          );
+          db = null;
+        }
+      }
 
       const canUseDataApi = Boolean(envConfig.mongodbDataApiUrl && envConfig.mongodbDataApiKey);
-      if (canUseDataApi) {
+      if (!db && canUseDataApi) {
         try {
           db = createMongoDataApiDb({
             baseUrl: envConfig.mongodbDataApiUrl,
@@ -202,10 +311,15 @@ const getState = async (bindings) => {
         }
       }
 
+      if (!db && dbStatus.mode === "memory") {
+        dbStatus = createMemoryOnlyStatus(getUnconfiguredReason(envConfig));
+      }
+
       return {
         startedAt: Date.now(),
         envConfig,
         dbStatus,
+        mongoClient,
         repositories: createRepositories({
           db,
           logger,
@@ -565,6 +679,92 @@ const handleCoursesPost = async (request, state) => {
   }
 };
 
+const validateMediaPayload = (body) => {
+  if (typeof body !== "object" || body === null) {
+    return "Request body must be a JSON object";
+  }
+  if (typeof body.url !== "string" || body.url.trim().length < 3 || body.url.trim().length > 2048) {
+    return "url is required and must be 3-2048 characters";
+  }
+  if (body.name !== undefined && (typeof body.name !== "string" || body.name.length > 140)) {
+    return "name must be a string with max 140 characters";
+  }
+  if (body.type !== undefined && (typeof body.type !== "string" || body.type.length > 40)) {
+    return "type must be a string with max 40 characters";
+  }
+  if (body.alt !== undefined && (typeof body.alt !== "string" || body.alt.length > 300)) {
+    return "alt must be a string with max 300 characters";
+  }
+  if (body.tags !== undefined) {
+    if (!Array.isArray(body.tags) || body.tags.length > 30) {
+      return "tags must be an array with max 30 items";
+    }
+    const invalidTag = body.tags.some((tag) => typeof tag !== "string" || tag.length > 40);
+    if (invalidTag) {
+      return "each tag must be a string with max 40 characters";
+    }
+  }
+  return "";
+};
+
+const handleMediaGet = async (request, state) => {
+  const { envConfig, repositories } = state;
+  const url = new URL(request.url);
+  const type = ensureString(url.searchParams.get("type")).slice(0, 40);
+  const sort = ensureString(url.searchParams.get("sort") || "desc").toLowerCase();
+  if (!["asc", "desc"].includes(sort)) {
+    return jsonResponse(request, envConfig, 400, { error: "sort must be 'asc' or 'desc'" });
+  }
+
+  const limitRaw = url.searchParams.get("limit");
+  const limit = limitRaw === null ? 50 : Number.parseInt(limitRaw, 10);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+    return jsonResponse(request, envConfig, 400, { error: "limit must be an integer between 1 and 100" });
+  }
+
+  const media = await repositories.listMedia({ type, limit, sort });
+  return jsonResponse(
+    request,
+    envConfig,
+    200,
+    {
+      count: media.length,
+      data: media,
+    },
+    {
+      "Cache-Control": "public, max-age=120, stale-while-revalidate=300",
+    },
+  );
+};
+
+const handleMediaPost = async (request, state) => {
+  const { envConfig, repositories } = state;
+  const body = await parseRequestBody(request, envConfig);
+  const validationError = validateMediaPayload(body);
+  if (validationError) {
+    return jsonResponse(request, envConfig, 400, { error: validationError });
+  }
+
+  try {
+    const created = await repositories.addMedia(body);
+    return jsonResponse(request, envConfig, 201, {
+      message: "Media created successfully",
+      data: created,
+    });
+  } catch (error) {
+    if (error?.statusCode && error.statusCode >= 400) {
+      const payload = {
+        error: error.message,
+      };
+      if (error.media) {
+        payload.data = error.media;
+      }
+      return jsonResponse(request, envConfig, error.statusCode, payload);
+    }
+    throw error;
+  }
+};
+
 const handleSubscribePost = async (request, state) => {
   const { envConfig, repositories } = state;
   const body = await parseRequestBody(request, envConfig);
@@ -891,8 +1091,20 @@ const handleRoute = async (request, state) => {
     return handleCoursesGet(request, state);
   }
 
+  if (path === "/api/projects/certificate-gen" && method === "GET") {
+    return handleCoursesGet(request, state);
+  }
+
   if (path === "/api/courses" && method === "POST") {
     return handleCoursesPost(request, state);
+  }
+
+  if (path === "/api/media" && method === "GET") {
+    return handleMediaGet(request, state);
+  }
+
+  if (path === "/api/media" && method === "POST") {
+    return handleMediaPost(request, state);
   }
 
   if (path === "/api/subscribe" && method === "POST") {

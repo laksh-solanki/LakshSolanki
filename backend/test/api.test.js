@@ -63,6 +63,13 @@ test("course endpoints create and list courses for the certificate generator", a
   assert.equal(apiResponse.statusCode, 200);
   assert.equal(apiResponse.json().count, 1);
   assert.equal(apiResponse.json().data[0].name, "Full Stack Web Development");
+
+  const compatibilityResponse = await app.inject({
+    method: "GET",
+    url: "/api/projects/certificate-gen?limit=3",
+  });
+  assert.equal(compatibilityResponse.statusCode, 200);
+  assert.equal(compatibilityResponse.json().count, 1);
 });
 
 test("subscription lifecycle works end-to-end", async (t) => {
@@ -105,6 +112,43 @@ test("subscription lifecycle works end-to-end", async (t) => {
   });
   assert.equal(statusAfterUnsubscribe.statusCode, 200);
   assert.equal(statusAfterUnsubscribe.json().subscribed, false);
+});
+
+test("media endpoints create and list media records", async (t) => {
+  const app = await createTestApp();
+  t.after(async () => {
+    await app.close();
+  });
+
+  const createResponse = await app.inject({
+    method: "POST",
+    url: "/api/media",
+    payload: {
+      name: "Certificate Hero Image",
+      url: "https://cdn.example.com/certificate-hero.png",
+      type: "image",
+      tags: ["certificate", "hero"],
+    },
+  });
+  assert.equal(createResponse.statusCode, 201);
+  assert.equal(createResponse.json().data.type, "image");
+
+  const duplicateResponse = await app.inject({
+    method: "POST",
+    url: "/api/media",
+    payload: {
+      url: "https://cdn.example.com/certificate-hero.png",
+    },
+  });
+  assert.equal(duplicateResponse.statusCode, 409);
+
+  const listResponse = await app.inject({
+    method: "GET",
+    url: "/api/media?type=image&limit=5",
+  });
+  assert.equal(listResponse.statusCode, 200);
+  assert.equal(listResponse.json().count, 1);
+  assert.equal(listResponse.json().data[0].url, "https://cdn.example.com/certificate-hero.png");
 });
 
 test("image generation route returns validation error when invoke URL is missing", async (t) => {

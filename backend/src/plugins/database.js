@@ -41,6 +41,20 @@ const ensureIndexes = async (db, log) => {
           },
         },
       ),
+      db.collection("media").createIndex(
+        { normalizedKey: 1 },
+        {
+          name: "uq_media_normalized_key",
+          unique: true,
+          partialFilterExpression: {
+            normalizedKey: { $type: "string" },
+          },
+        },
+      ),
+      db.collection("media").createIndex(
+        { type: 1, createdAt: -1 },
+        { name: "idx_media_type_created" },
+      ),
       db.collection("subscriptions").createIndex(
         { normalizedEmail: 1 },
         { unique: true, name: "uq_subscription_normalized_email" },

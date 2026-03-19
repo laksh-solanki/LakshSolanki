@@ -30,6 +30,16 @@ export const registerCourseRoutes = async (app) => {
     reply.header("Cache-Control", "public, max-age=120, stale-while-revalidate=300");
   };
 
+  const handleListCourses = async (request, reply) => {
+    setCatalogCacheHeaders(reply);
+    const { search = "", limit = 50, sort = "asc" } = request.query;
+    const courses = await app.repositories.listCourses({ search, limit, sort });
+    return {
+      count: courses.length,
+      data: courses,
+    };
+  };
+
   app.get(
     "/api/courses",
     {
@@ -37,15 +47,17 @@ export const registerCourseRoutes = async (app) => {
         querystring: listQuerySchema,
       },
     },
-    async (request, reply) => {
-      setCatalogCacheHeaders(reply);
-      const { search = "", limit = 50, sort = "asc" } = request.query;
-      const courses = await app.repositories.listCourses({ search, limit, sort });
-      return {
-        count: courses.length,
-        data: courses,
-      };
+    handleListCourses,
+  );
+
+  app.get(
+    "/api/projects/certificate-gen",
+    {
+      schema: {
+        querystring: listQuerySchema,
+      },
     },
+    handleListCourses,
   );
 
   app.post(

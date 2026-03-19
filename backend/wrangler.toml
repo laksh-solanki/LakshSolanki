@@ -6,5 +6,5 @@ workers_dev = true
 
 [vars]
 NODE_ENV = "production"
-MONGODB_DB_NAME = "Mindlytic"
+MONGODB_DB_NAME = "LakshSolanki"
 MONGODB_DATA_SOURCE = "Cluster0"

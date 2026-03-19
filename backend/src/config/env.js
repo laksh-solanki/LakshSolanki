@@ -68,7 +68,7 @@ export const getEnv = (overrides = {}) => {
     source.MONGODB_DB_NAME?.trim() ||
     source.MONGODB_DB?.trim() ||
     source.DB_NAME?.trim() ||
-    "Mindlytic";
+    "LakshSolanki";
 
   return Object.freeze({
     nodeEnv,

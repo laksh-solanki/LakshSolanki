@@ -3,6 +3,7 @@ import { normalizeEmail } from "../lib/email.js";
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const normalizeCourseName = (value) => value.trim().replace(/\s+/g, " ").toLowerCase();
+const normalizeMediaKey = (value = "") => value.trim().replace(/\s+/g, " ").toLowerCase();
 
 const createCourseRecord = ({ name, category, level, durationHours, tags = [] }) => {
   const trimmedName = name.trim().replace(/\s+/g, " ");
@@ -38,6 +39,33 @@ const toPublicDocument = (document) => {
   };
 };
 
+const toPublicMediaDocument = (document) => {
+  const item = toPublicDocument(document);
+  if (!item) return null;
+
+  // Prevent returning heavy raw content blobs from legacy media records.
+  delete item.data;
+  delete item.binary;
+  delete item.bytes;
+  delete item.buffer;
+
+  return item;
+};
+
+const createMediaRecord = ({ name = "", url, type = "generic", alt = "", tags = [] }) => {
+  const normalizedUrl = String(url || "").trim();
+  const normalizedName = String(name || "").trim().replace(/\s+/g, " ");
+
+  return {
+    name: normalizedName || null,
+    url: normalizedUrl,
+    type: String(type || "generic").trim().toLowerCase() || "generic",
+    alt: String(alt || "").trim(),
+    tags: Array.isArray(tags) ? tags.map((tag) => String(tag).trim()).filter(Boolean) : [],
+    normalizedKey: normalizeMediaKey(normalizedUrl || normalizedName),
+  };
+};
+
 const nowIso = () => new Date().toISOString();
 const generateId = () => {
   if (typeof globalThis.crypto?.randomUUID === "function") {
@@ -57,10 +85,12 @@ const clone = (value) => {
 export const createRepositories = ({ db, logger }) => {
   const memoryStore = {
     courses: [],
+    media: [],
     subscriptions: [],
   };
 
   const coursesCollection = db?.collection("courses");
+  const mediaCollection = db?.collection("media");
   const subscriptionsCollection = db?.collection("subscriptions");
 
   const listCourses = async ({ search = "", limit = 50, sort = "asc" }) => {
@@ -144,6 +174,83 @@ export const createRepositories = ({ db, logger }) => {
     const record = { id: generateId(), ...course };
     memoryStore.courses.push(record);
     return toPublicDocument(record);
+  };
+
+  const listMedia = async ({ type = "", limit = 50, sort = "desc" }) => {
+    const normalizedType = String(type || "").trim().toLowerCase();
+    const direction = sort === "asc" ? 1 : -1;
+
+    if (mediaCollection) {
+      const filter = normalizedType ? { type: normalizedType } : {};
+      const media = await mediaCollection
+        .find(filter)
+        .sort({ createdAt: direction })
+        .limit(limit)
+        .toArray();
+      return media.map(toPublicMediaDocument);
+    }
+
+    const filtered = memoryStore.media.filter((item) =>
+      normalizedType ? item.type === normalizedType : true,
+    );
+    const sorted = filtered.sort((a, b) =>
+      direction === 1
+        ? String(a.createdAt || "").localeCompare(String(b.createdAt || ""))
+        : String(b.createdAt || "").localeCompare(String(a.createdAt || "")),
+    );
+    return clone(sorted.slice(0, limit));
+  };
+
+  const addMedia = async ({ name = "", url, type = "generic", alt = "", tags = [] }) => {
+    const now = nowIso();
+    const media = {
+      ...createMediaRecord({ name, url, type, alt, tags }),
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    if (mediaCollection) {
+      const existingMedia = await mediaCollection.findOne({
+        normalizedKey: media.normalizedKey,
+      });
+
+      if (existingMedia) {
+        const error = new Error("Media already exists");
+        error.statusCode = 409;
+        error.media = toPublicMediaDocument(existingMedia);
+        throw error;
+      }
+
+      try {
+        const result = await mediaCollection.insertOne(media);
+        return toPublicMediaDocument({ _id: result.insertedId, ...media });
+      } catch (error) {
+        if (error?.code === 11000) {
+          const duplicate = await mediaCollection.findOne({
+            normalizedKey: media.normalizedKey,
+          });
+          const duplicateError = new Error("Media already exists");
+          duplicateError.statusCode = 409;
+          duplicateError.media = toPublicMediaDocument(duplicate);
+          throw duplicateError;
+        }
+        throw error;
+      }
+    }
+
+    const existingMedia = memoryStore.media.find(
+      (record) => record.normalizedKey === media.normalizedKey,
+    );
+    if (existingMedia) {
+      const error = new Error("Media already exists");
+      error.statusCode = 409;
+      error.media = toPublicMediaDocument(existingMedia);
+      throw error;
+    }
+
+    const record = { id: generateId(), ...media };
+    memoryStore.media.push(record);
+    return toPublicMediaDocument(record);
   };
 
   const subscribe = async ({ email, name = "", source = "web", ip = "", userAgent = "" }) => {
@@ -313,6 +420,8 @@ export const createRepositories = ({ db, logger }) => {
   return {
     listCourses,
     addCourse,
+    listMedia,
+    addMedia,
     subscribe,
     getSubscriptionStatus,
     unsubscribe,

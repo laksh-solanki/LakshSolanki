@@ -22,5 +22,53 @@ test("worker readiness reports not ready when only MONGODB_URI is configured", a
 
   const body = await response.json();
   assert.equal(body.status, "not_ready");
-  assert.equal(body.database.mode, "memory");
+  assert.equal(body.database.mode, "mongo");
+  assert.equal(body.database.connected, false);
+});
+
+test("worker adapter supports media create and list routes", async () => {
+  const createResponse = await worker.fetch(
+    new Request("https://mindlytic.example/api/media", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        name: "Banner",
+        url: "https://cdn.example.com/banner.jpg",
+        type: "image",
+      }),
+    }),
+    {
+      MONGODB_URI: "",
+    },
+  );
+
+  assert.equal(createResponse.status, 201);
+
+  const listResponse = await worker.fetch(
+    new Request("https://mindlytic.example/api/media?type=image"),
+    {
+      MONGODB_URI: "",
+    },
+  );
+
+  assert.equal(listResponse.status, 200);
+  const body = await listResponse.json();
+  assert.equal(body.count, 1);
+  assert.equal(body.data[0].url, "https://cdn.example.com/banner.jpg");
+});
+
+test("worker adapter supports certificate compatibility endpoint", async () => {
+  const response = await worker.fetch(
+    new Request("https://mindlytic.example/api/projects/certificate-gen?limit=3"),
+    {
+      MONGODB_URI: "",
+    },
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.ok(Number.isInteger(body.count));
+  assert.ok(Array.isArray(body.data));
 });
