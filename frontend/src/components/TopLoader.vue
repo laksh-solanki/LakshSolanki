@@ -1,0 +1,58 @@
+<template>
+  <div v-if="isVisible" class="loader-container">
+    <div class="loader-bar" :style="{ width: progress + '%' }"></div>
+  </div>
+</template>
+
+<script setup>
+// Library Imports
+import { ref } from "vue";
+
+// State & Refs
+const progress = ref(0);
+const isVisible = ref(false);
+let interval = null;
+
+const start = () => {
+  isVisible.value = true;
+  progress.value = 0;
+
+  // Trickle effect: moves fast at first, then slows down
+  interval = setInterval(() => {
+    if (progress.value < 90) {
+      progress.value += Math.random() * 10;
+    }
+  }, 200);
+};
+
+const finish = () => {
+  progress.value = 100;
+  setTimeout(() => {
+    isVisible.value = false;
+    clearInterval(interval);
+  }, 300); // Wait for the "100%" animation to finish
+};
+
+// Expose methods to be used by the router
+defineExpose({ start, finish });
+</script>
+
+<style scoped>
+.loader-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 9999;
+}
+
+.loader-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #0f8f7c, #31bca4);
+  transition: width 0.3s ease;
+  box-shadow:
+    0 0 10px rgba(15, 143, 124, 0.35),
+    0 0 20px rgba(15, 143, 124, 0.22);
+}
+</style>
