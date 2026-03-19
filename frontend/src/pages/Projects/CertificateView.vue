@@ -244,14 +244,8 @@ const generatePdf = async () => {
     <section class="hero-shell">
       <v-container class="py-10 py-md-12">
         <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-6">
-          <v-btn
-            @click="goBack"
-            variant="tonal"
-            color="primary"
-            prepend-icon="mdi-arrow-left"
-            rounded="xl"
-            class="text-none"
-          >
+          <v-btn @click="goBack" variant="tonal" color="primary" prepend-icon="mdi-arrow-left" rounded="xl"
+            class="text-none">
             Back
           </v-btn>
           <div class="hero-chip">Certificate Tool</div>
@@ -294,60 +288,22 @@ const generatePdf = async () => {
                 <h2 class="text-h5 font-weight-bold mb-1">Generate your premium certificate</h2>
                 <p class="text-body-2 text-medium-emphasis mb-0">Use your full name and select the correct course.</p>
               </div>
-              <v-icon icon="mdi-file-certificate-outline" color="primary" size="34"></v-icon>
             </div>
 
             <v-form ref="studentForm" @submit.prevent="previewCertificate">
               <v-row>
                 <v-col cols="12" md="6">
-                  <v-text-field
-                    v-model.trim="form.fname"
-                    :rules="[(v) => !!v || 'Full Name is required']"
-                    label="Full Name"
-                    placeholder="Enter your full name"
-                    name="fname"
-                    id="fname"
-                    rounded="lg"
-                    autocomplete="name"
-                    spellcheck="false"
-                    prepend-inner-icon="mdi-account"
-                    variant="solo-filled"
-                    flat
-                    class="form-input"
-                  ></v-text-field>
+                  <v-text-field v-model.trim="form.fname" :rules="[(v) => !!v || 'Full Name is required']"
+                    label="Full Name" placeholder="Enter your full name" name="fname" id="fname" rounded="lg"
+                    autocomplete="name" spellcheck="false" prepend-inner-icon="mdi-account" variant="solo-filled" flat
+                    class="form-input"></v-text-field>
                 </v-col>
 
                 <v-col cols="12" md="6">
-                  <v-select
-                    v-model="form.course"
-                    :items="courses"
-                    :rules="[(v) => !!v || 'Course is required']"
-                    label="Select Course"
-                    name="course"
-                    id="course"
-                    rounded="lg"
-                    item-title="name"
-                    return-object
-                    prepend-inner-icon="mdi-school"
-                    variant="solo-filled"
-                    flat
-                    class="form-input"
-                  ></v-select>
-
-                  <div class="d-flex align-center justify-space-between flex-wrap ga-2 mt-3">
-                    <p class="mb-0 text-body-2 text-medium-emphasis">
-                      {{ coursesLoading ? "Loading courses..." : "Course not available? Add it directly to MongoDB." }}
-                    </p>
-                    <v-btn
-                      variant="text"
-                      color="primary"
-                      class="text-none px-0"
-                      :disabled="coursesLoading"
-                      @click="showAddCourse = !showAddCourse"
-                    >
-                      {{ showAddCourse ? "Hide Add Course" : "Add New Course" }}
-                    </v-btn>
-                  </div>
+                  <v-select v-model="form.course" :items="courses" :rules="[(v) => !!v || 'Course is required']"
+                    :label="coursesLoading ? 'Loading courses...' : 'Select Course'" name="course" id="course"
+                    rounded="lg" item-title="name" return-object prepend-inner-icon="mdi-school" variant="solo-filled"
+                    flat class="form-input"></v-select>
                 </v-col>
               </v-row>
 
@@ -366,82 +322,39 @@ const generatePdf = async () => {
 
                   <v-row>
                     <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model.trim="newCourse.name"
-                        label="Course Name"
-                        placeholder="Enter course name"
-                        rounded="lg"
-                        prepend-inner-icon="mdi-book-education-outline"
-                        variant="solo-filled"
-                        flat
-                        class="form-input"
-                      ></v-text-field>
+                      <v-text-field v-model.trim="newCourse.name" label="Course Name" placeholder="Enter course name"
+                        rounded="lg" prepend-inner-icon="mdi-book-education-outline" variant="solo-filled" flat
+                        class="form-input"></v-text-field>
                     </v-col>
 
                     <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model.trim="newCourse.category"
-                        label="Category"
-                        placeholder="Software Development"
-                        rounded="lg"
-                        prepend-inner-icon="mdi-shape-outline"
-                        variant="solo-filled"
-                        flat
-                        class="form-input"
-                      ></v-text-field>
+                      <v-text-field v-model.trim="newCourse.category" label="Category"
+                        placeholder="Software Development" rounded="lg" prepend-inner-icon="mdi-shape-outline"
+                        variant="solo-filled" flat class="form-input"></v-text-field>
                     </v-col>
 
                     <v-col cols="12" md="6">
-                      <v-select
-                        v-model="newCourse.level"
-                        :items="COURSE_LEVELS"
-                        label="Level"
-                        rounded="lg"
-                        prepend-inner-icon="mdi-ladder"
-                        variant="solo-filled"
-                        flat
-                        class="form-input"
-                      ></v-select>
+                      <v-select v-model="newCourse.level" :items="COURSE_LEVELS" label="Level" rounded="lg"
+                        prepend-inner-icon="mdi-ladder" variant="solo-filled" flat class="form-input"></v-select>
                     </v-col>
 
                     <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model="newCourse.durationHours"
-                        label="Duration Hours"
-                        placeholder="24"
-                        type="number"
-                        min="1"
-                        rounded="lg"
-                        prepend-inner-icon="mdi-timer-outline"
-                        variant="solo-filled"
-                        flat
-                        class="form-input"
-                      ></v-text-field>
+                      <v-text-field v-model="newCourse.durationHours" label="Duration Hours" placeholder="24"
+                        type="number" min="1" rounded="lg" prepend-inner-icon="mdi-timer-outline" variant="solo-filled"
+                        flat class="form-input"></v-text-field>
                     </v-col>
                   </v-row>
 
                   <div class="d-flex align-center flex-wrap ga-3 mt-2">
-                    <v-btn
-                      color="primary"
-                      rounded="xl"
-                      class="text-none px-6"
-                      prepend-icon="mdi-plus"
-                      :loading="savingCourse"
-                      @click="addCourse"
-                    >
+                    <v-btn color="primary" rounded="xl" class="text-none px-6" prepend-icon="mdi-plus"
+                      :loading="savingCourse" @click="addCourse">
                       Save Course
                     </v-btn>
 
-                    <v-btn
-                      variant="text"
-                      color="primary"
-                      class="text-none"
-                      :disabled="savingCourse"
-                      @click="
-                        showAddCourse = false;
-                        resetNewCourseForm();
-                      "
-                    >
+                    <v-btn variant="text" color="primary" class="text-none" :disabled="savingCourse" @click="
+                      showAddCourse = false;
+                    resetNewCourseForm();
+                    ">
                       Cancel
                     </v-btn>
                   </div>
@@ -449,31 +362,22 @@ const generatePdf = async () => {
               </v-expand-transition>
 
               <div class="d-flex align-center flex-wrap ga-3 mt-2">
-                <v-btn
-                  type="submit"
-                  :loading="loading"
-                  prepend-icon="mdi-eye-outline"
-                  color="primary"
-                  size="large"
-                  rounded="xl"
-                  class="text-none px-6"
-                >
+                <v-btn type="submit" :loading="loading" prepend-icon="mdi-eye-outline" color="primary" size="large"
+                  rounded="xl" class="text-none px-6">
                   Preview Certificate
                 </v-btn>
 
-                <p class="mb-0 text-body-2 text-medium-emphasis">Preview first, then download from the zoom dialog.</p>
+                <v-btn variant="tonal" :icon="showAddCourse ? 'mdi-minus' : 'mdi-plus'" color="primary"
+                  :disabled="coursesLoading" @click="showAddCourse = !showAddCourse">
+                </v-btn>
               </div>
             </v-form>
           </v-card>
 
-          <v-alert
-            class="mt-5 rounded-xl note-alert"
-            color="primary"
-            variant="tonal"
-            border="start"
-            icon="mdi-information-outline"
-          >
-            Verify your name and selected course before generating. The premium certificate downloads as a PDF and can be shared directly.
+          <v-alert class="mt-5 rounded-xl note-alert" color="primary" variant="tonal" border="start"
+            icon="mdi-information-outline">
+            Verify your name and selected course before generating. The premium certificate downloads as a PDF and can
+            be shared directly.
           </v-alert>
         </v-col>
 
@@ -512,25 +416,11 @@ const generatePdf = async () => {
       </v-row>
     </v-container>
 
-    <PhotoZoomDialog
-      v-model="dialog"
-      content-mode="custom"
-      hide-trigger
-      dialog-title="Premium Certificate Preview"
-      :max-width="1280"
-      :content-width="A4_WIDTH_PX"
-      :content-height="A4_HEIGHT_PX"
-    >
+    <PhotoZoomDialog v-model="dialog" content-mode="custom" hide-trigger dialog-title="Premium Certificate Preview"
+      :max-width="1280" :content-width="A4_WIDTH_PX" :content-height="A4_HEIGHT_PX">
       <template #toolbar-actions>
-        <v-btn
-          @click="generatePdf"
-          prepend-icon="mdi-download"
-          :loading="loading"
-          variant="flat"
-          color="primary"
-          rounded="lg"
-          class="text-none px-4"
-        >
+        <v-btn @click="generatePdf" prepend-icon="mdi-download" :loading="loading" variant="flat" color="primary"
+          rounded="lg" class="text-none px-4">
           Download PDF
         </v-btn>
       </template>

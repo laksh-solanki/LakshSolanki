@@ -14,7 +14,6 @@ const fileInput = ref(null);
 const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
-const orientation = ref("p");
 const generatedPdfPath = ref("");
 
 let jsPdfCtorPromise;
@@ -23,6 +22,16 @@ const totalImages = computed(() => images.value.length);
 const totalSize = computed(() => {
   const bytes = images.value.reduce((sum, item) => sum + item.size, 0);
   return formatFileSize(bytes);
+});
+const allImagesOrientation = computed(() => {
+  if (!images.value.length) return "p";
+  return images.value.every((item) => (item.orientation || "p") === "l") ? "l" : "p";
+});
+const layoutMode = computed(() => {
+  if (!images.value.length) return "P";
+  const modes = new Set(images.value.map((item) => item.orientation || "p"));
+  if (modes.size > 1) return "M";
+  return [...modes][0] === "p" ? "P" : "L";
 });
 
 const loadJsPdfCtor = async () => {
@@ -69,6 +78,7 @@ const processFiles = (files) => {
         size: file.size,
         type: file.type,
         rotation: 0,
+        orientation: "p",
       });
     };
     reader.readAsDataURL(file);
@@ -114,7 +124,7 @@ const formatFileSize = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
 
-const addImageToPDF = (pdf, image, addPage) => {
+const addImageToPDF = (pdf, image) => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -134,8 +144,6 @@ const addImageToPDF = (pdf, image, addPage) => {
       ctx.drawImage(img, -img.width / 2, -img.height / 2);
 
       const rotatedDataUrl = canvas.toDataURL("image/png");
-
-      if (addPage) pdf.addPage();
 
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
@@ -173,8 +181,9 @@ const generatePdfWithOrientation = async () => {
 
   try {
     const JsPdf = await loadJsPdfCtor();
+    const firstOrientation = images.value[0]?.orientation || "p";
     const pdf = new JsPdf({
-      orientation: orientation.value,
+      orientation: firstOrientation,
       unit: "mm",
       format: "a4",
     });
@@ -185,12 +194,17 @@ const generatePdfWithOrientation = async () => {
       const image = images.value[i];
       conversionStatus.value = `Processing image ${i + 1} of ${count}`;
       conversionProgress.value = Math.round(((i + 1) / count) * 95);
-      await addImageToPDF(pdf, image, i > 0);
+      if (i > 0) {
+        pdf.addPage("a4", image.orientation || "p");
+      }
+      await addImageToPDF(pdf, image);
     }
 
     conversionStatus.value = "Finalizing PDF...";
     const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
-    const orientationName = orientation.value === "p" ? "portrait" : "landscape";
+    const modes = new Set(images.value.map((item) => item.orientation || "p"));
+    const orientationName =
+      modes.size === 1 ? ([...modes][0] === "p" ? "portrait" : "landscape") : "mixed";
     const fileName = `images-to-pdf-${orientationName}-${timestamp}.pdf`;
     pdf.save(fileName);
     generatedPdfPath.value = getGeneratedPdfPath(fileName);
@@ -209,9 +223,26 @@ const generatePdfWithOrientation = async () => {
   }
 };
 
-const setOrientation = (layout) => {
-  orientation.value = layout;
-  showAlert(`Layout set to ${layout === "p" ? "Portrait" : "Landscape"}.`, "success");
+const setImageOrientation = (index, layout) => {
+  const image = images.value[index];
+  if (!image) return;
+  image.orientation = layout;
+  showAlert(`Image ${index + 1} set to ${layout === "p" ? "Portrait" : "Landscape"}.`, "success");
+};
+
+const toggleImageOrientation = (index) => {
+  const image = images.value[index];
+  if (!image) return;
+  setImageOrientation(index, (image.orientation || "p") === "p" ? "l" : "p");
+};
+
+const toggleAllImagesOrientation = () => {
+  if (!images.value.length) return;
+  const nextOrientation = allImagesOrientation.value === "p" ? "l" : "p";
+  images.value.forEach((image) => {
+    image.orientation = nextOrientation;
+  });
+  showAlert(`All images set to ${nextOrientation === "p" ? "Portrait" : "Landscape"}.`, "success");
 };
 
 const handleDrop = (e) => {
@@ -263,7 +294,7 @@ onUnmounted(() => {
                 <span class="stat-label">Images Added</span>
               </div>
               <div class="stat-item">
-                <span class="stat-value">{{ orientation === "p" ? "P" : "L" }}</span>
+                <span class="stat-value">{{ layoutMode }}</span>
                 <span class="stat-label">Layout Mode</span>
               </div>
               <div class="stat-item">
@@ -277,8 +308,8 @@ onUnmounted(() => {
     </section>
 
     <v-container class="py-8 py-md-12">
-      <v-row class="ga-0" align="start">
-        <v-col cols="12" lg="6" class="pr-lg-6">
+      <v-row dense align="start">
+        <v-col cols="12" :lg="images.length > 0 ? 4 : 12">
           <v-card class="tool-shell pa-5 pa-md-7" rounded="xl" elevation="0">
             <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
               <div>
@@ -286,7 +317,6 @@ onUnmounted(() => {
                 <h2 class="text-h5 font-weight-bold mb-1">Build your PDF pages</h2>
                 <p class="text-body-2 text-medium-emphasis mb-0">Supports JPG, PNG, GIF, and WebP formats.</p>
               </div>
-              <v-icon icon="mdi-file-image" color="primary" size="34"></v-icon>
             </div>
 
             <v-sheet :class="['upload-zone', { 'drag-over': isDragging }]" rounded="xl" border @click="triggerFileInput"
@@ -303,18 +333,6 @@ onUnmounted(() => {
               </div>
             </v-sheet>
 
-            <div class="d-flex align-center flex-wrap ga-2 mt-5">
-              <span class="text-body-2 text-medium-emphasis">PDF Orientation:</span>
-              <v-btn @click="setOrientation('p')" :variant="orientation === 'p' ? 'flat' : 'outlined'"
-                :color="orientation === 'p' ? 'primary' : 'primary'" rounded="lg" class="text-none">
-                Portrait
-              </v-btn>
-              <v-btn @click="setOrientation('l')" :variant="orientation === 'l' ? 'flat' : 'outlined'"
-                :color="orientation === 'l' ? 'primary' : 'primary'" rounded="lg" class="text-none">
-                Landscape
-              </v-btn>
-            </div>
-
             <div v-if="isConverting" class="progress-shell mt-5">
               <div class="d-flex justify-space-between align-center mb-2">
                 <span class="text-body-2">{{ conversionStatus }}</span>
@@ -326,13 +344,17 @@ onUnmounted(() => {
           </v-card>
         </v-col>
 
-        <v-col cols="12" lg="6">
+        <v-col cols="12" lg="8">
           <transition name="slide-up">
             <div v-if="images.length > 0">
               <v-card class="tool-shell pa-4 pa-md-5" rounded="xl" elevation="0">
                 <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-5">
                   <h3 class="text-h6 font-weight-bold mb-0">Image Pages ({{ images.length }})</h3>
                   <div class="d-flex align-center ga-2 flex-wrap">
+                    <v-btn @click="toggleAllImagesOrientation"
+                      :icon="allImagesOrientation === 'p' ? 'mdi-crop-portrait' : 'mdi-crop-landscape'"
+                      color="primary" variant="tonal" rounded="lg" size="small"
+                      :aria-label="`Switch all images to ${allImagesOrientation === 'p' ? 'landscape' : 'portrait'} orientation`"></v-btn>
                     <v-btn variant="tonal" color="error" rounded="lg" @click="clearAll" class="text-none">
                       Clear All
                     </v-btn>
@@ -347,6 +369,10 @@ onUnmounted(() => {
                   <v-col v-for="(image, index) in images" :key="image.id" cols="12" sm="6" md="6" lg="4">
                     <v-card class="image-card" rounded="lg" elevation="0">
                       <v-card-actions class="d-flex justify-end ga-1 pa-2">
+                        <v-btn @click="toggleImageOrientation(index)"
+                          :icon="(image.orientation || 'p') === 'p' ? 'mdi-crop-portrait' : 'mdi-crop-landscape'"
+                          color="primary" variant="tonal" size="small"
+                          :aria-label="`Switch image ${index + 1} to ${(image.orientation || 'p') === 'p' ? 'landscape' : 'portrait'} orientation`"></v-btn>
                         <v-btn @click="rotateImage(index)" icon="mdi-rotate-right" size="small" variant="tonal"
                           color="warning"></v-btn>
                         <v-btn @click="moveUp(index)" :disabled="index === 0"

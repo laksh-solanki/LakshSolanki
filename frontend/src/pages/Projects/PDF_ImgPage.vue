@@ -15,9 +15,41 @@ const fileInput = ref(null);
 const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
+const searchQuery = ref("");
+const sortMode = ref("page-asc");
+const selectedImageIds = ref([]);
 
 const convertedCount = computed(() => images.value.length);
 const hasPdf = computed(() => Boolean(pdfFile.value));
+const selectedCount = computed(() => selectedImageIds.value.length);
+const sortOptions = [
+  { title: "Page (Ascending)", value: "page-asc" },
+  { title: "Page (Descending)", value: "page-desc" },
+  { title: "Name (A-Z)", value: "name-asc" },
+  { title: "Name (Z-A)", value: "name-desc" },
+];
+const filteredSortedImages = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase();
+  const list = images.value.filter((image) => {
+    if (!query) return true;
+    return image.name.toLowerCase().includes(query);
+  });
+
+  const sorted = [...list];
+  sorted.sort((a, b) => {
+    if (sortMode.value === "page-desc") return (b.page || 0) - (a.page || 0);
+    if (sortMode.value === "name-asc") return a.name.localeCompare(b.name);
+    if (sortMode.value === "name-desc") return b.name.localeCompare(a.name);
+    return (a.page || 0) - (b.page || 0);
+  });
+
+  return sorted;
+});
+const allVisibleSelected = computed(
+  () =>
+    filteredSortedImages.value.length > 0 &&
+    filteredSortedImages.value.every((image) => selectedImageIds.value.includes(image.id)),
+);
 
 let pdfLibPromise;
 let zipToolsPromise;
@@ -58,6 +90,7 @@ const triggerFileInput = () => fileInput.value?.click();
 const resetImages = () => {
   images.value.forEach((img) => URL.revokeObjectURL(img.url));
   images.value = [];
+  selectedImageIds.value = [];
 };
 
 const processSelectedFile = (file) => {
@@ -120,6 +153,7 @@ const processPdf = async () => {
         id: imageIdCounter.value++,
         url,
         blob,
+        page: i,
         name: `${pdfName.value.replace(".pdf", "")}-page-${i}.png`,
       });
     }
@@ -139,9 +173,12 @@ const processPdf = async () => {
   }
 };
 
-const removeImage = (index) => {
+const removeImage = (id) => {
+  const index = images.value.findIndex((image) => image.id === id);
+  if (index < 0) return;
   URL.revokeObjectURL(images.value[index].url);
   images.value.splice(index, 1);
+  selectedImageIds.value = selectedImageIds.value.filter((selectedId) => selectedId !== id);
 };
 
 const downloadImage = (url, name) => {
@@ -153,9 +190,7 @@ const downloadImage = (url, name) => {
   document.body.removeChild(link);
 };
 
-const downloadAll = async () => {
-  if (!images.value.length) return;
-
+const createZipFromImages = async (imageList, zipFileName) => {
   const { JSZip, saveAs } = await loadZipTools();
   if (!saveAs) {
     showAlert("Unable to download ZIP right now.", "error");
@@ -163,13 +198,84 @@ const downloadAll = async () => {
   }
 
   const zip = new JSZip();
-  images.value.forEach((image) => {
+  imageList.forEach((image) => {
     zip.file(image.name, image.blob);
   });
 
-  zip.generateAsync({ type: "blob" }).then((content) => {
-    saveAs(content, `${pdfName.value.replace(".pdf", "")}-images.zip`);
-  });
+  const content = await zip.generateAsync({ type: "blob" });
+  saveAs(content, zipFileName);
+};
+
+const downloadAll = async () => {
+  if (!images.value.length) return;
+  await createZipFromImages(images.value, `${pdfName.value.replace(".pdf", "")}-images.zip`);
+};
+
+const downloadSelected = async () => {
+  const selectedImages = images.value.filter((image) => selectedImageIds.value.includes(image.id));
+  if (!selectedImages.length) {
+    showAlert("Select at least one image first.", "error");
+    return;
+  }
+
+  await createZipFromImages(selectedImages, `${pdfName.value.replace(".pdf", "")}-selected-images.zip`);
+};
+
+const isImageSelected = (id) => selectedImageIds.value.includes(id);
+
+const toggleImageSelection = (id) => {
+  if (isImageSelected(id)) {
+    selectedImageIds.value = selectedImageIds.value.filter((selectedId) => selectedId !== id);
+    return;
+  }
+
+  selectedImageIds.value = [...selectedImageIds.value, id];
+};
+
+const toggleSelectAllVisible = () => {
+  const visibleIds = filteredSortedImages.value.map((image) => image.id);
+  if (!visibleIds.length) return;
+
+  if (allVisibleSelected.value) {
+    selectedImageIds.value = selectedImageIds.value.filter((id) => !visibleIds.includes(id));
+    return;
+  }
+
+  selectedImageIds.value = Array.from(new Set([...selectedImageIds.value, ...visibleIds]));
+};
+
+const clearSelection = () => {
+  selectedImageIds.value = [];
+};
+
+const copyVisibleNames = async () => {
+  const names = filteredSortedImages.value.map((image) => image.name);
+  if (!names.length) {
+    showAlert("No filenames available to copy.", "error");
+    return;
+  }
+
+  const namesText = names.join("\n");
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(namesText);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = namesText;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+    showAlert("Filenames copied to clipboard.", "success");
+  } catch (error) {
+    console.error("Copy names failed:", error);
+    showAlert("Unable to copy filenames.", "error");
+  }
 };
 
 const clearAll = () => {
@@ -178,6 +284,14 @@ const clearAll = () => {
   pdfName.value = "";
   if (fileInput.value) fileInput.value.value = "";
   showAlert("Cleared all data.", "error");
+};
+
+const formatFileSize = (bytes) => {
+  if (!bytes) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 };
 
 const onDragOver = (e) => e.preventDefault();
@@ -237,8 +351,8 @@ onUnmounted(() => {
     </section>
 
     <v-container class="py-8 py-md-12">
-      <v-row class="ga-0" align="start">
-        <v-col cols="12" lg="6" class="pr-lg-6">
+      <v-row dense align="start">
+        <v-col cols="12" :lg="images.length > 0 ? 4 : 12">
           <v-card class="tool-shell pa-5 pa-md-7" rounded="xl" elevation="0">
             <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
               <div>
@@ -246,7 +360,6 @@ onUnmounted(() => {
                 <h2 class="text-h5 font-weight-bold mb-1">Drop your file here</h2>
                 <p class="text-body-2 text-medium-emphasis mb-0">Supports a single PDF per conversion run.</p>
               </div>
-              <v-icon icon="mdi-file-pdf-box" color="primary" size="34"></v-icon>
             </div>
 
             <v-sheet :class="['upload-zone', { 'drag-over': isDragging }]" rounded="xl" border @click="triggerFileInput"
@@ -279,27 +392,62 @@ onUnmounted(() => {
           </v-card>
         </v-col>
 
-        <v-col cols="12" lg="6">
+        <v-col cols="12" lg="8">
           <transition name="slide-up">
             <div v-if="images.length > 0">
               <v-card class="tool-shell pa-4 pa-md-5" rounded="xl" elevation="0">
                 <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-5">
                   <h3 class="text-h6 font-weight-bold mb-0">Converted Images ({{ images.length }})</h3>
                   <div class="d-flex align-center ga-2 flex-wrap">
-                    <v-btn variant="tonal" color="error" rounded="lg" @click="clearAll" class="text-none">
-                      Clear All
-                    </v-btn>
                     <v-btn variant="flat" color="primary" rounded="lg" @click="downloadAll" class="text-none">
                       Download ZIP
+                    </v-btn>
+                    <v-btn variant="tonal" color="error" rounded="lg" @click="clearAll" class="text-none">
+                      Clear All
                     </v-btn>
                   </div>
                 </div>
 
-                <v-row>
-                  <v-col v-for="(image, index) in images" :key="image.id" cols="12" sm="6" md="6" lg="4">
+                <div class="tools-grid mb-3">
+                  <v-text-field v-model="searchQuery" density="comfortable" variant="outlined" rounded="lg"
+                    hide-details clearable label="Search by filename" prepend-inner-icon="mdi-magnify"></v-text-field>
+                  <v-select v-model="sortMode" :items="sortOptions" item-title="title" item-value="value"
+                    density="comfortable" variant="outlined" rounded="lg" hide-details label="Sort"></v-select>
+                </div>
+
+                <div class="d-flex align-center justify-space-between flex-wrap ga-2 mb-4">
+                  <p class="text-caption text-medium-emphasis mb-0">
+                    Showing {{ filteredSortedImages.length }} of {{ images.length }} | Selected {{ selectedCount }}
+                  </p>
+                  <div class="d-flex align-center ga-2 flex-wrap">
+                    <v-btn variant="tonal" color="primary" rounded="lg" @click="toggleSelectAllVisible"
+                      :disabled="filteredSortedImages.length === 0" class="text-none">
+                      {{ allVisibleSelected ? "Unselect Visible" : "Select Visible" }}
+                    </v-btn>
+                    <v-btn variant="tonal" color="warning" rounded="lg" @click="clearSelection"
+                      :disabled="selectedCount === 0" class="text-none">
+                      Clear Selection
+                    </v-btn>
+                    <v-btn variant="tonal" color="info" rounded="lg" @click="downloadSelected"
+                      :disabled="selectedCount === 0" class="text-none">
+                      ZIP Selected ({{ selectedCount }})
+                    </v-btn>
+                    <v-btn variant="tonal" color="primary" rounded="lg" @click="copyVisibleNames"
+                      :disabled="filteredSortedImages.length === 0" class="text-none">
+                      Copy Names
+                    </v-btn>
+                  </div>
+                </div>
+
+                <v-row v-if="filteredSortedImages.length > 0">
+                  <v-col v-for="image in filteredSortedImages" :key="image.id" cols="12" sm="6" md="6" lg="4">
                     <v-card class="image-card" rounded="lg" elevation="0">
                       <v-card-actions class="d-flex justify-end ga-1 pa-2">
-                        <v-btn @click="removeImage(index)" icon="mdi-close" variant="tonal" color="error"
+                        <v-btn @click="toggleImageSelection(image.id)"
+                          :icon="isImageSelected(image.id) ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline'"
+                          :color="isImageSelected(image.id) ? 'success' : 'secondary'" variant="tonal"
+                          size="small"></v-btn>
+                        <v-btn @click="removeImage(image.id)" icon="mdi-close" variant="tonal" color="error"
                           size="small"></v-btn>
                         <v-btn @click="downloadImage(image.url, image.name)" icon="mdi-download" variant="tonal"
                           color="primary" size="small"></v-btn>
@@ -311,12 +459,17 @@ onUnmounted(() => {
                           image-class="rounded-lg converted-image-preview" />
                       </div>
 
-                      <v-card-text class="pt-1 pb-3 text-body-2 text-medium-emphasis text-truncate">
-                        {{ image.name }}
+                      <v-card-text class="pt-1 pb-3">
+                        <p class="mb-1 text-body-2 text-medium-emphasis text-truncate">{{ image.name }}</p>
+                        <p class="mb-0 text-caption text-medium-emphasis">{{ formatFileSize(image.blob?.size) }}</p>
                       </v-card-text>
                     </v-card>
                   </v-col>
                 </v-row>
+
+                <div v-else class="output-empty">
+                  No converted images match your current search.
+                </div>
               </v-card>
             </div>
           </transition>
@@ -455,6 +608,12 @@ onUnmounted(() => {
   background: #ffffff;
 }
 
+.tools-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
 .converted-image-trigger {
   display: block;
 }
@@ -536,6 +695,10 @@ onUnmounted(() => {
 
   .upload-zone {
     padding: 28px 18px;
+  }
+
+  .tools-grid {
+    grid-template-columns: 1fr;
   }
 }
 
