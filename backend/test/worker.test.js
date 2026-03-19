@@ -72,3 +72,51 @@ test("worker adapter supports certificate compatibility endpoint", async () => {
   assert.ok(Number.isInteger(body.count));
   assert.ok(Array.isArray(body.data));
 });
+
+test("worker adapter supports tts snippet create/list/delete", async () => {
+  const ownerKey = "worker-tts-owner-123";
+
+  const createResponse = await worker.fetch(
+    new Request("https://mindlytic.example/api/tts/snippets", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        ownerKey,
+        content: "Worker route snippet text.",
+      }),
+    }),
+    {
+      MONGODB_URI: "",
+    },
+  );
+
+  assert.equal(createResponse.status, 201);
+  const created = await createResponse.json();
+  const snippetId = created.data?.id;
+  assert.ok(typeof snippetId === "string" && snippetId.length > 0);
+
+  const listResponse = await worker.fetch(
+    new Request(`https://mindlytic.example/api/tts/snippets?ownerKey=${encodeURIComponent(ownerKey)}&limit=6`),
+    {
+      MONGODB_URI: "",
+    },
+  );
+  assert.equal(listResponse.status, 200);
+  const listed = await listResponse.json();
+  assert.equal(listed.count, 1);
+
+  const deleteResponse = await worker.fetch(
+    new Request(
+      `https://mindlytic.example/api/tts/snippets/${encodeURIComponent(snippetId)}?ownerKey=${encodeURIComponent(ownerKey)}`,
+      {
+        method: "DELETE",
+      },
+    ),
+    {
+      MONGODB_URI: "",
+    },
+  );
+  assert.equal(deleteResponse.status, 200);
+});

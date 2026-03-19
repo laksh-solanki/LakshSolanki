@@ -4,6 +4,7 @@ const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const normalizeCourseName = (value) => value.trim().replace(/\s+/g, " ").toLowerCase();
 const normalizeMediaKey = (value = "") => value.trim().replace(/\s+/g, " ").toLowerCase();
+const normalizeSnippetContent = (value = "") => String(value).trim();
 
 const createCourseRecord = ({ name, category, level, durationHours, tags = [] }) => {
   const trimmedName = name.trim().replace(/\s+/g, " ");
@@ -52,6 +53,16 @@ const toPublicMediaDocument = (document) => {
   return item;
 };
 
+const toPublicSnippetDocument = (document) => {
+  const item = toPublicDocument(document);
+  if (!item) return null;
+
+  delete item.ownerKey;
+  delete item.normalizedContent;
+
+  return item;
+};
+
 const createMediaRecord = ({ name = "", url, type = "generic", alt = "", tags = [] }) => {
   const normalizedUrl = String(url || "").trim();
   const normalizedName = String(name || "").trim().replace(/\s+/g, " ");
@@ -63,6 +74,19 @@ const createMediaRecord = ({ name = "", url, type = "generic", alt = "", tags = 
     alt: String(alt || "").trim(),
     tags: Array.isArray(tags) ? tags.map((tag) => String(tag).trim()).filter(Boolean) : [],
     normalizedKey: normalizeMediaKey(normalizedUrl || normalizedName),
+  };
+};
+
+const createSnippetRecord = ({ ownerKey, title = "", content }) => {
+  const normalizedTitle = String(title || "").trim().replace(/\s+/g, " ");
+  const normalizedContent = normalizeSnippetContent(content);
+
+  return {
+    id: generateId(),
+    ownerKey: String(ownerKey || "").trim(),
+    title: normalizedTitle || `${normalizedContent.slice(0, 56)}${normalizedContent.length > 56 ? "..." : ""}`,
+    content: normalizedContent,
+    normalizedContent,
   };
 };
 
@@ -87,11 +111,13 @@ export const createRepositories = ({ db, logger }) => {
     courses: [],
     media: [],
     subscriptions: [],
+    ttsSnippets: [],
   };
 
   const coursesCollection = db?.collection("courses");
   const mediaCollection = db?.collection("media");
   const subscriptionsCollection = db?.collection("subscriptions");
+  const ttsSnippetsCollection = db?.collection("tts_snippets");
 
   const listCourses = async ({ search = "", limit = 50, sort = "asc" }) => {
     const normalizedSearch = search.trim();
@@ -251,6 +277,103 @@ export const createRepositories = ({ db, logger }) => {
     const record = { id: generateId(), ...media };
     memoryStore.media.push(record);
     return toPublicMediaDocument(record);
+  };
+
+  const listTtsSnippets = async ({ ownerKey, limit = 6 }) => {
+    const normalizedOwnerKey = String(ownerKey || "").trim();
+    const safeLimit = Number.isInteger(limit) ? Math.max(1, Math.min(20, limit)) : 6;
+
+    if (ttsSnippetsCollection) {
+      const snippets = await ttsSnippetsCollection
+        .find({ ownerKey: normalizedOwnerKey })
+        .sort({ createdAt: -1 })
+        .limit(safeLimit)
+        .toArray();
+
+      return snippets.map(toPublicSnippetDocument);
+    }
+
+    const snippets = memoryStore.ttsSnippets
+      .filter((item) => item.ownerKey === normalizedOwnerKey)
+      .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
+
+    return clone(snippets.slice(0, safeLimit).map(toPublicSnippetDocument));
+  };
+
+  const addTtsSnippet = async ({ ownerKey, title = "", content }) => {
+    const now = nowIso();
+    const snippet = {
+      ...createSnippetRecord({ ownerKey, title, content }),
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    if (ttsSnippetsCollection) {
+      const existingSnippet = await ttsSnippetsCollection.findOne({
+        ownerKey: snippet.ownerKey,
+        normalizedContent: snippet.normalizedContent,
+      });
+
+      if (existingSnippet) {
+        const error = new Error("Snippet already exists");
+        error.statusCode = 409;
+        error.snippet = toPublicSnippetDocument(existingSnippet);
+        throw error;
+      }
+
+      try {
+        await ttsSnippetsCollection.insertOne(snippet);
+        return toPublicSnippetDocument(snippet);
+      } catch (error) {
+        if (error?.code === 11000) {
+          const duplicate = await ttsSnippetsCollection.findOne({
+            ownerKey: snippet.ownerKey,
+            normalizedContent: snippet.normalizedContent,
+          });
+
+          const duplicateError = new Error("Snippet already exists");
+          duplicateError.statusCode = 409;
+          duplicateError.snippet = toPublicSnippetDocument(duplicate || snippet);
+          throw duplicateError;
+        }
+        throw error;
+      }
+    }
+
+    const existingSnippet = memoryStore.ttsSnippets.find(
+      (record) =>
+        record.ownerKey === snippet.ownerKey &&
+        record.normalizedContent === snippet.normalizedContent,
+    );
+    if (existingSnippet) {
+      const error = new Error("Snippet already exists");
+      error.statusCode = 409;
+      error.snippet = toPublicSnippetDocument(existingSnippet);
+      throw error;
+    }
+
+    memoryStore.ttsSnippets.push(snippet);
+    return toPublicSnippetDocument(snippet);
+  };
+
+  const removeTtsSnippet = async ({ ownerKey, id }) => {
+    const normalizedOwnerKey = String(ownerKey || "").trim();
+    const normalizedId = String(id || "").trim();
+
+    if (ttsSnippetsCollection) {
+      const result = await ttsSnippetsCollection.deleteOne({
+        ownerKey: normalizedOwnerKey,
+        id: normalizedId,
+      });
+
+      return { removed: result.deletedCount > 0 };
+    }
+
+    const before = memoryStore.ttsSnippets.length;
+    memoryStore.ttsSnippets = memoryStore.ttsSnippets.filter(
+      (item) => !(item.ownerKey === normalizedOwnerKey && item.id === normalizedId),
+    );
+    return { removed: memoryStore.ttsSnippets.length < before };
   };
 
   const subscribe = async ({ email, name = "", source = "web", ip = "", userAgent = "" }) => {
@@ -422,6 +545,9 @@ export const createRepositories = ({ db, logger }) => {
     addCourse,
     listMedia,
     addMedia,
+    listTtsSnippets,
+    addTtsSnippet,
+    removeTtsSnippet,
     subscribe,
     getSubscriptionStatus,
     unsubscribe,

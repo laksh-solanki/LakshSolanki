@@ -4,6 +4,7 @@ import { registerCourseRoutes } from "./courses.js";
 import { registerMediaRoutes } from "./media.js";
 import { registerSubscriptionRoutes } from "./subscriptions.js";
 import { registerAiRoutes } from "./ai.js";
+import { registerTtsSnippetRoutes } from "./tts-snippets.js";
 
 export const registerRoutes = async (app) => {
   await registerRootRoutes(app);
@@ -12,4 +13,5 @@ export const registerRoutes = async (app) => {
   await registerMediaRoutes(app);
   await registerSubscriptionRoutes(app);
   await registerAiRoutes(app);
+  await registerTtsSnippetRoutes(app);
 };

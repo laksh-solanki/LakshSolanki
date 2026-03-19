@@ -63,6 +63,14 @@ const ensureIndexes = async (db, log) => {
         { status: 1, createdAt: -1 },
         { name: "idx_subscription_status_created" },
       ),
+      db.collection("tts_snippets").createIndex(
+        { ownerKey: 1, createdAt: -1 },
+        { name: "idx_tts_snippets_owner_created" },
+      ),
+      db.collection("tts_snippets").createIndex(
+        { ownerKey: 1, normalizedContent: 1 },
+        { name: "uq_tts_snippets_owner_content", unique: true },
+      ),
     ]);
   } catch (error) {
     log.warn({ err: error }, "Index creation skipped due to an existing index or conflicting data.");

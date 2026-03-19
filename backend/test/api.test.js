@@ -151,6 +151,61 @@ test("media endpoints create and list media records", async (t) => {
   assert.equal(listResponse.json().data[0].url, "https://cdn.example.com/certificate-hero.png");
 });
 
+test("tts snippets endpoints persist, list, and remove snippets", async (t) => {
+  const app = await createTestApp();
+  t.after(async () => {
+    await app.close();
+  });
+
+  const ownerKey = "tts-owner-key-123";
+
+  const createResponse = await app.inject({
+    method: "POST",
+    url: "/api/tts/snippets",
+    payload: {
+      ownerKey,
+      title: "Release Notes",
+      content: "Ship the update on Friday with a rollback plan.",
+    },
+  });
+
+  assert.equal(createResponse.statusCode, 201);
+  const created = createResponse.json().data;
+  assert.equal(created.title, "Release Notes");
+
+  const duplicateResponse = await app.inject({
+    method: "POST",
+    url: "/api/tts/snippets",
+    payload: {
+      ownerKey,
+      content: "Ship the update on Friday with a rollback plan.",
+    },
+  });
+
+  assert.equal(duplicateResponse.statusCode, 409);
+
+  const listResponse = await app.inject({
+    method: "GET",
+    url: `/api/tts/snippets?ownerKey=${encodeURIComponent(ownerKey)}&limit=6`,
+  });
+  assert.equal(listResponse.statusCode, 200);
+  assert.equal(listResponse.json().count, 1);
+  assert.equal(listResponse.json().data[0].content, "Ship the update on Friday with a rollback plan.");
+
+  const deleteResponse = await app.inject({
+    method: "DELETE",
+    url: `/api/tts/snippets/${encodeURIComponent(created.id)}?ownerKey=${encodeURIComponent(ownerKey)}`,
+  });
+  assert.equal(deleteResponse.statusCode, 200);
+
+  const listAfterDeleteResponse = await app.inject({
+    method: "GET",
+    url: `/api/tts/snippets?ownerKey=${encodeURIComponent(ownerKey)}&limit=6`,
+  });
+  assert.equal(listAfterDeleteResponse.statusCode, 200);
+  assert.equal(listAfterDeleteResponse.json().count, 0);
+});
+
 test("image generation route returns validation error when invoke URL is missing", async (t) => {
   const app = await createTestApp();
   t.after(async () => {

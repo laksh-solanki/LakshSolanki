@@ -121,6 +121,14 @@ const ensureIndexes = async (db) => {
         { status: 1, createdAt: -1 },
         { name: "idx_subscription_status_created" },
       ),
+      db.collection("tts_snippets").createIndex(
+        { ownerKey: 1, createdAt: -1 },
+        { name: "idx_tts_snippets_owner_created" },
+      ),
+      db.collection("tts_snippets").createIndex(
+        { ownerKey: 1, normalizedContent: 1 },
+        { name: "uq_tts_snippets_owner_content", unique: true },
+      ),
     ]);
   } catch (error) {
     logger.warn("Index creation skipped due to existing index/conflicting data.", error);
@@ -765,6 +773,116 @@ const handleMediaPost = async (request, state) => {
   }
 };
 
+const isValidSnippetOwnerKey = (value) => typeof value === "string" && value.trim().length >= 8;
+
+const validateSnippetPayload = (body) => {
+  if (typeof body !== "object" || body === null) {
+    return "Request body must be a JSON object";
+  }
+
+  if (!isValidSnippetOwnerKey(body.ownerKey)) {
+    return "ownerKey is required and must be at least 8 characters";
+  }
+
+  if (typeof body.content !== "string" || body.content.trim().length < 1 || body.content.length > 12000) {
+    return "content is required and must be 1-12000 characters";
+  }
+
+  if (body.title !== undefined && (typeof body.title !== "string" || body.title.length > 120)) {
+    return "title must be a string with max 120 characters";
+  }
+
+  return "";
+};
+
+const handleTtsSnippetsGet = async (request, state) => {
+  const { envConfig, repositories } = state;
+  const url = new URL(request.url);
+  const ownerKey = ensureString(url.searchParams.get("ownerKey")).trim();
+
+  if (!isValidSnippetOwnerKey(ownerKey)) {
+    return jsonResponse(request, envConfig, 400, {
+      error: "ownerKey is required and must be at least 8 characters",
+    });
+  }
+
+  const limitRaw = url.searchParams.get("limit");
+  const limit = limitRaw === null ? 6 : Number.parseInt(limitRaw, 10);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 20) {
+    return jsonResponse(request, envConfig, 400, {
+      error: "limit must be an integer between 1 and 20",
+    });
+  }
+
+  const snippets = await repositories.listTtsSnippets({ ownerKey, limit });
+  return jsonResponse(
+    request,
+    envConfig,
+    200,
+    {
+      count: snippets.length,
+      data: snippets,
+    },
+    {
+      "Cache-Control": "no-store",
+    },
+  );
+};
+
+const handleTtsSnippetsPost = async (request, state) => {
+  const { envConfig, repositories } = state;
+  const body = await parseRequestBody(request, envConfig);
+  const validationError = validateSnippetPayload(body);
+  if (validationError) {
+    return jsonResponse(request, envConfig, 400, { error: validationError });
+  }
+
+  try {
+    const created = await repositories.addTtsSnippet(body);
+    return jsonResponse(request, envConfig, 201, {
+      message: "Snippet saved successfully",
+      data: created,
+    });
+  } catch (error) {
+    if (error?.statusCode && error.statusCode >= 400) {
+      const payload = {
+        error: error.message,
+      };
+      if (error.snippet) {
+        payload.data = error.snippet;
+      }
+      return jsonResponse(request, envConfig, error.statusCode, payload);
+    }
+    throw error;
+  }
+};
+
+const handleTtsSnippetsDelete = async (request, state, snippetId) => {
+  const { envConfig, repositories } = state;
+  const url = new URL(request.url);
+  const ownerKey = ensureString(url.searchParams.get("ownerKey")).trim();
+  const id = ensureString(snippetId).trim();
+
+  if (!id) {
+    return jsonResponse(request, envConfig, 400, { error: "Snippet id is required" });
+  }
+
+  if (!isValidSnippetOwnerKey(ownerKey)) {
+    return jsonResponse(request, envConfig, 400, {
+      error: "ownerKey is required and must be at least 8 characters",
+    });
+  }
+
+  const result = await repositories.removeTtsSnippet({ ownerKey, id });
+  if (!result.removed) {
+    return jsonResponse(request, envConfig, 404, { error: "Snippet not found" });
+  }
+
+  return jsonResponse(request, envConfig, 200, {
+    message: "Snippet removed successfully",
+  });
+};
+
 const handleSubscribePost = async (request, state) => {
   const { envConfig, repositories } = state;
   const body = await parseRequestBody(request, envConfig);
@@ -1105,6 +1223,19 @@ const handleRoute = async (request, state) => {
 
   if (path === "/api/media" && method === "POST") {
     return handleMediaPost(request, state);
+  }
+
+  if (path === "/api/tts/snippets" && method === "GET") {
+    return handleTtsSnippetsGet(request, state);
+  }
+
+  if (path === "/api/tts/snippets" && method === "POST") {
+    return handleTtsSnippetsPost(request, state);
+  }
+
+  if (path.startsWith("/api/tts/snippets/") && method === "DELETE") {
+    const snippetId = decodeURIComponent(path.slice("/api/tts/snippets/".length));
+    return handleTtsSnippetsDelete(request, state, snippetId);
   }
 
   if (path === "/api/subscribe" && method === "POST") {

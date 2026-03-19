@@ -151,8 +151,16 @@ export const createMongoDataApiDb = ({
             upsertedId: result.upsertedId || null,
           };
         },
+        async deleteOne(filter = {}) {
+          const result = await action("deleteOne", {
+            collection,
+            filter,
+          });
+          return {
+            deletedCount: Number(result.deletedCount || 0),
+          };
+        },
       };
     },
   };
 };
-

@@ -1,10 +1,12 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import Alerts from "@/components/Alerts.vue";
+import { getApiBaseUrl } from "@/utils/apiBaseUrl";
 
 const supportsSpeech = typeof window !== "undefined" && "speechSynthesis" in window;
 const synth = supportsSpeech ? window.speechSynthesis : null;
-const snippetStorageKey = "mindlytic_tts_snippets_v2";
+const snippetOwnerStorageKey = "mindlytic_tts_snippet_owner_v1";
+const apiBaseUrl = getApiBaseUrl();
 
 const text = ref(
   "Hello! I am your Mindlytic voice assistant. Paste any content, choose a voice style, and I will read it naturally.",
@@ -30,6 +32,7 @@ const isPaused = ref(false);
 const isDownloading = ref(false);
 
 const savedSnippets = ref([]);
+const snippetOwnerKey = ref("");
 const selectedPreset = ref("natural");
 
 const alertVisible = ref(false);
@@ -209,6 +212,38 @@ const goBack = () => {
   window.history.back();
 };
 
+const generateSnippetOwnerKey = () => {
+  if (typeof globalThis.crypto?.randomUUID === "function") {
+    return `tts-${globalThis.crypto.randomUUID()}`;
+  }
+
+  return `tts-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+};
+
+const getSnippetOwnerKey = () => {
+  try {
+    const existing = localStorage.getItem(snippetOwnerStorageKey);
+    if (existing?.trim()) {
+      return existing.trim();
+    }
+
+    const created = generateSnippetOwnerKey();
+    localStorage.setItem(snippetOwnerStorageKey, created);
+    return created;
+  } catch (error) {
+    console.error("Unable to initialize snippet owner key", error);
+    return "";
+  }
+};
+
+const normalizeSnippet = (snippet) => ({
+  id: String(snippet?.id || ""),
+  title: String(snippet?.title || "").trim(),
+  content: String(snippet?.content || ""),
+});
+
+const getSnippetsApiUrl = (path = "") => `${apiBaseUrl}/api/tts/snippets${path}`;
+
 const populateVoiceList = () => {
   if (!supportsSpeech || !synth) {
     isLoadingVoices.value = false;
@@ -236,23 +271,6 @@ const populateVoiceList = () => {
   }
 
   isLoadingVoices.value = false;
-};
-
-const loadSavedSnippets = () => {
-  try {
-    const raw = localStorage.getItem(snippetStorageKey);
-    if (!raw) return;
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) {
-      savedSnippets.value = parsed;
-    }
-  } catch (error) {
-    console.error("Unable to load saved snippets", error);
-  }
-};
-
-const persistSnippets = () => {
-  localStorage.setItem(snippetStorageKey, JSON.stringify(savedSnippets.value));
 };
 
 const cleanupRecordingStream = () => {
@@ -507,7 +525,7 @@ const stop = (notify = true) => {
     showAlert("Playback stopped.", "error");
   }
 };
-const saveSnippet = () => {
+const saveSnippet = async () => {
   const value = text.value.trim();
   if (!value) {
     showAlert("Write some text before saving a snippet.", "error");
@@ -518,17 +536,53 @@ const saveSnippet = () => {
     showAlert("This snippet is already saved.", "error");
     return;
   }
+  if (!snippetOwnerKey.value) {
+    showAlert("Snippet owner key could not be initialized.", "error");
+    return;
+  }
 
-  const snippet = {
-    id: Date.now(),
-    title: value.slice(0, 56) + (value.length > 56 ? "..." : ""),
-    content: value,
-  };
+  try {
+    const response = await fetch(getSnippetsApiUrl(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ownerKey: snippetOwnerKey.value,
+        title: value.slice(0, 56) + (value.length > 56 ? "..." : ""),
+        content: value,
+      }),
+    });
 
-  savedSnippets.value.unshift(snippet);
-  savedSnippets.value = savedSnippets.value.slice(0, 6);
-  persistSnippets();
-  showAlert("Snippet saved.", "success");
+    const payload = await response.json().catch(() => ({}));
+
+    if (response.status === 409) {
+      showAlert("This snippet is already saved.", "error");
+      const existingSnippet = payload?.data ? normalizeSnippet(payload.data) : null;
+      if (existingSnippet?.id && existingSnippet?.content) {
+        savedSnippets.value = [
+          existingSnippet,
+          ...savedSnippets.value.filter((snippet) => snippet.id !== existingSnippet.id),
+        ].slice(0, 6);
+      }
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(payload?.error || "Unable to save snippet.");
+    }
+
+    const created = payload?.data ? normalizeSnippet(payload.data) : null;
+    if (!created?.id) {
+      throw new Error("Snippet saved, but invalid response was returned.");
+    }
+
+    savedSnippets.value = [created, ...savedSnippets.value.filter((snippet) => snippet.id !== created.id)].slice(0, 6);
+    showAlert("Snippet saved.", "success");
+  } catch (error) {
+    console.error("Unable to save snippet", error);
+    showAlert(error?.message || "Unable to save snippet.", "error");
+  }
 };
 
 const useSnippet = (snippet) => {
@@ -538,9 +592,32 @@ const useSnippet = (snippet) => {
   showAlert("Snippet loaded.", "success");
 };
 
-const removeSnippet = (id) => {
-  savedSnippets.value = savedSnippets.value.filter((snippet) => snippet.id !== id);
-  persistSnippets();
+const removeSnippet = async (id) => {
+  if (!snippetOwnerKey.value) {
+    showAlert("Snippet owner key could not be initialized.", "error");
+    return;
+  }
+
+  try {
+    const query = new URLSearchParams({ ownerKey: snippetOwnerKey.value });
+    const response = await fetch(`${getSnippetsApiUrl(`/${encodeURIComponent(id)}`)}?${query.toString()}`, {
+      method: "DELETE",
+    });
+
+    if (response.status === 404) {
+      savedSnippets.value = savedSnippets.value.filter((snippet) => snippet.id !== id);
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error("Unable to remove snippet.");
+    }
+
+    savedSnippets.value = savedSnippets.value.filter((snippet) => snippet.id !== id);
+  } catch (error) {
+    console.error("Unable to remove snippet", error);
+    showAlert(error?.message || "Unable to remove snippet.", "error");
+  }
 };
 
 const applyPreset = (preset) => {
@@ -729,13 +806,15 @@ watch(readMode, () => {
 });
 
 onMounted(() => {
+  snippetOwnerKey.value = getSnippetOwnerKey();
+  savedSnippets.value = [];
+
   if (!supportsSpeech) {
     isLoadingVoices.value = false;
     showAlert("Your browser does not support Web Speech API.", "error");
     return;
   }
 
-  loadSavedSnippets();
   populateVoiceList();
   if (synth && synth.onvoiceschanged !== undefined) {
     synth.onvoiceschanged = populateVoiceList;
@@ -1011,16 +1090,6 @@ onUnmounted(() => {
                 </div>
               </v-sheet>
             </div>
-          </v-card>
-
-          <v-card class="side-panel pa-5" rounded="xl" elevation="0">
-            <p class="panel-kicker mb-1">Shortcuts</p>
-            <h3 class="text-h6 font-weight-bold mb-3">Keyboard controls</h3>
-            <ul class="shortcut-list">
-              <li><kbd>Ctrl/Cmd + Enter</kbd> Play or Stop</li>
-              <li><kbd>Alt + Left</kbd> Previous sentence</li>
-              <li><kbd>Alt + Right</kbd> Next sentence</li>
-            </ul>
           </v-card>
         </v-col>
       </v-row>
