@@ -96,13 +96,15 @@
                     :title="searchOpen ? 'Close search' : 'Search messages'" @click="toggleSearch">
                     <v-icon size="16">{{ searchOpen ? "mdi-close" : "mdi-magnify" }}</v-icon>
                   </v-btn>
+                </div>
+                <div class="chat-toolbar-model">
                   <v-select v-model="selectedModel" :items="availableModels" item-title="label" item-value="value"
                     density="compact" variant="outlined" rounded="lg" hide-details class="model-select"
                     :disabled="loading || !hasSelectedApiKey" title="Select AI model" />
                 </div>
               </v-toolbar>
               <v-expand-transition>
-                <div v-if="searchOpen" class="search-bar-wrap px-3 pb-2">
+                <div v-if="searchOpen" class="search-bar-wrap px-3 py-2">
                   <v-text-field v-model="searchQuery" density="compact" variant="outlined" rounded="lg" hide-details
                     placeholder="Search messages..." prepend-inner-icon="mdi-magnify" clearable autofocus
                     @click:clear="searchQuery = ''" />
@@ -3241,15 +3243,21 @@ onUnmounted(() => {
   flex: 0 0 auto;
 }
 
+.chat-toolbar-model {
+  flex: 1 1 176px;
+  min-width: 132px;
+  max-width: 190px;
+  margin-left: 8px;
+}
+
 .model-select :deep(.v-field) {
   font-size: 0.78rem;
   border-radius: 10px;
 }
 
 .model-select {
-  flex: 1 1 176px;
-  min-width: 132px;
-  max-width: 190px;
+  width: 100%;
+  min-width: 0;
 }
 
 .model-select :deep(.v-field__input) {
@@ -3338,7 +3346,7 @@ onUnmounted(() => {
     gap: 5px;
   }
 
-  .model-select {
+  .chat-toolbar-model {
     flex-basis: 156px;
     min-width: 120px;
     max-width: 168px;
@@ -3366,22 +3374,40 @@ onUnmounted(() => {
 }
 
 @media (max-width: 760px) {
+  .chat-head-shell {
+    overflow: visible;
+  }
+
   .chat-toolbar {
     min-height: auto;
+    height: auto;
+    overflow: visible;
   }
 
   .chat-toolbar :deep(.v-toolbar__content) {
-    align-items: flex-start;
+    align-items: center;
     flex-wrap: wrap;
+    min-height: 0 !important;
+    height: auto !important;
     row-gap: 8px;
+    column-gap: 6px;
     padding-top: 8px;
     padding-bottom: 8px;
+    overflow: visible;
   }
 
   .chat-toolbar :deep(.v-toolbar__prepend) {
-    flex: 1 1 100%;
-    width: 100%;
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
     margin: 0;
+  }
+
+  .chat-toolbar :deep(.v-toolbar__prepend .v-avatar) {
+    display: inline-flex;
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
   }
 
   .chat-title {
@@ -3389,12 +3415,15 @@ onUnmounted(() => {
   }
 
   .chat-toolbar-actions {
-    width: 100%;
-    margin-left: 0;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    width: auto;
+    max-width: calc(100% - 120px);
+    margin-left: auto;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
     gap: 6px;
-    row-gap: 6px;
+    row-gap: 0;
+    white-space: nowrap;
+    overflow-x: auto;
   }
 
   .chat-toolbar-actions :deep(.v-btn) {
@@ -3403,8 +3432,18 @@ onUnmounted(() => {
     padding-inline: 10px;
   }
 
-  .model-select {
+  .chat-toolbar-model {
     flex: 1 1 100%;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    order: 3;
+    position: relative;
+    z-index: 2;
+  }
+
+  .model-select {
+    width: 100%;
     min-width: 0;
     max-width: 100%;
   }
@@ -3429,6 +3468,7 @@ onUnmounted(() => {
 
   .chat-toolbar-actions {
     gap: 5px;
+    max-width: calc(100% - 106px);
   }
 
   .chat-toolbar-actions :deep(.v-btn) {

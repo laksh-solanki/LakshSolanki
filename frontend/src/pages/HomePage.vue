@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import PhotoZoomDialog from "@/components/PhotoZoomDialog.vue";
 import { getMediaUrl } from "@/utils/mediaUrl";
 
@@ -27,12 +27,6 @@ const techStack = [
   "Web Performance",
 ];
 
-const heroSignals = [
-  { label: "Delivery", value: "Fast turnaround" },
-  { label: "Focus", value: "Premium UI systems" },
-  { label: "Stack", value: "Vue + Node + APIs" },
-];
-
 const featuredProjects = [
   {
     title: "Certificate Generator",
@@ -57,79 +51,70 @@ const featuredProjects = [
 
 <template>
   <v-container class="py-8 py-md-14 home-shell">
-    <section class="section-shell hero-card pa-5 pa-md-8 mb-8">
-      <div class="hero-grid">
-        <div class="hero-copy-column">
-          <div class="hero-kicker-row startup-item" style="--delay: 0.06s">
-            <v-chip color="secondary" variant="flat" class="hero-kicker">Full-Stack Developer Portfolio</v-chip>
-            <span class="hero-availability">
-              <span class="hero-status-dot" aria-hidden="true"></span>
-              Select projects only
-            </span>
-          </div>
-
-          <h1 class="hero-title startup-item" style="--delay: 0.14s">
-            Clean Vue and Node experiences, designed with restraint.
+    <section class="section-shell hero-card pa-6 pa-md-10 mb-10">
+      <div class="glow-dot hero-dot"></div>
+      <div class="hero-orbit hero-orbit-one" aria-hidden="true"></div>
+      <div class="hero-orbit hero-orbit-two" aria-hidden="true"></div>
+      <v-row align="center" class="ga-0">
+        <v-col cols="12" md="7" class="pr-md-8 hero-copy-column">
+          <v-chip color="secondary" variant="flat" class="font-weight-bold mb-4 startup-item" style="--delay: 0.08s">
+            Full-Stack Developer Portfolio
+          </v-chip>
+          <h1 class="text-h3 text-md-h2 mb-4 hero-title startup-item" style="--delay: 0.16s">
+            Building fast, elegant web experiences that people enjoy using.
           </h1>
-
-          <p class="text-body-1 muted-copy hero-subtitle startup-item" style="--delay: 0.22s">
-            I'm Laksh Solanki, a full-stack developer focused on polished UI systems, performance,
-            and practical product engineering.
+          <p class="text-body-1 muted-copy mb-6 hero-subtitle startup-item" style="--delay: 0.24s">
+            I am Laksh Solanki, a developer focused on Vue, Node.js, and modern product engineering.
+            I design and ship applications that balance performance, usability, and maintainability.
           </p>
 
-          <div class="hero-actions startup-item" style="--delay: 0.3s">
-            <v-btn color="primary" size="large" rounded="xl" class="text-none px-5 hero-primary-btn" to="/projects">
+          <div class="d-flex flex-wrap ga-3 mb-6 startup-item" style="--delay: 0.32s">
+            <v-btn color="primary" size="large" rounded="xl" class="text-none px-6" to="/projects">
               Explore Projects
             </v-btn>
-            <v-btn variant="outlined" color="primary" size="large" rounded="xl" class="text-none px-5 hero-secondary-btn" to="/about">
+            <v-btn variant="outlined" color="primary" size="large" rounded="xl" class="text-none px-6" to="/about">
               View Full Profile
             </v-btn>
           </div>
 
-          <div class="hero-meta-row startup-item" style="--delay: 0.38s">
-            <span v-for="signal in heroSignals" :key="signal.label" class="hero-meta-pill">
-              {{ signal.value }}
-            </span>
+          <div class="d-flex flex-wrap ga-2 hero-skill-row">
+            <v-chip
+              v-for="(skill, index) in techStack"
+              :key="skill"
+              color="primary"
+              variant="tonal"
+              size="small"
+              class="startup-chip"
+              :style="{ '--delay': `${0.4 + index * 0.05}s` }"
+            >
+              {{ skill }}
+            </v-chip>
           </div>
-        </div>
+        </v-col>
 
-        <div class="hero-profile-column">
-          <div class="hero-profile startup-profile">
-            <div class="hero-profile-glow" aria-hidden="true"></div>
-
-            <div class="hero-profile-top">
-              <div class="hero-photo-frame startup-item" style="--delay: 0.18s">
-                <PhotoZoomDialog :src="myPhoto" alt="Laksh Solanki" :size="136" avatar-class="mx-auto d-flex hero-avatar" />
-              </div>
-
-              <div class="hero-profile-copy">
-                <p class="hero-profile-kicker startup-item" style="--delay: 0.24s">Available now</p>
-                <h2 class="hero-profile-name startup-item" style="--delay: 0.3s">Laksh Solanki</h2>
-                <p class="hero-role startup-item" style="--delay: 0.36s">Senior Full-Stack Engineer</p>
-
-                <div class="hero-profile-status startup-item" style="--delay: 0.42s">
-                  <v-chip color="primary" variant="flat" size="small" class="text-none hero-status-chip">
-                    Open for freelance
-                  </v-chip>
-                  <span>Gujarat, India</span>
-                </div>
-              </div>
+        <v-col cols="12" md="5" class="mt-8 mt-md-0 hero-profile-column">
+          <div class="hero-profile pa-5 startup-profile">
+            <div class="profile-halo" aria-hidden="true"></div>
+            <div class="startup-item" style="--delay: 0.2s">
+              <PhotoZoomDialog :src="myPhoto" alt="Laksh Solanki" :size="150" avatar-class="mx-auto d-flex profile-ring" />
             </div>
-
-            <div class="hero-profile-facts">
+            <h2 class="text-h5 text-center mt-5 mb-1 startup-item" style="--delay: 0.28s">Laksh Solanki</h2>
+            <p class="text-center muted-copy mb-5 startup-item" style="--delay: 0.34s">Senior Full-Stack Engineer</p>
+            <v-divider class="mb-4 startup-item" style="--delay: 0.4s"></v-divider>
+            <div class="d-flex flex-column ga-2">
               <div
                 v-for="(fact, index) in profileFacts"
                 :key="fact.label"
-                class="hero-profile-fact startup-item"
-                :style="{ '--delay': `${0.5 + index * 0.06}s` }"
+                class="d-flex justify-space-between profile-fact"
+                :style="{ '--delay': `${0.46 + index * 0.07}s` }"
               >
-                <span>{{ fact.label }}</span>
+                <span class="muted-copy">{{ fact.label }}</span>
                 <strong>{{ fact.value }}</strong>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </v-col>
+      </v-row>
     </section>
 
     <section class="mb-10 home-section">
@@ -219,253 +204,93 @@ const featuredProjects = [
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border-radius: 32px;
-  border: 1px solid rgba(19, 111, 99, 0.14);
-  background:
-    radial-gradient(circle at 0% 0%, rgba(19, 111, 99, 0.08) 0%, transparent 28%),
-    radial-gradient(circle at 100% 0%, rgba(245, 158, 11, 0.1) 0%, transparent 24%),
-    linear-gradient(145deg, #ffffff 0%, #fbfdfc 42%, #eff5ff 100%);
-  box-shadow: 0 26px 60px rgba(16, 35, 31, 0.1);
   animation: rise-in 0.45s ease;
 }
 
 .hero-card::before {
   content: "";
   position: absolute;
-  left: -150px;
-  bottom: -170px;
-  width: 420px;
-  height: 420px;
+  top: -120px;
+  left: -100px;
+  width: 320px;
+  height: 320px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(76, 207, 183, 0.2) 0%, rgba(76, 207, 183, 0) 70%);
-  opacity: 0.95;
+  background: radial-gradient(circle, rgba(76, 207, 183, 0.18) 0%, rgba(76, 207, 183, 0) 72%);
+  opacity: 0;
+  z-index: 0;
   pointer-events: none;
+  animation: hero-blob-enter 1.35s cubic-bezier(0.22, 1, 0.36, 1) 0.08s forwards;
 }
 
 .hero-card::after {
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(120deg, transparent 18%, rgba(255, 255, 255, 0.72) 30%, transparent 46%),
-    repeating-linear-gradient(90deg, rgba(19, 111, 99, 0.035) 0 1px, transparent 1px 28px);
-  opacity: 0.72;
+  background: linear-gradient(115deg, transparent 14%, rgba(255, 255, 255, 0.09) 34%, transparent 56%);
+  opacity: 0;
+  transform: translateX(-135%);
+  z-index: 0;
   pointer-events: none;
-  transform: translateX(-120%);
-  animation: hero-sheen 1.15s cubic-bezier(0.22, 1, 0.36, 1) 0.26s forwards;
+  animation: hero-sheen 1.15s cubic-bezier(0.22, 1, 0.36, 1) 0.34s forwards;
 }
 
-.hero-grid {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
-  gap: clamp(1.2rem, 2.2vw, 2rem);
-  align-items: stretch;
+.hero-dot {
+  top: 26px;
+  right: 28px;
+  opacity: 0;
+  animation: dot-enter 0.72s cubic-bezier(0.22, 1, 0.36, 1) 0.42s forwards;
+}
+
+.hero-orbit {
+  position: absolute;
+  border: 1px solid rgba(76, 207, 183, 0.14);
+  border-radius: 999px;
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-orbit-one {
+  top: 46px;
+  right: 23%;
+  width: 168px;
+  height: 168px;
+  animation: orbit-settle-one 1s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+}
+
+.hero-orbit-two {
+  right: -54px;
+  bottom: -84px;
+  width: 260px;
+  height: 260px;
+  border-color: rgba(242, 180, 80, 0.16);
+  animation: orbit-settle-two 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.28s forwards;
 }
 
 .hero-copy-column,
 .hero-profile-column {
   position: relative;
   z-index: 1;
-  min-width: 0;
-}
-
-.hero-copy-column {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.hero-profile-column {
-  display: flex;
-}
-
-.hero-kicker-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
 }
 
 .hero-title {
-  margin-bottom: 1rem;
-  max-width: 12ch;
-  color: #0d1f1d;
-  font-size: clamp(2.35rem, 4.2vw, 4rem);
-  line-height: 0.98;
-  letter-spacing: -0.05em;
+  line-height: 1.1;
+  max-width: 17ch;
 }
 
 .hero-subtitle {
-  max-width: 46ch;
-  font-size: 0.98rem;
-  line-height: 1.72;
-}
-
-.hero-kicker {
-  border-radius: 999px;
-  box-shadow: 0 10px 22px rgba(19, 111, 99, 0.14);
-  letter-spacing: 0.04em;
-}
-
-.hero-availability {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.55rem 0.85rem;
-  border-radius: 999px;
-  border: 1px solid rgba(19, 111, 99, 0.14);
-  background: rgba(255, 255, 255, 0.78);
-  color: #34514c;
-  box-shadow: 0 8px 18px rgba(16, 35, 31, 0.06);
-  backdrop-filter: blur(12px);
-}
-
-.hero-status-dot {
-  width: 0.65rem;
-  height: 0.65rem;
-  border-radius: 50%;
-  background: #0f8d79;
-  box-shadow: 0 0 0 6px rgba(19, 111, 99, 0.12);
-  animation: hero-status-pulse 2.8s ease-in-out infinite;
-}
-
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.7rem;
-  margin-bottom: 1rem;
-}
-
-.hero-primary-btn,
-.hero-secondary-btn {
-  min-height: 48px;
-  border-radius: 999px;
-  letter-spacing: 0.01em;
-  transition:
-    transform 0.24s ease,
-    box-shadow 0.24s ease,
-    background-color 0.24s ease,
-    border-color 0.24s ease;
-}
-
-.hero-primary-btn {
-  box-shadow: 0 14px 28px rgba(19, 111, 99, 0.16);
-}
-
-.hero-secondary-btn {
-  background: rgba(255, 255, 255, 0.76);
-  border-color: rgba(19, 111, 99, 0.16);
-  box-shadow: 0 10px 20px rgba(16, 35, 31, 0.06);
-  backdrop-filter: blur(12px);
-}
-
-.hero-primary-btn:hover,
-.hero-secondary-btn:hover {
-  transform: translateY(-2px);
-}
-
-.hero-meta-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-}
-
-.hero-meta-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.55rem 0.8rem;
-  border-radius: 999px;
-  border: 1px solid rgba(19, 111, 99, 0.12);
-  background: rgba(255, 255, 255, 0.82);
-  color: #0e6155;
-  font-size: 0.84rem;
-  font-weight: 700;
-  box-shadow: 0 10px 20px rgba(16, 35, 31, 0.06);
-}
-
-.hero-signals {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.9rem;
-  margin-bottom: 1.35rem;
-}
-
-.hero-signal {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  padding: 0.95rem 1rem;
-  border-radius: 18px;
-  border: 1px solid rgba(19, 111, 99, 0.12);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(240, 247, 244, 0.96));
-  box-shadow: 0 12px 26px rgba(16, 35, 31, 0.08);
-  transition:
-    transform 0.24s ease,
-    box-shadow 0.24s ease,
-    border-color 0.24s ease;
-}
-
-.hero-signal:hover {
-  transform: translateY(-3px);
-  border-color: rgba(19, 111, 99, 0.2);
-  box-shadow: 0 18px 32px rgba(16, 35, 31, 0.12);
-}
-
-.hero-signal-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #6a7f7a;
-}
-
-.hero-signal-value {
-  color: #0f2f2a;
-  font-size: 1.03rem;
-  line-height: 1.35;
-}
-
-.hero-stack {
-  padding-top: 1rem;
-  border-top: 1px solid rgba(19, 111, 99, 0.12);
-}
-
-.hero-stack-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #136f63;
+  max-width: 55ch;
 }
 
 .hero-skill-row {
-  row-gap: 0.7rem;
-}
-
-.hero-chip {
-  background: rgba(255, 255, 255, 0.84);
-  color: #0d5248;
-  border: 1px solid rgba(19, 111, 99, 0.14);
-  box-shadow: 0 9px 18px rgba(16, 35, 31, 0.06);
+  row-gap: 0.6rem;
 }
 
 .hero-profile {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  width: 100%;
-  border-radius: 24px;
-  padding: clamp(1rem, 1.8vw, 1.3rem);
-  background:
-    radial-gradient(circle at 100% 0%, rgba(245, 158, 11, 0.14) 0%, transparent 28%),
-    linear-gradient(165deg, rgba(255, 255, 255, 0.98), rgba(241, 248, 245, 0.94));
-  border: 1px solid rgba(19, 111, 99, 0.16);
-  box-shadow: 0 18px 36px rgba(16, 35, 31, 0.1);
-  overflow: hidden;
+  border-radius: 22px;
+  background: linear-gradient(165deg, #ffffff, #eef8f3);
+  border: 1px solid rgba(19, 111, 99, 0.2);
 }
 
 .startup-profile {
@@ -473,127 +298,22 @@ const featuredProjects = [
   animation: profile-enter 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.22s forwards;
 }
 
-.hero-profile-glow {
+.profile-halo {
   position: absolute;
-  right: -62px;
-  bottom: -92px;
-  width: 200px;
-  height: 200px;
+  right: -52px;
+  bottom: -76px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(76, 207, 183, 0.2) 0%, rgba(76, 207, 183, 0) 70%);
-  opacity: 0.95;
+  background: radial-gradient(circle, rgba(76, 207, 183, 0.18) 0%, rgba(76, 207, 183, 0) 70%);
+  opacity: 0;
   pointer-events: none;
+  animation: halo-enter 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.36s forwards;
 }
 
-.hero-profile-top {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-}
-
-.hero-photo-frame {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.6rem;
-  border-radius: 24px;
-  background: linear-gradient(180deg, rgba(19, 111, 99, 0.12), rgba(255, 255, 255, 0.86));
-  border: 1px solid rgba(19, 111, 99, 0.12);
-  box-shadow: 0 12px 22px rgba(16, 35, 31, 0.07);
-}
-
-.hero-avatar {
-  border: 3px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 0 12px 24px rgba(19, 111, 99, 0.2);
-}
-
-.hero-profile-copy {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.hero-profile-kicker {
-  margin-bottom: 0.1rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #136f63;
-}
-
-.hero-profile-name {
-  margin: 0;
-  color: #0d1f1d;
-  font-size: clamp(1.3rem, 1.9vw, 1.7rem);
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-}
-
-.hero-role {
-  margin: 0;
-  color: #5d716e;
-  font-weight: 500;
-}
-
-.hero-profile-status {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.35rem;
-  color: #506663;
-  font-size: 0.88rem;
-}
-
-.hero-status-chip {
-  box-shadow: 0 10px 20px rgba(19, 111, 99, 0.16);
-}
-
-.hero-profile-facts {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.1rem;
-  margin-top: 0.1rem;
-}
-
-.hero-profile-fact {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.65rem 0;
-  border-bottom: 1px solid rgba(19, 111, 99, 0.12);
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  transition:
-    transform 0.24s ease,
-    box-shadow 0.24s ease;
-}
-
-.hero-profile-fact:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-.hero-profile-fact span {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #6a7f7a;
-}
-
-.hero-profile-fact strong {
-  color: #0f2f2a;
-  font-size: 0.95rem;
+.profile-ring {
+  border: 3px solid #ffffff;
+  box-shadow: 0 14px 35px rgba(19, 111, 99, 0.25);
 }
 
 .profile-fact,
@@ -955,23 +675,6 @@ const featuredProjects = [
 }
 
 @media (max-width: 960px) {
-  .hero-grid {
-    grid-template-columns: 1fr;
-    gap: 1.35rem;
-  }
-
-  .hero-signals {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .hero-profile-facts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .hero-profile-top {
-    align-items: flex-start;
-  }
-
   .luxe-flow {
     grid-template-columns: 1fr;
     gap: 0.52rem;
@@ -990,41 +693,18 @@ const featuredProjects = [
 }
 
 @media (max-width: 600px) {
-  .hero-kicker-row {
-    align-items: flex-start;
+  .hero-dot {
+    display: none;
   }
 
-  .hero-availability {
-    width: 100%;
-    justify-content: flex-start;
+  .hero-orbit-two {
+    right: -92px;
+    bottom: -120px;
   }
 
   .hero-title,
   .hero-subtitle {
     max-width: none;
-  }
-
-  .hero-signals,
-  .hero-profile-facts {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-profile-top {
-    flex-direction: column;
-  }
-
-  .hero-photo-frame {
-    width: 100%;
-    max-width: 220px;
-  }
-
-  .hero-actions {
-    flex-direction: column;
-  }
-
-  .hero-primary-btn,
-  .hero-secondary-btn {
-    width: 100%;
   }
 
   .luxe-flow-card {
@@ -1041,7 +721,6 @@ const featuredProjects = [
   .hero-card::after,
   .hero-dot,
   .hero-orbit,
-  .hero-status-dot,
   .profile-halo,
   .startup-item,
   .startup-heading,
@@ -1067,18 +746,6 @@ const featuredProjects = [
   }
 }
 
-@keyframes hero-status-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 6px rgba(19, 111, 99, 0.12);
-  }
-  50% {
-    transform: scale(1.06);
-    box-shadow: 0 0 0 10px rgba(19, 111, 99, 0.08);
-  }
-}
-
 @keyframes luxe-link-vertical {
   from {
     transform: scaleY(0);
@@ -1088,4 +755,3 @@ const featuredProjects = [
   }
 }
 </style>
-
