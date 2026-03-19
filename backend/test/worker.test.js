@@ -12,3 +12,15 @@ test("worker adapter serves health endpoint", async () => {
   const body = await response.json();
   assert.equal(body.status, "ok");
 });
+
+test("worker readiness reports not ready when only MONGODB_URI is configured", async () => {
+  const response = await worker.fetch(new Request("https://mindlytic.example/ready"), {
+    MONGODB_URI: "mongodb+srv://example.invalid/test",
+  });
+
+  assert.equal(response.status, 503);
+
+  const body = await response.json();
+  assert.equal(body.status, "not_ready");
+  assert.equal(body.database.mode, "memory");
+});

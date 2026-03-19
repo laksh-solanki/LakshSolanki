@@ -17,11 +17,23 @@ const createCourseRecord = ({ name, category, level, durationHours, tags = [] })
   };
 };
 
+const normalizeDocumentId = (value) => {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object" && typeof value.$oid === "string") {
+    return value.$oid;
+  }
+  if (typeof value.toString === "function") {
+    return value.toString();
+  }
+  return "";
+};
+
 const toPublicDocument = (document) => {
   if (!document) return null;
   const { _id, normalizedName, ...rest } = document;
   return {
-    id: _id ? _id.toString() : rest.id,
+    id: _id ? normalizeDocumentId(_id) : rest.id,
     ...rest,
   };
 };

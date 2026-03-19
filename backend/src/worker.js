@@ -1,11 +1,13 @@
 import { isValidEmail, normalizeEmail } from "./lib/email.js";
+import { createMongoDataApiDb } from "./lib/mongo-data-api.js";
 import { createRepositories } from "./services/repositories.js";
 
 const REQUEST_TIMEOUT_MS = 80000;
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 const METHODS_WITHOUT_BODY = new Set(["GET", "HEAD"]);
 
-let workerState;
+let workerStatePromise;
+let workerStateKey = "";
 
 const logger = {
   info: (...args) => console.log(...args),
@@ -78,7 +80,15 @@ const getEnvConfig = (bindings = {}) => {
   return Object.freeze({
     nodeEnv,
     mongodbUri: source.MONGODB_URI?.trim() || "",
-    mongodbDbName: source.MONGODB_DB_NAME?.trim() || "Mindlytic",
+    mongodbDbName:
+      source.MONGODB_DB_NAME?.trim() ||
+      source.MONGODB_DB?.trim() ||
+      source.DB_NAME?.trim() ||
+      "Mindlytic",
+    mongodbDataApiUrl: source.MONGODB_DATA_API_URL?.trim() || "",
+    mongodbDataApiKey: source.MONGODB_DATA_API_KEY?.trim() || "",
+    mongodbDataSource: source.MONGODB_DATA_SOURCE?.trim() || "Cluster0",
+    mongodbDataApiTimeoutMs: toPositiveInt(source.MONGODB_DATA_API_TIMEOUT_MS, 8000),
     corsOrigins: parseCorsOrigins(source.CORS_ORIGIN),
     maxRequestBodyBytes: toPositiveInt(source.REQUEST_BODY_LIMIT_BYTES, 262144),
     enableSecurityHeaders: toBoolean(source.ENABLE_SECURITY_HEADERS, true),
@@ -100,42 +110,111 @@ const getEnvConfig = (bindings = {}) => {
   });
 };
 
-const createDatabaseStatus = (envConfig) => {
-  if (!envConfig.mongodbUri) {
-    return {
-      mode: "memory",
-      enabled: false,
-      connected: false,
-      reason: "MONGODB_URI not configured",
-      updatedAt: new Date().toISOString(),
-    };
-  }
+const createDatabaseStatus = ({ mode, enabled, connected, reason }) => ({
+  mode,
+  enabled,
+  connected,
+  reason,
+  updatedAt: new Date().toISOString(),
+});
 
-  return {
+const createMemoryOnlyStatus = (reason) =>
+  createDatabaseStatus({
     mode: "memory",
     enabled: false,
     connected: false,
-    reason: "MongoDB driver is disabled in Cloudflare Worker mode.",
-    updatedAt: new Date().toISOString(),
-  };
-};
+    reason,
+  });
 
-const getState = (bindings) => {
-  if (!workerState) {
-    const envConfig = getEnvConfig(bindings);
+const createDataApiConnectedStatus = () =>
+  createDatabaseStatus({
+    mode: "mongo-data-api",
+    enabled: true,
+    connected: true,
+    reason: "",
+  });
 
-    workerState = {
-      startedAt: Date.now(),
-      envConfig,
-      dbStatus: createDatabaseStatus(envConfig),
-      repositories: createRepositories({
-        db: null,
-        logger,
-      }),
-    };
+const createDataApiDisconnectedStatus = (reason) =>
+  createDatabaseStatus({
+    mode: "mongo-data-api",
+    enabled: true,
+    connected: false,
+    reason,
+  });
+
+const getMemoryFallbackReason = (envConfig) => {
+  if (!envConfig.mongodbUri && !envConfig.mongodbDataApiUrl && !envConfig.mongodbDataApiKey) {
+    return "MongoDB is not configured.";
   }
 
-  return workerState;
+  if (envConfig.mongodbDataApiUrl && !envConfig.mongodbDataApiKey) {
+    return "MONGODB_DATA_API_URL is set but MONGODB_DATA_API_KEY is missing.";
+  }
+
+  if (!envConfig.mongodbDataApiUrl && envConfig.mongodbDataApiKey) {
+    return "MONGODB_DATA_API_KEY is set but MONGODB_DATA_API_URL is missing.";
+  }
+
+  if (envConfig.mongodbUri && !envConfig.mongodbDataApiUrl) {
+    return "Cloudflare Worker mode requires MONGODB_DATA_API_URL and MONGODB_DATA_API_KEY.";
+  }
+
+  return "Worker is running in memory mode.";
+};
+
+const getState = async (bindings) => {
+  const stateKey = JSON.stringify({
+    nodeEnv: bindings?.NODE_ENV || "",
+    mongodbUri: bindings?.MONGODB_URI || "",
+    mongodbDbName: bindings?.MONGODB_DB_NAME || bindings?.MONGODB_DB || bindings?.DB_NAME || "",
+    mongodbDataApiUrl: bindings?.MONGODB_DATA_API_URL || "",
+    mongodbDataApiKey: bindings?.MONGODB_DATA_API_KEY || "",
+    mongodbDataSource: bindings?.MONGODB_DATA_SOURCE || "",
+  });
+
+  if (!workerStatePromise || workerStateKey !== stateKey) {
+    workerStateKey = stateKey;
+    workerStatePromise = (async () => {
+      const envConfig = getEnvConfig(bindings);
+      let db = null;
+      let dbStatus = createMemoryOnlyStatus(getMemoryFallbackReason(envConfig));
+
+      const canUseDataApi = Boolean(envConfig.mongodbDataApiUrl && envConfig.mongodbDataApiKey);
+      if (canUseDataApi) {
+        try {
+          db = createMongoDataApiDb({
+            baseUrl: envConfig.mongodbDataApiUrl,
+            apiKey: envConfig.mongodbDataApiKey,
+            dataSource: envConfig.mongodbDataSource,
+            database: envConfig.mongodbDbName,
+            timeoutMs: envConfig.mongodbDataApiTimeoutMs,
+          });
+
+          await db.collection("courses").find({}).limit(1).toArray();
+          dbStatus = createDataApiConnectedStatus();
+          logger.info("MongoDB Data API connected for Worker runtime.");
+        } catch (error) {
+          logger.error("MongoDB Data API connection failed in Worker runtime.", error);
+          db = null;
+          dbStatus = createDataApiDisconnectedStatus(
+            "MongoDB Data API connection failed. Check URL, API key, data source, and DB name.",
+          );
+        }
+      }
+
+      return {
+        startedAt: Date.now(),
+        envConfig,
+        dbStatus,
+        repositories: createRepositories({
+          db,
+          logger,
+        }),
+      };
+    })();
+  }
+
+  return workerStatePromise;
 };
 
 const getUptimeSeconds = (startedAt) => Number(((Date.now() - startedAt) / 1000).toFixed(1));
@@ -797,8 +876,11 @@ const handleRoute = async (request, state) => {
   }
 
   if (path === "/ready" && method === "GET") {
-    const ready = true;
-    return jsonResponse(request, envConfig, 200, {
+    const isDbConfigured = Boolean(
+      envConfig.mongodbDataApiUrl || envConfig.mongodbDataApiKey || envConfig.mongodbUri,
+    );
+    const ready = !isDbConfigured || dbStatus.connected;
+    return jsonResponse(request, envConfig, ready ? 200 : 503, {
       status: ready ? "ready" : "not_ready",
       timestamp: new Date().toISOString(),
       database: dbStatus,
@@ -841,7 +923,7 @@ const handleRoute = async (request, state) => {
 
 export default {
   async fetch(request, env) {
-    const state = getState(env);
+    const state = await getState(env);
     const { envConfig } = state;
 
     if (isCorsRejected(request, envConfig)) {

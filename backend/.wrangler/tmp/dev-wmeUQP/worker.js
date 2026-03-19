@@ -246,7 +246,7 @@ var PerformanceObserver = class {
 };
 var performance = globalThis.performance && "addEventListener" in globalThis.performance ? globalThis.performance : new Performance();
 
-// node_modules/.pnpm/@cloudflare+unenv-preset@2._c15130b02139244a0eacc776aa5b24d4/node_modules/@cloudflare/unenv-preset/dist/runtime/polyfill/performance.mjs
+// node_modules/.pnpm/@cloudflare+unenv-preset@2._c3da58415e0700c0113e536997d871b7/node_modules/@cloudflare/unenv-preset/dist/runtime/polyfill/performance.mjs
 globalThis.performance = performance;
 globalThis.Performance = Performance;
 globalThis.PerformanceEntry = PerformanceEntry;
@@ -260,6 +260,145 @@ globalThis.PerformanceResourceTiming = PerformanceResourceTiming;
 var EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 var normalizeEmail = /* @__PURE__ */ __name((value) => value?.trim().toLowerCase() || "", "normalizeEmail");
 var isValidEmail = /* @__PURE__ */ __name((value) => EMAIL_REGEX.test(normalizeEmail(value)), "isValidEmail");
+
+// src/lib/mongo-data-api.js
+var trimTrailingSlash = /* @__PURE__ */ __name((value = "") => String(value).replace(/\/+$/, ""), "trimTrailingSlash");
+var safeJson = /* @__PURE__ */ __name(async (response) => {
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
+}, "safeJson");
+var readErrorMessage = /* @__PURE__ */ __name(async (response) => {
+  const json = await safeJson(response);
+  const message = json?.error || json?.detail || json?.message;
+  if (typeof message === "string" && message.trim()) {
+    return message.trim();
+  }
+  try {
+    const text = await response.text();
+    if (text?.trim()) {
+      return text.trim().slice(0, 500);
+    }
+  } catch {
+  }
+  return `MongoDB Data API request failed with status ${response.status}.`;
+}, "readErrorMessage");
+var withTimeout = /* @__PURE__ */ __name(async (promiseFactory, timeoutMs) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await promiseFactory(controller.signal);
+  } finally {
+    clearTimeout(timeout);
+  }
+}, "withTimeout");
+var createMongoDataApiDb = /* @__PURE__ */ __name(({
+  baseUrl,
+  apiKey,
+  dataSource,
+  database,
+  timeoutMs = 8e3
+}) => {
+  const normalizedBaseUrl = trimTrailingSlash(baseUrl);
+  const action = /* @__PURE__ */ __name(async (name, payload = {}) => {
+    const body = {
+      dataSource,
+      database,
+      ...payload
+    };
+    const response = await withTimeout(
+      (signal) => fetch(`${normalizedBaseUrl}/action/${name}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": apiKey,
+          Accept: "application/ejson"
+        },
+        body: JSON.stringify(body),
+        signal
+      }),
+      timeoutMs
+    );
+    if (!response.ok) {
+      const message = await readErrorMessage(response);
+      const error = new Error(message);
+      error.statusCode = response.status;
+      throw error;
+    }
+    return await safeJson(response) || {};
+  }, "action");
+  const createCursor = /* @__PURE__ */ __name(({ collection, filter = {} }) => {
+    let sort;
+    let limit;
+    return {
+      sort(nextSort = {}) {
+        sort = nextSort;
+        return this;
+      },
+      limit(nextLimit) {
+        limit = nextLimit;
+        return this;
+      },
+      async toArray() {
+        const payload = {
+          collection,
+          filter
+        };
+        if (sort && typeof sort === "object") {
+          payload.sort = sort;
+        }
+        if (Number.isInteger(limit) && limit > 0) {
+          payload.limit = limit;
+        }
+        const result = await action("find", payload);
+        return Array.isArray(result.documents) ? result.documents : [];
+      }
+    };
+  }, "createCursor");
+  return {
+    collection(name) {
+      const collection = String(name || "").trim();
+      if (!collection) {
+        throw new Error("MongoDB Data API collection name is required");
+      }
+      return {
+        find(filter = {}) {
+          return createCursor({ collection, filter });
+        },
+        async findOne(filter = {}) {
+          const result = await action("findOne", {
+            collection,
+            filter
+          });
+          return result.document || null;
+        },
+        async insertOne(document) {
+          const result = await action("insertOne", {
+            collection,
+            document
+          });
+          return {
+            insertedId: result.insertedId || null
+          };
+        },
+        async updateOne(filter, update) {
+          const result = await action("updateOne", {
+            collection,
+            filter,
+            update
+          });
+          return {
+            matchedCount: Number(result.matchedCount || 0),
+            modifiedCount: Number(result.modifiedCount || 0),
+            upsertedId: result.upsertedId || null
+          };
+        }
+      };
+    }
+  };
+}, "createMongoDataApiDb");
 
 // src/services/repositories.js
 var escapeRegExp = /* @__PURE__ */ __name((value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "escapeRegExp");
@@ -275,11 +414,22 @@ var createCourseRecord = /* @__PURE__ */ __name(({ name, category, level, durati
     tags: Array.isArray(tags) ? tags.map((tag) => String(tag).trim()).filter(Boolean) : []
   };
 }, "createCourseRecord");
+var normalizeDocumentId = /* @__PURE__ */ __name((value) => {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "object" && typeof value.$oid === "string") {
+    return value.$oid;
+  }
+  if (typeof value.toString === "function") {
+    return value.toString();
+  }
+  return "";
+}, "normalizeDocumentId");
 var toPublicDocument = /* @__PURE__ */ __name((document) => {
   if (!document) return null;
   const { _id, normalizedName, ...rest } = document;
   return {
-    id: _id ? _id.toString() : rest.id,
+    id: _id ? normalizeDocumentId(_id) : rest.id,
     ...rest
   };
 }, "toPublicDocument");
@@ -528,7 +678,8 @@ var createRepositories = /* @__PURE__ */ __name(({ db, logger: logger2 }) => {
 var REQUEST_TIMEOUT_MS = 8e4;
 var GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 var METHODS_WITHOUT_BODY = /* @__PURE__ */ new Set(["GET", "HEAD"]);
-var workerState;
+var workerStatePromise;
+var workerStateKey = "";
 var logger = {
   info: /* @__PURE__ */ __name((...args) => console.log(...args), "info"),
   warn: /* @__PURE__ */ __name((...args) => console.warn(...args), "warn"),
@@ -586,7 +737,11 @@ var getEnvConfig = /* @__PURE__ */ __name((bindings = {}) => {
   return Object.freeze({
     nodeEnv,
     mongodbUri: source.MONGODB_URI?.trim() || "",
-    mongodbDbName: source.MONGODB_DB_NAME?.trim() || "Mindlytic",
+    mongodbDbName: source.MONGODB_DB_NAME?.trim() || source.MONGODB_DB?.trim() || source.DB_NAME?.trim() || "Mindlytic",
+    mongodbDataApiUrl: source.MONGODB_DATA_API_URL?.trim() || "",
+    mongodbDataApiKey: source.MONGODB_DATA_API_KEY?.trim() || "",
+    mongodbDataSource: source.MONGODB_DATA_SOURCE?.trim() || "Cluster0",
+    mongodbDataApiTimeoutMs: toPositiveInt(source.MONGODB_DATA_API_TIMEOUT_MS, 8e3),
     corsOrigins: parseCorsOrigins(source.CORS_ORIGIN),
     maxRequestBodyBytes: toPositiveInt(source.REQUEST_BODY_LIMIT_BYTES, 262144),
     enableSecurityHeaders: toBoolean(source.ENABLE_SECURITY_HEADERS, true),
@@ -605,38 +760,94 @@ var getEnvConfig = /* @__PURE__ */ __name((bindings = {}) => {
     imageSize: source.IMAGE_SIZE?.trim() || "1024x1024"
   });
 }, "getEnvConfig");
-var createDatabaseStatus = /* @__PURE__ */ __name((envConfig) => {
-  if (!envConfig.mongodbUri) {
-    return {
-      mode: "memory",
-      enabled: false,
-      connected: false,
-      reason: "MONGODB_URI not configured",
-      updatedAt: (/* @__PURE__ */ new Date()).toISOString()
-    };
+var createDatabaseStatus = /* @__PURE__ */ __name(({ mode, enabled, connected, reason }) => ({
+  mode,
+  enabled,
+  connected,
+  reason,
+  updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+}), "createDatabaseStatus");
+var createMemoryOnlyStatus = /* @__PURE__ */ __name((reason) => createDatabaseStatus({
+  mode: "memory",
+  enabled: false,
+  connected: false,
+  reason
+}), "createMemoryOnlyStatus");
+var createDataApiConnectedStatus = /* @__PURE__ */ __name(() => createDatabaseStatus({
+  mode: "mongo-data-api",
+  enabled: true,
+  connected: true,
+  reason: ""
+}), "createDataApiConnectedStatus");
+var createDataApiDisconnectedStatus = /* @__PURE__ */ __name((reason) => createDatabaseStatus({
+  mode: "mongo-data-api",
+  enabled: true,
+  connected: false,
+  reason
+}), "createDataApiDisconnectedStatus");
+var getMemoryFallbackReason = /* @__PURE__ */ __name((envConfig) => {
+  if (!envConfig.mongodbUri && !envConfig.mongodbDataApiUrl && !envConfig.mongodbDataApiKey) {
+    return "MongoDB is not configured.";
   }
-  return {
-    mode: "memory",
-    enabled: false,
-    connected: false,
-    reason: "MongoDB driver is disabled in Cloudflare Worker mode.",
-    updatedAt: (/* @__PURE__ */ new Date()).toISOString()
-  };
-}, "createDatabaseStatus");
-var getState = /* @__PURE__ */ __name((bindings) => {
-  if (!workerState) {
-    const envConfig = getEnvConfig(bindings);
-    workerState = {
-      startedAt: Date.now(),
-      envConfig,
-      dbStatus: createDatabaseStatus(envConfig),
-      repositories: createRepositories({
-        db: null,
-        logger
-      })
-    };
+  if (envConfig.mongodbDataApiUrl && !envConfig.mongodbDataApiKey) {
+    return "MONGODB_DATA_API_URL is set but MONGODB_DATA_API_KEY is missing.";
   }
-  return workerState;
+  if (!envConfig.mongodbDataApiUrl && envConfig.mongodbDataApiKey) {
+    return "MONGODB_DATA_API_KEY is set but MONGODB_DATA_API_URL is missing.";
+  }
+  if (envConfig.mongodbUri && !envConfig.mongodbDataApiUrl) {
+    return "Cloudflare Worker mode requires MONGODB_DATA_API_URL and MONGODB_DATA_API_KEY.";
+  }
+  return "Worker is running in memory mode.";
+}, "getMemoryFallbackReason");
+var getState = /* @__PURE__ */ __name(async (bindings) => {
+  const stateKey = JSON.stringify({
+    nodeEnv: bindings?.NODE_ENV || "",
+    mongodbUri: bindings?.MONGODB_URI || "",
+    mongodbDbName: bindings?.MONGODB_DB_NAME || bindings?.MONGODB_DB || bindings?.DB_NAME || "",
+    mongodbDataApiUrl: bindings?.MONGODB_DATA_API_URL || "",
+    mongodbDataApiKey: bindings?.MONGODB_DATA_API_KEY || "",
+    mongodbDataSource: bindings?.MONGODB_DATA_SOURCE || ""
+  });
+  if (!workerStatePromise || workerStateKey !== stateKey) {
+    workerStateKey = stateKey;
+    workerStatePromise = (async () => {
+      const envConfig = getEnvConfig(bindings);
+      let db = null;
+      let dbStatus = createMemoryOnlyStatus(getMemoryFallbackReason(envConfig));
+      const canUseDataApi = Boolean(envConfig.mongodbDataApiUrl && envConfig.mongodbDataApiKey);
+      if (canUseDataApi) {
+        try {
+          db = createMongoDataApiDb({
+            baseUrl: envConfig.mongodbDataApiUrl,
+            apiKey: envConfig.mongodbDataApiKey,
+            dataSource: envConfig.mongodbDataSource,
+            database: envConfig.mongodbDbName,
+            timeoutMs: envConfig.mongodbDataApiTimeoutMs
+          });
+          await db.collection("courses").find({}).limit(1).toArray();
+          dbStatus = createDataApiConnectedStatus();
+          logger.info("MongoDB Data API connected for Worker runtime.");
+        } catch (error) {
+          logger.error("MongoDB Data API connection failed in Worker runtime.", error);
+          db = null;
+          dbStatus = createDataApiDisconnectedStatus(
+            "MongoDB Data API connection failed. Check URL, API key, data source, and DB name."
+          );
+        }
+      }
+      return {
+        startedAt: Date.now(),
+        envConfig,
+        dbStatus,
+        repositories: createRepositories({
+          db,
+          logger
+        })
+      };
+    })();
+  }
+  return workerStatePromise;
 }, "getState");
 var getUptimeSeconds = /* @__PURE__ */ __name((startedAt) => Number(((Date.now() - startedAt) / 1e3).toFixed(1)), "getUptimeSeconds");
 var getCorsOriginHeader = /* @__PURE__ */ __name((request, envConfig) => {
@@ -1177,8 +1388,11 @@ var handleRoute = /* @__PURE__ */ __name(async (request, state) => {
     });
   }
   if (path === "/ready" && method === "GET") {
-    const ready = true;
-    return jsonResponse(request, envConfig, 200, {
+    const isDbConfigured = Boolean(
+      envConfig.mongodbDataApiUrl || envConfig.mongodbDataApiKey || envConfig.mongodbUri
+    );
+    const ready = !isDbConfigured || dbStatus.connected;
+    return jsonResponse(request, envConfig, ready ? 200 : 503, {
       status: ready ? "ready" : "not_ready",
       timestamp: (/* @__PURE__ */ new Date()).toISOString(),
       database: dbStatus
@@ -1212,7 +1426,7 @@ var handleRoute = /* @__PURE__ */ __name(async (request, state) => {
 }, "handleRoute");
 var worker_default = {
   async fetch(request, env) {
-    const state = getState(env);
+    const state = await getState(env);
     const { envConfig } = state;
     if (isCorsRejected(request, envConfig)) {
       return jsonResponse(request, envConfig, 403, {
@@ -1243,7 +1457,7 @@ var worker_default = {
   }
 };
 
-// node_modules/.pnpm/wrangler@4.73.0/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
+// node_modules/.pnpm/wrangler@4.75.0/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
 var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
@@ -1261,7 +1475,7 @@ var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "drainBody");
 var middleware_ensure_req_body_drained_default = drainBody;
 
-// node_modules/.pnpm/wrangler@4.73.0/node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
+// node_modules/.pnpm/wrangler@4.75.0/node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
 function reduceError(e) {
   return {
     name: e?.name,
@@ -1284,14 +1498,14 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-4qD5RE/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-MkrlTI/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
 ];
 var middleware_insertion_facade_default = worker_default;
 
-// node_modules/.pnpm/wrangler@4.73.0/node_modules/wrangler/templates/middleware/common.ts
+// node_modules/.pnpm/wrangler@4.75.0/node_modules/wrangler/templates/middleware/common.ts
 var __facade_middleware__ = [];
 function __facade_register__(...args) {
   __facade_middleware__.push(...args.flat());
@@ -1316,7 +1530,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-4qD5RE/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-MkrlTI/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
