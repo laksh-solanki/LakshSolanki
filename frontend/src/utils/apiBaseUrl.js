@@ -1,4 +1,5 @@
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
+const DEFAULT_REMOTE_API = "https://backend.audit29122006.workers.dev";
 
 const trimTrailingSlash = (value) => value.replace(/\/+$/, "");
 
@@ -10,7 +11,7 @@ export const getApiBaseUrl = () => {
 
   const selectedUrl = isLocal
     ? localUrl || sharedUrl || "http://localhost:5001"
-    : remoteUrl || sharedUrl || window.location.origin;
+    : remoteUrl || sharedUrl || DEFAULT_REMOTE_API;
 
   return trimTrailingSlash(selectedUrl);
 };

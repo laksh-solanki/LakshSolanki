@@ -9,8 +9,20 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "node:url";
 
+const stripFontPreloads = () => ({
+  name: "strip-font-preloads",
+  apply: "build",
+  transformIndexHtml: {
+    order: "post",
+    handler(html) {
+      return html.replace(/\s*<link rel="preload" as="font"[^>]*>\s*/g, "");
+    },
+  },
+});
+
 export default defineConfig({
   plugins: [
+    stripFontPreloads(),
     tailwindcss(),
     Vue({
       template: { transformAssetUrls },
