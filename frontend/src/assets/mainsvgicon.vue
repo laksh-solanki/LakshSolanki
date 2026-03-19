@@ -19,19 +19,19 @@ const props = defineProps({
 
 const markSize = computed(() => `${props.size}px`);
 const wordSize = computed(() => `${Math.max(18, Math.round(props.size * 0.52))}px`);
-const logoSrc = getMediaUrl("Picture/mindlytic.svg");
+const logoSrc = getMediaUrl("Picture/LS.svg");
 </script>
 
 <template>
   <div class="logo-wrap" :class="`variant-${variant}`">
     <img
       :src="logoSrc"
-      alt="Mindlytic Logo"
+      alt="Laksh Solanki Logo"
       class="logo-glyph"
       :style="{ width: markSize, height: markSize }"
     />
     <span v-if="showWordmark" class="brand-name" :style="{ fontSize: wordSize }">
-      Mind<span class="accent">lytic</span>
+      Laksh <span class="accent">Solanki</span>
     </span>
   </div>
 </template>
@@ -48,7 +48,6 @@ const logoSrc = getMediaUrl("Picture/mindlytic.svg");
   display: block;
   border-radius: 10px;
   object-fit: contain;
-  filter: drop-shadow(0 6px 12px rgba(12, 55, 48, 0.2));
 }
 
 .brand-name {

@@ -23,7 +23,7 @@
       50% { stop-color: #d96570; }
       100% { stop-color: #4285F4; }
     }
-    .m-body {
+    .letter-body {
       animation: breathe 4s ease-in-out infinite;
       transform-origin: center;
     }
@@ -34,19 +34,24 @@
 
   <rect x="10" y="10" width="80" height="80" rx="25" fill="#f8f9ff" stroke="#e0e0e0" stroke-width="0.5" />
 
-  <path class="m-body" d="M30 65 
-           C30 35, 35 25, 45 25 
-           C50 25, 50 45, 50 45 
-           C50 45, 50 25, 55 25 
-           C65 25, 70 35, 70 65" 
-        fill="none" 
-        stroke="url(#gemini-grad)" 
-        stroke-width="12" 
-        stroke-linecap="round" 
-        filter="url(#glow)" />
+  <text
+    class="letter-body"
+    x="50%"
+    y="50%"
+    text-anchor="middle"
+    alignment-baseline="middle"
+    dominant-baseline="middle"
+    dy="0.04em"
+    fill="url(#gemini-grad)"
+    font-size="40"
+    font-weight="800"
+    letter-spacing="0.5"
+    font-family="Space Grotesk, Segoe UI, sans-serif"
+    filter="url(#glow)"
+  >
+    LS
+  </text>
 
-  <path class="flare" d="M85 15 C85 18 82 20 80 20 C82 20 85 22 85 25 C85 22 88 20 90 20 C88 20 85 18 85 15Z" 
+  <path class="flare" d="M85 11 C85 16 81 20 76 20 C81 20 85 24 85 29 C85 24 89 20 94 20 C89 20 85 16 85 11Z" 
         fill="#9b72cb" />
-
-  <rect x="35" y="75" width="30" height="6" rx="3" fill="#F4C430" opacity="0.8" />
 </svg>
