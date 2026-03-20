@@ -214,8 +214,9 @@
                         auto-grow rows="1" max-rows="5" variant="outlined" rounded="lg" hide-details
                         :disabled="loading || !hasAnyAiProvider" @keydown="handlePromptKeydown"></v-textarea>
                       <v-btn :color="loading ? 'error' : 'primary'" rounded="lg" class="text-none composer-send-btn"
-                        :icon="loading ? 'mdi-stop-circle-outline' : 'mdi-arrow-right-thin-circle-outline'" :aria-label="loading ? 'Stop' : 'Send'"
-                        :disabled="primaryActionDisabled" @click="handlePrimaryAction" />
+                        :icon="loading ? 'mdi-stop-circle-outline' : 'mdi-arrow-right-thin-circle-outline'"
+                        :aria-label="loading ? 'Stop' : 'Send'" :disabled="primaryActionDisabled"
+                        @click="handlePrimaryAction" />
                     </div>
                   </v-sheet>
                 </div>
@@ -1103,7 +1104,8 @@ const setRunnerMode = (mode) => {
 };
 
 const getNativeFullscreenTarget = () => {
-  const target = chatShell.value?.$el ?? chatShell.value ?? null;
+  if (typeof document === "undefined") return null;
+  const target = document.documentElement;
   return target instanceof HTMLElement ? target : null;
 };
 
@@ -2337,8 +2339,9 @@ onUnmounted(() => {
   line-height: 1.24;
   border-radius: 5px;
   padding: 1px 5px;
-  border: 1px solid #cfdbec;
-  background: #eef4ff;
+  border: 1px solid rgba(33, 71, 120, 0.18);
+  background: #f4f8fd;
+  color: #1b466e;
   overflow-wrap: anywhere;
 }
 
@@ -2346,17 +2349,19 @@ onUnmounted(() => {
   margin: 12px 0;
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(15, 143, 124, 0.14);
-  box-shadow: 0 12px 22px rgba(18, 38, 33, 0.08);
+  border: 1px solid #dbe5f0;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
 }
 
 .markdown-body :deep(.code-header) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 9px 12px;
-  background: linear-gradient(180deg, #f7fbfa, #edf4f1);
-  color: #12352f;
+  padding: 8px 12px;
+  background: #fafcff;
+  border-bottom: 1px solid #e6edf5;
+  color: #2c3f57;
 }
 
 .markdown-body :deep(.code-header-actions) {
@@ -2395,13 +2400,15 @@ onUnmounted(() => {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.72rem;
+  color: #4a5f78;
+  font-weight: 500;
 }
 
 .markdown-body :deep(.copy-btn) {
-  border: 1px solid rgba(15, 143, 124, 0.18);
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.96);
-  color: #0f6559;
+border: 1px solid #ccd9e8;
+  background: #ffffff;
+  color: #2c4f72;
   padding: 3px 9px;
   font-size: 0.75rem;
   cursor: pointer;
@@ -2432,12 +2439,13 @@ onUnmounted(() => {
 .markdown-body :deep(pre[class*="language-"]) {
   margin: 0;
   padding: 14px 15px;
-  background: #f8fbfd;
-  color: #11201d;
+  background: #fcfdff;
+  color: #1a2735;
   overflow-x: auto;
 }
 
 .markdown-body :deep(pre[class*="language-"] code) {
+  color: black;
   font-family: "JetBrains Mono", "Consolas", monospace;
   font-size: 0.84rem;
   line-height: 1.65;
@@ -2447,11 +2455,11 @@ onUnmounted(() => {
 .markdown-body :deep(.token.prolog),
 .markdown-body :deep(.token.doctype),
 .markdown-body :deep(.token.cdata) {
-  color: #6b7280;
+  color: #6e7781;
 }
 
 .markdown-body :deep(.token.punctuation) {
-  color: #475569;
+  color: #57606a;
 }
 
 .markdown-body :deep(.token.property),
@@ -2459,12 +2467,12 @@ onUnmounted(() => {
 .markdown-body :deep(.token.constant),
 .markdown-body :deep(.token.symbol),
 .markdown-body :deep(.token.deleted) {
-  color: #c2410c;
+  color: #b35900;
 }
 
 .markdown-body :deep(.token.boolean),
 .markdown-body :deep(.token.number) {
-  color: #b45309;
+  color: #0a66c2;
 }
 
 .markdown-body :deep(.token.selector),
@@ -2482,12 +2490,12 @@ onUnmounted(() => {
 .markdown-body :deep(.token.atrule),
 .markdown-body :deep(.token.attr-value),
 .markdown-body :deep(.token.keyword) {
-  color: #0f8f7c;
+  color: #0b5cad;
 }
 
 .markdown-body :deep(.token.function),
 .markdown-body :deep(.token.class-name) {
-  color: #2563eb;
+  color: #1f4f8f;
 }
 
 .markdown-body :deep(.token.regex),
@@ -3517,4 +3525,3 @@ onUnmounted(() => {
   }
 }
 </style>
-

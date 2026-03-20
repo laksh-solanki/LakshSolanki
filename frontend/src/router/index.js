@@ -17,13 +17,13 @@ const routes = [
   {
     path: "/projects",
     component: () => import("@/pages/Projects/page.vue"),
-    meta: { title: "LakshSolanki | Projects" },
+    meta: { title: "LakshSolanki | Projects", hideHeaderFooter: true },
     children: [
       {
         path: "",
         name: "Projects",
         component: () => import("@/pages/ProjectsPage.vue"),
-        meta: { title: "LakshSolanki | Projects" },
+        meta: { title: "LakshSolanki | Projects", hideHeaderFooter: false },
       },
       {
         path: "certificate-gen",

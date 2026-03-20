@@ -123,6 +123,11 @@ kbd {
   color: var(--portfolio-muted) !important;
 }
 
+/* Guard Vuetify floating-label animation from scale(NaN) when var is unset */
+.v-field-label {
+  --v-field-label-scale: 0.75;
+}
+
 .v-btn--variant-outlined {
   border-color: rgba(15, 143, 124, 0.22) !important;
 }
