@@ -40,221 +40,216 @@
       </v-container>
     </section>
 
-    <v-container class="py-6">
-      <v-row class="ga-0">
-        <v-col cols="12">
-          <v-card ref="chatShell" :class="[
-            'chat-shell',
-            {
-              'chat-shell-fullscreen': isChatFullscreen,
-              'chat-shell-runner-open': runnerPanelOpen,
-              'chat-shell-compact': isCompactLayout,
-              'runner-resizing': runnerResizing,
-            },
-          ]" rounded="xl" elevation="0">
-            <div class="chat-head-shell">
-              <v-toolbar class="chat-toolbar px-2 px-sm-3" density="comfortable" color="transparent">
-                <template #prepend>
-                  <v-avatar size="30" color="primary" variant="tonal" class="mr-2">
-                    <v-icon size="18">mdi-robot-outline</v-icon>
-                  </v-avatar>
-                  <div class="chat-title-wrap">
-                    <p class="chat-title mb-0">Mindlytic AI</p>
-                  </div>
-                </template>
-                <div class="chat-toolbar-actions">
-                  <v-btn :size="showChatActionLabels ? 'small' : 'x-small'" color="primary" variant="tonal" rounded="lg"
-                    class="text-none" :icon="!showChatActionLabels" title="New Chat" aria-label="New Chat"
-                    @click="resetChat">
-                    <v-icon v-if="!showChatActionLabels" icon="mdi-plus" />
-                    <template v-else>
-                      <v-icon start icon="mdi-plus" />
-                      New Chat
-                    </template>
-                  </v-btn>
-                  <v-btn :size="showChatActionLabels ? 'small' : 'x-small'" color="primary" variant="outlined"
-                    rounded="lg" class="text-none" :icon="!showChatActionLabels" :disabled="loading || !canRegenerate"
-                    title="Regenerate" aria-label="Regenerate" @click="regenerateLastReply">
-                    <v-icon v-if="!showChatActionLabels" icon="mdi-refresh" />
-                    <template v-else>
-                      <v-icon start icon="mdi-refresh" />
-                      Regenerate
-                    </template>
-                  </v-btn>
-                  <v-btn :size="showChatActionLabels ? 'small' : 'x-small'" variant="tonal" color="primary" rounded="lg"
-                    class="text-none" :icon="!showChatActionLabels"
-                    :title="isChatFullscreen ? 'Exit Full Screen' : 'Full Screen'"
-                    :aria-label="isChatFullscreen ? 'Exit Full Screen' : 'Full Screen'" @click="toggleChatFullscreen">
-                    <v-icon v-if="!showChatActionLabels"
-                      :icon="isChatFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" />
-                    <template v-else>
-                      <v-icon start :icon="isChatFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" />
-                      {{ isChatFullscreen ? "Exit Full Screen" : "Full Screen" }}
-                    </template>
-                  </v-btn>
-                  <v-btn density="comfortable" variant="tonal" color="primary" rounded="lg"
-                    :title="searchOpen ? 'Close search' : 'Search messages'" @click="toggleSearch">
-                    <v-icon size="16">{{ searchOpen ? "mdi-close" : "mdi-magnify" }}</v-icon>
-                  </v-btn>
+    <v-row class="ga-0">
+      <v-col cols="12">
+        <v-card ref="chatShell" :class="[
+          'chat-shell',
+          {
+            'chat-shell-fullscreen': isChatFullscreen,
+            'chat-shell-runner-open': runnerPanelOpen,
+            'chat-shell-compact': isCompactLayout,
+            'runner-resizing': runnerResizing,
+          },
+        ]" elevation="0">
+          <div class="chat-head-shell">
+            <v-toolbar class="chat-toolbar px-2 px-sm-3" density="comfortable" color="transparent">
+              <template #prepend>
+                <v-avatar size="30" color="primary" variant="tonal" class="mr-2">
+                  <v-icon size="18">mdi-robot-outline</v-icon>
+                </v-avatar>
+                <div class="chat-title-wrap">
+                  <p class="chat-title mb-0">Mindlytic AI</p>
                 </div>
-                <div class="chat-toolbar-model">
-                  <v-select v-model="selectedModel" :items="availableModels" item-title="label" item-value="value"
-                    density="compact" variant="outlined" rounded="lg" hide-details class="model-select"
-                    :disabled="loading || !hasSelectedApiKey" title="Select AI model" />
-                </div>
-              </v-toolbar>
-              <v-expand-transition>
-                <div v-if="searchOpen" class="search-bar-wrap px-3 py-2">
-                  <v-text-field v-model="searchQuery" density="compact" variant="outlined" rounded="lg" hide-details
-                    placeholder="Search messages..." prepend-inner-icon="mdi-magnify" clearable autofocus
-                    @click:clear="searchQuery = ''" />
-                </div>
-              </v-expand-transition>
-            </div>
-
-            <div ref="chatWorkspace" class="chat-workspace">
-              <div class="chat-main-shell">
-                <v-container class="chat-main pa-0">
-                  <div ref="chatContainer" class="chat-stream px-2 px-sm-3 py-3" @click="handleChatClick">
-                    <div class="chat-inner">
-                      <div v-for="msg in messages" :key="msg.id" class="d-flex w-100 mb-2"
-                        :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
-                        <div
-                          :class="['message-stack', msg.role === 'user' ? 'message-stack-user' : 'message-stack-ai']">
-                          <v-avatar class="message-avatar" size="28"
-                            :color="msg.role === 'user' ? 'primary' : 'primary'"
-                            :variant="msg.role === 'user' ? 'flat' : 'tonal'" aria-hidden="true">
-                            <v-icon size="16">{{ msg.role === "user" ? "mdi-account" : "mdi-robot-outline" }}</v-icon>
-                          </v-avatar>
-
-                          <v-card :class="[
-                            'message-card',
-                            msg.role === 'user' ? 'message-card-user' : 'message-card-ai',
-                            msg.error ? 'message-card-error' : '',
-                            searchActive && isMessageSearchMatch(msg) ? 'message-card-search-hit' : '',
-                            searchActive && !isMessageSearchMatch(msg) ? 'message-card-search-dim' : '',
-                            searchActive && msg.id === editingMessageId ? 'message-card-search-focus' : '',
-                          ]" rounded="xl" elevation="1">
-                            <v-card-text class="message-card-body">
-                              <div class="message-meta d-flex align-center justify-space-between flex-wrap ga-2 mb-2">
-                                <span>{{ msg.role === "user" ? "You" : "Mindlytic AI" }}</span>
-                                <span>{{ formatTime(msg.createdAt) }}</span>
-                              </div>
-
-                              <div v-if="msg.role === 'assistant' && msg.kind === 'image'" class="image-message">
-                                <div v-if="msg.imageStatus === 'loading'" class="image-skeleton-shell">
-                                  <v-skeleton-loader type="image" class="image-skeleton"></v-skeleton-loader>
-                                  <p class="image-caption mb-0">Generating image...</p>
-                                </div>
-                                <template v-else-if="msg.imageStatus === 'done' && msg.imageUrl">
-                                  <button type="button" class="generated-image-trigger"
-                                    :aria-label="msg.text ? `Open generated image: ${msg.text}` : 'Open generated image preview'"
-                                    @click.stop="openGeneratedImagePreview(msg)">
-                                    <img :src="msg.imageUrl" class="generated-image" alt="Generated by Mindlytic AI"
-                                      loading="lazy" />
-                                  </button>
-                                  <p v-if="msg.text" class="image-caption mb-0">{{ msg.text }}</p>
-                                  <div class="d-flex justify-end mt-2">
-                                    <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
-                                      @click.stop="downloadGeneratedImage(msg)">
-                                      Download image
-                                    </v-btn>
-                                  </div>
-                                </template>
-                                <p v-else class="mb-0 image-error">{{ msg.text || "Unable to generate image." }}</p>
-                              </div>
-
-                              <div v-else-if="msg.role === 'assistant' && msg.text" class="markdown-body"
-                                v-html="parseMessage(msg.text)">
-                              </div>
-
-                              <p v-if="msg.role === 'user'" class="user-text">{{ replaceEmojiShortcodes(msg.text) }}</p>
-
-                              <div v-if="msg.role === 'assistant' && msg.kind !== 'image' && msg.text"
-                                class="d-flex justify-end mt-2">
-                                <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
-                                  @click.stop="copyMessage(msg.text)">
-                                  Copy reply
-                                </v-btn>
-                              </div>
-                            </v-card-text>
-                          </v-card>
-                        </div>
-                      </div>
-
-                      <div v-if="searchOpen && normalizedSearchQuery && !hasSearchResults"
-                        class="search-empty px-2 px-sm-3 py-2">
-                        No messages found for "{{ searchQuery }}".
-                      </div>
-
-                      <div v-if="loading && activeGenerationMode !== 'image'" class="d-flex w-100 justify-start mb-2">
-                        <div class="message-stack message-stack-ai">
-                          <v-avatar class="message-avatar" size="28" color="primary" variant="tonal" aria-hidden="true">
-                            <v-icon size="16">mdi-robot-outline</v-icon>
-                          </v-avatar>
-                          <v-card class="message-card message-card-ai" rounded="xl" elevation="1">
-                            <v-card-text class="message-card-body">
-                              <div class="typing">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                              </div>
-                            </v-card-text>
-                          </v-card>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </v-container>
-
-                <div class="composer">
-                  <v-sheet color="transparent" class="pa-3 pa-sm-4">
-                    <div class="composer-inline">
-                      <v-textarea v-model="userInput" class="composer-input" :placeholder="composerPlaceholder"
-                        auto-grow rows="1" max-rows="5" variant="outlined" rounded="lg" hide-details
-                        :disabled="loading || !hasAnyAiProvider" @keydown="handlePromptKeydown"></v-textarea>
-                      <v-btn :color="loading ? 'error' : 'primary'" rounded="lg" class="text-none composer-send-btn"
-                        :icon="loading ? 'mdi-stop-circle-outline' : 'mdi-arrow-right-thin-circle-outline'"
-                        :aria-label="loading ? 'Stop' : 'Send'" :disabled="primaryActionDisabled"
-                        @click="handlePrimaryAction" />
-                    </div>
-                  </v-sheet>
-                </div>
+              </template>
+              <div class="chat-toolbar-actions">
+                <v-btn :size="showChatActionLabels ? 'small' : 'x-small'" color="primary" variant="tonal" rounded="lg"
+                  class="text-none" :icon="!showChatActionLabels" title="New Chat" aria-label="New Chat"
+                  @click="resetChat">
+                  <v-icon v-if="!showChatActionLabels" icon="mdi-plus" />
+                  <template v-else>
+                    <v-icon start icon="mdi-plus" />
+                    New Chat
+                  </template>
+                </v-btn>
+                <v-btn :size="showChatActionLabels ? 'small' : 'x-small'" color="primary" variant="outlined"
+                  rounded="lg" class="text-none" :icon="!showChatActionLabels" :disabled="loading || !canRegenerate"
+                  title="Regenerate" aria-label="Regenerate" @click="regenerateLastReply">
+                  <v-icon v-if="!showChatActionLabels" icon="mdi-refresh" />
+                  <template v-else>
+                    <v-icon start icon="mdi-refresh" />
+                    Regenerate
+                  </template>
+                </v-btn>
+                <v-btn :size="showChatActionLabels ? 'small' : 'x-small'" variant="tonal" color="primary" rounded="lg"
+                  class="text-none" :icon="!showChatActionLabels"
+                  :title="isChatFullscreen ? 'Exit Full Screen' : 'Full Screen'"
+                  :aria-label="isChatFullscreen ? 'Exit Full Screen' : 'Full Screen'" @click="toggleChatFullscreen">
+                  <v-icon v-if="!showChatActionLabels"
+                    :icon="isChatFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" />
+                  <template v-else>
+                    <v-icon start :icon="isChatFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" />
+                    {{ isChatFullscreen ? "Exit Full Screen" : "Full Screen" }}
+                  </template>
+                </v-btn>
+                <v-btn density="comfortable" variant="tonal" color="primary" rounded="lg"
+                  :title="searchOpen ? 'Close search' : 'Search messages'" @click="toggleSearch">
+                  <v-icon size="16">{{ searchOpen ? "mdi-close" : "mdi-magnify" }}</v-icon>
+                </v-btn>
               </div>
+              <div class="chat-toolbar-model">
+                <v-select v-model="selectedModel" :items="availableModels" item-title="label" item-value="value"
+                  density="compact" variant="outlined" rounded="lg" hide-details class="model-select"
+                  :disabled="loading || !hasSelectedApiKey" title="Select AI model" />
+              </div>
+            </v-toolbar>
+            <v-expand-transition>
+              <div v-if="searchOpen" class="search-bar-wrap px-3 py-2">
+                <v-text-field v-model="searchQuery" density="compact" variant="outlined" rounded="lg" hide-details
+                  placeholder="Search messages..." prepend-inner-icon="mdi-magnify" clearable autofocus
+                  @click:clear="searchQuery = ''" />
+              </div>
+            </v-expand-transition>
+          </div>
 
-              <div v-if="runnerPanelOpen && !isCompactLayout" class="runner-divider" role="separator"
-                aria-orientation="vertical" title="Resize runner panel" @pointerdown.stop.prevent="startRunnerResize"
-                @mousedown.stop.prevent="startRunnerResize" @touchstart.stop.prevent="startRunnerResize"></div>
-              <transition name="runner-panel-slide">
-                <aside v-if="runnerPanelOpen" class="runner-panel" :style="runnerPanelStyle" aria-live="polite">
-                  <div class="runner-panel-head">
-                    <div>
-                      <p class="runner-panel-title mb-0">Code Runner</p>
-                      <p class="runner-panel-subtitle mb-0">
-                        {{ runnerMode === "web" ? "Web Preview" : `${runnerLanguageLabel} Console` }}
-                      </p>
+          <div ref="chatWorkspace" class="chat-workspace">
+            <div class="chat-main-shell">
+              <v-container class="chat-main pa-0">
+                <div ref="chatContainer" class="chat-stream px-2 px-sm-3 py-3" @click="handleChatClick">
+                  <div class="chat-inner">
+                    <div v-for="msg in messages" :key="msg.id" class="d-flex w-100 mb-2"
+                      :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
+                      <div :class="['message-stack', msg.role === 'user' ? 'message-stack-user' : 'message-stack-ai']">
+                        <v-avatar class="message-avatar" size="28" :color="msg.role === 'user' ? 'primary' : 'primary'"
+                          :variant="msg.role === 'user' ? 'flat' : 'tonal'" aria-hidden="true">
+                          <v-icon size="16">{{ msg.role === "user" ? "mdi-account" : "mdi-robot-outline" }}</v-icon>
+                        </v-avatar>
+
+                        <v-card :class="[
+                          'message-card',
+                          msg.role === 'user' ? 'message-card-user' : 'message-card-ai',
+                          msg.error ? 'message-card-error' : '',
+                          searchActive && isMessageSearchMatch(msg) ? 'message-card-search-hit' : '',
+                          searchActive && !isMessageSearchMatch(msg) ? 'message-card-search-dim' : '',
+                          searchActive && msg.id === editingMessageId ? 'message-card-search-focus' : '',
+                        ]" rounded="xl" elevation="1">
+                          <v-card-text class="message-card-body">
+                            <div class="message-meta d-flex align-center justify-space-between flex-wrap ga-2 mb-2">
+                              <span>{{ msg.role === "user" ? "You" : "Mindlytic AI" }}</span>
+                              <span>{{ formatTime(msg.createdAt) }}</span>
+                            </div>
+
+                            <div v-if="msg.role === 'assistant' && msg.kind === 'image'" class="image-message">
+                              <div v-if="msg.imageStatus === 'loading'" class="image-skeleton-shell">
+                                <v-skeleton-loader type="image" class="image-skeleton"></v-skeleton-loader>
+                                <p class="image-caption mb-0">Generating image...</p>
+                              </div>
+                              <template v-else-if="msg.imageStatus === 'done' && msg.imageUrl">
+                                <button type="button" class="generated-image-trigger"
+                                  :aria-label="msg.text ? `Open generated image: ${msg.text}` : 'Open generated image preview'"
+                                  @click.stop="openGeneratedImagePreview(msg)">
+                                  <img :src="msg.imageUrl" class="generated-image" alt="Generated by Mindlytic AI"
+                                    loading="lazy" />
+                                </button>
+                                <p v-if="msg.text" class="image-caption mb-0">{{ msg.text }}</p>
+                                <div class="d-flex justify-end mt-2">
+                                  <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
+                                    @click.stop="downloadGeneratedImage(msg)">
+                                    Download image
+                                  </v-btn>
+                                </div>
+                              </template>
+                              <p v-else class="mb-0 image-error">{{ msg.text || "Unable to generate image." }}</p>
+                            </div>
+
+                            <div v-else-if="msg.role === 'assistant' && msg.text" class="markdown-body"
+                              v-html="parseMessage(msg.text)">
+                            </div>
+
+                            <p v-if="msg.role === 'user'" class="user-text">{{ replaceEmojiShortcodes(msg.text) }}</p>
+
+                            <div v-if="msg.role === 'assistant' && msg.kind !== 'image' && msg.text"
+                              class="d-flex justify-end mt-2">
+                              <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
+                                @click.stop="copyMessage(msg.text)">
+                                Copy reply
+                              </v-btn>
+                            </div>
+                          </v-card-text>
+                        </v-card>
+                      </div>
                     </div>
-                    <div class="runner-panel-controls">
-                      <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
-                        @click="setRunnerMode('web')">Web</v-btn>
-                      <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
-                        @click="setRunnerMode('console')">Console</v-btn>
-                      <v-btn size="small" variant="text" color="primary" icon="mdi-close"
-                        @click="closeCodeRunner"></v-btn>
+
+                    <div v-if="searchOpen && normalizedSearchQuery && !hasSearchResults"
+                      class="search-empty px-2 px-sm-3 py-2">
+                      No messages found for "{{ searchQuery }}".
+                    </div>
+
+                    <div v-if="loading && activeGenerationMode !== 'image'" class="d-flex w-100 justify-start mb-2">
+                      <div class="message-stack message-stack-ai">
+                        <v-avatar class="message-avatar" size="28" color="primary" variant="tonal" aria-hidden="true">
+                          <v-icon size="16">mdi-robot-outline</v-icon>
+                        </v-avatar>
+                        <v-card class="message-card message-card-ai" rounded="xl" elevation="1">
+                          <v-card-text class="message-card-body">
+                            <div class="typing">
+                              <span></span>
+                              <span></span>
+                              <span></span>
+                            </div>
+                          </v-card-text>
+                        </v-card>
+                      </div>
                     </div>
                   </div>
-                  <div class="runner-panel-body">
-                    <iframe :key="runnerFrameKey"
-                      :class="['runner-frame', { 'runner-frame-web': runnerMode === 'web' }]" :srcdoc="runnerSrcdoc"
-                      sandbox="allow-scripts allow-modals" referrerpolicy="no-referrer"></iframe>
+                </div>
+              </v-container>
+
+              <div class="composer">
+                <v-sheet color="transparent" class="pa-3 pa-sm-4">
+                  <div class="composer-inline">
+                    <v-textarea v-model="userInput" class="composer-input" :placeholder="composerPlaceholder" auto-grow
+                      rows="1" max-rows="5" variant="outlined" rounded="lg" hide-details
+                      :disabled="loading || !hasAnyAiProvider" @keydown="handlePromptKeydown"></v-textarea>
+                    <v-btn :color="loading ? 'error' : 'primary'" rounded="lg" class="text-none composer-send-btn"
+                      :icon="loading ? 'mdi-stop-circle-outline' : 'mdi-arrow-right-thin-circle-outline'"
+                      :aria-label="loading ? 'Stop' : 'Send'" :disabled="primaryActionDisabled"
+                      @click="handlePrimaryAction" />
                   </div>
-                </aside>
-              </transition>
+                </v-sheet>
+              </div>
             </div>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+
+            <div v-if="runnerPanelOpen && !isCompactLayout" class="runner-divider" role="separator"
+              aria-orientation="vertical" title="Resize runner panel" @pointerdown.stop.prevent="startRunnerResize"
+              @mousedown.stop.prevent="startRunnerResize" @touchstart.stop.prevent="startRunnerResize"></div>
+            <transition name="runner-panel-slide">
+              <aside v-if="runnerPanelOpen" class="runner-panel" :style="runnerPanelStyle" aria-live="polite">
+                <div class="runner-panel-head">
+                  <div>
+                    <p class="runner-panel-title mb-0">Code Runner</p>
+                    <p class="runner-panel-subtitle mb-0">
+                      {{ runnerMode === "web" ? "Web Preview" : `${runnerLanguageLabel} Console` }}
+                    </p>
+                  </div>
+                  <div class="runner-panel-controls">
+                    <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
+                      @click="setRunnerMode('web')">Web</v-btn>
+                    <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
+                      @click="setRunnerMode('console')">Console</v-btn>
+                    <v-btn size="small" variant="text" color="primary" icon="mdi-close"
+                      @click="closeCodeRunner"></v-btn>
+                  </div>
+                </div>
+                <div class="runner-panel-body">
+                  <iframe :key="runnerFrameKey" :class="['runner-frame', { 'runner-frame-web': runnerMode === 'web' }]"
+                    :srcdoc="runnerSrcdoc" sandbox="allow-scripts allow-modals" referrerpolicy="no-referrer"></iframe>
+                </div>
+              </aside>
+            </transition>
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
 
     <PhotoZoomDialog v-model="generatedImageDialogOpen" :src="generatedImageDialogSrc" :alt="generatedImageDialogAlt"
       :dialog-title="generatedImageDialogTitle" :hide-trigger="true" trigger-variant="image" :max-width="1100" />
@@ -284,6 +279,7 @@ const GROQ_API_BASE = (import.meta.env.VITE_GROQ_API_BASE || "https://api.groq.c
 const IMAGE_API_KEY = (import.meta.env.VITE_IMAGE_API_KEY || "").trim();
 const IMAGE_INVOKE_URL = (import.meta.env.VITE_IMAGE_INVOKE_URL || "").trim();
 const IMAGE_MODEL = (import.meta.env.VITE_IMAGE_MODEL || "").trim();
+const GEMINI_IMAGE_MODEL = (import.meta.env.VITE_GEMINI_IMAGE_MODEL || "gemini-2.5-flash-image").trim();
 const IMAGE_SIZE = (import.meta.env.VITE_IMAGE_SIZE || "1024x1024").trim();
 const AI_IMAGE_PATH = "/api/ai/image";
 const IMAGE_PROXY_URL = (import.meta.env.VITE_IMAGE_PROXY_URL || "").trim();
@@ -445,7 +441,7 @@ const hasAnyAiProvider = computed(() => hasSelectedApiKey.value || hasImageProvi
 const composerPlaceholder = computed(() =>
   hasAnyAiProvider.value
     ? `Message ${ASSISTANT_LABEL}...`
-    : "Set VITE_GEMINI_API_KEY or VITE_GROQ_API_KEY (text) and VITE_IMAGE_API_KEY + VITE_IMAGE_INVOKE_URL (images).",
+    : "Set VITE_GEMINI_API_KEY or VITE_GROQ_API_KEY (text), and VITE_IMAGE_API_KEY + VITE_IMAGE_INVOKE_URL for custom image providers.",
 );
 const sendDisabled = computed(() => !userInput.value.trim() || !hasAnyAiProvider.value);
 const primaryActionDisabled = computed(() => (loading.value ? false : sendDisabled.value));
@@ -510,9 +506,9 @@ const buildWelcomeText = () => {
     hasImageProvider.value ? "Image API" : "",
   ].filter(Boolean);
   if (!available.length) {
-    return "AI chat is unavailable. Add VITE_GEMINI_API_KEY or VITE_GROQ_API_KEY for text, plus VITE_IMAGE_API_KEY and VITE_IMAGE_INVOKE_URL for image generation.";
+    return "AI chat is unavailable. Add VITE_GEMINI_API_KEY or VITE_GROQ_API_KEY for text, plus VITE_IMAGE_API_KEY and VITE_IMAGE_INVOKE_URL for custom image endpoints.";
   }
-  return `Welcome to ${ASSISTANT_LABEL}. Configured providers: ${available.join(" + ")}. Text chat uses Gemini/Groq and image prompts use your image invoke URL.`;
+  return `Welcome to ${ASSISTANT_LABEL}. Configured providers: ${available.join(" + ")}. Text chat uses Gemini/Groq and image prompts use your image endpoint or backend image proxy.`;
 };
 
 const formatTime = (iso) => new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -816,12 +812,15 @@ const requestGeneratedImageDirect = async (prompt, signal) => {
 };
 
 const requestGeneratedImageProxy = async (prompt, signal) => {
+  const proxyInvokeUrl = IMAGE_INVOKE_URL || undefined;
+  const proxyApiKey = IMAGE_API_KEY || GEMINI_API_KEY || undefined;
+  const proxyModel = IMAGE_MODEL || (!proxyInvokeUrl ? GEMINI_IMAGE_MODEL : "") || undefined;
   const requestBody = JSON.stringify({
     prompt,
-    model: IMAGE_MODEL || undefined,
+    model: proxyModel,
     size: IMAGE_SIZE || undefined,
-    invokeUrl: IMAGE_INVOKE_URL || undefined,
-    apiKey: IMAGE_API_KEY || undefined,
+    invokeUrl: proxyInvokeUrl,
+    apiKey: proxyApiKey,
   });
   const failures = [];
 
@@ -856,7 +855,9 @@ const requestGeneratedImageProxy = async (prompt, signal) => {
 
 const requestGeneratedImage = async (prompt, signal) => {
   if (!hasImageProvider.value) {
-    throw new Error("Image generation is not configured. Add VITE_IMAGE_API_KEY + VITE_IMAGE_INVOKE_URL, or enable backend proxy.");
+    throw new Error(
+      "Image generation is not configured. Set VITE_IMAGE_API_KEY + VITE_IMAGE_INVOKE_URL, or use VITE_GEMINI_API_KEY with backend proxy.",
+    );
   }
 
   const attempts = [];
@@ -1673,15 +1674,12 @@ onUnmounted(() => {
   --chat-surface: #ffffff;
   --chat-surface-alt: #f4f8fd;
   --chat-muted: #4f6279;
-  border: 1px solid var(--chat-border);
   background: linear-gradient(180deg, #fcfdff, #f6f9fd);
-  border-radius: var(--chat-card-radius);
-  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.1);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   position: relative;
-  min-height: clamp(520px, 76vh, 920px);
+  min-height: clamp(510px, 76vh, 920px);
 }
 
 .chat-head-shell {
@@ -2406,7 +2404,7 @@ onUnmounted(() => {
 
 .markdown-body :deep(.copy-btn) {
   border-radius: 6px;
-border: 1px solid #ccd9e8;
+  border: 1px solid #ccd9e8;
   background: #ffffff;
   color: #2c4f72;
   padding: 3px 9px;
@@ -3363,7 +3361,7 @@ border: 1px solid #ccd9e8;
 
 @media (min-width: 961px) {
   .chat-shell {
-    min-height: 620px !important;
+    min-height: 864px !important;
     height: calc(100dvh - 210px) !important;
     max-height: 920px !important;
   }

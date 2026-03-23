@@ -120,3 +120,60 @@ test("worker adapter supports tts snippet create/list/delete", async () => {
   );
   assert.equal(deleteResponse.status, 200);
 });
+
+test("worker image route infers Gemini endpoint when invoke URL is missing but Gemini key is provided", async (t) => {
+  const originalFetch = globalThis.fetch;
+  let calledUrl = "";
+  globalThis.fetch = async (url) => {
+    calledUrl = String(url);
+    return new Response(
+      JSON.stringify({
+        candidates: [
+          {
+            content: {
+              parts: [
+                {
+                  inlineData: {
+                    data: "dGVzdA==",
+                    mimeType: "image/png",
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      }),
+      {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      },
+    );
+  };
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  const response = await worker.fetch(
+    new Request("https://mindlytic.example/api/ai/image", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: "generate a mountain landscape",
+        apiKey: "AIzaSyDUMMYKEY_1234567890ABCDEF",
+      }),
+    }),
+    {
+      MONGODB_URI: "",
+    },
+  );
+
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.mime_type, "image/png");
+  assert.match(
+    calledUrl,
+    /generativelanguage\.googleapis\.com\/v1beta\/models\/gemini-2\.5-flash-image:generateContent\?key=/i,
+  );
+});

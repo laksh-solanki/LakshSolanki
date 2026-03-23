@@ -222,6 +222,60 @@ test("image generation route returns validation error when invoke URL is missing
   assert.match(response.json().error, /invoke URL/i);
 });
 
+test("image generation route infers Gemini endpoint when invoke URL is missing but Gemini key is provided", async (t) => {
+  const originalFetch = globalThis.fetch;
+  let calledUrl = "";
+  globalThis.fetch = async (url) => {
+    calledUrl = String(url);
+    return new Response(
+      JSON.stringify({
+        candidates: [
+          {
+            content: {
+              parts: [
+                {
+                  inlineData: {
+                    data: "dGVzdA==",
+                    mimeType: "image/png",
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      }),
+      {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      },
+    );
+  };
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  const app = await createTestApp();
+  t.after(async () => {
+    await app.close();
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/api/ai/image",
+    payload: {
+      prompt: "generate a mountain landscape",
+      apiKey: "AIzaSyDUMMYKEY_1234567890ABCDEF",
+    },
+  });
+
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.json().mime_type, "image/png");
+  assert.match(
+    calledUrl,
+    /generativelanguage\.googleapis\.com\/v1beta\/models\/gemini-2\.5-flash-image:generateContent\?key=/i,
+  );
+});
+
 test("text chat route returns configuration error when provider keys are missing", async (t) => {
   const app = await createTestApp();
   t.after(async () => {

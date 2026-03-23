@@ -30,23 +30,129 @@ const techStack = [
 const featuredProjects = [
   {
     title: "Certificate Generator",
-    description: "Generate branded certificates in-browser and export polished PDFs.",
+    description:
+      "Generate branded certificates in-browser and export polished PDFs.",
     image: getMediaUrl("project_img/Project-1.png"),
     to: "/projects/certificate-gen",
   },
   {
     title: "Mindlytic AI Assistant",
-    description: "Prompt-driven coding assistant with markdown rendering and code snippets.",
+    description:
+      "Prompt-driven coding assistant with markdown rendering and code snippets.",
     image: getMediaUrl("project_img/Project-5.png"),
     to: "/projects/mindly_ai",
   },
   {
     title: "PDF to Image Utility",
-    description: "Fast conversion utility for extracting high quality images from PDFs.",
+    description:
+      "Fast conversion utility for extracting high quality images from PDFs.",
     image: getMediaUrl("Picture/Project-3.jpg"),
     to: "/projects/pdf-img",
   },
 ];
+
+const premiumStackNodes = [
+  {
+    id: "html",
+    label: "HTML",
+    short: "H5",
+    icon: "mdi-language-html5",
+    x: 70,
+    y: 120,
+    ring: "#ff7a1a",
+  },
+  {
+    id: "css",
+    label: "CSS",
+    short: "C3",
+    icon: "mdi-language-css3",
+    x: 370,
+    y: 54,
+    ring: "#1c9cff",
+  },
+  {
+    id: "javascript",
+    label: "JavaScript",
+    short: "JS",
+    icon: "mdi-language-javascript",
+    x: 600,
+    y: 54,
+    ring: "#f7c325",
+  },
+  {
+    id: "node",
+    label: "Node.js",
+    short: "N",
+    icon: "mdi-nodejs",
+    x: 890,
+    y: 120,
+    ring: "#11d46d",
+  },
+  {
+    id: "vue",
+    label: "Vue",
+    short: "V",
+    icon: "mdi-vuejs",
+    x: 890,
+    y: 322,
+    ring: "#2ec9ff",
+  },
+  {
+    id: "fastify",
+    label: "Fastify",
+    short: "F",
+    icon: "mdi-server",
+    x: 370,
+    y: 388,
+    ring: "#99a8bf",
+  },
+  {
+    id: "mongodb",
+    label: "MongoDB",
+    short: "M",
+    icon: "mdi-database",
+    x: 73,
+    y: 328,
+    ring: "#11c864",
+  },
+  {
+    id: "vuetify",
+    label: "Vuetify",
+    short: "VU",
+    icon: "mdi-view-dashboard",
+    x: 603,
+    y: 383,
+    ring: "#df61ff",
+  },
+];
+
+const premiumStackLinks = [
+  ["html", "css"],
+  ["css", "javascript"],
+  ["javascript", "node"],
+   ["node", "vue"],
+  ["vue", "vuetify"],
+  ["vuetify", "fastify"],
+  ["fastify", "mongodb"],
+];
+
+const premiumNodeLookup = Object.fromEntries(
+  premiumStackNodes.map((node) => [node.id, node]),
+);
+const premiumStackLines = premiumStackLinks
+  .map(([from, to]) => {
+    const source = premiumNodeLookup[from];
+    const target = premiumNodeLookup[to];
+    if (!source || !target) return null;
+    return {
+      key: `${from}-${to}`,
+      x1: source.x,
+      y1: source.y,
+      x2: target.x,
+      y2: target.y,
+    };
+  })
+  .filter(Boolean);
 </script>
 
 <template>
@@ -57,22 +163,50 @@ const featuredProjects = [
       <div class="hero-orbit hero-orbit-two" aria-hidden="true"></div>
       <v-row align="center" class="ga-0">
         <v-col cols="12" md="7" class="pr-md-8 hero-copy-column">
-          <v-chip color="secondary" variant="flat" class="font-weight-bold mb-4 startup-item" style="--delay: 0.08s">
+          <v-chip
+            color="secondary"
+            variant="flat"
+            class="font-weight-bold mb-4 startup-item"
+            style="--delay: 0.08s"
+          >
             Full-Stack Developer Portfolio
           </v-chip>
-          <h1 class="text-h3 text-md-h2 mb-4 hero-title startup-item" style="--delay: 0.16s">
+          <h1
+            class="text-h3 text-md-h2 mb-4 hero-title startup-item"
+            style="--delay: 0.16s"
+          >
             Building fast, elegant web experiences that people enjoy using.
           </h1>
-          <p class="text-body-1 muted-copy mb-6 hero-subtitle startup-item" style="--delay: 0.24s">
-            I am Laksh Solanki, a developer focused on Vue, Node.js, and modern product engineering.
-            I design and ship applications that balance performance, usability, and maintainability.
+          <p
+            class="text-body-1 muted-copy mb-6 hero-subtitle startup-item"
+            style="--delay: 0.24s"
+          >
+            I am Laksh Solanki, a developer focused on Vue, Node.js, and modern
+            product engineering. I design and ship applications that balance
+            performance, usability, and maintainability.
           </p>
 
-          <div class="d-flex flex-wrap ga-3 mb-6 startup-item" style="--delay: 0.32s">
-            <v-btn color="primary" size="large" rounded="xl" class="text-none px-6" to="/projects">
+          <div
+            class="d-flex flex-wrap ga-3 mb-6 startup-item"
+            style="--delay: 0.32s"
+          >
+            <v-btn
+              color="primary"
+              size="large"
+              rounded="xl"
+              class="text-none px-6"
+              to="/projects"
+            >
               Explore Projects
             </v-btn>
-            <v-btn variant="outlined" color="primary" size="large" rounded="xl" class="text-none px-6" to="/about">
+            <v-btn
+              variant="outlined"
+              color="primary"
+              size="large"
+              rounded="xl"
+              class="text-none px-6"
+              to="/about"
+            >
               View Full Profile
             </v-btn>
           </div>
@@ -96,11 +230,29 @@ const featuredProjects = [
           <div class="hero-profile pa-5 startup-profile">
             <div class="profile-halo" aria-hidden="true"></div>
             <div class="startup-item" style="--delay: 0.2s">
-              <PhotoZoomDialog :src="myPhoto" alt="Laksh Solanki" :size="150" avatar-class="mx-auto d-flex profile-ring" />
+              <PhotoZoomDialog
+                :src="myPhoto"
+                alt="Laksh Solanki"
+                :size="150"
+                avatar-class="mx-auto d-flex profile-ring"
+              />
             </div>
-            <h2 class="text-h5 text-center mt-5 mb-1 startup-item" style="--delay: 0.28s">Laksh Solanki</h2>
-            <p class="text-center muted-copy mb-5 startup-item" style="--delay: 0.34s">Senior Full-Stack Engineer</p>
-            <v-divider class="mb-4 startup-item" style="--delay: 0.4s"></v-divider>
+            <h2
+              class="text-h5 text-center mt-5 mb-1 startup-item"
+              style="--delay: 0.28s"
+            >
+              Laksh Solanki
+            </h2>
+            <p
+              class="text-center muted-copy mb-5 startup-item"
+              style="--delay: 0.34s"
+            >
+              Senior Full-Stack Engineer
+            </p>
+            <v-divider
+              class="mb-4 startup-item"
+              style="--delay: 0.4s"
+            ></v-divider>
             <div class="d-flex flex-column ga-2">
               <div
                 v-for="(fact, index) in profileFacts"
@@ -119,8 +271,18 @@ const featuredProjects = [
 
     <section class="mb-10 home-section">
       <v-row>
-        <v-col v-for="(stat, index) in impactStats" :key="stat.label" cols="12" sm="4">
-          <v-card class="section-shell pa-6 stat-card h-100 startup-stat border " rounded="xl" :style="{ '--delay': `${0.08 + index * 0.09}s` }" flat>
+        <v-col
+          v-for="(stat, index) in impactStats"
+          :key="stat.label"
+          cols="12"
+          sm="4"
+        >
+          <v-card
+            class="section-shell pa-6 stat-card h-100 startup-stat border"
+            rounded="xl"
+            :style="{ '--delay': `${0.08 + index * 0.09}s` }"
+            flat
+          >
             <p class="text-h4 font-weight-bold mb-1">{{ stat.value }}</p>
             <p class="muted-copy mb-0">{{ stat.label }}</p>
           </v-card>
@@ -129,59 +291,129 @@ const featuredProjects = [
     </section>
 
     <section class="mb-10 home-section">
-      <div class="d-flex align-center justify-space-between mb-4 flex-wrap ga-3 startup-heading" style="--delay: 0.08s">
+      <div
+        class="d-flex align-center justify-space-between mb-4 flex-wrap ga-3 startup-heading"
+        style="--delay: 0.08s"
+      >
         <h2 class="text-h4 mb-0">What I Build</h2>
-        <v-btn to="/projects" variant="text" color="primary" class="text-none">See all projects</v-btn>
+        <v-btn to="/projects" variant="text" color="primary" class="text-none"
+          >See all projects</v-btn
+        >
       </div>
-      <v-card class="section-shell pa-6 pa-md-8 luxe-flow-card startup-flow-card" flat>
+      <v-card
+        class="section-shell pa-6 pa-md-8 luxe-flow-card startup-flow-card"
+        flat
+      >
         <div class="luxe-orb"></div>
 
-        <div class="d-flex align-center justify-space-between mb-5 flex-wrap ga-3 luxe-head">
+        <div
+          class="d-flex align-center justify-space-between mb-5 flex-wrap ga-3 luxe-head"
+        >
           <div class="d-flex align-center ga-3">
             <div>
               <p class="text-overline mb-0 luxe-kicker">PREMIUM STACK</p>
             </div>
           </div>
-          <v-chip size="small" color="secondary" variant="flat" class="luxe-chip">2026</v-chip>
+          <v-chip
+            size="small"
+            color="secondary"
+            variant="flat"
+            class="luxe-chip"
+            >2026</v-chip
+          >
         </div>
 
-        <div class="luxe-flow" aria-label="What I Build tree">
-          <span class="luxe-step is-root" style="--d: 0.06s">
-            html
-          </span>
-          <span class="luxe-link" style="--d: 0.1s"></span>
+        <div class="premium-stack-map" aria-label="Premium stack graph">
+          <svg
+            class="premium-stack-lines"
+            viewBox="0 0 980 500"
+            preserveAspectRatio="xMidYMid meet"
+            aria-hidden="true"
+          >
+            <line
+              v-for="(line, index) in premiumStackLines"
+              :key="line.key"
+              :x1="line.x1"
+              :y1="line.y1"
+              :x2="line.x2"
+              :y2="line.y2"
+              class="premium-connector"
+              :style="{ '--d': `${0.08 + index * 0.04}s` }"
+            />
+          </svg>
 
-          <span class="luxe-step" style="--d: 0.14s">
-            css
-            <span class="luxe-sub">tailwind</span>
-          </span>
-          <span class="luxe-link" style="--d: 0.18s"></span>
+          <div
+            v-for="(node, index) in premiumStackNodes"
+            :key="node.id"
+            class="premium-node"
+            tabindex="0"
+            :aria-label="node.label"
+            :style="{
+              left: `${(node.x / 980) * 100}%`,
+              top: `${(node.y / 500) * 100}%`,
+              '--ring': node.ring,
+              '--d': `${0.2 + index * 0.04}s`,
+            }"
+          >
+            <v-icon
+              v-if="node.icon"
+              class="premium-node-core"
+              :icon="node.icon"
+            />
+            <span v-else class="premium-node-core">{{ node.short }}</span>
+            <span class="premium-node-check">✓</span>
+            <span class="premium-node-label">{{ node.label }}</span>
+          </div>
+        </div>
 
-          <span class="luxe-step" style="--d: 0.22s">
-            js
-            <span class="luxe-sub">backend</span>
-          </span>
-          <span class="luxe-link" style="--d: 0.26s"></span>
-
-          <span class="luxe-step" style="--d: 0.3s">vue</span>
-          <span class="luxe-link" style="--d: 0.34s"></span>
-
-          <span class="luxe-step is-leaf" style="--d: 0.38s">vuetify</span>
+        <div class="premium-stack-mobile" aria-label="Premium stack list">
+          <div
+            v-for="(node, index) in premiumStackNodes"
+            :key="`${node.id}-mobile`"
+            class="premium-mobile-item"
+            :style="{ '--d': `${0.12 + index * 0.03}s` }"
+          >
+            <span
+              class="premium-mobile-dot"
+              :style="{ '--ring': node.ring }"
+            ></span>
+            <v-icon
+              v-if="node.icon"
+              class="premium-mobile-icon"
+              :icon="node.icon"
+              size="16"
+            />
+            <span class="premium-mobile-label">{{ node.label }}</span>
+          </div>
         </div>
       </v-card>
     </section>
 
     <section class="home-section">
-      <h2 class="text-h4 mb-4 startup-heading" style="--delay: 0.1s">Featured Work</h2>
+      <h2 class="text-h4 mb-4 startup-heading" style="--delay: 0.1s">
+        Featured Work
+      </h2>
       <v-row>
-        <v-col v-for="(project, index) in featuredProjects" :key="project.title" cols="12" md="4">
+        <v-col
+          v-for="(project, index) in featuredProjects"
+          :key="project.title"
+          cols="12"
+          md="4"
+        >
           <v-card
             class="section-shell project-card h-100 startup-project"
             :style="{ '--delay': `${0.14 + index * 0.1}s` }"
             :to="project.to"
             flat
           >
-            <v-img :src="project.image" height="190" cover loading="lazy" decoding="async" class="project-media"></v-img>
+            <v-img
+              :src="project.image"
+              height="190"
+              cover
+              loading="lazy"
+              decoding="async"
+              class="project-media"
+            ></v-img>
             <div class="pa-5">
               <h3 class="text-h6 mb-2">{{ project.title }}</h3>
               <p class="muted-copy mb-4">{{ project.description }}</p>
@@ -215,7 +447,11 @@ const featuredProjects = [
   width: 320px;
   height: 320px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(76, 207, 183, 0.18) 0%, rgba(76, 207, 183, 0) 72%);
+  background: radial-gradient(
+    circle,
+    rgba(76, 207, 183, 0.18) 0%,
+    rgba(76, 207, 183, 0) 72%
+  );
   opacity: 0;
   z-index: 0;
   pointer-events: none;
@@ -226,7 +462,12 @@ const featuredProjects = [
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(115deg, transparent 14%, rgba(255, 255, 255, 0.09) 34%, transparent 56%);
+  background: linear-gradient(
+    115deg,
+    transparent 14%,
+    rgba(255, 255, 255, 0.09) 34%,
+    transparent 56%
+  );
   opacity: 0;
   transform: translateX(-135%);
   z-index: 0;
@@ -305,7 +546,11 @@ const featuredProjects = [
   width: 180px;
   height: 180px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(76, 207, 183, 0.18) 0%, rgba(76, 207, 183, 0) 70%);
+  background: radial-gradient(
+    circle,
+    rgba(76, 207, 183, 0.18) 0%,
+    rgba(76, 207, 183, 0) 70%
+  );
   opacity: 0;
   pointer-events: none;
   animation: halo-enter 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.36s forwards;
@@ -357,7 +602,9 @@ const featuredProjects = [
 
 .stat-card,
 .project-card {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .stat-card:hover,
@@ -372,10 +619,16 @@ const featuredProjects = [
   border-radius: 22px;
   border: 1px solid rgba(19, 111, 99, 0.24);
   background:
-    radial-gradient(circle at 7% 14%, rgba(19, 111, 99, 0.16) 0%, transparent 34%),
+    radial-gradient(
+      circle at 7% 14%,
+      rgba(19, 111, 99, 0.16) 0%,
+      transparent 34%
+    ),
     linear-gradient(155deg, #ffffff 0%, #f5fcf8 54%, #eef7ff 100%);
   box-shadow: 0 18px 36px rgba(16, 35, 31, 0.11);
-  transition: transform 0.28s ease, box-shadow 0.28s ease;
+  transition:
+    transform 0.28s ease,
+    box-shadow 0.28s ease;
 }
 
 .luxe-flow-card:hover {
@@ -390,13 +643,16 @@ const featuredProjects = [
   width: 260px;
   height: 260px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0) 74%);
+  background: radial-gradient(
+    circle,
+    rgba(245, 158, 11, 0.2) 0%,
+    rgba(245, 158, 11, 0) 74%
+  );
   pointer-events: none;
   animation: luxe-orb-float 6s ease-in-out infinite;
 }
 
-.luxe-head,
-.luxe-flow {
+.luxe-head {
   position: relative;
   z-index: 1;
 }
@@ -416,72 +672,152 @@ const featuredProjects = [
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
-.luxe-flow {
+.premium-stack-map {
+  --node-size: clamp(48px, 6.2vw, 78px);
+  --check-size: clamp(14px, 1.9vw, 22px);
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  aspect-ratio: 980 / 500;
+  border-radius: 20px;
+  border: 1px solid rgba(81, 132, 196, 0.24);
+  background:
+    radial-gradient(circle at 18% 22%, rgba(39, 119, 216, 0.2), transparent 46%),
+    radial-gradient(circle at 86% 18%, rgba(99, 102, 241, 0.14), transparent 48%),
+    linear-gradient(160deg, #f9fcff 0%, #eef5ff 48%, #eaf2fb 100%);
+  overflow: hidden;
+}
+
+.premium-stack-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.premium-connector {
+  stroke: rgba(59, 113, 178, 0.36);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: premium-line-in 0.8s ease forwards;
+  animation-delay: var(--d, 0s);
+}
+
+.premium-node {
+  position: absolute;
+  width: var(--node-size);
+  height: var(--node-size);
+  border-radius: 50%;
   display: grid;
-  grid-template-columns: auto 34px auto 34px auto 34px auto 34px auto;
-  align-items: center;
-  gap: 0.48rem;
+  place-items: center;
+  border: 2px solid color-mix(in srgb, var(--ring) 82%, white 18%);
+  background-color: #071a31;
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--ring) 22%, transparent 78%),
+    0 12px 28px rgba(1, 11, 27, 0.44);
+  color: #eaf3ff;
+  animation: premium-node-in 0.45s ease both;
+  animation-delay: var(--d, 0s);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+  transform: translate(-50%, -50%);
 }
 
-.luxe-step {
+.premium-node:hover {
+  transform: translate(-50%, calc(-50% - 3px)) scale(1.03);
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--ring) 34%, transparent 66%),
+    0 16px 34px rgba(1, 11, 27, 0.52);
+}
+
+.premium-node:focus-visible {
+  outline: 2px solid rgba(229, 245, 255, 0.95);
+  outline-offset: 2px;
+}
+
+.premium-node-core {
+  font-size: clamp(1.8rem, 1vw, 1.02rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.premium-node-check {
+  position: absolute;
+  top: calc(var(--check-size) * -0.3);
+  right: calc(var(--check-size) * -0.2);
+  width: var(--check-size);
+  height: var(--check-size);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: clamp(0.58rem, 1vw, 0.8rem);
+  font-weight: 900;
+  color: #ffffff;
+  background: #17c964;
+  border: 2px solid #0a1f3d;
+  box-shadow: 0 6px 12px rgba(8, 68, 42, 0.42);
+}
+
+.premium-node-label {
+  position: absolute;
+  bottom: calc(var(--node-size) * -0.4);
+  left: 50%;
+  transform: translate(-50%, 7px);
+  white-space: nowrap;
+  font-size: clamp(0.58rem, 0.95vw, 0.74rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(18, 54, 96, 0.92);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.65);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.18s ease,
+    transform 0.2s ease;
+}
+
+.premium-node:hover .premium-node-label,
+.premium-node:focus-visible .premium-node-label {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.premium-stack-mobile {
+  display: none;
+}
+
+.premium-mobile-item {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  width: fit-content;
-  padding: 0.48rem 0.82rem;
+  gap: 0.58rem;
+  padding: 0.45rem 0.7rem;
   border-radius: 999px;
-  border: 1px solid rgba(19, 111, 99, 0.22);
-  background: rgba(255, 255, 255, 0.86);
-  color: #0d5248;
+  border: 1px solid rgba(125, 182, 255, 0.24);
+  background: rgba(10, 26, 50, 0.78);
+  color: #e2eeff;
   font-weight: 700;
-  text-transform: lowercase;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 9px 18px rgba(13, 82, 72, 0.09);
-  transition: transform 0.24s ease, background-color 0.24s ease, box-shadow 0.24s ease;
-  animation: luxe-step-in 0.4s ease both;
+  animation: premium-mobile-item-in 0.36s ease both;
   animation-delay: var(--d, 0s);
 }
 
-.luxe-step:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 14px 24px rgba(13, 82, 72, 0.14);
+.premium-mobile-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ring);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ring) 34%, transparent 66%);
 }
 
-.luxe-step.is-root {
-  background: rgba(19, 111, 99, 0.14);
+.premium-mobile-label {
+  font-size: 0.82rem;
 }
 
-.luxe-step.is-leaf {
-  background: rgba(245, 158, 11, 0.13);
-  border-color: rgba(245, 158, 11, 0.26);
-  color: #6d4307;
-}
-
-.luxe-step-avatar {
-  border: 1px solid #ffffff;
-}
-
-.luxe-sub {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 999px;
-  padding: 0.18rem 0.5rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #0e6155;
-  background: rgba(19, 111, 99, 0.11);
-  border: 1px solid rgba(19, 111, 99, 0.24);
-}
-
-.luxe-link {
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(19, 111, 99, 0.2), rgba(19, 111, 99, 0.56));
-  transform-origin: left center;
-  transform: scaleX(0);
-  animation: luxe-link-in 0.35s ease forwards;
-  animation-delay: var(--d, 0s);
+.premium-mobile-icon {
+  color: #d8eaff;
+  opacity: 0.95;
 }
 
 .project-card {
@@ -501,6 +837,7 @@ const featuredProjects = [
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -512,6 +849,7 @@ const featuredProjects = [
     opacity: 0;
     transform: translateY(22px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -523,6 +861,7 @@ const featuredProjects = [
     opacity: 0;
     transform: translateY(20px) scale(0.94);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -534,6 +873,7 @@ const featuredProjects = [
     opacity: 0;
     transform: translateY(26px) rotateX(10deg) scale(0.96);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) rotateX(0deg) scale(1);
@@ -545,6 +885,7 @@ const featuredProjects = [
     opacity: 0;
     transform: translateY(28px) scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -556,6 +897,7 @@ const featuredProjects = [
     opacity: 0;
     transform: translateY(12px) scale(0.92);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -567,6 +909,7 @@ const featuredProjects = [
     opacity: 0;
     transform: translateY(28px) scale(0.96);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -578,9 +921,11 @@ const featuredProjects = [
     opacity: 0;
     transform: translateX(-135%);
   }
+
   35% {
     opacity: 1;
   }
+
   to {
     opacity: 0;
     transform: translateX(135%);
@@ -592,6 +937,7 @@ const featuredProjects = [
     opacity: 0;
     transform: translate3d(-24px, -18px, 0) scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
@@ -603,6 +949,7 @@ const featuredProjects = [
     opacity: 0;
     transform: scale(0.82) rotate(-18deg);
   }
+
   to {
     opacity: 1;
     transform: scale(1) rotate(0deg);
@@ -614,6 +961,7 @@ const featuredProjects = [
     opacity: 0;
     transform: scale(0.84) rotate(20deg);
   }
+
   to {
     opacity: 1;
     transform: scale(1) rotate(0deg);
@@ -626,6 +974,7 @@ const featuredProjects = [
     box-shadow: 0 0 0 0 rgba(19, 111, 99, 0);
     transform: scale(0.5);
   }
+
   to {
     opacity: 1;
     box-shadow: 0 0 0 6px rgba(19, 111, 99, 0.13);
@@ -638,29 +987,44 @@ const featuredProjects = [
     opacity: 0;
     transform: scale(0.82);
   }
+
   to {
     opacity: 0.92;
     transform: scale(1);
   }
 }
 
-@keyframes luxe-step-in {
+@keyframes premium-node-in {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.96);
+    transform: translate(-50%, -44%) scale(0.92);
   }
+
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
-@keyframes luxe-link-in {
+@keyframes premium-line-in {
   from {
-    transform: scaleX(0);
+    stroke-dashoffset: 1000;
   }
+
   to {
-    transform: scaleX(1);
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes premium-mobile-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -669,26 +1033,21 @@ const featuredProjects = [
   100% {
     transform: translate3d(0, 0, 0);
   }
+
   50% {
     transform: translate3d(10px, -7px, 0);
   }
 }
 
-@media (max-width: 960px) {
-  .luxe-flow {
-    grid-template-columns: 1fr;
-    gap: 0.52rem;
+@media (max-width: 760px) {
+  .premium-stack-map {
+    display: none;
   }
 
-  .luxe-link {
-    width: 2px;
-    height: 14px;
-    margin-left: 1.08rem;
-    background: rgba(19, 111, 99, 0.45);
-    transform-origin: top center;
-    transform: scaleY(0);
-    animation: luxe-link-vertical 0.3s ease forwards;
-    animation-delay: var(--d, 0s);
+  .premium-stack-mobile {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.54rem;
   }
 }
 
@@ -710,10 +1069,6 @@ const featuredProjects = [
   .luxe-flow-card {
     padding: 1.15rem !important;
   }
-
-  .luxe-chip {
-    display: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -731,27 +1086,18 @@ const featuredProjects = [
   .startup-profile,
   .profile-fact,
   .luxe-orb,
-  .luxe-step,
-  .luxe-link {
+  .premium-connector,
+  .premium-node,
+  .premium-mobile-item {
     animation: none;
     opacity: 1;
-    transform: none;
   }
 
   .luxe-flow-card,
-  .luxe-step,
+  .premium-node,
   .stat-card,
   .project-card {
     transition: none;
-  }
-}
-
-@keyframes luxe-link-vertical {
-  from {
-    transform: scaleY(0);
-  }
-  to {
-    transform: scaleY(1);
   }
 }
 </style>

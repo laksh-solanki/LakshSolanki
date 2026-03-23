@@ -19,20 +19,14 @@
               <v-btn color="primary" rounded="xl" size="large" class="text-none px-6" @click="scrollToSubscribe">
                 Let's Collaborate
               </v-btn>
-              <v-btn
-                variant="outlined"
-                rounded="xl"
-                size="large"
-                class="text-none px-6"
-                color="primary"
-                to="/projects"
-              >
+              <v-btn variant="outlined" rounded="xl" size="large" class="text-none px-6" color="primary" to="/projects">
                 View Projects
               </v-btn>
             </div>
 
             <div class="metrics-grid mt-8">
-              <article v-for="(item, index) in stats" :key="item.label" class="metric-card startup-item" :style="`--delay: ${0.4 + index * 0.08}s`">
+              <article v-for="(item, index) in stats" :key="item.label" class="metric-card startup-item"
+                :style="`--delay: ${0.4 + index * 0.08}s`">
                 <p class="metric-value mb-1">{{ item.value }}</p>
                 <p class="metric-label mb-0">{{ item.label }}</p>
               </article>
@@ -40,7 +34,8 @@
           </v-col>
 
           <v-col cols="12" md="5" class="mt-8 mt-md-0">
-            <v-card rounded="xl" elevation="0" class="hero-profile-card pa-5 pa-md-6 startup-card" style="--delay: 0.3s">
+            <v-card rounded="xl" elevation="0" class="hero-profile-card pa-5 pa-md-6 startup-card"
+              style="--delay: 0.3s">
               <div class="d-flex align-center ga-3 mb-4">
                 <PhotoZoomDialog :src="myPhoto" alt="Laksh Solanki" :size="54" avatar-class="about-avatar" />
                 <div>
@@ -56,98 +51,18 @@
         </v-row>
       </v-container>
     </section>
-
-    <section>
-      <v-container class="py-10 py-md-14">
-        <div class="section-shell story-panel pa-5 pa-md-8 startup-card" style="--delay: 0.5s">
-          <v-row align="center">
-            <v-col cols="12" md="5" class="mb-6 mb-md-0">
-              <v-img :src="aboutPhoto2" cover class="rounded-xl border story-image"></v-img>
-            </v-col>
-            <v-col cols="12" md="7" class="pl-md-8">
-              <p class="section-label mb-2">Mission</p>
-              <h2 class="text-h4 font-weight-bold mb-3">Build products that users trust and teams can scale</h2>
-              <p class="muted-copy mb-5">
-                Mindlytic focuses on practical engineering decisions that support long-term product growth. The goal is
-                simple: make interfaces intuitive, keep codebases maintainable, and deliver features with consistency.
-              </p>
-
-              <v-list bg-color="transparent" class="pa-0">
-                <v-list-item
-                  v-for="point in missionPoints"
-                  :key="point"
-                  class="px-0"
-                  density="compact"
-                >
-                  <template #prepend>
-                    <v-icon icon="mdi-check-circle" color="primary" class="mr-2"></v-icon>
-                  </template>
-                  <v-list-item-title class="font-weight-medium">{{ point }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-col>
-          </v-row>
-        </div>
-      </v-container>
-    </section>
-
-    <section>
-      <v-container class="pb-10 pb-md-14">
-        <div class="section-shell pa-5 pa-md-8">
-          <div class="d-flex flex-column flex-md-row align-start align-md-center justify-space-between mb-7 ga-3">
-            <div>
-              <p class="section-label mb-2">Core Strengths</p>
-              <h2 class="text-h4 font-weight-bold mb-0">Why teams work with Mindlytic</h2>
-            </div>
-          </div>
-
-          <v-row>
-            <v-col v-for="(card, index) in strengths" :key="card.title" cols="12" sm="6" md="4">
-              <v-card class="strength-card pa-5 h-100 startup-card" rounded="xl" elevation="0" :style="`--delay: ${0.1 + index * 0.1}s`">
-                <v-avatar size="46" color="teal-lighten-5" class="mb-4">
-                  <v-icon :icon="card.icon" color="teal-darken-2"></v-icon>
-                </v-avatar>
-                <h3 class="text-h6 font-weight-bold mb-2">{{ card.title }}</h3>
-                <p class="mb-0 muted-copy">{{ card.description }}</p>
-              </v-card>
-            </v-col>
-          </v-row>
-        </div>
-      </v-container>
-    </section>
-
-    <section>
-      <v-container class="pb-10 pb-md-14">
-        <div class="section-shell pa-5 pa-md-8 process-wrap">
-          <p class="section-label mb-2">Workflow</p>
-          <h2 class="text-h4 font-weight-bold mb-6">How projects are delivered</h2>
-
-          <div class="process-grid">
-            <article v-for="(step, index) in processSteps" :key="step.title" class="process-card startup-card" :style="`--delay: ${0.1 + index * 0.1}s`">
-              <span class="process-index">0{{ index + 1 }}</span>
-              <h3 class="text-h6 font-weight-bold mb-2">{{ step.title }}</h3>
-              <p class="muted-copy mb-0">{{ step.description }}</p>
-            </article>
-          </div>
-        </div>
-      </v-container>
-    </section>
-    <section class="profile-merge pb-12 pb-md-16">
+    <section class="profile-merge pb-1 pb-md-1">
       <v-container class="profile-merge-wrap">
         <div class="mb-6 mb-md-8">
           <p class="section-label mb-2">Developer Profile</p>
-          <h2 class="text-h4 font-weight-bold mb-0">Complete profile, experience, and stack</h2>
         </div>
 
         <v-row>
           <v-col cols="12" md="4" lg="3">
-            <v-card class="section-shell dev-profile-card pa-5 startup-card" border="" rounded="xl" variant="elevated" style="--delay: 0.1s">
-              <PhotoZoomDialog
-                :src="myPhoto"
-                alt="Laksh Solanki"
-                :size="124"
-                avatar-class="mx-auto d-flex mb-4 dev-profile-avatar"
-              />
+            <v-card class="section-shell dev-profile-card pa-5 startup-card" border elevation="0" rounded="xl" variant="elevated"
+              style="--delay: 0.1s">
+              <PhotoZoomDialog :src="myPhoto" alt="Laksh Solanki" :size="124"
+                avatar-class="mx-auto d-flex mb-4 dev-profile-avatar" />
               <h3 class="text-h5 text-center mb-1">Laksh Solanki</h3>
               <p class="text-center muted-copy mb-4">Senior Full-Stack Engineer</p>
 
@@ -166,43 +81,31 @@
                 </div>
               </div>
 
-              <v-btn block color="primary" rounded="xl" size="large" class="text-none mb-3" href="mailto:lakshsolanki848@gmail.com">
+              <v-btn block color="primary" rounded="xl" size="large" class="text-none mb-3"
+                href="mailto:lakshsolanki848@gmail.com">
                 Contact Me
               </v-btn>
-              <v-btn block variant="outlined" color="primary" size="large" rounded="xl" class="text-none" @click="copyEmail">
+              <v-btn block variant="outlined" color="primary" size="large" rounded="xl" class="text-none"
+                @click="copyEmail">
                 Copy Email
               </v-btn>
 
               <v-divider class="my-5"></v-divider>
 
               <div class="d-flex align-center justify-center ga-3">
-                <v-btn
-                  icon="mdi-github"
-                  variant="tonal"
-                  color="primary"
-                  href="https://github.com/laksh-solanki"
-                  target="_blank"
-                ></v-btn>
-                <v-btn
-                  icon="mdi-web"
-                  variant="tonal"
-                  color="primary"
-                  href="https://mindlytic.onrender.com/"
-                  target="_blank"
-                ></v-btn>
-                <v-btn
-                  icon="mdi-linkedin"
-                  variant="tonal"
-                  color="primary"
-                  href="https://www.linkedin.com"
-                  target="_blank"
-                ></v-btn>
+                <v-btn icon="mdi-github" variant="tonal" color="primary" href="https://github.com/laksh-solanki"
+                  target="_blank"></v-btn>
+                <v-btn icon="mdi-web" variant="tonal" color="primary" href="https://mindlytic.onrender.com/"
+                  target="_blank"></v-btn>
+                <v-btn icon="mdi-linkedin" variant="tonal" color="primary" href="https://www.linkedin.com"
+                  target="_blank"></v-btn>
               </div>
             </v-card>
           </v-col>
 
           <v-col cols="12" md="8" lg="9">
-            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" border variant="elevated" rounded="xl" style="--delay: 0.2s">
+            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" border variant="elevated" elevation="0" rounded="xl"
+              style="--delay: 0.2s">
               <p class="text-overline text-primary font-weight-bold mb-2">Developer Profile</p>
               <h3 class="text-h4 mb-4">I build products that stay maintainable as they scale.</h3>
               <p class="muted-copy mb-0 dev-intro-copy">
@@ -211,7 +114,8 @@
               </p>
             </v-card>
 
-            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" border variant="elevated" rounded="xl" style="--delay: 0.3s">
+            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" border variant="elevated" elevation="0" rounded="xl"
+              style="--delay: 0.3s">
               <h3 class="text-h5 mb-4">Career Highlights</h3>
               <v-row>
                 <v-col v-for="item in highlights" :key="item.title" cols="12" sm="6" lg="3">
@@ -224,15 +128,11 @@
               </v-row>
             </v-card>
 
-            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" border variant="elevated" rounded="xl" style="--delay: 0.4s">
+            <v-card class="section-shell pa-6 pa-md-8 mb-6 startup-card" border variant="elevated" elevation="0" rounded="xl"
+              style="--delay: 0.4s">
               <h3 class="text-h5 mb-3">Experience Timeline</h3>
               <v-timeline side="end" truncate-line="both" density="comfortable">
-                <v-timeline-item
-                  v-for="job in experiences"
-                  :key="job.role"
-                  :dot-color="job.dotColor"
-                  size="small"
-                >
+                <v-timeline-item v-for="job in experiences" :key="job.role" :dot-color="job.dotColor" size="small">
                   <template #opposite>
                     <span class="text-caption">{{ job.period }}</span>
                   </template>
@@ -245,7 +145,8 @@
               </v-timeline>
             </v-card>
 
-            <v-card class="section-shell pa-6 pa-md-8 startup-card" border variant="elevated" rounded="xl" style="--delay: 0.5s">
+            <v-card class="section-shell pa-6 pa-md-8 startup-card" border variant="elevated" elevation="0" rounded="xl"
+              style="--delay: 0.5s">
               <h3 class="text-h5 mb-4">Stack & Expertise</h3>
               <v-row>
                 <v-col v-for="group in skillGroups" :key="group.title" cols="12" md="6">
@@ -262,6 +163,79 @@
             </v-card>
           </v-col>
         </v-row>
+      </v-container>
+    </section>
+
+    <section>
+      <v-container class="py-1 py-md-1">
+        <v-card class="section-shell story-panel pa-5 pa-md-8 startup-card" border rounded="xl" elevation="0" style="--delay: 0.5s">
+          <v-row align="center">
+            <v-col cols="12" md="5" class="mb-6 mb-md-0">
+              <v-img :src="aboutPhoto2" cover class="rounded-xl border story-image"></v-img>
+            </v-col>
+            <v-col cols="12" md="7" class="pl-md-8">
+              <p class="section-label mb-2">Mission</p>
+              <h2 class="text-h4 font-weight-bold mb-3">Build products that users trust and teams can scale</h2>
+              <p class="muted-copy mb-5">
+                Mindlytic focuses on practical engineering decisions that support long-term product growth. The goal is
+                simple: make interfaces intuitive, keep codebases maintainable, and deliver features with consistency.
+              </p>
+
+              <v-list bg-color="transparent" class="pa-0">
+                <v-list-item v-for="point in missionPoints" :key="point" class="px-0" density="compact">
+                  <template #prepend>
+                    <v-icon icon="mdi-check-circle" color="primary" class="mr-2"></v-icon>
+                  </template>
+                  <v-list-item-title class="font-weight-medium">{{ point }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-container>
+    </section>
+
+    <section>
+      <v-container class="pb-1 pb-md-1">
+        <v-card class="section-shell pa-5 pa-md-8" border rounded="xl" elevation="0" style="--delay: 0.5s">
+          <div class="d-flex flex-column flex-md-row align-start align-md-center justify-space-between mb-7 ga-3">
+            <div>
+              <p class="section-label mb-2">Core Strengths</p>
+              <h2 class="text-h4 font-weight-bold mb-0">Why teams work with Mindlytic</h2>
+            </div>
+          </div>
+
+          <v-row>
+            <v-col v-for="(card, index) in strengths" :key="card.title" cols="12" sm="6" md="4">
+              <v-card class="strength-card pa-5 h-100 startup-card" rounded="xl" elevation="0"
+                :style="`--delay: ${0.1 + index * 0.1}s`">
+                <v-avatar size="46" color="teal-lighten-5" class="mb-4">
+                  <v-icon :icon="card.icon" color="teal-darken-2"></v-icon>
+                </v-avatar>
+                <h3 class="text-h6 font-weight-bold mb-2">{{ card.title }}</h3>
+                <p class="mb-0 muted-copy">{{ card.description }}</p>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-container>
+    </section>
+
+    <section>
+      <v-container class="pb-10 pb-md-14">
+        <v-card class="section-shell pa-5 pa-md-8 process-wrap" border rounded="xl" elevation="0" style="--delay: 0.5s">
+          <p class="section-label mb-2">Workflow</p>
+          <h2 class="text-h4 font-weight-bold mb-6">How projects are delivered</h2>
+
+          <div class="process-grid">
+            <article v-for="(step, index) in processSteps" :key="step.title" class="process-card startup-card"
+              :style="`--delay: ${0.1 + index * 0.1}s`">
+              <span class="process-index">0{{ index + 1 }}</span>
+              <h3 class="text-h6 font-weight-bold mb-2">{{ step.title }}</h3>
+              <p class="muted-copy mb-0">{{ step.description }}</p>
+            </article>
+          </div>
+        </v-card>
       </v-container>
     </section>
   </v-container>
@@ -556,7 +530,7 @@ const scrollToSubscribe = () => {
 }
 
 .profile-merge-wrap {
-  max-width: 1200px;
+  max-width: 13 00px;
 }
 
 .dev-profile-card {
@@ -587,6 +561,7 @@ const scrollToSubscribe = () => {
 }
 
 @media (max-width: 960px) {
+
   .hero-title,
   .hero-copy,
   .dev-intro-copy {
@@ -637,6 +612,7 @@ const scrollToSubscribe = () => {
     opacity: 0;
     transform: translateY(22px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -648,6 +624,7 @@ const scrollToSubscribe = () => {
     opacity: 0;
     transform: translateY(28px) scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -655,6 +632,7 @@ const scrollToSubscribe = () => {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .startup-item,
   .startup-card {
     animation: none;

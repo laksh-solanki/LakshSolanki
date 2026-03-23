@@ -144,6 +144,7 @@ kbd {
   border-radius: 24px;
   background: linear-gradient(165deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 249, 247, 0.95) 100%);
   box-shadow: var(--portfolio-shadow);
+  height: inherit;
 }
 
 .glow-dot {
