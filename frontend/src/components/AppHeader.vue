@@ -1,11 +1,12 @@
 <script setup>
-import { nextTick, ref } from "vue";
+import { ref } from "vue";
 import { useRoute } from "vue-router";
 import mainsvgicon from "@/assets/mainsvgicon.vue";
 import SearchBar from "@/components/Search-bar.vue";
 
 const route = useRoute();
 const drawer = ref(false);
+const githubProfile = "https://github.com/laksh-solanki";
 
 const navLinks = [
   { title: "Home", path: "/", icon: "mdi-home-outline" },
@@ -18,18 +19,6 @@ const isActive = (path) =>
 
 const closeDrawer = () => {
   drawer.value = false;
-};
-
-const scrollToSubscribe = async () => {
-  closeDrawer();
-  await nextTick();
-
-  const section = document.getElementById("subscribe-container");
-  if (!section) return;
-
-  section.scrollIntoView({ behavior: "smooth", block: "center" });
-  section.classList.add("subscribe-focus");
-  window.setTimeout(() => section.classList.remove("subscribe-focus"), 1600);
 };
 </script>
 
@@ -72,9 +61,13 @@ const scrollToSubscribe = async () => {
           rounded="xl"
           variant="flat"
           class="drawer-cta-btn text-none"
-          @click="scrollToSubscribe"
+          :href="githubProfile"
+          target="_blank"
+          rel="noopener noreferrer"
+          prepend-icon="mdi-github"
+          @click="closeDrawer"
         >
-          Let's Collaborate
+          GitHub
         </v-btn>
       </div>
     </div>
@@ -107,9 +100,12 @@ const scrollToSubscribe = async () => {
           color="primary"
           variant="flat"
           rounded="xl"
-          @click="scrollToSubscribe"
+          :href="githubProfile"
+          target="_blank"
+          rel="noopener noreferrer"
+          prepend-icon="mdi-github"
         >
-          Let's Collaborate
+          GitHub
         </v-btn>
 
         <v-btn
