@@ -235,7 +235,7 @@ const generatePassword = () => {
               generation.
             </p>
           </v-col>
-          <v-col cols="12" md="4" lg="5">
+          <v-col cols="12" md="4" lg="5" class="hero-stats-col">
             <div class="hero-stats">
               <div class="stat-item"><span class="stat-value">3</span><span class="stat-label">Tool Groups</span></div>
               <div class="stat-item"><span class="stat-value">Client-Only</span><span class="stat-label">Privacy</span></div>
@@ -508,6 +508,12 @@ const generatePassword = () => {
 }
 
 @media (max-width: 600px) {
+  .hero-stats-col {
+    display: none !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
   .hero-title {
     line-height: 1.12;
   }

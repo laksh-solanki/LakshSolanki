@@ -258,7 +258,7 @@ const generatePdf = async () => {
               Enter your details, preview a custom premium certificate, and download a polished PDF in one flow.
             </p>
           </v-col>
-          <v-col cols="12" md="4" lg="5" class="mt-6 mt-md-0">
+          <v-col cols="12" md="4" lg="5" class="hero-stats-col mt-6 mt-md-0">
             <div class="hero-stats">
               <div class="stat-item">
                 <span class="stat-value">{{ courseCount }}</span>
@@ -616,6 +616,12 @@ const generatePdf = async () => {
 }
 
 @media (max-width: 600px) {
+  .hero-stats-col {
+    display: none !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
   .step-item {
     grid-template-columns: 36px 1fr;
     gap: 10px;

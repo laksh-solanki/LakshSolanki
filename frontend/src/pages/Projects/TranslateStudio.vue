@@ -575,7 +575,7 @@ onUnmounted(() => {
               Clean translation workspace with smart language detection, dual-provider comparison, and quick export.
             </p>
           </v-col>
-          <v-col cols="12" md="5" class="mt-5 mt-md-0">
+          <v-col cols="12" md="5" class="hero-stats-col mt-5 mt-md-0">
             <div class="hero-stats">
               <div class="stat-card">
                 <span class="stat-value">{{ sourceWords }}</span>
@@ -1166,6 +1166,12 @@ onUnmounted(() => {
 }
 
 @media (max-width: 600px) {
+  .hero-stats-col {
+    display: none !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
   .lang-select {
     min-width: 100%;
     max-width: 100%;

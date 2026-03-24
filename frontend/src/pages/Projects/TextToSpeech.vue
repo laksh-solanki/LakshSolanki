@@ -865,7 +865,7 @@ onUnmounted(() => {
             </p>
           </v-col>
 
-          <v-col cols="12" md="4" lg="5" class="mt-6 mt-md-0">
+          <v-col cols="12" md="4" lg="5" class="hero-stats-col mt-6 mt-md-0">
             <div class="hero-stats">
               <div class="stat-item">
                 <span class="stat-value">{{ voices.length }}</span>
@@ -1263,6 +1263,12 @@ kbd {
 }
 
 @media (max-width: 600px) {
+  .hero-stats-col {
+    display: none !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
   .sentence-control,
   .progress-shell {
     padding: 10px;

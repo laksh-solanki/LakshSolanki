@@ -1,10 +1,5 @@
 const REQUEST_TIMEOUT_MS = 80000;
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
-const DEFAULT_GEMINI_IMAGE_MODEL = "gemini-2.5-flash-image";
-const AUTO_GEMINI_IMAGE_MODEL_FALLBACKS = [
-  "gemini-3.1-flash-image-preview",
-  "gemini-2.0-flash-preview-image-generation",
-];
 
 const chatBodySchema = {
   type: "object",
@@ -33,19 +28,6 @@ const chatBodySchema = {
   additionalProperties: false,
 };
 
-const imageBodySchema = {
-  type: "object",
-  required: ["prompt"],
-  properties: {
-    prompt: { type: "string", maxLength: 4000 },
-    model: { type: "string", maxLength: 200 },
-    size: { type: "string", maxLength: 64 },
-    invokeUrl: { type: "string", maxLength: 1000 },
-    apiKey: { type: "string", maxLength: 1024 },
-  },
-  additionalProperties: false,
-};
-
 const clampNumber = (value, fallback, { min, max }) => {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return fallback;
@@ -63,40 +45,6 @@ const clampInteger = (value, fallback, { min, max }) => {
 };
 
 const isLikelyJson = (contentType = "") => contentType.toLowerCase().includes("application/json");
-const isLikelyImage = (contentType = "") => contentType.toLowerCase().startsWith("image/");
-const isLikelyGeminiApiKey = (apiKey = "") => /^AIza[0-9A-Za-z_-]{16,}$/.test(String(apiKey || "").trim());
-const isGeminiGenerateContentInvokeUrl = (invokeUrl = "") =>
-  /generativelanguage\.googleapis\.com\/v1beta\/models\/[^/]+:generatecontent/i.test(invokeUrl);
-const isNvidiaStabilityInvokeUrl = (invokeUrl = "") =>
-  /ai\.api\.nvidia\.com\/v1\/genai\/stabilityai\//i.test(invokeUrl);
-
-const resolveImageInvokeUrl = ({ invokeUrl, apiKey, model }) => {
-  const normalizedInvokeUrl = String(invokeUrl || "").trim();
-  if (normalizedInvokeUrl) return normalizedInvokeUrl;
-
-  const normalizedApiKey = String(apiKey || "").trim();
-  if (!normalizedApiKey || !isLikelyGeminiApiKey(normalizedApiKey)) return "";
-
-  const resolvedModel = String(model || DEFAULT_GEMINI_IMAGE_MODEL).trim() || DEFAULT_GEMINI_IMAGE_MODEL;
-  return `${GEMINI_API_BASE}/${encodeURIComponent(resolvedModel)}:generateContent?key=${encodeURIComponent(normalizedApiKey)}`;
-};
-
-const resolveGeminiImageResponse = (payload) => {
-  const candidates = Array.isArray(payload?.candidates) ? payload.candidates : [];
-  for (const candidate of candidates) {
-    const parts = Array.isArray(candidate?.content?.parts) ? candidate.content.parts : [];
-    for (const part of parts) {
-      const base64 = typeof part?.inlineData?.data === "string" ? part.inlineData.data.trim() : "";
-      if (!base64) continue;
-      const mimeType = typeof part?.inlineData?.mimeType === "string" ? part.inlineData.mimeType.trim() : "";
-      return {
-        image_base64: base64,
-        mime_type: mimeType || "image/png",
-      };
-    }
-  }
-  return null;
-};
 
 const getTextFromGeminiResponse = (data) =>
   data?.candidates?.[0]?.content?.parts
@@ -137,32 +85,6 @@ const buildGroqMessages = (messages = [], systemPrompt = "") => {
   }));
   if (!systemPrompt) return conversation;
   return [{ role: "system", content: systemPrompt }, ...conversation];
-};
-
-const buildImagePayload = ({ prompt, invokeUrl, model, size }) => {
-  if (isGeminiGenerateContentInvokeUrl(invokeUrl)) {
-    const promptText = size ? `${prompt}\n\nPreferred output size: ${size}.` : prompt;
-    return {
-      contents: [{ role: "user", parts: [{ text: promptText }] }],
-      generationConfig: { responseModalities: ["IMAGE"] },
-    };
-  }
-
-  if (/huggingface|api-inference\.huggingface/i.test(invokeUrl)) {
-    return {
-      inputs: prompt,
-      options: { wait_for_model: true },
-    };
-  }
-
-  if (isNvidiaStabilityInvokeUrl(invokeUrl)) {
-    return { prompt };
-  }
-
-  const payload = { prompt };
-  if (model) payload.model = model;
-  if (size) payload.size = size;
-  return payload;
 };
 
 const readUpstreamError = async (response) => {
@@ -315,123 +237,6 @@ export const registerAiRoutes = async (app) => {
         model,
         text,
       });
-    },
-  );
-
-  app.post(
-    "/api/ai/image",
-    {
-      schema: {
-        body: imageBodySchema,
-      },
-    },
-    async (request, reply) => {
-      const prompt = String(request.body.prompt || "").trim();
-      if (!prompt) {
-        return reply.code(400).send({ error: "Prompt is required" });
-      }
-
-      const configuredInvokeUrl = (app.envConfig.imageInvokeUrl || request.body.invokeUrl || "").trim();
-      const apiKey = (app.envConfig.imageApiKey || request.body.apiKey || app.envConfig.geminiApiKey || "").trim();
-      const requestedModel = (request.body.model || app.envConfig.imageModel || "").trim();
-      const invokeUrl = resolveImageInvokeUrl({
-        invokeUrl: configuredInvokeUrl,
-        apiKey,
-        model: requestedModel,
-      });
-      const model = requestedModel || (isGeminiGenerateContentInvokeUrl(invokeUrl) ? DEFAULT_GEMINI_IMAGE_MODEL : "");
-      const size = (request.body.size || app.envConfig.imageSize || "").trim();
-      const allowAutoGeminiModelFallback = !configuredInvokeUrl && !requestedModel && isGeminiGenerateContentInvokeUrl(invokeUrl);
-
-      if (!invokeUrl) {
-        return reply
-          .code(400)
-          .send({ error: "Image invoke URL is missing. Set IMAGE_INVOKE_URL in backend or pass invokeUrl." });
-      }
-
-      const headers = {
-        "Content-Type": "application/json",
-        Accept: "application/json, image/*",
-      };
-      if (apiKey && !isGeminiGenerateContentInvokeUrl(invokeUrl)) {
-        headers.Authorization = `Bearer ${apiKey}`;
-        headers["x-api-key"] = apiKey;
-      }
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-      let upstreamResponse;
-      let upstreamError;
-      try {
-        const modelCandidates = [model];
-        if (allowAutoGeminiModelFallback) {
-          for (const candidate of AUTO_GEMINI_IMAGE_MODEL_FALLBACKS) {
-            if (!modelCandidates.includes(candidate)) modelCandidates.push(candidate);
-          }
-        }
-
-        for (const candidateModel of modelCandidates) {
-          const candidateInvokeUrl = resolveImageInvokeUrl({
-            invokeUrl: configuredInvokeUrl,
-            apiKey,
-            model: candidateModel,
-          });
-          upstreamResponse = await fetch(candidateInvokeUrl, {
-            method: "POST",
-            headers,
-            signal: controller.signal,
-            body: JSON.stringify(buildImagePayload({ prompt, invokeUrl: candidateInvokeUrl, model: candidateModel, size })),
-          });
-          if (upstreamResponse.ok) {
-            break;
-          }
-          upstreamError = await readUpstreamError(upstreamResponse);
-          const modelNotFound =
-            upstreamResponse.status === 404 &&
-            /is not found for API version|not supported for generatecontent/i.test(upstreamError || "");
-          if (!allowAutoGeminiModelFallback || !modelNotFound || candidateModel === modelCandidates[modelCandidates.length - 1]) {
-            break;
-          }
-        }
-      } catch (error) {
-        clearTimeout(timeoutId);
-        if (error?.name === "AbortError") {
-          return reply.code(504).send({ error: "Image request timed out." });
-        }
-        request.log.error({ err: error }, "Image upstream fetch failed");
-        return reply.code(502).send({ error: `Unable to reach image API: ${error?.message || "network error"}` });
-      }
-
-      clearTimeout(timeoutId);
-
-      if (!upstreamResponse.ok) {
-        const message = upstreamError || (await readUpstreamError(upstreamResponse));
-        return reply.code(502).send({ error: message });
-      }
-
-      const contentTypeHeader = upstreamResponse.headers.get("content-type") || "";
-      const contentType = contentTypeHeader.split(";")[0].trim().toLowerCase();
-
-      if (isLikelyImage(contentType)) {
-        const buffer = Buffer.from(await upstreamResponse.arrayBuffer());
-        return reply.code(200).send({
-          image_base64: buffer.toString("base64"),
-          mime_type: contentType || "image/png",
-        });
-      }
-
-      if (isLikelyJson(contentTypeHeader)) {
-        const data = await upstreamResponse.json().catch(() => null);
-        const geminiImage = resolveGeminiImageResponse(data);
-        if (geminiImage) {
-          return reply.code(200).send(geminiImage);
-        }
-        return reply.code(200).send({ data });
-      }
-
-      const text = await upstreamResponse.text().catch(() => "");
-      return reply.code(200).send({ data: text });
     },
   );
 };

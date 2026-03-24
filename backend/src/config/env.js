@@ -98,9 +98,5 @@ export const getEnv = (overrides = {}) => {
       "You are Mindlytic AI, an all-in-one assistant. Give practical, structured, and concise answers first, then add implementation details, edge cases, and simple teaching guidance when useful.",
     aiTemperature: toNumberInRange(source.AI_TEMPERATURE, 1.5, { min: 0, max: 2 }),
     aiMaxOutputTokens: toPositiveInt(source.AI_MAX_OUTPUT_TOKENS, 2000),
-    imageApiKey: source.IMAGE_API_KEY?.trim() || "",
-    imageInvokeUrl: source.IMAGE_INVOKE_URL?.trim() || "",
-    imageModel: source.IMAGE_MODEL?.trim() || "",
-    imageSize: source.IMAGE_SIZE?.trim() || "1024x1024",
   });
 };
