@@ -382,11 +382,13 @@ const normalizedTemperature = computed(() => {
   if (!Number.isFinite(value)) return REQUEST_TEMPERATURE;
   return Math.min(2, Math.max(0, value));
 });
-const hasSelectedApiKey = computed(() => Boolean(GEMINI_API_KEY || GROQ_API_KEY));
+const hasDirectApiKey = computed(() => Boolean(GEMINI_API_KEY || GROQ_API_KEY));
+const hasBackendChatUrl = computed(() => BACKEND_CHAT_URLS.length > 0);
+const hasSelectedApiKey = computed(() => hasDirectApiKey.value || hasBackendChatUrl.value);
 const composerPlaceholder = computed(() =>
   hasSelectedApiKey.value
     ? `Message ${ASSISTANT_LABEL}...`
-    : "Set VITE_GEMINI_API_KEY or VITE_GROQ_API_KEY to start chatting.",
+    : "Set VITE_GEMINI_API_KEY, VITE_GROQ_API_KEY, or a backend /api/ai/chat URL to start chatting.",
 );
 const sendDisabled = computed(() => !userInput.value.trim() || !hasSelectedApiKey.value);
 const primaryActionDisabled = computed(() => (loading.value ? false : sendDisabled.value));
@@ -849,15 +851,21 @@ const readApiError = async (response) => {
   }
 };
 
-const requestBackendChat = async (provider, modelName, signal) => {
-  const requestBody = JSON.stringify({
-    provider,
-    model: modelName,
+const requestBackendChat = async (provider = "auto", modelName = "", signal) => {
+  const normalizedProvider = ["auto", "gemini", "groq"].includes(String(provider || "").toLowerCase())
+    ? String(provider || "").toLowerCase()
+    : "auto";
+  const payload = {
+    provider: normalizedProvider,
     messages: buildConversationHistory().map((m) => ({ role: m.role, text: m.text })),
     systemPrompt: ASSISTANT_SYSTEM_PROMPT,
     temperature: normalizedTemperature.value,
     maxOutputTokens: REQUEST_MAX_OUTPUT_TOKENS,
-  });
+  };
+  if (String(modelName || "").trim()) {
+    payload.model = String(modelName).trim();
+  }
+  const requestBody = JSON.stringify(payload);
   const failures = [];
   for (const url of BACKEND_CHAT_URLS) {
     let response;
@@ -889,10 +897,17 @@ const requestBackendChat = async (provider, modelName, signal) => {
   throw new Error(failures.length ? failures.join(" | ") : "No backend chat URL is configured.");
 };
 
-const requestGemini = async (signal) => {
-  const modelName = assistantProvider.value.modelName;
+const requestGemini = async (signal, modelName = GEMINI_CHAT_MODEL) => {
   if (!GEMINI_API_KEY) {
-    return requestBackendChat("gemini", modelName, signal);
+    try {
+      return await requestBackendChat("gemini", modelName, signal);
+    } catch (backendError) {
+      return requestBackendChat("auto", "", signal).catch((autoError) => {
+        throw new Error(
+          `Gemini is unavailable. Backend Gemini: ${backendError?.message || "failed"} | Backend Auto: ${autoError?.message || "failed"}`,
+        );
+      });
+    }
   }
 
   try {
@@ -919,15 +934,28 @@ const requestGemini = async (signal) => {
     try {
       return await requestBackendChat("gemini", modelName, signal);
     } catch (backendError) {
-      throw new Error(`Gemini request failed. Direct: ${error?.message || "failed"} | Backend: ${backendError?.message || "failed"}`);
+      try {
+        return await requestBackendChat("auto", "", signal);
+      } catch (autoError) {
+        throw new Error(
+          `Gemini request failed. Direct: ${error?.message || "failed"} | Backend Gemini: ${backendError?.message || "failed"} | Backend Auto: ${autoError?.message || "failed"}`,
+        );
+      }
     }
   }
 };
 
-const requestGroq = async (signal) => {
-  const modelName = assistantProvider.value.modelName;
+const requestGroq = async (signal, modelName = GROQ_CHAT_MODEL) => {
   if (!GROQ_API_KEY) {
-    return requestBackendChat("groq", modelName, signal);
+    try {
+      return await requestBackendChat("groq", modelName, signal);
+    } catch (backendError) {
+      return requestBackendChat("auto", "", signal).catch((autoError) => {
+        throw new Error(
+          `Groq is unavailable. Backend Groq: ${backendError?.message || "failed"} | Backend Auto: ${autoError?.message || "failed"}`,
+        );
+      });
+    }
   }
 
   const endpoint = `${GROQ_API_BASE}/chat/completions`;
@@ -978,9 +1006,13 @@ const requestGroq = async (signal) => {
       try {
         return await requestBackendChat("groq", modelName, signal);
       } catch (backendError) {
-        throw new Error(
-          `Network error connecting to Groq API. Direct: ${error.message}. Backend: ${backendError?.message || "failed"}`,
-        );
+        try {
+          return await requestBackendChat("auto", "", signal);
+        } catch (autoError) {
+          throw new Error(
+            `Network error connecting to Groq API. Direct: ${error.message}. Backend Groq: ${backendError?.message || "failed"} | Backend Auto: ${autoError?.message || "failed"}`,
+          );
+        }
       }
     }
     throw error;
@@ -993,9 +1025,30 @@ const buildGroqMessages = () => [
 ];
 
 const requestAssistantReply = async (signal) => {
-  if (assistantProvider.value.provider === "gemini") return requestGemini(signal);
-  if (assistantProvider.value.provider === "groq") return requestGroq(signal);
-  throw new Error(`Unsupported provider: ${assistantProvider.value.provider}`);
+  const primaryProvider = assistantProvider.value.provider;
+  const primaryModel = assistantProvider.value.modelName;
+  const fallbackProvider = primaryProvider === "gemini" ? "groq" : "gemini";
+  const fallbackModel = fallbackProvider === "gemini" ? GEMINI_CHAT_MODEL : GROQ_CHAT_MODEL;
+  const attempts = [
+    { provider: primaryProvider, model: primaryModel },
+    { provider: fallbackProvider, model: fallbackModel },
+    { provider: "auto", model: "" },
+  ];
+  const failures = [];
+
+  for (const attempt of attempts) {
+    try {
+      if (attempt.provider === "gemini") return await requestGemini(signal, attempt.model);
+      if (attempt.provider === "groq") return await requestGroq(signal, attempt.model);
+      if (attempt.provider === "auto") return await requestBackendChat("auto", "", signal);
+      failures.push(`Unsupported provider: ${attempt.provider}`);
+    } catch (error) {
+      if (error?.name === "AbortError") throw error;
+      failures.push(`${attempt.provider}: ${String(error?.message || "failed")}`);
+    }
+  }
+
+  throw new Error(failures.join(" | "));
 };
 
 const generateAssistantReply = async () => {
@@ -1021,15 +1074,20 @@ const generateAssistantReply = async () => {
 
     // Handle API-specific error messages
     let userFriendlyMessage = "Sorry, an error occurred.";
-    if (errorMessage.toLowerCase().includes("insufficient balance")) {
+    const normalizedError = errorMessage.toLowerCase();
+    if (normalizedError.includes("insufficient balance")) {
       userFriendlyMessage = "Your API account balance is insufficient. Please add credits to your account to continue using the service.";
-    } else if (errorMessage.toLowerCase().includes("invalid") && errorMessage.toLowerCase().includes("api key")) {
+    } else if (normalizedError.includes("expired") && normalizedError.includes("api key")) {
+      userFriendlyMessage = `Your Gemini API key has expired. Renew it or switch model to Groq.\n\n${errorMessage}`;
+    } else if (normalizedError.includes("invalid") && normalizedError.includes("api key")) {
       userFriendlyMessage = `Your API key appears to be invalid.\n\n${errorMessage}`;
-    } else if (errorMessage.toLowerCase().includes("authentication")) {
+    } else if (normalizedError.includes("authentication")) {
       userFriendlyMessage = `Authentication failed.\n\n${errorMessage}`;
-    } else if (errorMessage.toLowerCase().includes("network error")) {
+    } else if (normalizedError.includes("not configured on the backend")) {
+      userFriendlyMessage = `AI provider is not configured on the backend. Add GEMINI_API_KEY or GROQ_API_KEY to backend .env.\n\n${errorMessage}`;
+    } else if (normalizedError.includes("network error") || normalizedError.includes("failed to fetch")) {
       userFriendlyMessage = `Network connection error.\n\n${errorMessage}`;
-    } else if (errorMessage.toLowerCase().includes("api key")) {
+    } else if (normalizedError.includes("api key")) {
       userFriendlyMessage = `There seems to be an issue with your API key configuration.\n\n${errorMessage}`;
     } else {
       userFriendlyMessage = `Sorry, an error occurred.\n\n${errorMessage}`;
