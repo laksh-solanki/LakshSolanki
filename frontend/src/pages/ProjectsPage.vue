@@ -93,6 +93,16 @@ const projects = ref([
     link: "/projects/translate-studio",
     tags: ["Translation", "Speech", "Productivity"],
   },
+  {
+    id: 10,
+    title: "Background Remover",
+    category: "Image Utility",
+    description:
+      "Upload from local file or use image URL, remove background via API, preview result, and download transparent PNG.",
+    image: getMediaUrl("project_img/Project-8.svg"),
+    link: "/projects/remove-background",
+    tags: ["remove.bg API", "Image Processing", "Vue"],
+  },
 ]);
 
 </script>

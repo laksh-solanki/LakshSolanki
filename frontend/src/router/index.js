@@ -79,6 +79,12 @@ const routes = [
         component: () => import("@/pages/Projects/TranslateStudio.vue"),
         meta: { title: "LakshSolanki | Translate Studio" },
       },
+      {
+        path: "remove-background",
+        name: "BgRemover",
+        component: () => import("@/pages/Projects/BgRemover.vue"),
+        meta: { title: "LakshSolanki | Remove Background" },
+      },
     ],
   },
   {
