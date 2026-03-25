@@ -5,6 +5,17 @@ import Alerts from "@/components/Alerts.vue";
 const REMOVE_BG_ENDPOINT = "https://api.remove.bg/v1.0/removebg";
 const IMAGE_API_KEY = (import.meta.env.VITE_IMAGE_API_KEY || "").trim();
 const MAX_FILE_BYTES = 12 * 1024 * 1024;
+const PASSPORT_WIDTH_MM = 35;
+const PASSPORT_HEIGHT_MM = 45;
+const PASSPORT_PRINT_DPI = 300;
+const MM_PER_INCH = 25.4;
+const PASSPORT_WIDTH_PX = Math.round((PASSPORT_WIDTH_MM / MM_PER_INCH) * PASSPORT_PRINT_DPI);
+const PASSPORT_HEIGHT_PX = Math.round((PASSPORT_HEIGHT_MM / MM_PER_INCH) * PASSPORT_PRINT_DPI);
+const PASSPORT_BORDER_MIN = 0;
+const PASSPORT_BORDER_MAX = 36;
+const PASSPORT_BORDER_DEFAULT = 8;
+const PASSPORT_BORDER_COLOR = "#111111";
+const PASSPORT_BORDER_INSET_PX = 10;
 
 const inputMode = ref("file");
 const fileInput = ref(null);
@@ -19,6 +30,7 @@ const resultFilename = ref("image-no-bg.png");
 const useSolidBackground = true;
 const autoApplyColor = true;
 const solidBackgroundColor = ref("#ffffff");
+const borderThickness = ref(PASSPORT_BORDER_DEFAULT);
 const isProcessing = ref(false);
 const isApplyingColor = ref(false);
 const isDragging = ref(false);
@@ -72,6 +84,15 @@ const solidBackgroundHex = computed({
     }
   },
 });
+const borderThicknessInput = computed({
+  get: () => borderThickness.value,
+  set: (value) => {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) return;
+    borderThickness.value = clampBorderThickness(Math.round(parsed));
+  },
+});
+const borderThicknessLabel = computed(() => `${borderThickness.value}px`);
 const resultMetaLabel = computed(() => {
   if (!resultPreviewUrl.value || !resultMeta.value.width || !resultMeta.value.height) return "";
   const kb = Math.max(1, Math.round(resultMeta.value.sizeBytes / 1024));
@@ -132,6 +153,10 @@ const formatFileSize = (bytes = 0) => {
   const unitIndex = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
   const size = bytes / Math.pow(1024, unitIndex);
   return `${size.toFixed(size >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+};
+
+const clampBorderThickness = (value) => {
+  return Math.min(PASSPORT_BORDER_MAX, Math.max(PASSPORT_BORDER_MIN, Number(value) || 0));
 };
 
 const setSelectedFile = (file) => {
@@ -246,26 +271,56 @@ const createImageFromBlob = async (blob) => {
   }
 };
 
-const createBlobWithSolidBackground = async (blob, color) => {
+const createBlobWithSolidBackground = async (blob, color, borderPx = PASSPORT_BORDER_DEFAULT) => {
   const image = await createImageFromBlob(blob);
   const canvas = document.createElement("canvas");
-  canvas.width = image.naturalWidth || image.width;
-  canvas.height = image.naturalHeight || image.height;
+  canvas.width = PASSPORT_WIDTH_PX;
+  canvas.height = PASSPORT_HEIGHT_PX;
   const ctx = canvas.getContext("2d");
   if (!ctx) {
     throw new Error("Canvas is unavailable in this browser.");
   }
 
+  const normalizedBorder = clampBorderThickness(borderPx);
+  const frameInset = Math.max(0, Math.round(PASSPORT_BORDER_INSET_PX));
+  const frameWidth = Math.max(1, canvas.width - frameInset * 2);
+  const frameHeight = Math.max(1, canvas.height - frameInset * 2);
+  const innerWidth = Math.max(1, frameWidth - normalizedBorder * 2);
+  const innerHeight = Math.max(1, frameHeight - normalizedBorder * 2);
+
+  // Keep a slim margin around the canvas, then draw border slightly inside.
   ctx.fillStyle = color;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+  if (normalizedBorder > 0) {
+    ctx.fillStyle = PASSPORT_BORDER_COLOR;
+    ctx.fillRect(frameInset, frameInset, frameWidth, frameHeight);
+  }
+
+  ctx.fillStyle = color;
+  ctx.fillRect(
+    frameInset + normalizedBorder,
+    frameInset + normalizedBorder,
+    innerWidth,
+    innerHeight,
+  );
+
+  const imageWidth = image.naturalWidth || image.width;
+  const imageHeight = image.naturalHeight || image.height;
+  const scale = Math.min(innerWidth / imageWidth, innerHeight / imageHeight);
+  const drawWidth = Math.max(1, Math.round(imageWidth * scale));
+  const drawHeight = Math.max(1, Math.round(imageHeight * scale));
+  const drawX = frameInset + normalizedBorder + Math.round((innerWidth - drawWidth) / 2);
+  const drawY = frameInset + normalizedBorder + Math.round((innerHeight - drawHeight) / 2);
+
+  ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
 
   const output = await new Promise((resolve) => {
     canvas.toBlob(resolve, "image/png", 1);
   });
 
   if (!output) {
-    throw new Error("Unable to generate image with solid background.");
+    throw new Error("Unable to generate passport photo output.");
   }
 
   return output;
@@ -299,16 +354,17 @@ const applySolidBackground = async ({ silent = false } = {}) => {
     const colorizedBlob = await createBlobWithSolidBackground(
       transparentResultBlob.value,
       solidBackgroundColor.value,
+      borderThickness.value,
     );
-    await setOutputBlob(colorizedBlob, `${sourceName}-solid-bg.png`, {
+    await setOutputBlob(colorizedBlob, `${sourceName}-passport.png`, {
       format: "PNG",
       background: solidBackgroundColor.value,
     });
     if (!silent) {
-      showAlert("Solid background applied.");
+      showAlert("Passport photo updated.");
     }
   } catch (error) {
-    showAlert(error?.message || "Failed to apply solid background color.", "error");
+    showAlert(error?.message || "Failed to apply passport frame.", "error");
   } finally {
     isApplyingColor.value = false;
   }
@@ -377,9 +433,9 @@ const removeBackground = async () => {
       await applySolidBackground({ silent: true });
     }
 
-    showAlert("Background removed successfully.");
+    showAlert("Passport photo generated successfully.");
   } catch (error) {
-    showAlert(error?.message || "Failed to remove the image background.", "error");
+    showAlert(error?.message || "Failed to create passport photo.", "error");
   } finally {
     isProcessing.value = false;
   }
@@ -428,7 +484,7 @@ const downloadJpgResult = async () => {
     const jpgBlob = await createJpegFromBlob(resultBlob.value, backgroundForJpg);
     const link = document.createElement("a");
     link.href = URL.createObjectURL(jpgBlob);
-    link.download = `${sourceName}-output.jpg`;
+    link.download = `${sourceName}-passport.jpg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -480,6 +536,13 @@ watch(
   },
 );
 
+watch(
+  () => borderThickness.value,
+  () => {
+    queueAutoApplyColor();
+  },
+);
+
 onMounted(() => {
   window.addEventListener("paste", handleWindowPaste);
 });
@@ -512,14 +575,14 @@ watch(
           <v-btn @click="goBack" variant="tonal" color="primary" prepend-icon="mdi-arrow-left" rounded="xl" class="text-none">
             Back
           </v-btn>
-          <div class="hero-chip">Image Tool</div>
+          <div class="hero-chip">Passport Tool</div>
         </div>
 
         <v-row align="center" class="ga-0">
           <v-col cols="12" md="8" lg="7" class="pr-md-8">
-            <h1 class="hero-title mb-3">AI Background Remover</h1>
+            <h1 class="hero-title mb-3">Passport Size Photo Cutter</h1>
             <p class="hero-subtitle mb-0">
-              Remove image backgrounds from file or URL, apply a solid color if needed, and download PNG.
+              Remove background from file or URL, then auto-generate a passport-size photo (35 mm x 45 mm) with border.
             </p>
           </v-col>
           <v-col cols="12" md="4" lg="5" class="hero-stats-col mt-6 mt-md-0">
@@ -547,9 +610,9 @@ watch(
         <v-col cols="12" lg="5">
           <v-card class="tool-shell pa-5 pa-md-7 h-100" rounded="xl" elevation="0">
             <p class="panel-kicker mb-1">Input</p>
-            <h2 class="text-h5 font-weight-bold mb-1">Select source image</h2>
+            <h2 class="text-h5 font-weight-bold mb-1">Select source photo</h2>
             <p class="text-body-2 text-medium-emphasis mb-5">
-              Upload one image file or provide a direct image URL.
+              Upload one image file or provide a direct image URL to build a passport-size output.
             </p>
 
             <v-alert
@@ -630,8 +693,23 @@ watch(
                 :disabled="!canProcess"
                 @click="removeBackground"
               >
-                Remove Background
+                Create Passport Photo
               </v-btn>
+            </div>
+
+            <div class="input-preview-shell mt-5">
+              <p class="input-preview-title">Input Photo</p>
+              <div class="input-preview-frame">
+                <v-img
+                  v-if="sourcePreview"
+                  :src="sourcePreview"
+                  cover
+                  class="input-preview-image"
+                />
+                <div v-else class="preview-empty">
+                  Selected image will appear here.
+                </div>
+              </div>
             </div>
           </v-card>
         </v-col>
@@ -639,15 +717,47 @@ watch(
         <v-col cols="12" lg="7">
           <v-card class="tool-shell pa-5 pa-md-7 h-100" rounded="xl" elevation="0">
             <p class="panel-kicker mb-1">Preview</p>
-            <h2 class="text-h5 font-weight-bold mb-1">Before and after</h2>
+            <h2 class="text-h5 font-weight-bold mb-1">Passport output</h2>
             <p class="text-body-2 text-medium-emphasis mb-5">
-              Review your source image and download the background-removed result.
+              Output is generated at {{ PASSPORT_WIDTH_MM }} mm x {{ PASSPORT_HEIGHT_MM }} mm
+              ({{ PASSPORT_WIDTH_PX }}x{{ PASSPORT_HEIGHT_PX }} px @ {{ PASSPORT_PRINT_DPI }} DPI) with an automatic border.
             </p>
 
             <div v-if="showBackgroundTools" class="output-controls mb-5">
+              <div class="border-tools">
+                <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-2">
+                  <span class="text-caption text-medium-emphasis">Border thickness</span>
+                  <span class="border-thickness-pill">{{ borderThicknessLabel }}</span>
+                </div>
+                <div class="d-flex align-center ga-3 border-tools-row">
+                  <v-slider
+                    v-model="borderThickness"
+                    :min="PASSPORT_BORDER_MIN"
+                    :max="PASSPORT_BORDER_MAX"
+                    :step="1"
+                    hide-details
+                    density="compact"
+                    class="border-slider"
+                    :disabled="isBusy || !transparentResultBlob"
+                  />
+                  <v-text-field
+                    v-model="borderThicknessInput"
+                    type="number"
+                    label="px"
+                    variant="outlined"
+                    density="compact"
+                    hide-details
+                    class="border-input"
+                    :min="PASSPORT_BORDER_MIN"
+                    :max="PASSPORT_BORDER_MAX"
+                    :disabled="isBusy || !transparentResultBlob"
+                  />
+                </div>
+              </div>
+
               <div class="d-flex align-center flex-wrap ga-3 output-controls-row">
                 <label class="color-control">
-                  <span class="text-caption text-medium-emphasis">Color</span>
+                  <span class="text-caption text-medium-emphasis">Photo Bg</span>
                   <input v-model="solidBackgroundColor" type="color" :disabled="isBusy || !transparentResultBlob" />
                 </label>
 
@@ -670,7 +780,7 @@ watch(
                   :disabled="isBusy || !transparentResultBlob"
                   @click="applySolidBackground"
                 >
-                  Apply Color
+                  Apply Passport Frame
                 </v-btn>
 
                 <v-btn
@@ -710,23 +820,7 @@ watch(
             </div>
 
             <v-row dense>
-              <v-col cols="12" md="6">
-                <div class="preview-card">
-                  <p class="preview-title">Source</p>
-                  <div class="preview-frame">
-                    <v-img
-                      v-if="sourcePreview"
-                      :src="sourcePreview"
-                      cover
-                      class="preview-image"
-                    />
-                    <div v-else class="preview-empty">
-                      Add an image to see preview.
-                    </div>
-                  </div>
-                </div>
-              </v-col>
-              <v-col cols="12" md="6">
+              <v-col cols="12">
                 <div class="preview-card">
                   <p class="preview-title">Output</p>
                   <div class="preview-frame checker">
@@ -737,7 +831,7 @@ watch(
                       class="preview-image"
                     />
                     <div v-else class="preview-empty">
-                      Removed background image will appear here.
+                      Passport-size image preview will appear here.
                     </div>
                   </div>
                 </div>
@@ -907,11 +1001,78 @@ watch(
   gap: 10px;
 }
 
+.input-preview-shell {
+  border: 1px solid rgba(15, 143, 124, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.84);
+  padding: 12px;
+}
+
+.input-preview-title {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--portfolio-ink-soft);
+}
+
+.input-preview-frame {
+  min-height: 190px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f3f6f9;
+  border: 1px solid rgba(15, 143, 124, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-preview-image {
+  width: 100%;
+  height: 100%;
+}
+
 .output-controls {
   border: 1px solid rgba(15, 143, 124, 0.16);
   background: rgba(255, 255, 255, 0.8);
   border-radius: 14px;
   padding: 12px;
+}
+
+.border-tools {
+  border: 1px solid rgba(15, 143, 124, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.border-tools-row {
+  row-gap: 10px;
+}
+
+.border-slider {
+  flex: 1 1 auto;
+}
+
+.border-input {
+  width: 90px;
+  min-width: 90px;
+}
+
+.border-thickness-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 143, 124, 0.24);
+  background: rgba(15, 143, 124, 0.08);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #136f63;
 }
 
 .output-controls-row {
@@ -1103,6 +1264,15 @@ watch(
     align-items: stretch !important;
   }
 
+  .border-tools-row {
+    align-items: stretch !important;
+  }
+
+  .border-input {
+    width: 100%;
+    min-width: 0;
+  }
+
   .color-control {
     width: 100%;
     justify-content: space-between;
@@ -1120,6 +1290,10 @@ watch(
   .action-group :deep(.v-btn) {
     flex: 1 1 100%;
     min-width: 0;
+  }
+
+  .input-preview-frame {
+    min-height: 170px;
   }
 
   .preview-frame {

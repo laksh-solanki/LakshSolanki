@@ -1,0 +1,53 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="80" y1="60" x2="1120" y2="660" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#EAF8FF"/>
+      <stop offset="1" stop-color="#D9F3E8"/>
+    </linearGradient>
+    <linearGradient id="card" x1="270" y1="130" x2="930" y2="590" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F3FFFA"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="355" y1="188" x2="845" y2="558" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#17A48E"/>
+      <stop offset="1" stop-color="#148C7A"/>
+    </linearGradient>
+    <filter id="shadow" x="210" y="100" width="780" height="560" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="10"/>
+      <feGaussianBlur stdDeviation="20"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.0313725 0 0 0 0 0.188235 0 0 0 0 0.164706 0 0 0 0.2 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="720" rx="30" fill="url(#bg)"/>
+  <circle cx="175" cy="130" r="95" fill="#BDEFE2" fill-opacity="0.5"/>
+  <circle cx="1060" cy="620" r="115" fill="#B5E8F8" fill-opacity="0.45"/>
+
+  <g filter="url(#shadow)">
+    <rect x="250" y="120" width="700" height="500" rx="28" fill="url(#card)"/>
+    <rect x="310" y="170" width="360" height="400" rx="18" fill="#EEF5F8" stroke="#C8DDE4" stroke-width="4"/>
+    <rect x="342" y="202" width="296" height="336" rx="12" fill="#FFFFFF"/>
+    <rect x="356" y="216" width="268" height="308" rx="10" fill="url(#accent)"/>
+
+    <ellipse cx="490" cy="340" rx="72" ry="88" fill="#F6D8BD"/>
+    <rect x="428" y="406" width="124" height="88" rx="26" fill="#F1C9A8"/>
+    <path d="M424 328C424 291 450 262 490 262C530 262 556 291 556 328C556 355 533 372 490 372C447 372 424 355 424 328Z" fill="#263845"/>
+
+    <rect x="720" y="210" width="180" height="22" rx="11" fill="#A9E3D7"/>
+    <rect x="720" y="248" width="142" height="16" rx="8" fill="#C8EEE6"/>
+    <rect x="720" y="304" width="192" height="18" rx="9" fill="#D6ECF8"/>
+    <rect x="720" y="336" width="165" height="18" rx="9" fill="#D6ECF8"/>
+    <rect x="720" y="368" width="198" height="18" rx="9" fill="#D6ECF8"/>
+
+    <rect x="720" y="450" width="192" height="56" rx="14" fill="#17A48E"/>
+    <path d="M792 479L816 503L866 453" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <text x="120" y="652" fill="#0E3A35" font-family="Manrope, Arial, sans-serif" font-size="48" font-weight="800">Passport Cutter</text>
+  <text x="121" y="688" fill="#3D5B57" font-family="Manrope, Arial, sans-serif" font-size="24" font-weight="600">35 mm x 45 mm • Auto Border • Background Remove</text>
+</svg>

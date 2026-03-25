@@ -95,13 +95,13 @@ const projects = ref([
   },
   {
     id: 10,
-    title: "Background Remover",
+    title: "Passport Cutter",
     category: "Image Utility",
     description:
-      "Upload from local file or use image URL, remove background via API, preview result, and download transparent PNG.",
-    image: getMediaUrl("project_img/Project-8.svg"),
-    link: "/projects/remove-background",
-    tags: ["remove.bg API", "Image Processing", "Vue"],
+      "Remove background, auto-fit to passport-size canvas, add border, and export print-ready PNG/JPG output.",
+    image: getMediaUrl("project_img/passport-cutter.svg"),
+    link: "/projects/passport-cutter",
+    tags: ["remove.bg API", "Passport Photo", "Vue"],
   },
 ]);
 

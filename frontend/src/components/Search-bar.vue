@@ -233,9 +233,25 @@ const searchItems = [
     icon: "mdi-translate",
     keywords: ["translate", "language", "translator", "speech"],
   },
+  {
+    id: "bgremover",
+    title: "Passport Cutter",
+    description: "Remove background and export passport-size photo with border",
+    category: "Tools",
+    path: "/projects/passport-cutter",
+    icon: "mdi-image-filter-center-focus",
+    keywords: ["passport", "photo", "background", "remove bg", "border", "image"],
+  },
 ];
 
-const suggestedTerms = ["projects", "translate", "pdf", "certificate", "ai"];
+const suggestedTerms = [
+  "projects",
+  "passport photo",
+  "translate",
+  "pdf",
+  "certificate",
+  "ai",
+];
 
 const quickActions = searchItems.filter((item) => item.category === "Pages");
 

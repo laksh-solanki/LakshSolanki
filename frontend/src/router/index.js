@@ -80,10 +80,14 @@ const routes = [
         meta: { title: "LakshSolanki | Translate Studio" },
       },
       {
+        path: "passport-cutter",
+        name: "PassportCutter",
+        component: () => import("@/pages/Projects/PassportCutter.vue"),
+        meta: { title: "LakshSolanki | Passport Cutter" },
+      },
+      {
         path: "remove-background",
-        name: "BgRemover",
-        component: () => import("@/pages/Projects/BgRemover.vue"),
-        meta: { title: "LakshSolanki | Remove Background" },
+        redirect: "/projects/passport-cutter",
       },
     ],
   },
