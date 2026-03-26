@@ -13,9 +13,12 @@ const PASSPORT_WIDTH_PX = Math.round((PASSPORT_WIDTH_MM / MM_PER_INCH) * PASSPOR
 const PASSPORT_HEIGHT_PX = Math.round((PASSPORT_HEIGHT_MM / MM_PER_INCH) * PASSPORT_PRINT_DPI);
 const PASSPORT_BORDER_MIN = 0;
 const PASSPORT_BORDER_MAX = 36;
-const PASSPORT_BORDER_DEFAULT = 8;
-const PASSPORT_BORDER_COLOR = "#111111";
-const PASSPORT_BORDER_INSET_PX = 10;
+const PASSPORT_BORDER_DEFAULT = 2;
+const PASSPORT_BORDER_COLOR = "#000000";
+const PASSPORT_BORDER_INSET_PX = 0;
+const PASSPORT_OUTER_AREA_COLOR = "#ffffff";
+const PNG_SIGNATURE = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+const TEXT_ENCODER = new TextEncoder();
 
 const inputMode = ref("file");
 const fileInput = ref(null);
@@ -96,7 +99,7 @@ const borderThicknessLabel = computed(() => `${borderThickness.value}px`);
 const resultMetaLabel = computed(() => {
   if (!resultPreviewUrl.value || !resultMeta.value.width || !resultMeta.value.height) return "";
   const kb = Math.max(1, Math.round(resultMeta.value.sizeBytes / 1024));
-  return `${resultMeta.value.width}x${resultMeta.value.height} | ${resultMeta.value.format} | ${kb} KB`;
+  return `${resultMeta.value.width}x${resultMeta.value.height} | ${resultMeta.value.format} | ${PASSPORT_PRINT_DPI} DPI | ${kb} KB`;
 });
 
 const goBack = () => window.history.back();
@@ -159,6 +162,184 @@ const clampBorderThickness = (value) => {
   return Math.min(PASSPORT_BORDER_MAX, Math.max(PASSPORT_BORDER_MIN, Number(value) || 0));
 };
 
+const toUint32 = (bytes, offset) => {
+  return (
+    ((bytes[offset] << 24) >>> 0) +
+    ((bytes[offset + 1] << 16) >>> 0) +
+    ((bytes[offset + 2] << 8) >>> 0) +
+    (bytes[offset + 3] >>> 0)
+  );
+};
+
+const writeUint32 = (bytes, offset, value) => {
+  bytes[offset] = (value >>> 24) & 0xff;
+  bytes[offset + 1] = (value >>> 16) & 0xff;
+  bytes[offset + 2] = (value >>> 8) & 0xff;
+  bytes[offset + 3] = value & 0xff;
+};
+
+let crcTable = null;
+const getCrcTable = () => {
+  if (crcTable) return crcTable;
+  const table = new Uint32Array(256);
+  for (let n = 0; n < 256; n += 1) {
+    let c = n;
+    for (let k = 0; k < 8; k += 1) {
+      c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+    }
+    table[n] = c >>> 0;
+  }
+  crcTable = table;
+  return table;
+};
+
+const crc32 = (bytes) => {
+  const table = getCrcTable();
+  let c = 0xffffffff;
+  for (let i = 0; i < bytes.length; i += 1) {
+    c = table[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+  }
+  return (c ^ 0xffffffff) >>> 0;
+};
+
+const createPngChunk = (chunkType, data) => {
+  const typeBytes = TEXT_ENCODER.encode(chunkType);
+  const output = new Uint8Array(12 + data.length);
+  writeUint32(output, 0, data.length);
+  output.set(typeBytes, 4);
+  output.set(data, 8);
+  const crcSource = new Uint8Array(typeBytes.length + data.length);
+  crcSource.set(typeBytes, 0);
+  crcSource.set(data, typeBytes.length);
+  writeUint32(output, 8 + data.length, crc32(crcSource));
+  return output;
+};
+
+const writePngDpiMetadata = async (blob, dpi = PASSPORT_PRINT_DPI) => {
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  if (bytes.length < 8) return blob;
+  for (let i = 0; i < PNG_SIGNATURE.length; i += 1) {
+    if (bytes[i] !== PNG_SIGNATURE[i]) return blob;
+  }
+
+  const safeDpi = Math.max(1, Math.round(Number(dpi) || PASSPORT_PRINT_DPI));
+  const ppm = Math.max(1, Math.round((safeDpi / MM_PER_INCH) * 1000));
+  const physData = new Uint8Array(9);
+  writeUint32(physData, 0, ppm);
+  writeUint32(physData, 4, ppm);
+  physData[8] = 1;
+  const physChunk = createPngChunk("pHYs", physData);
+
+  const chunks = [];
+  let offset = 8;
+  let insertedPhys = false;
+
+  while (offset + 12 <= bytes.length) {
+    const chunkLength = toUint32(bytes, offset);
+    const chunkTotalLength = 12 + chunkLength;
+    if (offset + chunkTotalLength > bytes.length) {
+      return blob;
+    }
+
+    const typeOffset = offset + 4;
+    const chunkType = String.fromCharCode(
+      bytes[typeOffset],
+      bytes[typeOffset + 1],
+      bytes[typeOffset + 2],
+      bytes[typeOffset + 3],
+    );
+
+    if (chunkType !== "pHYs") {
+      chunks.push(bytes.slice(offset, offset + chunkTotalLength));
+      if (!insertedPhys && chunkType === "IHDR") {
+        chunks.push(physChunk);
+        insertedPhys = true;
+      }
+    }
+
+    offset += chunkTotalLength;
+    if (chunkType === "IEND") break;
+  }
+
+  if (!insertedPhys) return blob;
+
+  const totalLength = 8 + chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+  const output = new Uint8Array(totalLength);
+  output.set(PNG_SIGNATURE, 0);
+  let outputOffset = 8;
+  for (const chunk of chunks) {
+    output.set(chunk, outputOffset);
+    outputOffset += chunk.length;
+  }
+
+  return new Blob([output], { type: "image/png" });
+};
+
+const writeJpegDpiMetadata = async (blob, dpi = PASSPORT_PRINT_DPI) => {
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  if (bytes.length < 4 || bytes[0] !== 0xff || bytes[1] !== 0xd8) {
+    return blob;
+  }
+
+  const density = Math.max(1, Math.min(65535, Math.round(Number(dpi) || PASSPORT_PRINT_DPI)));
+  let offset = 2;
+
+  while (offset + 4 < bytes.length) {
+    if (bytes[offset] !== 0xff) {
+      offset += 1;
+      continue;
+    }
+
+    const marker = bytes[offset + 1];
+    if (marker === 0xda || marker === 0xd9) break;
+    if (marker === 0x00 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) {
+      offset += 2;
+      continue;
+    }
+
+    const segmentLength = (bytes[offset + 2] << 8) | bytes[offset + 3];
+    if (segmentLength < 2 || offset + 2 + segmentLength > bytes.length) {
+      return blob;
+    }
+
+    if (marker === 0xe0 && segmentLength >= 16) {
+      const dataOffset = offset + 4;
+      const isJfif =
+        bytes[dataOffset] === 0x4a &&
+        bytes[dataOffset + 1] === 0x46 &&
+        bytes[dataOffset + 2] === 0x49 &&
+        bytes[dataOffset + 3] === 0x46 &&
+        bytes[dataOffset + 4] === 0x00;
+
+      if (isJfif) {
+        bytes[dataOffset + 7] = 0x01;
+        bytes[dataOffset + 8] = (density >> 8) & 0xff;
+        bytes[dataOffset + 9] = density & 0xff;
+        bytes[dataOffset + 10] = (density >> 8) & 0xff;
+        bytes[dataOffset + 11] = density & 0xff;
+        return new Blob([bytes], { type: "image/jpeg" });
+      }
+    }
+
+    offset += 2 + segmentLength;
+  }
+
+  return blob;
+};
+
+const enforcePrintDpi = async (blob, format = "") => {
+  const marker = String(format || blob?.type || "").toLowerCase();
+  try {
+    if (marker.includes("png")) return await writePngDpiMetadata(blob, PASSPORT_PRINT_DPI);
+    if (marker.includes("jpeg") || marker.includes("jpg")) {
+      return await writeJpegDpiMetadata(blob, PASSPORT_PRINT_DPI);
+    }
+  } catch {
+    return blob;
+  }
+  return blob;
+};
+
 const setSelectedFile = (file) => {
   if (!file) return;
   if (!String(file.type || "").startsWith("image/")) {
@@ -196,17 +377,18 @@ const deriveSourceName = () => {
 };
 
 const setOutputBlob = async (blob, filename, options = {}) => {
+  const normalizedBlob = await enforcePrintDpi(blob, options.format || blob?.type);
   revokeResultPreview();
-  resultBlob.value = blob;
-  resultPreviewUrl.value = URL.createObjectURL(blob);
+  resultBlob.value = normalizedBlob;
+  resultPreviewUrl.value = URL.createObjectURL(normalizedBlob);
   resultFilename.value = filename;
 
   try {
-    const image = await createImageFromBlob(blob);
+    const image = await createImageFromBlob(normalizedBlob);
     resultMeta.value = {
       width: image.naturalWidth || image.width || 0,
       height: image.naturalHeight || image.height || 0,
-      sizeBytes: blob.size || 0,
+      sizeBytes: normalizedBlob.size || 0,
       format: String(options.format || "PNG"),
       background: String(options.background || "transparent"),
     };
@@ -214,7 +396,7 @@ const setOutputBlob = async (blob, filename, options = {}) => {
     resultMeta.value = {
       width: 0,
       height: 0,
-      sizeBytes: blob.size || 0,
+      sizeBytes: normalizedBlob.size || 0,
       format: String(options.format || "PNG"),
       background: String(options.background || "transparent"),
     };
@@ -288,8 +470,8 @@ const createBlobWithSolidBackground = async (blob, color, borderPx = PASSPORT_BO
   const innerWidth = Math.max(1, frameWidth - normalizedBorder * 2);
   const innerHeight = Math.max(1, frameHeight - normalizedBorder * 2);
 
-  // Keep a slim margin around the canvas, then draw border slightly inside.
-  ctx.fillStyle = color;
+  // Fill full canvas, then optionally draw border and inner background.
+  ctx.fillStyle = PASSPORT_OUTER_AREA_COLOR;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   if (normalizedBorder > 0) {
@@ -307,13 +489,24 @@ const createBlobWithSolidBackground = async (blob, color, borderPx = PASSPORT_BO
 
   const imageWidth = image.naturalWidth || image.width;
   const imageHeight = image.naturalHeight || image.height;
-  const scale = Math.min(innerWidth / imageWidth, innerHeight / imageHeight);
+  const scale = Math.max(innerWidth / imageWidth, innerHeight / imageHeight);
   const drawWidth = Math.max(1, Math.round(imageWidth * scale));
   const drawHeight = Math.max(1, Math.round(imageHeight * scale));
   const drawX = frameInset + normalizedBorder + Math.round((innerWidth - drawWidth) / 2);
   const drawY = frameInset + normalizedBorder + Math.round((innerHeight - drawHeight) / 2);
 
+  // Keep the photo constrained inside the inner area so it stays behind the border.
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(
+    frameInset + normalizedBorder,
+    frameInset + normalizedBorder,
+    innerWidth,
+    innerHeight,
+  );
+  ctx.clip();
   ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+  ctx.restore();
 
   const output = await new Promise((resolve) => {
     canvas.toBlob(resolve, "image/png", 1);
@@ -470,7 +663,7 @@ const createJpegFromBlob = async (blob, fillColor = "#ffffff") => {
   if (!output) {
     throw new Error("Unable to generate JPG output.");
   }
-  return output;
+  return await enforcePrintDpi(output, "JPEG");
 };
 
 const downloadJpgResult = async () => {
@@ -1164,7 +1357,9 @@ watch(
 }
 
 .preview-frame {
-  min-height: 260px;
+  width: min(100%, 360px);
+  aspect-ratio: 35 / 45;
+  min-height: 0;
   border-radius: 12px;
   overflow: hidden;
   background: #f3f6f9;
@@ -1172,6 +1367,7 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-inline: auto;
 }
 
 .checker {
@@ -1233,7 +1429,7 @@ watch(
   }
 
   .preview-frame {
-    min-height: 220px;
+    width: min(100%, 320px);
   }
 }
 
@@ -1297,7 +1493,7 @@ watch(
   }
 
   .preview-frame {
-    min-height: 190px;
+    width: min(100%, 280px);
   }
 }
 
