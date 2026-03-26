@@ -168,11 +168,8 @@
                         </v-avatar>
                         <v-card class="message-card message-card-ai" rounded="xl" elevation="1">
                           <v-card-text class="message-card-body">
-                            <div class="typing">
-                              <span></span>
-                              <span></span>
-                              <span></span>
-                            </div>
+                            <div v-if="animatedText" class="markdown-body" v-html="parseMessage(animatedText)"></div>
+                            <span v-else class="typewriter-cursor"></span>
                           </v-card-text>
                         </v-card>
                       </div>
@@ -250,6 +247,9 @@ import "prismjs/components/prism-typescript";
 const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GOOGLE_API_KEY || "").trim();
 const GROQ_API_KEY = (import.meta.env.VITE_GROQ_API_KEY || "").trim();
 const GROQ_API_BASE = (import.meta.env.VITE_GROQ_API_BASE || "https://api.groq.com/openai/v1").trim().replace(/\/+$/, "");
+const OPENAI_API_KEY = (import.meta.env.VITE_OPENAI_API_KEY || "").trim();
+const OPENAI_BASE_URL = (import.meta.env.VITE_OPENAI_BASE_URL || "https://integrate.api.nvidia.com/v1").trim().replace(/\/+$/, "");
+const OPENAI_CHAT_MODEL = (import.meta.env.VITE_OPENAI_CHAT_MODEL || "microsoft/phi-3.5-mini-instruct").trim();
 const trimTrailingSlash = (value = "") => String(value || "").trim().replace(/\/+$/, "");
 const toApiUrl = (base = "", path = "") => {
   const normalizedBase = trimTrailingSlash(base);
@@ -310,6 +310,8 @@ const currentTemperature = ref(Number(readStoredValue(TEMPERATURE_STORAGE_KEY, S
 const searchOpen = ref(false);
 const searchQuery = ref("");
 const editingMessageId = ref(null);
+const animatedText = ref("");
+const animationSpeed = ref(20);
 
 const alertVisible = ref(false);
 const alertMessage = ref("");
@@ -343,10 +345,16 @@ const resolveModelName = (key) => {
     "gemini-default": GEMINI_CHAT_MODEL,
     "groq-llama": "llama-3.3-70b-versatile",
     "groq-default": GROQ_CHAT_MODEL,
+    "openai-phi": "microsoft/phi-3.5-mini-instruct",
+    "openai-default": OPENAI_CHAT_MODEL,
   };
   return map[key] || GEMINI_CHAT_MODEL;
 };
-const resolveModelProvider = (key) => (String(key || "").startsWith("groq-") ? "groq" : "gemini");
+const resolveModelProvider = (key) => {
+  if (String(key || "").startsWith("openai-")) return "openai";
+  if (String(key || "").startsWith("groq-")) return "groq";
+  return "gemini";
+};
 const availableModels = computed(() => {
   const models = [];
   if (GEMINI_API_KEY) {
@@ -361,6 +369,12 @@ const availableModels = computed(() => {
       models.push({ label: `Groq (${GROQ_CHAT_MODEL})`, value: "groq-default" });
     }
   }
+  if (OPENAI_API_KEY) {
+    models.push({ label: "Microsoft Phi 3.5 Mini", value: "openai-phi" });
+    if (OPENAI_CHAT_MODEL !== "microsoft/phi-3.5-mini-instruct") {
+      models.push({ label: `OpenAI (${OPENAI_CHAT_MODEL})`, value: "openai-default" });
+    }
+  }
   if (!models.length) {
     models.push({ label: "No model configured", value: "gemini-default", disabled: true });
   }
@@ -371,6 +385,7 @@ const assistantProvider = computed(() => {
   const modelName = resolveModelName(selectedModel.value);
   if (provider === "gemini" && GEMINI_API_KEY) return { provider, modelName };
   if (provider === "groq" && GROQ_API_KEY) return { provider, modelName };
+  if (provider === "openai" && OPENAI_API_KEY) return { provider, modelName };
   const fallback = availableModels.value.find((item) => !item.disabled);
   if (fallback) {
     return { provider: resolveModelProvider(fallback.value), modelName: resolveModelName(fallback.value) };
@@ -382,7 +397,7 @@ const normalizedTemperature = computed(() => {
   if (!Number.isFinite(value)) return REQUEST_TEMPERATURE;
   return Math.min(2, Math.max(0, value));
 });
-const hasDirectApiKey = computed(() => Boolean(GEMINI_API_KEY || GROQ_API_KEY));
+const hasDirectApiKey = computed(() => Boolean(GEMINI_API_KEY || GROQ_API_KEY || OPENAI_API_KEY));
 const hasBackendChatUrl = computed(() => BACKEND_CHAT_URLS.length > 0);
 const hasSelectedApiKey = computed(() => hasDirectApiKey.value || hasBackendChatUrl.value);
 const composerPlaceholder = computed(() =>
@@ -1019,6 +1034,85 @@ const requestGroq = async (signal, modelName = GROQ_CHAT_MODEL) => {
   }
 };
 
+const requestOpenAI = async (signal, modelName = OPENAI_CHAT_MODEL) => {
+  if (!OPENAI_API_KEY) {
+    try {
+      return await requestBackendChat("openai", modelName, signal);
+    } catch (backendError) {
+      return requestBackendChat("auto", "", signal).catch((autoError) => {
+        throw new Error(
+          `OpenAI is unavailable. Backend OpenAI: ${backendError?.message || "failed"} | Backend Auto: ${autoError?.message || "failed"}`,
+        );
+      });
+    }
+  }
+
+  const endpoint = `${OPENAI_BASE_URL}/chat/completions`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      signal,
+      body: JSON.stringify({
+        model: modelName,
+        messages: buildOpenAIMessages(),
+        temperature: normalizedTemperature.value,
+        max_tokens: REQUEST_MAX_OUTPUT_TOKENS,
+        stream: false,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: { message: `HTTP ${response.status}` } }));
+      const errorMessage = errorData?.error?.message || `Request failed with status ${response.status}`;
+
+      if (response.status === 401) {
+        throw new Error(
+          `OpenAI authentication failed at ${OPENAI_BASE_URL}. Check VITE_OPENAI_API_KEY and VITE_OPENAI_BASE_URL. Original error: ${errorMessage}`,
+        );
+      } else if (response.status === 403) {
+        throw new Error(`OpenAI API access denied. Please verify your API key permissions. Original error: ${errorMessage}`);
+      } else {
+        throw new Error(`OpenAI API error: ${errorMessage}`);
+      }
+    }
+
+    const data = await response.json();
+    const content = data?.choices?.[0]?.message?.content;
+    const text = typeof content === "string" ? content.trim() : Array.isArray(content) ? content.map((part) => part?.text || "").join("").trim() : "";
+
+    if (!text) throw new Error("OpenAI returned an empty response.");
+    return text;
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw error;
+    }
+    if (String(error?.message || "").toLowerCase().includes("fetch")) {
+      try {
+        return await requestBackendChat("openai", modelName, signal);
+      } catch (backendError) {
+        try {
+          return await requestBackendChat("auto", "", signal);
+        } catch (autoError) {
+          throw new Error(
+            `Network error connecting to OpenAI. Direct: ${error.message}. Backend OpenAI: ${backendError?.message || "failed"} | Backend Auto: ${autoError?.message || "failed"}`,
+          );
+        }
+      }
+    }
+    throw error;
+  }
+};
+
+const buildOpenAIMessages = () => [
+  { role: "system", content: ASSISTANT_SYSTEM_PROMPT },
+  ...buildConversationHistory().map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text })),
+];
+
 const buildGroqMessages = () => [
   { role: "system", content: ASSISTANT_SYSTEM_PROMPT },
   ...buildConversationHistory().map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text })),
@@ -1027,11 +1121,20 @@ const buildGroqMessages = () => [
 const requestAssistantReply = async (signal) => {
   const primaryProvider = assistantProvider.value.provider;
   const primaryModel = assistantProvider.value.modelName;
-  const fallbackProvider = primaryProvider === "gemini" ? "groq" : "gemini";
-  const fallbackModel = fallbackProvider === "gemini" ? GEMINI_CHAT_MODEL : GROQ_CHAT_MODEL;
+  const fallbackSequence = [];
+
+  if (primaryProvider !== "gemini") fallbackSequence.push("gemini");
+  if (primaryProvider !== "groq") fallbackSequence.push("groq");
+  if (primaryProvider !== "openai") fallbackSequence.push("openai");
+
   const attempts = [
     { provider: primaryProvider, model: primaryModel },
-    { provider: fallbackProvider, model: fallbackModel },
+    ...fallbackSequence.map((provider) => {
+      if (provider === "gemini") return { provider, model: GEMINI_CHAT_MODEL };
+      if (provider === "groq") return { provider, model: GROQ_CHAT_MODEL };
+      if (provider === "openai") return { provider, model: OPENAI_CHAT_MODEL };
+      return { provider: "auto", model: "" };
+    }),
     { provider: "auto", model: "" },
   ];
   const failures = [];
@@ -1040,6 +1143,7 @@ const requestAssistantReply = async (signal) => {
     try {
       if (attempt.provider === "gemini") return await requestGemini(signal, attempt.model);
       if (attempt.provider === "groq") return await requestGroq(signal, attempt.model);
+      if (attempt.provider === "openai") return await requestOpenAI(signal, attempt.model);
       if (attempt.provider === "auto") return await requestBackendChat("auto", "", signal);
       failures.push(`Unsupported provider: ${attempt.provider}`);
     } catch (error) {
@@ -1058,12 +1162,26 @@ const generateAssistantReply = async () => {
   }
   activeController = new AbortController();
   loading.value = true;
+  animatedText.value = "";
   const started = Date.now();
   await scrollToBottom();
   try {
     const reply = await requestAssistantReply(activeController.signal);
     lastResponseMs.value = Date.now() - started;
-    messages.value.push(createMessage("assistant", reply));
+
+    // Add message with empty text first, then animate it
+    const newMessage = createMessage("assistant", "");
+    messages.value.push(newMessage);
+
+    // Animate the text character by character
+    let displayedText = "";
+    for (let i = 0; i < reply.length; i++) {
+      displayedText += reply[i];
+      animatedText.value = displayedText;
+      newMessage.text = displayedText;
+      await scrollToBottom();
+      await new Promise((resolve) => setTimeout(resolve, animationSpeed.value));
+    }
   } catch (error) {
     if (error?.name === "AbortError") {
       showAlert("Generation stopped.", "error");
@@ -1096,6 +1214,7 @@ const generateAssistantReply = async () => {
     messages.value.push(createMessage("assistant", userFriendlyMessage, { error: true }));
   } finally {
     loading.value = false;
+    animatedText.value = "";
     activeController = null;
     await scrollToBottom();
   }
@@ -1866,6 +1985,28 @@ onUnmounted(() => {
 
 .typing span:nth-child(3) {
   animation-delay: 0.3s;
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.2em;
+  background: #2d62be;
+  margin-left: 4px;
+  animation: blink 0.7s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes blink {
+  0%,
+  49% {
+    background: #2d62be;
+  }
+
+  50%,
+  100% {
+    background: transparent;
+  }
 }
 
 @keyframes pulse {
