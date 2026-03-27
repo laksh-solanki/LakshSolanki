@@ -193,7 +193,7 @@ const searchItems = [
     title: "Mindlytic AI",
     description: "Prompt-driven AI assistant interface",
     category: "Tools",
-    path: "/projects/mindly_ai",
+    path: "/projects/mindlytic_ai",
     icon: "mdi-robot-outline",
     keywords: ["ai", "assistant", "chat"],
   },

@@ -15,7 +15,7 @@ const popularDestinations = [
   {
     label: "Mindlytic AI",
     description: "Explore the AI assistant workspace.",
-    to: "/projects/mindly_ai",
+    to: "/projects/mindlytic_ai",
     icon: "mdi-robot-outline",
   },
   {

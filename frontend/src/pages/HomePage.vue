@@ -40,7 +40,7 @@ const featuredProjects = [
     description:
       "Prompt-driven coding assistant with markdown rendering and code snippets.",
     image: getMediaUrl("project_img/Project-5.png"),
-    to: "/projects/mindly_ai",
+    to: "/projects/mindlytic_ai",
   },
   {
     title: "PDF to Image Utility",

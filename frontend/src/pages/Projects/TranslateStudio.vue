@@ -4,6 +4,9 @@ import Alerts from "@/components/Alerts.vue";
 
 const TRANSLATE_TIMEOUT_MS = 20000;
 const MAX_CHARS = 5000;
+const SETTINGS_STORAGE_KEY = "mindlytic_translate_settings_v1";
+const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GOOGLE_API_KEY || "").trim();
+const GEMINI_TRANSLATE_MODEL = (import.meta.env.VITE_GEMINI_TRANSLATE_MODEL || "gemini-2.5-flash").trim();
 
 const STOPWORDS = new Set([
   "the","a","an","and","or","but","is","are","was","were","be","been","being",
@@ -40,15 +43,47 @@ const languageOptions = [
   { title: "Chinese (Simplified)", value: "zh-CN" },
 ];
 
+const sourceLanguageValues = new Set(languageOptions.map((l) => l.value));
+const targetLanguageValues = new Set(
+  languageOptions.filter((l) => l.value !== "auto").map((l) => l.value),
+);
+
+const readStoredSettings = () => {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+};
+
+const persistSettings = (settings) => {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  } catch {
+    // no-op
+  }
+};
+
+const initialSettings = readStoredSettings();
+const initialSourceLanguage = sourceLanguageValues.has(initialSettings.sourceLanguage)
+  ? initialSettings.sourceLanguage
+  : "auto";
+const initialTargetLanguage = targetLanguageValues.has(initialSettings.targetLanguage)
+  ? initialSettings.targetLanguage
+  : "en";
+
 // ── Core state ────────────────────────────────────────────────────────────────
 const sourceText = ref("");
 const translatedText = ref("");
-const sourceLanguage = ref("auto");
-const targetLanguage = ref("en");
+const sourceLanguage = ref(initialSourceLanguage);
+const targetLanguage = ref(initialTargetLanguage);
 const detectedLanguage = ref("");
 const activeProvider = ref("Ready");
 
-const autoTranslate = ref(false);
+const autoTranslate = ref(true);
 const isTranslating = ref(false);
 
 // ── Alert ─────────────────────────────────────────────────────────────────────
@@ -57,7 +92,7 @@ const alertMessage = ref("");
 const alertType = ref("success");
 
 // ── Comparison mode ───────────────────────────────────────────────────────────
-const compareMode = ref(false);
+const compareMode = ref(true);
 const compareResults = ref({ google: "", myMemory: "" });
 const isComparing = ref(false);
 
@@ -116,6 +151,21 @@ const charProgressColor = computed(() => {
 const isOverLimit = computed(() => sourceCharacters.value > MAX_CHARS);
 
 const translatedCharacters = computed(() => translatedText.value.length);
+const translatedWords = computed(() => {
+  const words = translatedText.value.trim().match(/\S+/g);
+  return words ? words.length : 0;
+});
+
+const inferredSwapSourceLanguage = computed(() => {
+  if (sourceLanguage.value !== "auto") return sourceLanguage.value;
+  if (detectedLanguage.value) return detectedLanguage.value;
+  if (!sourceText.value.trim()) return "en";
+  return detectLikelyLanguage(sourceText.value);
+});
+
+const canSwapLanguages = computed(
+  () => Boolean(inferredSwapSourceLanguage.value) && inferredSwapSourceLanguage.value !== targetLanguage.value,
+);
 
 const translateButtonDisabled = computed(
   () => !sourceText.value.trim() || isTranslating.value || isOverLimit.value || isComparing.value,
@@ -157,6 +207,41 @@ const toLibreLanguageCode = (code = "") => {
   return code;
 };
 
+const ROMANIZED_GUJARATI_HINT_PATTERNS = [
+  /\bkem\s+cho\b/i,
+  /\bmaja\s+ma\b/i,
+  /\bshu\s+che\b/i,
+  /\bsu\s+che\b/i,
+  /\btame\b/i,
+  /\baabhar\b/i,
+  /\baavjo\b/i,
+];
+
+const isLikelyRomanizedGujarati = (value = "") => {
+  const sample = String(value || "").trim().toLowerCase();
+  if (!sample) return false;
+  if (/[^\x00-\x7F]/.test(sample)) return false;
+  return ROMANIZED_GUJARATI_HINT_PATTERNS.some((pattern) => pattern.test(sample));
+};
+
+const normalizeRomanizedGujarati = (value = "") => {
+  let text = String(value || "");
+  text = text.replace(/\bkem\s+cho\b/gi, "કેમ છો");
+  text = text.replace(/\bmaja\s+ma\b/gi, "મજા માં");
+  text = text.replace(/\bshu\s+che\b/gi, "શું છે");
+  text = text.replace(/\bsu\s+che\b/gi, "શું છે");
+  text = text.replace(/\btamaru\s+naam\s+shu\s+che\b/gi, "તમારું નામ શું છે");
+  text = text.replace(/\baabhar\b/gi, "આભાર");
+  return text;
+};
+
+const normalizeInputForTranslation = (value = "", sourceCode = "") => {
+  if (sourceCode === "gu" && isLikelyRomanizedGujarati(value)) {
+    return normalizeRomanizedGujarati(value);
+  }
+  return value;
+};
+
 const detectLikelyLanguage = (value = "") => {
   const sample = String(value || "");
   if (/[\u0900-\u097F]/.test(sample)) return "hi";
@@ -169,6 +254,7 @@ const detectLikelyLanguage = (value = "") => {
   if (/[\u4E00-\u9FFF]/.test(sample)) return "zh-CN";
   if (/[\uAC00-\uD7AF]/.test(sample)) return "ko";
   if (/[\u0400-\u04FF]/.test(sample)) return "ru";
+  if (isLikelyRomanizedGujarati(sample)) return "gu";
   return "en";
 };
 
@@ -215,6 +301,62 @@ const fetchWithTimeout = async (url, options = {}, timeoutMs = 12000) => {
 };
 
 // ── Providers ─────────────────────────────────────────────────────────────────
+const extractGeminiText = (payload = {}) => {
+  const candidates = Array.isArray(payload?.candidates) ? payload.candidates : [];
+  for (const candidate of candidates) {
+    const parts = Array.isArray(candidate?.content?.parts) ? candidate.content.parts : [];
+    const text = parts.map((part) => String(part?.text || "")).join("").trim();
+    if (text) return text;
+  }
+  return "";
+};
+
+const requestGeminiMeaningTranslate = async (text, sourceCode, targetCode) => {
+  if (!GEMINI_API_KEY) throw new Error("Gemini translate is not configured.");
+
+  const sourceLabel = languageLabelMap.value[sourceCode] || sourceCode || "auto-detected language";
+  const targetLabel = languageLabelMap.value[targetCode] || targetCode || "target language";
+  const prompt = [
+    `Translate the text from ${sourceLabel} to ${targetLabel}.`,
+    "Translate by meaning and context, not transliteration.",
+    "Never transliterate unless the token is a name, brand, URL, email, code, hashtag, or untranslatable term.",
+    "If the input is romanized text from any language, infer the original language and translate the intended meaning.",
+    "Return only the final translated text.",
+    "",
+    text,
+  ].join("\n");
+
+  const endpoint =
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_TRANSLATE_MODEL)}:generateContent` +
+    `?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+
+  const response = await fetchWithTimeout(
+    endpoint,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 1024,
+        },
+      }),
+    },
+    TRANSLATE_TIMEOUT_MS,
+  );
+
+  if (!response.ok) {
+    const raw = await response.text().catch(() => "");
+    throw new Error(`Gemini returned ${response.status}${raw ? `: ${raw.slice(0, 220)}` : ""}`);
+  }
+
+  const payload = await response.json();
+  const translated = extractGeminiText(payload);
+  if (!translated) throw new Error("Gemini returned an empty response.");
+  return translated;
+};
+
 const requestMyMemoryTranslate = async (text, sourceCode, targetCode) => {
   const source = toMyMemoryLanguageCode(sourceCode);
   const target = toMyMemoryLanguageCode(targetCode);
@@ -275,11 +417,13 @@ const requestGoogleTranslate = async (text, sourceCode, targetCode) => {
 
 // ── Translate (normal mode) ───────────────────────────────────────────────────
 const translateText = async ({ silent = false } = {}) => {
-  const input = sourceText.value.trim();
+  const rawInput = sourceText.value.trim();
+  let input = rawInput;
   if (!input) { translatedText.value = ""; return; }
   if (isTranslating.value || isOverLimit.value) return;
 
   const resolvedSource = resolveSourceLanguage();
+  input = normalizeInputForTranslation(input, resolvedSource);
   let effectiveTarget = targetLanguage.value;
 
   if (resolvedSource === effectiveTarget) {
@@ -299,6 +443,9 @@ const translateText = async ({ silent = false } = {}) => {
   isTranslating.value = true;
 
   const providers = [
+    ...(GEMINI_API_KEY
+      ? [{ name: "Gemini Meaning", run: () => requestGeminiMeaningTranslate(input, resolvedSource, effectiveTarget) }]
+      : []),
     { name: "Google Translate", run: () => requestGoogleTranslate(input, resolvedSource, effectiveTarget) },
     { name: "MyMemory", run: () => requestMyMemoryTranslate(input, resolvedSource, effectiveTarget) },
   ];
@@ -340,10 +487,12 @@ const translateText = async ({ silent = false } = {}) => {
 
 // ── Comparison mode ───────────────────────────────────────────────────────────
 const runComparison = async () => {
-  const input = sourceText.value.trim();
+  const rawInput = sourceText.value.trim();
+  let input = rawInput;
   if (!input || isComparing.value || isOverLimit.value) return;
 
   const resolvedSource = resolveSourceLanguage();
+  input = normalizeInputForTranslation(input, resolvedSource);
   let effectiveTarget = targetLanguage.value;
 
   if (resolvedSource === effectiveTarget) {
@@ -446,10 +595,7 @@ const queueAutoTranslate = () => {
 
 // ── Swap languages ────────────────────────────────────────────────────────────
 const swapLanguages = () => {
-  const resolvedSource =
-    sourceLanguage.value === "auto"
-      ? detectedLanguage.value || "en"
-      : sourceLanguage.value;
+  const resolvedSource = inferredSwapSourceLanguage.value;
 
   if (!resolvedSource || resolvedSource === targetLanguage.value) {
     showAlert("Choose different languages to swap.", "error");
@@ -471,6 +617,39 @@ const swapLanguages = () => {
 };
 
 // ── Clear ─────────────────────────────────────────────────────────────────────
+const clearSourceText = () => {
+  if (!sourceText.value.trim()) return;
+  sourceText.value = "";
+  detectedLanguage.value = "";
+  compareResults.value = { google: "", myMemory: "" };
+  if (autoTranslateTimer) {
+    window.clearTimeout(autoTranslateTimer);
+    autoTranslateTimer = null;
+  }
+  showAlert("Source text cleared.");
+};
+
+const clearTranslatedText = () => {
+  if (!translatedText.value.trim()) return;
+  translatedText.value = "";
+  compareResults.value = { google: "", myMemory: "" };
+  closeFindReplace();
+  showAlert("Translation cleared.");
+};
+
+const useTranslationAsSource = () => {
+  if (!translatedText.value.trim()) {
+    showAlert("Translate text first.", "error");
+    return;
+  }
+  sourceText.value = translatedText.value;
+  translatedText.value = "";
+  compareResults.value = { google: "", myMemory: "" };
+  closeFindReplace();
+  showAlert("Moved translation to source.");
+  queueAutoTranslate();
+};
+
 const clearAll = () => {
   sourceText.value = "";
   translatedText.value = "";
@@ -478,38 +657,6 @@ const clearAll = () => {
   compareResults.value = { google: "", myMemory: "" };
   closeFindReplace();
   showAlert("Cleared.");
-};
-
-// ── Download ──────────────────────────────────────────────────────────────────
-const downloadTranslation = () => {
-  if (!translatedText.value.trim()) {
-    showAlert("Translate text before downloading.", "error");
-    return;
-  }
-
-  const fromLabel = languageLabelMap.value[sourceLanguage.value] || sourceLanguage.value;
-  const toLabel = languageLabelMap.value[targetLanguage.value] || targetLanguage.value;
-  const payload = [
-    `From: ${fromLabel}`,
-    `To: ${toLabel}`,
-    "",
-    "--- Source ---",
-    sourceText.value,
-    "",
-    "--- Translation ---",
-    translatedText.value,
-  ].join("\n");
-
-  const blob = new Blob([payload], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "mindlytic-translation.txt";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showAlert("Downloaded translation.");
 };
 
 // ── Global keyboard shortcut ──────────────────────────────────────────────────
@@ -536,6 +683,15 @@ watch(autoTranslate, (enabled) => { if (!enabled) return; queueAutoTranslate(); 
 
 watch(compareMode, (enabled) => { if (!enabled) compareResults.value = { google: "", myMemory: "" }; });
 
+watch([sourceLanguage, targetLanguage, autoTranslate, compareMode], () => {
+  persistSettings({
+    sourceLanguage: sourceLanguage.value,
+    targetLanguage: targetLanguage.value,
+    autoTranslate: autoTranslate.value,
+    compareMode: compareMode.value,
+  });
+});
+
 // ── Lifecycle ─────────────────────────────────────────────────────────────────
 onMounted(() => window.addEventListener("keydown", handleGlobalKeydown));
 
@@ -552,14 +708,14 @@ onUnmounted(() => {
     <!-- ── Hero ─────────────────────────────────────────────────────────── -->
     <section class="hero-shell">
       <v-container class="py-8 py-md-10">
-        <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-5">
+        <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-5 hero-top-row">
           <v-btn
             @click="goBack"
             variant="tonal"
             color="primary"
             prepend-icon="mdi-arrow-left"
             rounded="xl"
-            class="text-none"
+            class="text-none hero-back-btn"
           >
             Back
           </v-btn>
@@ -608,13 +764,13 @@ onUnmounted(() => {
     </section>
 
     <!-- ── Main tool card ────────────────────────────────────────────────── -->
-    <v-container class="py-6 py-md-8">
+    <v-container class="py-6 py-md-8 tool-main-container">
       <v-row class="ga-0" align="start">
         <v-col cols="12">
           <v-card class="tool-shell pa-4 pa-md-6" rounded="xl" elevation="0">
 
             <!-- Controls row -->
-            <div class="d-flex align-center flex-wrap ga-2 mb-4">
+            <div class="d-flex align-center flex-wrap ga-2 mb-4 controls-row">
               <v-select
                 v-model="sourceLanguage"
                 :items="languageOptions"
@@ -633,7 +789,7 @@ onUnmounted(() => {
                 variant="tonal"
                 color="primary"
                 rounded="lg"
-                :disabled="isTranslating || isComparing"
+                :disabled="isTranslating || isComparing || !canSwapLanguages"
                 @click="swapLanguages"
               />
 
@@ -652,29 +808,24 @@ onUnmounted(() => {
 
               <v-spacer />
 
-              <v-switch
-                v-model="autoTranslate"
-                color="primary"
-                hide-details
-                density="compact"
-                label="Auto"
-              />
-              <v-switch
-                v-model="compareMode"
-                color="secondary"
-                hide-details
-                density="compact"
-                label="Compare"
-              />
             </div>
 
             <!-- ── Text panels ──────────────────────────────────────────── -->
             <v-row>
               <!-- Source panel -->
               <v-col cols="12" md="6">
-                <div class="panel-header d-flex align-center ga-1 mb-2">
+                <div class="panel-header tool-panel-header d-flex align-center ga-1 mb-2">
                   <span class="panel-label">Source</span>
                   <v-spacer />
+                  <v-btn
+                    icon="mdi-close-circle-outline"
+                    size="x-small"
+                    variant="text"
+                    color="error"
+                    title="Clear source text"
+                    :disabled="!sourceText.trim()"
+                    @click="clearSourceText"
+                  />
                   <v-btn
                     icon="mdi-clipboard-arrow-down-outline"
                     size="x-small"
@@ -699,7 +850,8 @@ onUnmounted(() => {
                   variant="outlined"
                   rows="10"
                   auto-grow
-                  rounded="lg"
+                  rounded="xl"
+                  class="workspace-textarea"
                   placeholder="Type or paste text to translate..."
                   :error="isOverLimit"
                 />
@@ -711,7 +863,7 @@ onUnmounted(() => {
                   height="4"
                   class="char-bar mt-1"
                 />
-                <div class="d-flex align-center justify-space-between mt-1">
+                <div class="d-flex align-center justify-space-between mt-1 source-meta-row">
                   <p class="meta-copy mb-0">
                     {{ sourceCharacters }}&thinsp;/&thinsp;{{ MAX_CHARS }} chars &bull; {{ sourceWords }} words
                     <span v-if="detectedLanguage && sourceLanguage === 'auto'">
@@ -740,9 +892,27 @@ onUnmounted(() => {
 
               <!-- Translated panel -->
               <v-col cols="12" md="6">
-                <div class="panel-header d-flex align-center ga-1 mb-2">
+                <div class="panel-header tool-panel-header d-flex align-center ga-1 mb-2">
                   <span class="panel-label">Translation</span>
                   <v-spacer />
+                  <v-btn
+                    icon="mdi-arrow-up-left"
+                    size="x-small"
+                    variant="text"
+                    color="primary"
+                    title="Use translation as source"
+                    :disabled="!translatedText.trim()"
+                    @click="useTranslationAsSource"
+                  />
+                  <v-btn
+                    icon="mdi-close-circle-outline"
+                    size="x-small"
+                    variant="text"
+                    color="error"
+                    title="Clear translation"
+                    :disabled="!translatedText.trim()"
+                    @click="clearTranslatedText"
+                  />
                   <v-btn
                     icon="mdi-find-replace"
                     size="x-small"
@@ -768,18 +938,19 @@ onUnmounted(() => {
                   variant="outlined"
                   rows="10"
                   auto-grow
-                  rounded="lg"
+                  rounded="xl"
+                  class="workspace-textarea"
                   readonly
                   placeholder="Translation appears here..."
                 />
                 <p class="meta-copy mt-1 mb-0">
-                  Provider: {{ activeProvider }} &bull; {{ translatedCharacters }} chars
+                  Provider: {{ activeProvider }} &bull; {{ translatedCharacters }} chars &bull; {{ translatedWords }} words
                 </p>
 
                 <!-- Find & Replace toolbar -->
                 <Transition name="fr-slide">
                   <div v-if="showFindReplace" class="find-replace-bar mt-3 pa-3">
-                    <div class="d-flex align-center flex-wrap ga-2">
+                    <div class="d-flex align-center flex-wrap ga-2 find-replace-controls">
                       <v-text-field
                         v-model="findText"
                         label="Find"
@@ -823,24 +994,8 @@ onUnmounted(() => {
             </v-row>
 
             <!-- ── Action buttons ────────────────────────────────────────── -->
-            <div class="d-flex align-center flex-wrap ga-2 mt-4">
-              <!-- Normal translate -->
+            <div class="d-flex align-center flex-wrap ga-2 mt-4 action-row">
               <v-btn
-                v-if="!compareMode"
-                color="primary"
-                rounded="lg"
-                class="text-none"
-                :loading="isTranslating"
-                :disabled="translateButtonDisabled"
-                @click="translateText()"
-              >
-                <v-icon start icon="mdi-translate" />
-                Translate
-              </v-btn>
-
-              <!-- Compare translate -->
-              <v-btn
-                v-else
                 color="secondary"
                 rounded="lg"
                 class="text-none"
@@ -850,39 +1005,6 @@ onUnmounted(() => {
               >
                 <v-icon start icon="mdi-compare" />
                 Compare Providers
-              </v-btn>
-
-              <v-btn
-                variant="tonal"
-                color="primary"
-                rounded="lg"
-                class="text-none"
-                :disabled="!translatedText.trim()"
-                @click="copyTranslatedText"
-              >
-                <v-icon start icon="mdi-content-copy" />
-                Copy
-              </v-btn>
-              <v-btn
-                variant="tonal"
-                color="primary"
-                rounded="lg"
-                class="text-none"
-                :disabled="!translatedText.trim()"
-                @click="downloadTranslation"
-              >
-                <v-icon start icon="mdi-download" />
-                Download
-              </v-btn>
-              <v-btn
-                variant="text"
-                color="error"
-                rounded="lg"
-                class="text-none"
-                :disabled="!sourceText && !translatedText"
-                @click="clearAll"
-              >
-                Clear
               </v-btn>
 
               <v-spacer />
@@ -901,7 +1023,7 @@ onUnmounted(() => {
               rounded="xl"
               elevation="0"
             >
-              <div class="d-flex align-center mb-4 ga-2">
+              <div class="d-flex align-center mb-4 ga-2 compare-card-header">
                 <v-icon color="secondary" size="18">mdi-compare</v-icon>
                 <span class="compare-heading">Provider Comparison</span>
                 <v-spacer />
@@ -980,6 +1102,14 @@ onUnmounted(() => {
   max-width: 64ch;
 }
 
+.hero-top-row {
+  row-gap: 10px;
+}
+
+.hero-back-btn {
+  min-width: 96px;
+}
+
 /* ── Stat cards ────────────────────────────────────────────────────────────── */
 .hero-stats {
   display: grid;
@@ -1016,6 +1146,11 @@ onUnmounted(() => {
   box-shadow: none;
 }
 
+.controls-row :deep(.v-btn),
+.action-row :deep(.v-btn) {
+  min-height: 38px;
+}
+
 /* ── Language select ───────────────────────────────────────────────────────── */
 .lang-select {
   min-width: 180px;
@@ -1031,6 +1166,15 @@ onUnmounted(() => {
   color: rgba(var(--v-theme-on-surface), 0.55);
 }
 
+.tool-panel-header {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+.tool-panel-header :deep(.v-btn) {
+  flex: 0 0 auto;
+}
+
 /* ── Char bar ──────────────────────────────────────────────────────────────── */
 .char-bar {
   transition: all 0.3s ease;
@@ -1040,6 +1184,20 @@ onUnmounted(() => {
 .meta-copy {
   color: rgba(var(--v-theme-on-surface), 0.62);
   font-size: 0.78rem;
+}
+
+.source-meta-row {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.source-meta-row .meta-copy {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.workspace-textarea :deep(textarea) {
+  line-height: 1.5;
 }
 
 /* ── Over-limit badge ──────────────────────────────────────────────────────── */
@@ -1092,6 +1250,14 @@ onUnmounted(() => {
   flex: 1;
 }
 
+.find-replace-controls {
+  align-items: flex-start;
+}
+
+.find-replace-controls :deep(.v-btn) {
+  min-height: 36px;
+}
+
 /* ── Find & Replace slide transition ───────────────────────────────────────── */
 .fr-slide-enter-active,
 .fr-slide-leave-active {
@@ -1114,6 +1280,11 @@ onUnmounted(() => {
   font-weight: 700;
   font-size: 0.9rem;
   letter-spacing: -0.01em;
+}
+
+.compare-card-header {
+  flex-wrap: wrap;
+  row-gap: 6px;
 }
 
 .compare-panel {
@@ -1161,23 +1332,136 @@ onUnmounted(() => {
 /* ── Responsive ────────────────────────────────────────────────────────────── */
 @media (max-width: 960px) {
   .hero-stats {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .controls-row > .v-spacer {
+    display: none;
+  }
+
+  .lang-select {
+    min-width: 160px;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .hero-subtitle {
+    max-width: 100%;
+    line-height: 1.55;
+  }
+
+  .hero-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .controls-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+  }
+
+  .controls-row .lang-select {
+    min-width: 0;
+  }
+
+  .controls-row :deep(.v-input) {
+    width: 100%;
+  }
+
+  .source-meta-row .meta-copy {
+    flex-basis: 100%;
+  }
+
+  .over-limit-badge {
+    align-self: flex-start;
+  }
+
+  .compare-card-header .meta-copy {
+    width: 100%;
+    white-space: normal;
+  }
+
+  .compare-panel {
+    padding: 12px 14px;
   }
 }
 
 @media (max-width: 600px) {
-  .hero-stats-col {
-    display: none !important;
-    margin-top: 0 !important;
-    padding-top: 0 !important;
+  .hero-top-row {
+    justify-content: flex-start !important;
   }
 
-  .lang-select {
-    min-width: 100%;
-    max-width: 100%;
+  .hero-stats-col {
+    margin-top: 12px !important;
   }
-  .hero-stats {
-    grid-template-columns: repeat(2, 1fr);
+
+  .controls-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .controls-row .lang-select {
+    min-width: 100%;
+  }
+
+  .controls-row :deep(.v-btn) {
+    width: 42px;
+    min-width: 42px;
+    justify-self: center;
+  }
+
+  .tool-panel-header > .v-spacer,
+  .action-row > .v-spacer {
+    display: none;
+  }
+
+  .tool-panel-header .panel-label {
+    flex: 1 0 100%;
+    margin-bottom: 2px;
+  }
+
+  .action-row {
+    gap: 8px;
+    align-items: stretch !important;
+  }
+
+  .action-row :deep(.v-btn) {
+    width: 100%;
+  }
+
+  .over-limit-hint {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .find-replace-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .fr-field {
+    min-width: 0;
+  }
+
+  .find-replace-controls :deep(.v-btn) {
+    width: 100%;
+  }
+
+  .workspace-textarea :deep(textarea) {
+    min-height: 170px;
+  }
+}
+
+@media (max-width: 400px) {
+  .hero-back-btn {
+    min-width: 0;
+  }
+
+  .stat-card {
+    padding: 8px 6px;
   }
 }
 </style>

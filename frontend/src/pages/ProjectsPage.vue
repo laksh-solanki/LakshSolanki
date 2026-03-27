@@ -50,7 +50,7 @@ const projects = ref([
     description:
       "Prompt-driven chat interface with markdown rendering, code highlighting, and clipboard-ready snippets.",
     image: getMediaUrl("project_img/Project-5.png"),
-    link: "/projects/mindly_ai",
+    link: "/projects/mindlytic_ai",
     tags: ["Gemini API", "Markdown", "Prism"],
   },
   {
@@ -99,7 +99,7 @@ const projects = ref([
     category: "Image Utility",
     description:
       "Remove background, auto-fit to passport-size canvas, add border, and export print-ready PNG/JPG output.",
-    image: getMediaUrl("project_img/passport-cutter.svg"),
+    image: getMediaUrl("project_img/Project-10.svg"),
     link: "/projects/passport-cutter",
     tags: ["remove.bg API", "Passport Photo", "Vue"],
   },

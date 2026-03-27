@@ -50,10 +50,14 @@ const routes = [
         meta: { title: "LakshSolanki | Text to Speech" },
       },
       {
-        path:"mindly_ai",
-        name:"mindly_ai",
+        path: "mindlytic_ai",
+        name: "mindlytic_ai",
         component: () => import("@/pages/Projects/mindlytic_ai.vue"),
         meta: { title: "LakshSolanki | mindlytic AI" },
+      },
+      {
+        path: "mindly_ai",
+        redirect: "/projects/mindlytic_ai",
       },
       {
         path: "json-forge",

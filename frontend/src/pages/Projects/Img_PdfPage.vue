@@ -367,7 +367,7 @@ onUnmounted(() => {
 
                 <v-row>
                   <v-col v-for="(image, index) in images" :key="image.id" cols="12" sm="6" md="6" lg="4">
-                    <v-card class="image-card" rounded="lg" elevation="0">
+                    <v-card class="image-card" rounded="xl" elevation="0">
                       <v-card-actions class="d-flex justify-end ga-1 pa-2">
                         <v-btn @click="toggleImageOrientation(index)"
                           :icon="(image.orientation || 'p') === 'p' ? 'mdi-crop-portrait' : 'mdi-crop-landscape'"

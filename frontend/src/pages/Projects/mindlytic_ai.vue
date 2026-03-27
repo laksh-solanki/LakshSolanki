@@ -2,44 +2,6 @@
   <div class="ai-page">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
-    <section class="hero-shell">
-      <v-container class="py-8">
-        <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-4">
-          <v-btn @click="goBack" variant="tonal" color="primary" prepend-icon="mdi-arrow-left" rounded="xl"
-            class="text-none">
-            Back
-          </v-btn>
-          <v-chip size="small" variant="flat" color="primary">Text Chat</v-chip>
-        </div>
-
-        <v-row align="center" class="ga-0">
-          <v-col cols="12" md="8" class="pr-md-8">
-            <p class="hero-kicker mb-2">Mindlytic AI Workspace</p>
-            <h1 class="hero-title mb-3">Premium AI Chat Studio</h1>
-            <p class="hero-subtitle mb-0">
-              Focused AI chat with regenerate, stop generation, and markdown/code rendering.
-            </p>
-          </v-col>
-          <v-col cols="12" md="4" class="hero-stats-col mt-5 mt-md-0">
-            <div class="hero-stats">
-              <div class="stat-card">
-                <span class="stat-value">{{ userMessageCount }}</span>
-                <span class="stat-label">Prompts</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-value">{{ assistantMessageCount }}</span>
-                <span class="stat-label">Replies</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-value">{{ lastResponseLabel }}</span>
-                <span class="stat-label">Last Reply</span>
-              </div>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
     <v-row class="ga-0">
       <v-col cols="12">
         <v-card ref="chatShell" :class="[
@@ -54,7 +16,24 @@
           <div class="chat-head-shell">
             <v-toolbar class="chat-toolbar px-2 px-sm-3" density="comfortable" color="transparent">
               <template #prepend>
-                <v-avatar size="30" color="primary" variant="tonal" class="mr-2">
+                <v-btn
+                  density="compact"
+                  variant="tonal"
+                  color="primary"
+                  rounded="xl"
+                  :icon="!showBackLabel"
+                  title="Back"
+                  aria-label="Back"
+                  class="mr-2 text-none"
+                  @click="goBack"
+                >
+                  <v-icon v-if="!showBackLabel" icon="mdi-arrow-left" />
+                  <template v-else>
+                    <v-icon start icon="mdi-arrow-left" />
+                    Back
+                  </template>
+                </v-btn>
+                <v-avatar size="33" color="primary" variant="tonal" class="mr-2">
                   <v-icon size="18">mdi-robot-outline</v-icon>
                 </v-avatar>
                 <div class="chat-title-wrap">
@@ -169,7 +148,7 @@
                         <v-card class="message-card message-card-ai" rounded="xl" elevation="1">
                           <v-card-text class="message-card-body">
                             <div v-if="animatedText" class="markdown-body" v-html="parseMessage(animatedText)"></div>
-                            <span v-else class="typewriter-cursor"></span>
+                            <span class="typewriter-cursor" aria-hidden="true">|</span>
                           </v-card-text>
                         </v-card>
                       </div>
@@ -181,8 +160,8 @@
               <div class="composer">
                 <v-sheet color="transparent" class="pa-3 pa-sm-4">
                   <div class="composer-inline">
-                    <v-textarea v-model="userInput" class="composer-input" :placeholder="composerPlaceholder" auto-grow
-                      rows="1" max-rows="5" variant="outlined" rounded="lg" hide-details
+                    <v-textarea v-model="userInput" class="composer-input" :placeholder="composerPlaceholder"
+                      rows="2" variant="outlined" rounded="lg" hide-details
                       :disabled="loading || !hasSelectedApiKey" @keydown="handlePromptKeydown"></v-textarea>
                     <v-btn :color="loading ? 'error' : 'primary'" rounded="lg" class="text-none composer-send-btn"
                       :icon="loading ? 'mdi-stop-circle-outline' : 'mdi-arrow-right-thin-circle-outline'"
@@ -304,14 +283,14 @@ const writeStoredValue = (key, value) => {
 
 const userInput = ref("");
 const loading = ref(false);
-const lastResponseMs = ref(0);
 const selectedModel = ref(readStoredValue(MODEL_STORAGE_KEY, "gemini-default"));
 const currentTemperature = ref(Number(readStoredValue(TEMPERATURE_STORAGE_KEY, String(REQUEST_TEMPERATURE))) || REQUEST_TEMPERATURE);
 const searchOpen = ref(false);
 const searchQuery = ref("");
 const editingMessageId = ref(null);
 const animatedText = ref("");
-const animationSpeed = ref(20);
+const animationSpeed = ref(0);
+const animationChunkSize = 6;
 
 const alertVisible = ref(false);
 const alertMessage = ref("");
@@ -408,9 +387,6 @@ const composerPlaceholder = computed(() =>
 const sendDisabled = computed(() => !userInput.value.trim() || !hasSelectedApiKey.value);
 const primaryActionDisabled = computed(() => (loading.value ? false : sendDisabled.value));
 const canRegenerate = computed(() => messages.value.some((m) => m.role === "user"));
-const userMessageCount = computed(() => messages.value.filter((m) => m.role === "user").length);
-const assistantMessageCount = computed(() => messages.value.filter((m) => m.role === "assistant").length);
-const lastResponseLabel = computed(() => (lastResponseMs.value ? `${(lastResponseMs.value / 1000).toFixed(1)}s` : "--"));
 const normalizedSearchQuery = computed(() => searchQuery.value.trim().toLowerCase());
 const isMessageSearchMatch = (message) => {
   const query = normalizedSearchQuery.value;
@@ -425,9 +401,9 @@ const searchActive = computed(() => searchOpen.value && Boolean(normalizedSearch
 const hasSearchResults = computed(() => filteredMessages.value.length > 0);
 const isShortScreen = computed(() => viewportWidth.value <= 900 || viewportHeight.value <= 820);
 const isCompactLayout = computed(() => viewportWidth.value <= 900);
+const showBackLabel = computed(() => viewportWidth.value > 768);
 const showChatActionLabels = computed(() => viewportWidth.value > 1024);
 const runnerPanelStyle = computed(() => (isCompactLayout.value ? {} : { width: `${runnerPanelWidth.value}px` }));
-
 const goBack = () => window.history.back();
 const showAlert = (message, type = "success") => {
   alertMessage.value = message;
@@ -731,37 +707,9 @@ const getNativeFullscreenTarget = () => {
   return target instanceof HTMLElement ? target : null;
 };
 
-const enterChatFullscreen = async () => {
-  const target = getNativeFullscreenTarget();
-  if (!target) return false;
-  if (document.fullscreenElement === target) {
-    isChatFullscreen.value = true;
-    return true;
-  }
-  if (supportsNativeFullscreen()) {
-    try {
-      await target.requestFullscreen();
-      return document.fullscreenElement === target;
-    } catch (error) {
-      console.error("fullscreen entry failed", error);
-      return false;
-    }
-  }
-  return false;
-};
-
-const openCodeRunner = async (code, language) => {
+const openCodeRunner = (code, language) => {
   const safeLanguage = normalizeCodeLanguage(language);
   runnerUsesFullscreen.value = false;
-
-  if (isShortScreen.value) {
-    const enteredFullscreen = await enterChatFullscreen();
-    if (!enteredFullscreen) {
-      showAlert("Code runner opens in fullscreen on short screens.", "error");
-      return;
-    }
-    runnerUsesFullscreen.value = true;
-  }
 
   runnerLanguageLabel.value = (language || safeLanguage || "Code").toUpperCase();
   runnerCodeRaw.value = code;
@@ -781,7 +729,7 @@ const handleChatClick = async (event) => {
       showAlert("No code found to run.", "error");
       return;
     }
-    await openCodeRunner(code, language);
+    openCodeRunner(code, language);
     return;
   }
 
@@ -1163,24 +1111,28 @@ const generateAssistantReply = async () => {
   activeController = new AbortController();
   loading.value = true;
   animatedText.value = "";
-  const started = Date.now();
   await scrollToBottom();
   try {
     const reply = await requestAssistantReply(activeController.signal);
-    lastResponseMs.value = Date.now() - started;
 
     // Add message with empty text first, then animate it
     const newMessage = createMessage("assistant", "");
     messages.value.push(newMessage);
 
-    // Animate the text character by character
+    // Animate the text in small chunks for a faster, smoother typing effect
     let displayedText = "";
-    for (let i = 0; i < reply.length; i++) {
-      displayedText += reply[i];
+    for (let i = 0; i < reply.length; i += animationChunkSize) {
+      displayedText += reply.slice(i, i + animationChunkSize);
       animatedText.value = displayedText;
       newMessage.text = displayedText;
-      await scrollToBottom();
-      await new Promise((resolve) => setTimeout(resolve, animationSpeed.value));
+      if (i === 0 || (i / animationChunkSize) % 4 === 0 || i + animationChunkSize >= reply.length) {
+        await scrollToBottom();
+      }
+      if (animationSpeed.value > 0) {
+        await new Promise((resolve) => setTimeout(resolve, animationSpeed.value));
+      } else {
+        await new Promise((resolve) => requestAnimationFrame(() => resolve()));
+      }
     }
   } catch (error) {
     if (error?.name === "AbortError") {
@@ -1363,10 +1315,8 @@ watch(isCompactLayout, (compact) => {
   runnerPanelWidth.value = clampRunnerPanelWidth(runnerPanelWidth.value);
 });
 
-watch(isShortScreen, (shortScreen) => {
-  if (shortScreen && runnerPanelOpen.value && !runnerUsesFullscreen.value) {
-    closeCodeRunner();
-  }
+watch(isShortScreen, () => {
+  runnerPanelWidth.value = clampRunnerPanelWidth(runnerPanelWidth.value);
 });
 
 watch(messages, saveState, { deep: true });
@@ -1989,23 +1939,24 @@ onUnmounted(() => {
 
 .typewriter-cursor {
   display: inline-block;
-  width: 2px;
-  height: 1.2em;
-  background: #2d62be;
-  margin-left: 4px;
+  margin-left: 2px;
+  color: #2d62be;
+  font-weight: 700;
+  line-height: 1;
   animation: blink 0.7s step-end infinite;
-  vertical-align: text-bottom;
+  vertical-align: baseline;
+  user-select: none;
 }
 
 @keyframes blink {
   0%,
   49% {
-    background: #2d62be;
+    opacity: 1;
   }
 
   50%,
   100% {
-    background: transparent;
+    opacity: 0;
   }
 }
 
@@ -3274,16 +3225,27 @@ onUnmounted(() => {
 /* ===== Responsive Stability Layer (final override) ===== */
 .ai-page {
   width: 100%;
+  height: 100dvh;
   min-height: 100dvh;
-  overflow-x: clip;
+  overflow: hidden;
+}
+
+.ai-page :deep(.v-row) {
+  height: 100%;
+  margin: 0 !important;
+}
+
+.ai-page :deep(.v-col) {
+  height: 100%;
+  padding: 0 !important;
 }
 
 .chat-shell {
   width: min(100%, 100vw);
   margin-inline: auto;
-  min-height: clamp(540px, calc(100dvh - 210px), 980px) !important;
-  height: min(980px, calc(100dvh - 210px)) !important;
-  max-height: calc(100dvh - 24px) !important;
+  min-height: 100dvh !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
 }
 
 .chat-shell:not(.chat-shell-fullscreen) {
@@ -3346,9 +3308,9 @@ onUnmounted(() => {
 
 @media (max-width: 1200px) {
   .chat-shell {
-    min-height: clamp(520px, calc(100dvh - 184px), 940px) !important;
-    height: min(940px, calc(100dvh - 184px)) !important;
-    max-height: calc(100dvh - 16px) !important;
+    min-height: 100dvh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
   }
 
   .chat-toolbar-model {
@@ -3359,9 +3321,9 @@ onUnmounted(() => {
 
 @media (max-width: 1024px) {
   .chat-shell {
-    min-height: calc(100dvh - 156px) !important;
-    height: calc(100dvh - 156px) !important;
-    max-height: calc(100dvh - 10px) !important;
+    min-height: 100dvh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
   }
 
   .chat-toolbar-actions {
@@ -3410,9 +3372,9 @@ onUnmounted(() => {
 
 @media (max-width: 760px) {
   .chat-shell {
-    min-height: calc(100dvh - 136px) !important;
-    height: calc(100dvh - 136px) !important;
-    max-height: calc(100dvh - 8px) !important;
+    min-height: 100dvh !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
   }
 
   .message-avatar {
@@ -3430,13 +3392,15 @@ onUnmounted(() => {
 
 @media (max-width: 600px) {
   .ai-page {
+    height: 100svh;
     min-height: 100svh;
+    overflow: hidden;
   }
 
   .chat-shell {
-    min-height: calc(100dvh - 120px) !important;
-    height: calc(100dvh - 120px) !important;
-    max-height: calc(100dvh - 4px) !important;
+    min-height: 100svh !important;
+    height: 100svh !important;
+    max-height: 100svh !important;
     border-radius: 12px;
   }
 
@@ -3472,6 +3436,167 @@ onUnmounted(() => {
 
   .message-card-body {
     padding: 10px !important;
+  }
+}
+
+/* ===== Composer UI (final override) ===== */
+.composer {
+  --composer-border: rgba(var(--v-theme-on-surface), 0.16);
+  --composer-glow: rgba(var(--v-theme-primary), 0.16);
+  --composer-surface-a: rgba(var(--v-theme-surface), 0.9);
+  --composer-surface-b: rgba(var(--v-theme-surface), 0.98);
+  padding: clamp(8px, 1.4vw, 14px);
+  padding-bottom: calc(clamp(8px, 1.4vw, 14px) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.12);
+  background: linear-gradient(180deg, rgba(var(--v-theme-surface), 0.78), rgba(var(--v-theme-surface), 0.96));
+  backdrop-filter: blur(10px);
+}
+
+.composer :deep(.v-sheet) {
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.composer-inline {
+  width: min(860px, 100%);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid var(--composer-border);
+  border-radius: 18px;
+  background: linear-gradient(145deg, var(--composer-surface-a), var(--composer-surface-b));
+  box-shadow:
+    0 10px 28px rgba(8, 16, 27, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.54);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.composer-inline:focus-within {
+  border-color: rgba(var(--v-theme-primary), 0.5);
+  box-shadow:
+    0 0 0 3px var(--composer-glow),
+    0 12px 30px rgba(8, 16, 27, 0.11),
+    inset 0 1px 0 rgba(255, 255, 255, 0.58);
+}
+
+.composer-input {
+  min-width: 0;
+}
+
+.composer-input :deep(.v-field) {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  min-height: 46px;
+}
+
+.composer-input :deep(.v-field__outline) {
+  display: none;
+}
+
+.composer-input :deep(.v-field__input) {
+  padding: 4px 8px !important;
+}
+
+.composer-input :deep(textarea) {
+  min-height: 46px;
+  max-height: 46px;
+  line-height: 1.4;
+  padding: 11px 2px 10px;
+  resize: none;
+  overflow-y: auto !important;
+  scrollbar-gutter: stable;
+}
+
+.composer-input :deep(textarea::placeholder) {
+  color: rgba(var(--v-theme-on-surface), 0.74);
+  opacity: 1;
+}
+
+.composer-send-btn {
+  width: 48px !important;
+  min-width: 48px !important;
+  height: 48px !important;
+  border-radius: 14px !important;
+  margin-bottom: 1px;
+  padding: 0 !important;
+  box-shadow: 0 10px 18px rgba(8, 16, 27, 0.2);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.composer-send-btn :deep(.v-icon) {
+  font-size: 25px !important;
+}
+
+.composer-send-btn:not(.v-btn--disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 13px 22px rgba(8, 16, 27, 0.24);
+}
+
+.composer-send-btn:not(.v-btn--disabled):active {
+  transform: translateY(0) scale(0.98);
+}
+
+.composer-send-btn.v-btn--disabled {
+  opacity: 0.64;
+  box-shadow: none;
+  filter: saturate(0.82);
+}
+
+@media (max-width: 760px) {
+  .composer-inline {
+    border-radius: 15px;
+    padding: 7px;
+    gap: 8px;
+  }
+
+  .composer-input :deep(textarea) {
+    padding: 10px 2px 9px;
+    max-height: 44px;
+  }
+
+  .composer-send-btn {
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    border-radius: 12px !important;
+  }
+
+  .composer-send-btn :deep(.v-icon) {
+    font-size: 23px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .composer {
+    padding: 6px;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .composer-inline {
+    padding: 6px;
+    border-radius: 13px;
+    gap: 6px;
+  }
+
+  .composer-input :deep(textarea) {
+    min-height: 42px;
+    max-height: 42px;
+    padding: 9px 1px 8px;
+  }
+
+  .composer-send-btn {
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 42px !important;
+    border-radius: 11px !important;
+  }
+
+  .composer-send-btn :deep(.v-icon) {
+    font-size: 21px !important;
   }
 }
 </style>

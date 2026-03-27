@@ -441,7 +441,7 @@ onUnmounted(() => {
 
                 <v-row v-if="filteredSortedImages.length > 0">
                   <v-col v-for="image in filteredSortedImages" :key="image.id" cols="12" sm="6" md="6" lg="4">
-                    <v-card class="image-card" rounded="lg" elevation="0">
+                    <v-card class="image-card" rounded="xl" elevation="0">
                       <v-card-actions class="d-flex justify-end ga-1 pa-2">
                         <v-btn @click="toggleImageSelection(image.id)"
                           :icon="isImageSelected(image.id) ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline'"
