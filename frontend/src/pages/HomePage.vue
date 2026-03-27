@@ -27,27 +27,52 @@ const techStack = [
   "Web Performance",
 ];
 
-const featuredProjects = [
+const deliveryFocus = [
+  "Rapid MVP execution with clean architecture",
+  "Performance-first frontend and API design",
+  "Accessible, responsive UI across devices",
+  "Weekly demos with transparent progress",
+];
+
+const collaborationSteps = [
   {
-    title: "Certificate Generator",
+    step: "01",
+    title: "Scope",
     description:
-      "Generate branded certificates in-browser and export polished PDFs.",
-    image: getMediaUrl("project_img/Project-1.png"),
-    to: "/projects/certificate-gen",
+      "Define the user journey, set a focused milestone, and align on technical priorities.",
   },
   {
-    title: "Mindlytic AI Assistant",
+    step: "02",
+    title: "Build",
     description:
-      "Prompt-driven coding assistant with markdown rendering and code snippets.",
-    image: getMediaUrl("project_img/Project-5.png"),
-    to: "/projects/mindlytic_ai",
+      "Ship in small, testable increments with clear communication and production-quality code.",
   },
   {
-    title: "PDF to Image Utility",
+    step: "03",
+    title: "Refine",
     description:
-      "Fast conversion utility for extracting high quality images from PDFs.",
-    image: getMediaUrl("Picture/Project-3.jpg"),
-    to: "/projects/pdf-img",
+      "Polish UX details, tighten performance, and capture feedback before final release.",
+  },
+];
+
+const valuePillars = [
+  {
+    title: "Clarity",
+    description:
+      "I keep requirements concrete and decisions documented, so projects move with less friction.",
+    icon: "mdi-compass-outline",
+  },
+  {
+    title: "Reliability",
+    description:
+      "Code is structured for maintainability, predictable behavior, and long-term product growth.",
+    icon: "mdi-shield-check-outline",
+  },
+  {
+    title: "Momentum",
+    description:
+      "You see measurable progress early and often with milestones that are practical and visible.",
+    icon: "mdi-rocket-launch-outline",
   },
 ];
 
@@ -156,8 +181,8 @@ const premiumStackLines = premiumStackLinks
 </script>
 
 <template>
-  <v-container class="py-8 py-md-14 home-shell">
-    <section class="section-shell hero-card pa-6 pa-md-10 mb-10">
+  <v-container class="home-shell">
+    <section class="hero-card hero-full-bleed pa-6 pa-md-10 mb-10">
       <div class="glow-dot hero-dot"></div>
       <div class="hero-orbit hero-orbit-one" aria-hidden="true"></div>
       <div class="hero-orbit hero-orbit-two" aria-hidden="true"></div>
@@ -389,46 +414,115 @@ const premiumStackLines = premiumStackLinks
       </v-card>
     </section>
 
+    <section class="mb-10 home-section">
+      <div
+        class="d-flex align-center justify-space-between mb-4 flex-wrap ga-3 startup-heading"
+        style="--delay: 0.08s"
+      >
+        <h2 class="text-h4 mb-0">How I Deliver</h2>
+      </div>
+      <v-card
+        class="section-shell pa-6 pa-md-8 minimal-content-card startup-flow-card"
+        flat
+      >
+        <v-row class="ga-0" align="start">
+          <v-col cols="12" md="5" class="pr-md-6">
+            <p class="text-overline mb-2 content-kicker">COLLABORATION MODEL</p>
+            <h3 class="text-h5 mb-3 content-title">
+              Minimal process, maximum clarity and execution.
+            </h3>
+            <p class="muted-copy mb-5">
+              I partner closely with teams to keep delivery lean, practical, and
+              focused on real outcomes.
+            </p>
+            <div class="d-flex flex-wrap ga-2">
+              <v-chip
+                v-for="(item, index) in deliveryFocus"
+                :key="item"
+                size="small"
+                color="primary"
+                variant="tonal"
+                class="delivery-chip"
+                :style="{ '--delay': `${0.2 + index * 0.05}s` }"
+              >
+                {{ item }}
+              </v-chip>
+            </div>
+          </v-col>
+          <v-col cols="12" md="7" class="mt-6 mt-md-0">
+            <div class="collab-list">
+              <article
+                v-for="(item, index) in collaborationSteps"
+                :key="item.step"
+                class="collab-item"
+                :style="{ '--delay': `${0.24 + index * 0.07}s` }"
+              >
+                <span class="collab-step">{{ item.step }}</span>
+                <div>
+                  <h4 class="text-subtitle-1 font-weight-bold mb-1">
+                    {{ item.title }}
+                  </h4>
+                  <p class="muted-copy mb-0">{{ item.description }}</p>
+                </div>
+              </article>
+            </div>
+          </v-col>
+        </v-row>
+      </v-card>
+    </section>
+
     <section class="home-section">
-      <h2 class="text-h4 mb-4 startup-heading" style="--delay: 0.1s">
-        Featured Work
-      </h2>
+      <div
+        class="d-flex align-center justify-space-between mb-4 flex-wrap ga-3 startup-heading"
+        style="--delay: 0.1s"
+      >
+        <h2 class="text-h4 mb-0">What You Can Expect</h2>
+      </div>
       <v-row>
         <v-col
-          v-for="(project, index) in featuredProjects"
-          :key="project.title"
+          v-for="(pillar, index) in valuePillars"
+          :key="pillar.title"
           cols="12"
           md="4"
         >
           <v-card
-            class="section-shell project-card h-100 startup-project"
-            :style="{ '--delay': `${0.14 + index * 0.1}s` }"
-            :to="project.to"
+            class="section-shell pa-5 h-100 expectation-card startup-project"
+            :style="{ '--delay': `${0.14 + index * 0.09}s` }"
             flat
           >
-            <v-img
-              :src="project.image"
-              height="190"
-              cover
-              loading="lazy"
-              decoding="async"
-              class="project-media"
-            ></v-img>
-            <div class="pa-5">
-              <h3 class="text-h6 mb-2">{{ project.title }}</h3>
-              <p class="muted-copy mb-4">{{ project.description }}</p>
-              <span class="text-primary font-weight-bold">Open project ?</span>
-            </div>
+            <v-avatar size="42" color="primary" variant="tonal" class="mb-4">
+              <v-icon :icon="pillar.icon" size="20"></v-icon>
+            </v-avatar>
+            <h3 class="text-h6 mb-2">{{ pillar.title }}</h3>
+            <p class="muted-copy mb-0">{{ pillar.description }}</p>
           </v-card>
         </v-col>
       </v-row>
+
+      <v-card class="section-shell pa-5 pa-md-6 mt-6 cta-slab startup-heading" flat>
+        <v-row align="center">
+          <v-col cols="12" md="8">
+            <h3 class="text-h5 mb-2">Looking for a focused development partner?</h3>
+            <p class="muted-copy mb-0">
+              Explore projects or review my profile to see how I build and deliver.
+            </p>
+          </v-col>
+          <v-col cols="12" md="4" class="d-flex flex-wrap ga-3 justify-md-end mt-4 mt-md-0">
+            <v-btn to="/projects" color="primary" rounded="xl" class="text-none">
+              Browse Projects
+            </v-btn>
+            <v-btn to="/about" variant="outlined" color="primary" rounded="xl" class="text-none">
+              About Me
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-card>
     </section>
   </v-container>
 </template>
 
 <style scoped>
 .home-shell {
-  max-width: 1220px;
   position: relative;
 }
 
@@ -437,6 +531,17 @@ const premiumStackLines = premiumStackLinks
   isolation: isolate;
   overflow: hidden;
   animation: rise-in 0.45s ease;
+}
+
+.hero-full-bleed {
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: linear-gradient(158deg, rgba(255, 255, 255, 0.98), rgba(239, 247, 244, 0.96));
 }
 
 .hero-card::before {
@@ -600,17 +705,86 @@ const premiumStackLines = premiumStackLinks
   animation: startup-panel 0.78s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
 }
 
-.stat-card,
-.project-card {
+.stat-card {
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease;
 }
 
-.stat-card:hover,
-.project-card:hover {
+.stat-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 16px 34px rgba(16, 35, 31, 0.12);
+}
+
+.minimal-content-card {
+  border-color: rgba(19, 111, 99, 0.18);
+  background: linear-gradient(158deg, #ffffff, #f2faf7);
+}
+
+.content-kicker {
+  letter-spacing: 0.12em;
+  color: #136f63;
+  font-weight: 700;
+}
+
+.content-title {
+  max-width: 23ch;
+}
+
+.delivery-chip {
+  opacity: 0;
+  animation: chip-in 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--delay, 0s);
+}
+
+.collab-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.collab-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 0.8rem;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 143, 124, 0.14);
+  background: rgba(255, 255, 255, 0.82);
+  opacity: 0;
+  animation: startup-scale 0.62s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--delay, 0s);
+}
+
+.collab-step {
+  min-width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #0b6f60;
+  background: rgba(15, 143, 124, 0.12);
+}
+
+.expectation-card {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.expectation-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 34px rgba(16, 35, 31, 0.12);
+}
+
+.cta-slab {
+  border-style: dashed;
+  border-width: 1px;
+  border-color: rgba(15, 143, 124, 0.26);
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.95), rgba(236, 247, 243, 0.96));
 }
 
 .luxe-flow-card {
@@ -818,18 +992,6 @@ const premiumStackLines = premiumStackLinks
 .premium-mobile-icon {
   color: #d8eaff;
   opacity: 0.95;
-}
-
-.project-card {
-  overflow: hidden;
-}
-
-.project-media {
-  transition: transform 0.4s ease;
-}
-
-.project-card:hover .project-media {
-  transform: scale(1.04);
 }
 
 @keyframes rise-in {
@@ -1095,8 +1257,7 @@ const premiumStackLines = premiumStackLinks
 
   .luxe-flow-card,
   .premium-node,
-  .stat-card,
-  .project-card {
+  .stat-card {
     transition: none;
   }
 }
