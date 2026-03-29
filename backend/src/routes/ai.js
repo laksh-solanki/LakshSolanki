@@ -19,7 +19,7 @@ const chatBodySchema = {
         additionalProperties: false,
       },
     },
-    provider: { type: "string", enum: ["auto", "gemini", "groq"] },
+    provider: { type: "string", enum: ["auto", "gemini", "groq", "openai"] },
     model: { type: "string", maxLength: 200 },
     systemPrompt: { type: "string", maxLength: 4000 },
     temperature: { type: "number", minimum: 0, maximum: 2 },
@@ -53,6 +53,18 @@ const getTextFromGeminiResponse = (data) =>
     .trim() || "";
 
 const getTextFromGroqResponse = (data) => {
+  const content = data?.choices?.[0]?.message?.content;
+  if (typeof content === "string") return content.trim();
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => (typeof part?.text === "string" ? part.text : ""))
+      .join("")
+      .trim();
+  }
+  return "";
+};
+
+const getTextFromOpenAIResponse = (data) => {
   const content = data?.choices?.[0]?.message?.content;
   if (typeof content === "string") return content.trim();
   if (Array.isArray(content)) {
@@ -104,13 +116,16 @@ const readUpstreamError = async (response) => {
 const resolveChatProvider = (requestedProvider, envConfig) => {
   const hasGemini = Boolean(envConfig.geminiApiKey);
   const hasGroq = Boolean(envConfig.groqApiKey);
+  const hasOpenAI = Boolean(envConfig.openaiApiKey);
   const preferred = requestedProvider || envConfig.aiDefaultProvider || "auto";
 
   if (preferred === "gemini") return hasGemini ? "gemini" : "";
   if (preferred === "groq") return hasGroq ? "groq" : "";
+  if (preferred === "openai") return hasOpenAI ? "openai" : "";
 
   if (hasGemini) return "gemini";
   if (hasGroq) return "groq";
+  if (hasOpenAI) return "openai";
   return "";
 };
 
@@ -135,17 +150,26 @@ export const registerAiRoutes = async (app) => {
       if (requestedProvider === "groq" && !app.envConfig.groqApiKey) {
         return reply.code(503).send({ error: "Groq is not configured on the backend." });
       }
+      if (requestedProvider === "openai" && !app.envConfig.openaiApiKey) {
+        return reply.code(503).send({ error: "OpenAI is not configured on the backend." });
+      }
 
       const provider = resolveChatProvider(requestedProvider || "auto", app.envConfig);
       if (!provider) {
         return reply
           .code(503)
-          .send({ error: "No AI text provider is configured. Set GEMINI_API_KEY or GROQ_API_KEY in backend .env." });
+          .send({
+            error: "No AI text provider is configured. Set GEMINI_API_KEY, GROQ_API_KEY, or OPENAI_API_KEY in backend .env.",
+          });
       }
 
       const model =
         (request.body.model ||
-          (provider === "gemini" ? app.envConfig.geminiChatModel : app.envConfig.groqChatModel) ||
+          (provider === "gemini"
+            ? app.envConfig.geminiChatModel
+            : provider === "groq"
+              ? app.envConfig.groqChatModel
+              : app.envConfig.openaiChatModel) ||
           "")
           .trim();
       if (!model) {
@@ -186,7 +210,7 @@ export const registerAiRoutes = async (app) => {
             signal: controller.signal,
             body: JSON.stringify(payload),
           });
-        } else {
+        } else if (provider === "groq") {
           const endpoint = `${app.envConfig.groqApiBase}/chat/completions`;
           const payload = {
             model,
@@ -201,6 +225,25 @@ export const registerAiRoutes = async (app) => {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${app.envConfig.groqApiKey}`,
+            },
+            signal: controller.signal,
+            body: JSON.stringify(payload),
+          });
+        } else {
+          const endpoint = `${app.envConfig.openaiBaseUrl}/chat/completions`;
+          const payload = {
+            model,
+            messages: buildGroqMessages(messages, systemPrompt),
+            temperature,
+            max_tokens: maxOutputTokens,
+            stream: false,
+          };
+
+          upstreamResponse = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${app.envConfig.openaiApiKey}`,
             },
             signal: controller.signal,
             body: JSON.stringify(payload),
@@ -227,7 +270,12 @@ export const registerAiRoutes = async (app) => {
         return reply.code(502).send({ error: "AI provider returned invalid JSON." });
       }
 
-      const text = provider === "gemini" ? getTextFromGeminiResponse(payload) : getTextFromGroqResponse(payload);
+      const text =
+        provider === "gemini"
+          ? getTextFromGeminiResponse(payload)
+          : provider === "groq"
+            ? getTextFromGroqResponse(payload)
+            : getTextFromOpenAIResponse(payload);
       if (!text) {
         return reply.code(502).send({ error: `${provider} returned an empty response.` });
       }

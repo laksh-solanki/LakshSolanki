@@ -2164,10 +2164,10 @@ var init_bson = __esm({
     __name(isReactNative, "isReactNative");
     __name(webMathRandomBytes, "webMathRandomBytes");
     webRandomBytes = (() => {
-      const { crypto } = globalThis;
-      if (crypto != null && typeof crypto.getRandomValues === "function") {
+      const { crypto: crypto2 } = globalThis;
+      if (crypto2 != null && typeof crypto2.getRandomValues === "function") {
         return (byteLength) => {
-          return crypto.getRandomValues(webByteUtils.allocate(byteLength));
+          return crypto2.getRandomValues(webByteUtils.allocate(byteLength));
         };
       } else {
         if (isReactNative()) {
@@ -7382,7 +7382,7 @@ var require_utils = __commonJS({
     exports.decorateDecryptionResult = decorateDecryptionResult;
     exports.addAbortListener = addAbortListener;
     exports.abortable = abortable;
-    var crypto = require_crypto();
+    var crypto2 = require_crypto();
     var fs_1 = require_fs();
     var http = require_http();
     var timers_1 = require_timers();
@@ -7557,7 +7557,7 @@ var require_utils = __commonJS({
     }
     __name(makeCounter, "makeCounter");
     function uuidV4() {
-      const result = crypto.randomBytes(16);
+      const result = crypto2.randomBytes(16);
       result[6] = result[6] & 15 | 64;
       result[8] = result[8] & 63 | 128;
       return result;
@@ -8179,7 +8179,7 @@ var require_utils = __commonJS({
       return;
     }
     __name(squashError, "squashError");
-    exports.randomBytes = (0, util_1.promisify)(crypto.randomBytes);
+    exports.randomBytes = (0, util_1.promisify)(crypto2.randomBytes);
     async function once(ee, name, options) {
       options?.signal?.throwIfAborted();
       const { promise, resolve, reject } = promiseWithResolvers();
@@ -13594,12 +13594,12 @@ var require_crypto_callbacks = __commonJS({
     exports.sha256Hook = sha256Hook;
     exports.makeHmacHook = makeHmacHook;
     exports.signRsaSha256Hook = signRsaSha256Hook;
-    var crypto = require_crypto();
+    var crypto2 = require_crypto();
     function makeAES256Hook(method, mode) {
       return function(key, iv, input, output) {
         let result;
         try {
-          const cipher = crypto[method](mode, key, iv);
+          const cipher = crypto2[method](mode, key, iv);
           cipher.setAutoPadding(false);
           result = cipher.update(input);
           const final = cipher.final();
@@ -13616,7 +13616,7 @@ var require_crypto_callbacks = __commonJS({
     __name(makeAES256Hook, "makeAES256Hook");
     function randomHook(buffer2, count) {
       try {
-        crypto.randomFillSync(buffer2, 0, count);
+        crypto2.randomFillSync(buffer2, 0, count);
       } catch (e) {
         return e;
       }
@@ -13626,7 +13626,7 @@ var require_crypto_callbacks = __commonJS({
     function sha256Hook(input, output) {
       let result;
       try {
-        result = crypto.createHash("sha256").update(input).digest();
+        result = crypto2.createHash("sha256").update(input).digest();
       } catch (e) {
         return e;
       }
@@ -13638,7 +13638,7 @@ var require_crypto_callbacks = __commonJS({
       return (key, input, output) => {
         let result;
         try {
-          result = crypto.createHmac(algorithm, key).update(input).digest();
+          result = crypto2.createHmac(algorithm, key).update(input).digest();
         } catch (e) {
           return e;
         }
@@ -13650,7 +13650,7 @@ var require_crypto_callbacks = __commonJS({
     function signRsaSha256Hook(key, input, output) {
       let result;
       try {
-        const signer = crypto.createSign("sha256WithRSAEncryption");
+        const signer = crypto2.createSign("sha256WithRSAEncryption");
         const privateKey = Buffer.from(`-----BEGIN PRIVATE KEY-----
 ${key.toString("base64")}
 -----END PRIVATE KEY-----
@@ -23408,7 +23408,7 @@ var require_scram = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.ScramSHA256 = exports.ScramSHA1 = void 0;
     var saslprep_1 = require_browser();
-    var crypto = require_crypto();
+    var crypto2 = require_crypto();
     var bson_1 = require_bson();
     var error_1 = require_error();
     var utils_1 = require_utils();
@@ -23570,9 +23570,9 @@ var require_scram = __commonJS({
       }
       let md5;
       try {
-        md5 = crypto.createHash("md5");
+        md5 = crypto2.createHash("md5");
       } catch (err) {
-        if (crypto.getFips()) {
+        if (crypto2.getFips()) {
           throw new Error("Auth mechanism SCRAM-SHA-1 is not supported in FIPS mode");
         }
         throw err;
@@ -23597,11 +23597,11 @@ var require_scram = __commonJS({
     }
     __name(xor, "xor");
     function H(method, text) {
-      return crypto.createHash(method).update(text).digest();
+      return crypto2.createHash(method).update(text).digest();
     }
     __name(H, "H");
     function HMAC(method, key, text) {
-      return crypto.createHmac(method, key).update(text).digest();
+      return crypto2.createHmac(method, key).update(text).digest();
     }
     __name(HMAC, "HMAC");
     var _hiCache = {};
@@ -23620,7 +23620,7 @@ var require_scram = __commonJS({
       if (_hiCache[key] != null) {
         return _hiCache[key];
       }
-      const saltedData = crypto.pbkdf2Sync(data, salt, iterations, hiLengthMap[cryptoMethod], cryptoMethod);
+      const saltedData = crypto2.pbkdf2Sync(data, salt, iterations, hiLengthMap[cryptoMethod], cryptoMethod);
       if (_hiCacheCount >= 200) {
         _hiCachePurge();
       }
@@ -23633,8 +23633,8 @@ var require_scram = __commonJS({
       if (lhs.length !== rhs.length) {
         return false;
       }
-      if (typeof crypto.timingSafeEqual === "function") {
-        return crypto.timingSafeEqual(lhs, rhs);
+      if (typeof crypto2.timingSafeEqual === "function") {
+        return crypto2.timingSafeEqual(lhs, rhs);
       }
       let result = 0;
       for (let i = 0; i < lhs.length; i++) {
@@ -30383,11 +30383,11 @@ var require_lib2 = __commonJS({
   }
 });
 
-// .wrangler/tmp/bundle-k6zTdD/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-69dImD/middleware-loader.entry.ts
 init_modules_watch_stub();
 init_performance2();
 
-// .wrangler/tmp/bundle-k6zTdD/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-69dImD/middleware-insertion-facade.js
 init_modules_watch_stub();
 init_performance2();
 
@@ -30942,6 +30942,7 @@ var createRepositories = /* @__PURE__ */ __name(({ db, logger: logger2 }) => {
   }) => {
     const normalizedOwnerUid = String(ownerUid || "").trim();
     const normalizedId = String(id || "").trim();
+    const conversationId = normalizedId || generateId();
     const normalizedMessages = sanitizeConversationMessages(messages);
     const now = nowIso();
     const conversationTitle = deriveConversationTitle({
@@ -30951,11 +30952,11 @@ var createRepositories = /* @__PURE__ */ __name(({ db, logger: logger2 }) => {
     if (aiConversationsCollection) {
       const existing = await aiConversationsCollection.findOne({
         ownerUid: normalizedOwnerUid,
-        id: normalizedId
+        id: conversationId
       });
       if (existing) {
         await aiConversationsCollection.updateOne(
-          { ownerUid: normalizedOwnerUid, id: normalizedId },
+          { ownerUid: normalizedOwnerUid, id: conversationId },
           {
             $set: {
               ownerEmail: String(ownerEmail || "").trim().toLowerCase(),
@@ -30968,7 +30969,7 @@ var createRepositories = /* @__PURE__ */ __name(({ db, logger: logger2 }) => {
         );
       } else {
         await aiConversationsCollection.insertOne({
-          id: normalizedId || generateId(),
+          id: conversationId,
           ownerUid: normalizedOwnerUid,
           ownerEmail: String(ownerEmail || "").trim().toLowerCase(),
           ownerName: String(ownerName || "").trim(),
@@ -30980,12 +30981,12 @@ var createRepositories = /* @__PURE__ */ __name(({ db, logger: logger2 }) => {
       }
       const saved = await aiConversationsCollection.findOne({
         ownerUid: normalizedOwnerUid,
-        id: normalizedId
+        id: conversationId
       });
       return toPublicAiConversation(saved);
     }
     const existingIndex = memoryStore.aiConversations.findIndex(
-      (item) => item.ownerUid === normalizedOwnerUid && item.id === normalizedId
+      (item) => item.ownerUid === normalizedOwnerUid && item.id === conversationId
     );
     if (existingIndex >= 0) {
       const existing = memoryStore.aiConversations[existingIndex];
@@ -30997,7 +30998,7 @@ var createRepositories = /* @__PURE__ */ __name(({ db, logger: logger2 }) => {
       return clone(toPublicAiConversation(existing));
     }
     const record = {
-      id: normalizedId || generateId(),
+      id: conversationId,
       ownerUid: normalizedOwnerUid,
       ownerEmail: String(ownerEmail || "").trim().toLowerCase(),
       ownerName: String(ownerName || "").trim(),
@@ -31186,6 +31187,255 @@ var createRepositories = /* @__PURE__ */ __name(({ db, logger: logger2 }) => {
   };
 }, "createRepositories");
 
+// src/lib/firebase-auth.js
+init_modules_watch_stub();
+init_performance2();
+var DEFAULT_FIREBASE_JWKS_URL = "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com";
+var CLOCK_SKEW_SECONDS = 30;
+var MAX_CLOCK_FUTURE_SKEW_SECONDS = 300;
+var jwksCache = /* @__PURE__ */ new Map();
+var createAuthError = /* @__PURE__ */ __name((statusCode, message, code = "auth_error") => {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  error.code = code;
+  return error;
+}, "createAuthError");
+var decodeBase64 = /* @__PURE__ */ __name((value) => {
+  if (typeof globalThis.atob === "function") {
+    return globalThis.atob(value);
+  }
+  if (typeof globalThis.Buffer !== "undefined") {
+    return globalThis.Buffer.from(value, "base64").toString("binary");
+  }
+  throw new Error("No base64 decoder available in this runtime.");
+}, "decodeBase64");
+var toBase64 = /* @__PURE__ */ __name((base64Url) => {
+  const padded = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  const remainder = padded.length % 4;
+  if (remainder === 0) return padded;
+  return `${padded}${"=".repeat(4 - remainder)}`;
+}, "toBase64");
+var base64UrlToBytes = /* @__PURE__ */ __name((base64Url) => {
+  const binary = decodeBase64(toBase64(base64Url));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}, "base64UrlToBytes");
+var decodeJsonSegment = /* @__PURE__ */ __name((segment, label) => {
+  const bytes = base64UrlToBytes(segment);
+  const text = new TextDecoder().decode(bytes);
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw createAuthError(401, `Invalid Firebase token ${label}.`, "invalid_token");
+  }
+}, "decodeJsonSegment");
+var parseJwt = /* @__PURE__ */ __name((token) => {
+  const parts = String(token || "").split(".");
+  if (parts.length !== 3) {
+    throw createAuthError(401, "Malformed Firebase ID token.", "invalid_token");
+  }
+  const [headerSegment, payloadSegment, signatureSegment] = parts;
+  if (!headerSegment || !payloadSegment || !signatureSegment) {
+    throw createAuthError(401, "Malformed Firebase ID token.", "invalid_token");
+  }
+  return {
+    header: decodeJsonSegment(headerSegment, "header"),
+    payload: decodeJsonSegment(payloadSegment, "payload"),
+    signature: base64UrlToBytes(signatureSegment),
+    signingInput: new TextEncoder().encode(`${headerSegment}.${payloadSegment}`)
+  };
+}, "parseJwt");
+var parseMaxAgeSeconds = /* @__PURE__ */ __name((cacheControl = "") => {
+  const match = String(cacheControl || "").toLowerCase().match(/max-age=(\d+)/);
+  if (!match) return 300;
+  const seconds = Number.parseInt(match[1], 10);
+  if (!Number.isFinite(seconds) || seconds <= 0) return 300;
+  return seconds;
+}, "parseMaxAgeSeconds");
+var resolveAuthorizationToken = /* @__PURE__ */ __name((authorizationHeader) => {
+  const value = String(authorizationHeader || "").trim();
+  if (!value) {
+    throw createAuthError(401, "Missing authorization token.", "missing_auth_header");
+  }
+  const [scheme, token] = value.split(/\s+/, 2);
+  if (!scheme || scheme.toLowerCase() !== "bearer" || !token) {
+    throw createAuthError(401, "Authorization header must be Bearer token.", "invalid_auth_header");
+  }
+  return token.trim();
+}, "resolveAuthorizationToken");
+var readTestUserFromToken = /* @__PURE__ */ __name((token) => {
+  const raw = String(token || "").trim();
+  if (!raw || !raw.startsWith("test-token")) return null;
+  if (raw === "test-token") {
+    return {
+      uid: "test-user",
+      email: "test@example.com",
+      name: "Test User",
+      picture: "",
+      claims: {}
+    };
+  }
+  const parts = raw.split(":");
+  if (parts.length < 4) {
+    throw createAuthError(
+      401,
+      "Invalid test token format. Use test-token:<uid>:<email>:<name>.",
+      "invalid_test_token"
+    );
+  }
+  return {
+    uid: decodeURIComponent(parts[1] || "").trim() || "test-user",
+    email: decodeURIComponent(parts[2] || "").trim().toLowerCase(),
+    name: decodeURIComponent(parts.slice(3).join(":") || "").trim(),
+    picture: "",
+    claims: {}
+  };
+}, "readTestUserFromToken");
+var loadJwks = /* @__PURE__ */ __name(async ({ jwksUrl, cacheKey, forceRefresh = false }) => {
+  const now = Date.now();
+  const cached = jwksCache.get(cacheKey);
+  if (!forceRefresh && cached && cached.expiresAt > now + 5e3) {
+    return cached.keys;
+  }
+  const response = await fetch(jwksUrl, {
+    method: "GET",
+    headers: { Accept: "application/json" }
+  }).catch((error) => {
+    throw createAuthError(401, `Unable to fetch Firebase JWKS: ${error?.message || "network error"}`, "jwks_fetch_failed");
+  });
+  if (!response.ok) {
+    throw createAuthError(401, `Unable to fetch Firebase JWKS (${response.status}).`, "jwks_fetch_failed");
+  }
+  const payload = await response.json().catch(() => null);
+  const keys = Array.isArray(payload?.keys) ? payload.keys : [];
+  if (!keys.length) {
+    throw createAuthError(401, "Firebase JWKS response did not include keys.", "jwks_invalid");
+  }
+  const maxAgeSeconds = parseMaxAgeSeconds(response.headers.get("cache-control") || "");
+  jwksCache.set(cacheKey, {
+    keys,
+    expiresAt: now + maxAgeSeconds * 1e3
+  });
+  return keys;
+}, "loadJwks");
+var pickJwkByKid = /* @__PURE__ */ __name((keys = [], kid = "") => keys.find(
+  (key) => key && key.kty === "RSA" && typeof key.kid === "string" && key.kid === kid && typeof key.n === "string" && typeof key.e === "string"
+) || null, "pickJwkByKid");
+var verifyRs256Signature = /* @__PURE__ */ __name(async ({ jwk, signature, signingInput }) => {
+  const cryptoKey = await crypto.subtle.importKey(
+    "jwk",
+    jwk,
+    {
+      name: "RSASSA-PKCS1-v1_5",
+      hash: "SHA-256"
+    },
+    false,
+    ["verify"]
+  );
+  return crypto.subtle.verify(
+    {
+      name: "RSASSA-PKCS1-v1_5"
+    },
+    cryptoKey,
+    signature,
+    signingInput
+  );
+}, "verifyRs256Signature");
+var validateStandardClaims = /* @__PURE__ */ __name(({ payload, projectId }) => {
+  const nowSeconds = Math.floor(Date.now() / 1e3);
+  const expectedIssuer = `https://securetoken.google.com/${projectId}`;
+  if (payload?.aud !== projectId) {
+    throw createAuthError(401, "Invalid Firebase token audience.", "invalid_aud");
+  }
+  if (payload?.iss !== expectedIssuer) {
+    throw createAuthError(401, "Invalid Firebase token issuer.", "invalid_iss");
+  }
+  if (typeof payload?.sub !== "string" || !payload.sub.trim() || payload.sub.length > 128) {
+    throw createAuthError(401, "Invalid Firebase token subject.", "invalid_sub");
+  }
+  const exp = Number(payload?.exp);
+  if (!Number.isFinite(exp) || exp < nowSeconds - CLOCK_SKEW_SECONDS) {
+    throw createAuthError(401, "Firebase token has expired.", "token_expired");
+  }
+  const iat = Number(payload?.iat);
+  if (Number.isFinite(iat) && iat > nowSeconds + MAX_CLOCK_FUTURE_SKEW_SECONDS) {
+    throw createAuthError(401, "Firebase token issued-at time is invalid.", "invalid_iat");
+  }
+}, "validateStandardClaims");
+var toPublicAuthUser = /* @__PURE__ */ __name((payload = {}) => ({
+  uid: String(payload.sub || "").trim(),
+  email: typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "",
+  name: typeof payload.name === "string" ? payload.name.trim() : "",
+  picture: typeof payload.picture === "string" ? payload.picture.trim() : "",
+  claims: payload
+}), "toPublicAuthUser");
+var createFirebaseTokenVerifier = /* @__PURE__ */ __name(({
+  projectId = "",
+  jwksUrl = DEFAULT_FIREBASE_JWKS_URL,
+  testMode = false
+} = {}) => {
+  const normalizedProjectId = String(projectId || "").trim();
+  const normalizedJwksUrl = String(jwksUrl || "").trim() || DEFAULT_FIREBASE_JWKS_URL;
+  const cacheKey = `${normalizedProjectId}::${normalizedJwksUrl}`;
+  if (!normalizedProjectId && !testMode) {
+    throw new Error("FIREBASE_PROJECT_ID is required for Firebase token verification.");
+  }
+  const verifyToken = /* @__PURE__ */ __name(async (token) => {
+    if (testMode) {
+      const testUser = readTestUserFromToken(token);
+      if (testUser) return testUser;
+    }
+    const { header, payload, signature, signingInput } = parseJwt(token);
+    if (header?.alg !== "RS256") {
+      throw createAuthError(401, "Firebase token must use RS256.", "invalid_alg");
+    }
+    if (!header?.kid) {
+      throw createAuthError(401, "Firebase token is missing key id (kid).", "missing_kid");
+    }
+    const keys = await loadJwks({
+      jwksUrl: normalizedJwksUrl,
+      cacheKey,
+      forceRefresh: false
+    });
+    let jwk = pickJwkByKid(keys, header.kid);
+    if (!jwk) {
+      const refreshedKeys = await loadJwks({
+        jwksUrl: normalizedJwksUrl,
+        cacheKey,
+        forceRefresh: true
+      });
+      jwk = pickJwkByKid(refreshedKeys, header.kid);
+    }
+    if (!jwk) {
+      throw createAuthError(401, "Firebase token key is not trusted.", "unknown_kid");
+    }
+    const verified = await verifyRs256Signature({
+      jwk,
+      signature,
+      signingInput
+    });
+    if (!verified) {
+      throw createAuthError(401, "Invalid Firebase token signature.", "invalid_signature");
+    }
+    validateStandardClaims({
+      payload,
+      projectId: normalizedProjectId
+    });
+    return toPublicAuthUser(payload);
+  }, "verifyToken");
+  const verifyAuthorizationHeader = /* @__PURE__ */ __name(async (authorizationHeader) => {
+    const token = resolveAuthorizationToken(authorizationHeader);
+    return verifyToken(token);
+  }, "verifyAuthorizationHeader");
+  return {
+    verifyToken,
+    verifyAuthorizationHeader
+  };
+}, "createFirebaseTokenVerifier");
+
 // src/worker.js
 var REQUEST_TIMEOUT_MS = 8e4;
 var GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
@@ -31239,7 +31489,7 @@ var parseCorsOrigins = /* @__PURE__ */ __name((value) => {
 }, "parseCorsOrigins");
 var parseAiProvider = /* @__PURE__ */ __name((value) => {
   const normalized = String(value ?? "").trim().toLowerCase();
-  if (["auto", "gemini", "groq"].includes(normalized)) {
+  if (["auto", "gemini", "groq", "openai"].includes(normalized)) {
     return normalized;
   }
   return "auto";
@@ -31296,6 +31546,14 @@ var ensureIndexes = /* @__PURE__ */ __name(async (db) => {
       db.collection("tts_snippets").createIndex(
         { ownerKey: 1, normalizedContent: 1 },
         { name: "uq_tts_snippets_owner_content", unique: true }
+      ),
+      db.collection("ai_conversations").createIndex(
+        { ownerUid: 1, updatedAt: -1 },
+        { name: "idx_ai_conversations_owner_updated" }
+      ),
+      db.collection("ai_conversations").createIndex(
+        { ownerUid: 1, id: 1 },
+        { name: "uq_ai_conversations_owner_id", unique: true }
       )
     ]);
   } catch (error) {
@@ -31318,11 +31576,17 @@ var getEnvConfig = /* @__PURE__ */ __name((bindings = {}) => {
     corsOrigins: parseCorsOrigins(source.CORS_ORIGIN),
     maxRequestBodyBytes: toPositiveInt(source.REQUEST_BODY_LIMIT_BYTES, 262144),
     enableSecurityHeaders: toBoolean(source.ENABLE_SECURITY_HEADERS, true),
+    firebaseProjectId: source.FIREBASE_PROJECT_ID?.trim() || "",
+    firebaseJwksUrl: source.FIREBASE_JWKS_URL?.trim() || "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com",
+    firebaseAuthTestMode: nodeEnv !== "production" && toBoolean(source.FIREBASE_AUTH_TEST_MODE, false),
     geminiApiKey: source.GEMINI_API_KEY?.trim() || source.GOOGLE_API_KEY?.trim() || "",
     geminiChatModel: source.GEMINI_CHAT_MODEL?.trim() || "gemini-2.5-flash",
     groqApiKey: source.GROQ_API_KEY?.trim() || "",
     groqApiBase: source.GROQ_API_BASE?.trim().replace(/\/+$/, "") || "https://api.groq.com/openai/v1",
     groqChatModel: source.GROQ_CHAT_MODEL?.trim() || "llama-3.3-70b-versatile",
+    openaiApiKey: source.OPENAI_API_KEY?.trim() || source.NVIDIA_API_KEY?.trim() || "",
+    openaiBaseUrl: source.OPENAI_BASE_URL?.trim().replace(/\/+$/, "") || "https://integrate.api.nvidia.com/v1",
+    openaiChatModel: source.OPENAI_CHAT_MODEL?.trim() || "microsoft/phi-3.5-mini-instruct",
     aiDefaultProvider: parseAiProvider(source.AI_DEFAULT_PROVIDER),
     aiSystemPrompt: source.AI_SYSTEM_PROMPT?.trim() || "You are Mindlytic AI, an all-in-one assistant. Give practical, structured, and concise answers first, then add implementation details, edge cases, and simple teaching guidance when useful.",
     aiTemperature: toNumberInRange(source.AI_TEMPERATURE, 1.5, { min: 0, max: 2 }),
@@ -31405,7 +31669,10 @@ var getState = /* @__PURE__ */ __name(async (bindings) => {
     mongodbDataApiKey: bindings?.MONGODB_DATA_API_KEY || "",
     mongodbDataSource: bindings?.MONGODB_DATA_SOURCE || "",
     mongodbServerSelectionTimeoutMs: bindings?.MONGODB_SERVER_SELECTION_TIMEOUT_MS || "",
-    mongodbConnectTimeoutMs: bindings?.MONGODB_CONNECT_TIMEOUT_MS || ""
+    mongodbConnectTimeoutMs: bindings?.MONGODB_CONNECT_TIMEOUT_MS || "",
+    firebaseProjectId: bindings?.FIREBASE_PROJECT_ID || "",
+    firebaseJwksUrl: bindings?.FIREBASE_JWKS_URL || "",
+    firebaseAuthTestMode: bindings?.FIREBASE_AUTH_TEST_MODE || ""
   });
   if (!workerStatePromise || workerStateKey !== stateKey) {
     workerStateKey = stateKey;
@@ -31458,6 +31725,7 @@ var getState = /* @__PURE__ */ __name(async (bindings) => {
         envConfig,
         dbStatus,
         mongoClient,
+        firebaseTokenVerifier: null,
         repositories: createRepositories({
           db,
           logger
@@ -31516,8 +31784,8 @@ var createBaseHeaders = /* @__PURE__ */ __name((request, envConfig, extras = {})
       headers.set("Vary", "Origin");
     }
   }
-  headers.set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
-  headers.set("Access-Control-Allow-Headers", "Content-Type, X-Admin-Key");
+  headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Admin-Key");
   for (const [name, value] of Object.entries(getSecurityHeaders(envConfig))) {
     headers.set(name, value);
   }
@@ -31600,6 +31868,14 @@ var getTextFromGroqResponse = /* @__PURE__ */ __name((data) => {
   }
   return "";
 }, "getTextFromGroqResponse");
+var getTextFromOpenAIResponse = /* @__PURE__ */ __name((data) => {
+  const content = data?.choices?.[0]?.message?.content;
+  if (typeof content === "string") return content.trim();
+  if (Array.isArray(content)) {
+    return content.map((part) => typeof part?.text === "string" ? part.text : "").join("").trim();
+  }
+  return "";
+}, "getTextFromOpenAIResponse");
 var sanitizeChatMessages = /* @__PURE__ */ __name((messages = []) => messages.map((message) => ({
   role: message?.role === "assistant" ? "assistant" : "user",
   text: String(message?.text || "").trim()
@@ -31630,11 +31906,14 @@ var readUpstreamError = /* @__PURE__ */ __name(async (response) => {
 var resolveChatProvider = /* @__PURE__ */ __name((requestedProvider, envConfig) => {
   const hasGemini = Boolean(envConfig.geminiApiKey);
   const hasGroq = Boolean(envConfig.groqApiKey);
+  const hasOpenAI = Boolean(envConfig.openaiApiKey);
   const preferred = requestedProvider || envConfig.aiDefaultProvider || "auto";
   if (preferred === "gemini") return hasGemini ? "gemini" : "";
   if (preferred === "groq") return hasGroq ? "groq" : "";
+  if (preferred === "openai") return hasOpenAI ? "openai" : "";
   if (hasGemini) return "gemini";
   if (hasGroq) return "groq";
+  if (hasOpenAI) return "openai";
   return "";
 }, "resolveChatProvider");
 var ensureString = /* @__PURE__ */ __name((value) => typeof value === "string" ? value : "", "ensureString");
@@ -31966,8 +32245,8 @@ var handleAiChatPost = /* @__PURE__ */ __name(async (request, state) => {
     return jsonResponse(request, envConfig, 400, { error: "At least one non-empty message is required." });
   }
   const requestedProvider = ensureString(body.provider).trim().toLowerCase();
-  if (requestedProvider && !["auto", "gemini", "groq"].includes(requestedProvider)) {
-    return jsonResponse(request, envConfig, 400, { error: "provider must be one of: auto, gemini, groq" });
+  if (requestedProvider && !["auto", "gemini", "groq", "openai"].includes(requestedProvider)) {
+    return jsonResponse(request, envConfig, 400, { error: "provider must be one of: auto, gemini, groq, openai" });
   }
   if (requestedProvider === "gemini" && !envConfig.geminiApiKey) {
     return jsonResponse(request, envConfig, 503, { error: "Gemini is not configured on the backend." });
@@ -31975,14 +32254,17 @@ var handleAiChatPost = /* @__PURE__ */ __name(async (request, state) => {
   if (requestedProvider === "groq" && !envConfig.groqApiKey) {
     return jsonResponse(request, envConfig, 503, { error: "Groq is not configured on the backend." });
   }
+  if (requestedProvider === "openai" && !envConfig.openaiApiKey) {
+    return jsonResponse(request, envConfig, 503, { error: "OpenAI is not configured on the backend." });
+  }
   const provider = resolveChatProvider(requestedProvider || "auto", envConfig);
   if (!provider) {
     return jsonResponse(request, envConfig, 503, {
-      error: "No AI text provider is configured. Set GEMINI_API_KEY or GROQ_API_KEY in backend .env."
+      error: "No AI text provider is configured. Set GEMINI_API_KEY, GROQ_API_KEY, or OPENAI_API_KEY in backend .env."
     });
   }
   const model = ensureString(
-    body.model || (provider === "gemini" ? envConfig.geminiChatModel : envConfig.groqChatModel) || ""
+    body.model || (provider === "gemini" ? envConfig.geminiChatModel : provider === "groq" ? envConfig.groqChatModel : envConfig.openaiChatModel) || ""
   ).trim();
   if (!model) {
     return jsonResponse(request, envConfig, 500, { error: "AI model is not configured on the backend." });
@@ -32017,7 +32299,7 @@ var handleAiChatPost = /* @__PURE__ */ __name(async (request, state) => {
         signal: controller.signal,
         body: JSON.stringify(payload2)
       });
-    } else {
+    } else if (provider === "groq") {
       const endpoint = `${envConfig.groqApiBase}/chat/completions`;
       const payload2 = {
         model,
@@ -32031,6 +32313,24 @@ var handleAiChatPost = /* @__PURE__ */ __name(async (request, state) => {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${envConfig.groqApiKey}`
+        },
+        signal: controller.signal,
+        body: JSON.stringify(payload2)
+      });
+    } else {
+      const endpoint = `${envConfig.openaiBaseUrl}/chat/completions`;
+      const payload2 = {
+        model,
+        messages: buildGroqMessages(messages, systemPrompt),
+        temperature,
+        max_tokens: maxOutputTokens,
+        stream: false
+      };
+      upstreamResponse = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${envConfig.openaiApiKey}`
         },
         signal: controller.signal,
         body: JSON.stringify(payload2)
@@ -32054,7 +32354,7 @@ var handleAiChatPost = /* @__PURE__ */ __name(async (request, state) => {
   if (!payload) {
     return jsonResponse(request, envConfig, 502, { error: "AI provider returned invalid JSON." });
   }
-  const text = provider === "gemini" ? getTextFromGeminiResponse(payload) : getTextFromGroqResponse(payload);
+  const text = provider === "gemini" ? getTextFromGeminiResponse(payload) : provider === "groq" ? getTextFromGroqResponse(payload) : getTextFromOpenAIResponse(payload);
   if (!text) {
     return jsonResponse(request, envConfig, 502, { error: `${provider} returned an empty response.` });
   }
@@ -32064,6 +32364,169 @@ var handleAiChatPost = /* @__PURE__ */ __name(async (request, state) => {
     text
   });
 }, "handleAiChatPost");
+var isValidHistoryId = /* @__PURE__ */ __name((value) => typeof value === "string" && value.trim().length >= 6 && value.trim().length <= 120, "isValidHistoryId");
+var validateHistoryPayload = /* @__PURE__ */ __name((body) => {
+  if (typeof body !== "object" || body === null) {
+    return "Request body must be a JSON object";
+  }
+  if (body.title !== void 0 && (typeof body.title !== "string" || body.title.length > 120)) {
+    return "title must be a string with max 120 characters";
+  }
+  if (!Array.isArray(body.messages) || body.messages.length < 1 || body.messages.length > 80) {
+    return "messages must be an array with 1-80 items";
+  }
+  for (const message of body.messages) {
+    if (typeof message !== "object" || message === null) {
+      return "each message must be an object";
+    }
+    if (!["user", "assistant"].includes(String(message.role || ""))) {
+      return "message role must be either user or assistant";
+    }
+    const text = String(message.text || "").trim();
+    if (!text || text.length > 12e3) {
+      return "message text must be 1-12000 characters";
+    }
+    if (message.createdAt !== void 0 && (typeof message.createdAt !== "string" || message.createdAt.length > 64)) {
+      return "message createdAt must be a string with max 64 characters";
+    }
+  }
+  return "";
+}, "validateHistoryPayload");
+var getAuthenticatedUser = /* @__PURE__ */ __name(async (request, state) => {
+  const { envConfig } = state;
+  if (!envConfig.firebaseProjectId && !envConfig.firebaseAuthTestMode) {
+    return {
+      errorResponse: jsonResponse(request, envConfig, 503, {
+        error: "Firebase auth is not configured on this backend."
+      })
+    };
+  }
+  if (!state.firebaseTokenVerifier) {
+    state.firebaseTokenVerifier = createFirebaseTokenVerifier({
+      projectId: envConfig.firebaseProjectId,
+      jwksUrl: envConfig.firebaseJwksUrl,
+      testMode: envConfig.firebaseAuthTestMode
+    });
+  }
+  try {
+    const user = await state.firebaseTokenVerifier.verifyAuthorizationHeader(request.headers.get("authorization"));
+    return { user };
+  } catch (error) {
+    return {
+      errorResponse: jsonResponse(request, envConfig, 401, {
+        error: "Unauthorized",
+        details: error?.message || "Invalid Firebase token."
+      })
+    };
+  }
+}, "getAuthenticatedUser");
+var handleAiHistoryListGet = /* @__PURE__ */ __name(async (request, state) => {
+  const { envConfig, repositories } = state;
+  const authResult = await getAuthenticatedUser(request, state);
+  if (authResult.errorResponse) {
+    return authResult.errorResponse;
+  }
+  const url = new URL(request.url);
+  const limitRaw = url.searchParams.get("limit");
+  const limit = limitRaw === null ? 30 : Number.parseInt(limitRaw, 10);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 50) {
+    return jsonResponse(request, envConfig, 400, { error: "limit must be an integer between 1 and 50" });
+  }
+  const items = await repositories.listAiConversations({
+    ownerUid: authResult.user.uid,
+    limit
+  });
+  return jsonResponse(
+    request,
+    envConfig,
+    200,
+    {
+      count: items.length,
+      data: items
+    },
+    {
+      "Cache-Control": "no-store"
+    }
+  );
+}, "handleAiHistoryListGet");
+var handleAiHistoryGet = /* @__PURE__ */ __name(async (request, state, conversationId) => {
+  const { envConfig, repositories } = state;
+  const authResult = await getAuthenticatedUser(request, state);
+  if (authResult.errorResponse) {
+    return authResult.errorResponse;
+  }
+  const normalizedId = ensureString(conversationId).trim();
+  if (!isValidHistoryId(normalizedId)) {
+    return jsonResponse(request, envConfig, 400, { error: "Conversation id is invalid" });
+  }
+  const conversation = await repositories.getAiConversation({
+    ownerUid: authResult.user.uid,
+    id: normalizedId
+  });
+  if (!conversation) {
+    return jsonResponse(request, envConfig, 404, { error: "Conversation not found" });
+  }
+  return jsonResponse(
+    request,
+    envConfig,
+    200,
+    {
+      data: conversation
+    },
+    {
+      "Cache-Control": "no-store"
+    }
+  );
+}, "handleAiHistoryGet");
+var handleAiHistoryPut = /* @__PURE__ */ __name(async (request, state, conversationId) => {
+  const { envConfig, repositories } = state;
+  const authResult = await getAuthenticatedUser(request, state);
+  if (authResult.errorResponse) {
+    return authResult.errorResponse;
+  }
+  const normalizedId = ensureString(conversationId).trim();
+  if (!isValidHistoryId(normalizedId)) {
+    return jsonResponse(request, envConfig, 400, { error: "Conversation id is invalid" });
+  }
+  const body = await parseRequestBody(request, envConfig);
+  const validationError = validateHistoryPayload(body);
+  if (validationError) {
+    return jsonResponse(request, envConfig, 400, { error: validationError });
+  }
+  const saved = await repositories.upsertAiConversation({
+    ownerUid: authResult.user.uid,
+    ownerEmail: authResult.user.email,
+    ownerName: authResult.user.name,
+    id: normalizedId,
+    title: ensureString(body.title),
+    messages: body.messages
+  });
+  return jsonResponse(request, envConfig, 200, {
+    message: "Conversation saved successfully",
+    data: saved
+  });
+}, "handleAiHistoryPut");
+var handleAiHistoryDelete = /* @__PURE__ */ __name(async (request, state, conversationId) => {
+  const { envConfig, repositories } = state;
+  const authResult = await getAuthenticatedUser(request, state);
+  if (authResult.errorResponse) {
+    return authResult.errorResponse;
+  }
+  const normalizedId = ensureString(conversationId).trim();
+  if (!isValidHistoryId(normalizedId)) {
+    return jsonResponse(request, envConfig, 400, { error: "Conversation id is invalid" });
+  }
+  const result = await repositories.removeAiConversation({
+    ownerUid: authResult.user.uid,
+    id: normalizedId
+  });
+  if (!result.removed) {
+    return jsonResponse(request, envConfig, 404, { error: "Conversation not found" });
+  }
+  return jsonResponse(request, envConfig, 200, {
+    message: "Conversation removed successfully"
+  });
+}, "handleAiHistoryDelete");
 var handleRoute = /* @__PURE__ */ __name(async (request, state) => {
   const { envConfig, dbStatus, startedAt } = state;
   const method = request.method.toUpperCase();
@@ -32134,6 +32597,21 @@ var handleRoute = /* @__PURE__ */ __name(async (request, state) => {
   }
   if (path === "/api/ai/chat" && method === "POST") {
     return handleAiChatPost(request, state);
+  }
+  if (path === "/api/ai/history" && method === "GET") {
+    return handleAiHistoryListGet(request, state);
+  }
+  if (path.startsWith("/api/ai/history/")) {
+    const conversationId = decodeURIComponent(path.slice("/api/ai/history/".length));
+    if (method === "GET") {
+      return handleAiHistoryGet(request, state, conversationId);
+    }
+    if (method === "PUT") {
+      return handleAiHistoryPut(request, state, conversationId);
+    }
+    if (method === "DELETE") {
+      return handleAiHistoryDelete(request, state, conversationId);
+    }
   }
   return jsonResponse(request, envConfig, 404, {
     error: "Route not found",
@@ -32218,7 +32696,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-k6zTdD/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-69dImD/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -32252,7 +32730,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-k6zTdD/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-69dImD/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

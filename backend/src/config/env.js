@@ -55,7 +55,7 @@ const parseCorsOrigins = (value) => {
 
 const parseAiProvider = (value) => {
   const normalized = String(value ?? "").trim().toLowerCase();
-  if (["auto", "gemini", "groq"].includes(normalized)) {
+  if (["auto", "gemini", "groq", "openai"].includes(normalized)) {
     return normalized;
   }
   return "auto";
@@ -87,11 +87,19 @@ export const getEnv = (overrides = {}) => {
     enableCompression: toBoolean(source.ENABLE_COMPRESSION, true),
     enableSecurityHeaders: toBoolean(source.ENABLE_SECURITY_HEADERS, true),
     trustProxy: toBoolean(source.TRUST_PROXY, false),
+    firebaseProjectId: source.FIREBASE_PROJECT_ID?.trim() || "",
+    firebaseJwksUrl:
+      source.FIREBASE_JWKS_URL?.trim() ||
+      "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com",
+    firebaseAuthTestMode: nodeEnv !== "production" && toBoolean(source.FIREBASE_AUTH_TEST_MODE, false),
     geminiApiKey: source.GEMINI_API_KEY?.trim() || source.GOOGLE_API_KEY?.trim() || "",
     geminiChatModel: source.GEMINI_CHAT_MODEL?.trim() || "gemini-2.5-flash",
     groqApiKey: source.GROQ_API_KEY?.trim() || "",
     groqApiBase: source.GROQ_API_BASE?.trim().replace(/\/+$/, "") || "https://api.groq.com/openai/v1",
     groqChatModel: source.GROQ_CHAT_MODEL?.trim() || "llama-3.3-70b-versatile",
+    openaiApiKey: source.OPENAI_API_KEY?.trim() || source.NVIDIA_API_KEY?.trim() || "",
+    openaiBaseUrl: source.OPENAI_BASE_URL?.trim().replace(/\/+$/, "") || "https://integrate.api.nvidia.com/v1",
+    openaiChatModel: source.OPENAI_CHAT_MODEL?.trim() || "microsoft/phi-3.5-mini-instruct",
     aiDefaultProvider: parseAiProvider(source.AI_DEFAULT_PROVIDER),
     aiSystemPrompt:
       source.AI_SYSTEM_PROMPT?.trim() ||

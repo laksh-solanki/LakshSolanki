@@ -5,6 +5,7 @@ import { registerMediaRoutes } from "./media.js";
 import { registerSubscriptionRoutes } from "./subscriptions.js";
 import { registerAiRoutes } from "./ai.js";
 import { registerTtsSnippetRoutes } from "./tts-snippets.js";
+import { registerAiHistoryRoutes } from "./ai-history.js";
 
 export const registerRoutes = async (app) => {
   await registerRootRoutes(app);
@@ -13,5 +14,6 @@ export const registerRoutes = async (app) => {
   await registerMediaRoutes(app);
   await registerSubscriptionRoutes(app);
   await registerAiRoutes(app);
+  await registerAiHistoryRoutes(app);
   await registerTtsSnippetRoutes(app);
 };

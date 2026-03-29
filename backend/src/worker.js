@@ -1,6 +1,7 @@
 import { isValidEmail, normalizeEmail } from "./lib/email.js";
 import { createMongoDataApiDb } from "./lib/mongo-data-api.js";
 import { createRepositories } from "./services/repositories.js";
+import { createFirebaseTokenVerifier } from "./lib/firebase-auth.js";
 
 const REQUEST_TIMEOUT_MS = 80000;
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
@@ -68,7 +69,7 @@ const parseCorsOrigins = (value) => {
 
 const parseAiProvider = (value) => {
   const normalized = String(value ?? "").trim().toLowerCase();
-  if (["auto", "gemini", "groq"].includes(normalized)) {
+  if (["auto", "gemini", "groq", "openai"].includes(normalized)) {
     return normalized;
   }
   return "auto";
@@ -129,6 +130,14 @@ const ensureIndexes = async (db) => {
         { ownerKey: 1, normalizedContent: 1 },
         { name: "uq_tts_snippets_owner_content", unique: true },
       ),
+      db.collection("ai_conversations").createIndex(
+        { ownerUid: 1, updatedAt: -1 },
+        { name: "idx_ai_conversations_owner_updated" },
+      ),
+      db.collection("ai_conversations").createIndex(
+        { ownerUid: 1, id: 1 },
+        { name: "uq_ai_conversations_owner_id", unique: true },
+      ),
     ]);
   } catch (error) {
     logger.warn("Index creation skipped due to existing index/conflicting data.", error);
@@ -156,11 +165,19 @@ const getEnvConfig = (bindings = {}) => {
     corsOrigins: parseCorsOrigins(source.CORS_ORIGIN),
     maxRequestBodyBytes: toPositiveInt(source.REQUEST_BODY_LIMIT_BYTES, 262144),
     enableSecurityHeaders: toBoolean(source.ENABLE_SECURITY_HEADERS, true),
+    firebaseProjectId: source.FIREBASE_PROJECT_ID?.trim() || "",
+    firebaseJwksUrl:
+      source.FIREBASE_JWKS_URL?.trim() ||
+      "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com",
+    firebaseAuthTestMode: nodeEnv !== "production" && toBoolean(source.FIREBASE_AUTH_TEST_MODE, false),
     geminiApiKey: source.GEMINI_API_KEY?.trim() || source.GOOGLE_API_KEY?.trim() || "",
     geminiChatModel: source.GEMINI_CHAT_MODEL?.trim() || "gemini-2.5-flash",
     groqApiKey: source.GROQ_API_KEY?.trim() || "",
     groqApiBase: source.GROQ_API_BASE?.trim().replace(/\/+$/, "") || "https://api.groq.com/openai/v1",
     groqChatModel: source.GROQ_CHAT_MODEL?.trim() || "llama-3.3-70b-versatile",
+    openaiApiKey: source.OPENAI_API_KEY?.trim() || source.NVIDIA_API_KEY?.trim() || "",
+    openaiBaseUrl: source.OPENAI_BASE_URL?.trim().replace(/\/+$/, "") || "https://integrate.api.nvidia.com/v1",
+    openaiChatModel: source.OPENAI_CHAT_MODEL?.trim() || "microsoft/phi-3.5-mini-instruct",
     aiDefaultProvider: parseAiProvider(source.AI_DEFAULT_PROVIDER),
     aiSystemPrompt:
       source.AI_SYSTEM_PROMPT?.trim() ||
@@ -266,6 +283,9 @@ const getState = async (bindings) => {
     mongodbDataSource: bindings?.MONGODB_DATA_SOURCE || "",
     mongodbServerSelectionTimeoutMs: bindings?.MONGODB_SERVER_SELECTION_TIMEOUT_MS || "",
     mongodbConnectTimeoutMs: bindings?.MONGODB_CONNECT_TIMEOUT_MS || "",
+    firebaseProjectId: bindings?.FIREBASE_PROJECT_ID || "",
+    firebaseJwksUrl: bindings?.FIREBASE_JWKS_URL || "",
+    firebaseAuthTestMode: bindings?.FIREBASE_AUTH_TEST_MODE || "",
   });
 
   if (!workerStatePromise || workerStateKey !== stateKey) {
@@ -324,6 +344,7 @@ const getState = async (bindings) => {
         envConfig,
         dbStatus,
         mongoClient,
+        firebaseTokenVerifier: null,
         repositories: createRepositories({
           db,
           logger,
@@ -397,8 +418,8 @@ const createBaseHeaders = (request, envConfig, extras = {}) => {
     }
   }
 
-  headers.set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
-  headers.set("Access-Control-Allow-Headers", "Content-Type, X-Admin-Key");
+  headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Admin-Key");
 
   for (const [name, value] of Object.entries(getSecurityHeaders(envConfig))) {
     headers.set(name, value);
@@ -508,6 +529,18 @@ const getTextFromGroqResponse = (data) => {
   return "";
 };
 
+const getTextFromOpenAIResponse = (data) => {
+  const content = data?.choices?.[0]?.message?.content;
+  if (typeof content === "string") return content.trim();
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => (typeof part?.text === "string" ? part.text : ""))
+      .join("")
+      .trim();
+  }
+  return "";
+};
+
 const sanitizeChatMessages = (messages = []) =>
   messages
     .map((message) => ({
@@ -548,13 +581,16 @@ const readUpstreamError = async (response) => {
 const resolveChatProvider = (requestedProvider, envConfig) => {
   const hasGemini = Boolean(envConfig.geminiApiKey);
   const hasGroq = Boolean(envConfig.groqApiKey);
+  const hasOpenAI = Boolean(envConfig.openaiApiKey);
   const preferred = requestedProvider || envConfig.aiDefaultProvider || "auto";
 
   if (preferred === "gemini") return hasGemini ? "gemini" : "";
   if (preferred === "groq") return hasGroq ? "groq" : "";
+  if (preferred === "openai") return hasOpenAI ? "openai" : "";
 
   if (hasGemini) return "gemini";
   if (hasGroq) return "groq";
+  if (hasOpenAI) return "openai";
   return "";
 };
 
@@ -939,8 +975,8 @@ const handleAiChatPost = async (request, state) => {
   }
 
   const requestedProvider = ensureString(body.provider).trim().toLowerCase();
-  if (requestedProvider && !["auto", "gemini", "groq"].includes(requestedProvider)) {
-    return jsonResponse(request, envConfig, 400, { error: "provider must be one of: auto, gemini, groq" });
+  if (requestedProvider && !["auto", "gemini", "groq", "openai"].includes(requestedProvider)) {
+    return jsonResponse(request, envConfig, 400, { error: "provider must be one of: auto, gemini, groq, openai" });
   }
   if (requestedProvider === "gemini" && !envConfig.geminiApiKey) {
     return jsonResponse(request, envConfig, 503, { error: "Gemini is not configured on the backend." });
@@ -948,16 +984,25 @@ const handleAiChatPost = async (request, state) => {
   if (requestedProvider === "groq" && !envConfig.groqApiKey) {
     return jsonResponse(request, envConfig, 503, { error: "Groq is not configured on the backend." });
   }
+  if (requestedProvider === "openai" && !envConfig.openaiApiKey) {
+    return jsonResponse(request, envConfig, 503, { error: "OpenAI is not configured on the backend." });
+  }
 
   const provider = resolveChatProvider(requestedProvider || "auto", envConfig);
   if (!provider) {
     return jsonResponse(request, envConfig, 503, {
-      error: "No AI text provider is configured. Set GEMINI_API_KEY or GROQ_API_KEY in backend .env.",
+      error: "No AI text provider is configured. Set GEMINI_API_KEY, GROQ_API_KEY, or OPENAI_API_KEY in backend .env.",
     });
   }
 
   const model = ensureString(
-    body.model || (provider === "gemini" ? envConfig.geminiChatModel : envConfig.groqChatModel) || "",
+    body.model ||
+      (provider === "gemini"
+        ? envConfig.geminiChatModel
+        : provider === "groq"
+          ? envConfig.groqChatModel
+          : envConfig.openaiChatModel) ||
+      "",
   ).trim();
   if (!model) {
     return jsonResponse(request, envConfig, 500, { error: "AI model is not configured on the backend." });
@@ -997,7 +1042,7 @@ const handleAiChatPost = async (request, state) => {
         signal: controller.signal,
         body: JSON.stringify(payload),
       });
-    } else {
+    } else if (provider === "groq") {
       const endpoint = `${envConfig.groqApiBase}/chat/completions`;
       const payload = {
         model,
@@ -1012,6 +1057,25 @@ const handleAiChatPost = async (request, state) => {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${envConfig.groqApiKey}`,
+        },
+        signal: controller.signal,
+        body: JSON.stringify(payload),
+      });
+    } else {
+      const endpoint = `${envConfig.openaiBaseUrl}/chat/completions`;
+      const payload = {
+        model,
+        messages: buildGroqMessages(messages, systemPrompt),
+        temperature,
+        max_tokens: maxOutputTokens,
+        stream: false,
+      };
+
+      upstreamResponse = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${envConfig.openaiApiKey}`,
         },
         signal: controller.signal,
         body: JSON.stringify(payload),
@@ -1039,7 +1103,12 @@ const handleAiChatPost = async (request, state) => {
     return jsonResponse(request, envConfig, 502, { error: "AI provider returned invalid JSON." });
   }
 
-  const text = provider === "gemini" ? getTextFromGeminiResponse(payload) : getTextFromGroqResponse(payload);
+  const text =
+    provider === "gemini"
+      ? getTextFromGeminiResponse(payload)
+      : provider === "groq"
+        ? getTextFromGroqResponse(payload)
+        : getTextFromOpenAIResponse(payload);
   if (!text) {
     return jsonResponse(request, envConfig, 502, { error: `${provider} returned an empty response.` });
   }
@@ -1048,6 +1117,196 @@ const handleAiChatPost = async (request, state) => {
     provider,
     model,
     text,
+  });
+};
+
+const isValidHistoryId = (value) => typeof value === "string" && value.trim().length >= 6 && value.trim().length <= 120;
+
+const validateHistoryPayload = (body) => {
+  if (typeof body !== "object" || body === null) {
+    return "Request body must be a JSON object";
+  }
+
+  if (body.title !== undefined && (typeof body.title !== "string" || body.title.length > 120)) {
+    return "title must be a string with max 120 characters";
+  }
+
+  if (!Array.isArray(body.messages) || body.messages.length < 1 || body.messages.length > 80) {
+    return "messages must be an array with 1-80 items";
+  }
+
+  for (const message of body.messages) {
+    if (typeof message !== "object" || message === null) {
+      return "each message must be an object";
+    }
+    if (!["user", "assistant"].includes(String(message.role || ""))) {
+      return "message role must be either user or assistant";
+    }
+    const text = String(message.text || "").trim();
+    if (!text || text.length > 12000) {
+      return "message text must be 1-12000 characters";
+    }
+    if (message.createdAt !== undefined && (typeof message.createdAt !== "string" || message.createdAt.length > 64)) {
+      return "message createdAt must be a string with max 64 characters";
+    }
+  }
+
+  return "";
+};
+
+const getAuthenticatedUser = async (request, state) => {
+  const { envConfig } = state;
+
+  if (!envConfig.firebaseProjectId && !envConfig.firebaseAuthTestMode) {
+    return {
+      errorResponse: jsonResponse(request, envConfig, 503, {
+        error: "Firebase auth is not configured on this backend.",
+      }),
+    };
+  }
+
+  if (!state.firebaseTokenVerifier) {
+    state.firebaseTokenVerifier = createFirebaseTokenVerifier({
+      projectId: envConfig.firebaseProjectId,
+      jwksUrl: envConfig.firebaseJwksUrl,
+      testMode: envConfig.firebaseAuthTestMode,
+    });
+  }
+
+  try {
+    const user = await state.firebaseTokenVerifier.verifyAuthorizationHeader(request.headers.get("authorization"));
+    return { user };
+  } catch (error) {
+    return {
+      errorResponse: jsonResponse(request, envConfig, 401, {
+        error: "Unauthorized",
+        details: error?.message || "Invalid Firebase token.",
+      }),
+    };
+  }
+};
+
+const handleAiHistoryListGet = async (request, state) => {
+  const { envConfig, repositories } = state;
+  const authResult = await getAuthenticatedUser(request, state);
+  if (authResult.errorResponse) {
+    return authResult.errorResponse;
+  }
+
+  const url = new URL(request.url);
+  const limitRaw = url.searchParams.get("limit");
+  const limit = limitRaw === null ? 30 : Number.parseInt(limitRaw, 10);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 50) {
+    return jsonResponse(request, envConfig, 400, { error: "limit must be an integer between 1 and 50" });
+  }
+
+  const items = await repositories.listAiConversations({
+    ownerUid: authResult.user.uid,
+    limit,
+  });
+
+  return jsonResponse(
+    request,
+    envConfig,
+    200,
+    {
+      count: items.length,
+      data: items,
+    },
+    {
+      "Cache-Control": "no-store",
+    },
+  );
+};
+
+const handleAiHistoryGet = async (request, state, conversationId) => {
+  const { envConfig, repositories } = state;
+  const authResult = await getAuthenticatedUser(request, state);
+  if (authResult.errorResponse) {
+    return authResult.errorResponse;
+  }
+
+  const normalizedId = ensureString(conversationId).trim();
+  if (!isValidHistoryId(normalizedId)) {
+    return jsonResponse(request, envConfig, 400, { error: "Conversation id is invalid" });
+  }
+
+  const conversation = await repositories.getAiConversation({
+    ownerUid: authResult.user.uid,
+    id: normalizedId,
+  });
+  if (!conversation) {
+    return jsonResponse(request, envConfig, 404, { error: "Conversation not found" });
+  }
+
+  return jsonResponse(
+    request,
+    envConfig,
+    200,
+    {
+      data: conversation,
+    },
+    {
+      "Cache-Control": "no-store",
+    },
+  );
+};
+
+const handleAiHistoryPut = async (request, state, conversationId) => {
+  const { envConfig, repositories } = state;
+  const authResult = await getAuthenticatedUser(request, state);
+  if (authResult.errorResponse) {
+    return authResult.errorResponse;
+  }
+
+  const normalizedId = ensureString(conversationId).trim();
+  if (!isValidHistoryId(normalizedId)) {
+    return jsonResponse(request, envConfig, 400, { error: "Conversation id is invalid" });
+  }
+
+  const body = await parseRequestBody(request, envConfig);
+  const validationError = validateHistoryPayload(body);
+  if (validationError) {
+    return jsonResponse(request, envConfig, 400, { error: validationError });
+  }
+
+  const saved = await repositories.upsertAiConversation({
+    ownerUid: authResult.user.uid,
+    ownerEmail: authResult.user.email,
+    ownerName: authResult.user.name,
+    id: normalizedId,
+    title: ensureString(body.title),
+    messages: body.messages,
+  });
+
+  return jsonResponse(request, envConfig, 200, {
+    message: "Conversation saved successfully",
+    data: saved,
+  });
+};
+
+const handleAiHistoryDelete = async (request, state, conversationId) => {
+  const { envConfig, repositories } = state;
+  const authResult = await getAuthenticatedUser(request, state);
+  if (authResult.errorResponse) {
+    return authResult.errorResponse;
+  }
+
+  const normalizedId = ensureString(conversationId).trim();
+  if (!isValidHistoryId(normalizedId)) {
+    return jsonResponse(request, envConfig, 400, { error: "Conversation id is invalid" });
+  }
+
+  const result = await repositories.removeAiConversation({
+    ownerUid: authResult.user.uid,
+    id: normalizedId,
+  });
+  if (!result.removed) {
+    return jsonResponse(request, envConfig, 404, { error: "Conversation not found" });
+  }
+
+  return jsonResponse(request, envConfig, 200, {
+    message: "Conversation removed successfully",
   });
 };
 
@@ -1137,6 +1396,23 @@ const handleRoute = async (request, state) => {
 
   if (path === "/api/ai/chat" && method === "POST") {
     return handleAiChatPost(request, state);
+  }
+
+  if (path === "/api/ai/history" && method === "GET") {
+    return handleAiHistoryListGet(request, state);
+  }
+
+  if (path.startsWith("/api/ai/history/")) {
+    const conversationId = decodeURIComponent(path.slice("/api/ai/history/".length));
+    if (method === "GET") {
+      return handleAiHistoryGet(request, state, conversationId);
+    }
+    if (method === "PUT") {
+      return handleAiHistoryPut(request, state, conversationId);
+    }
+    if (method === "DELETE") {
+      return handleAiHistoryDelete(request, state, conversationId);
+    }
   }
 
   return jsonResponse(request, envConfig, 404, {

@@ -6,6 +6,11 @@ const testEnv = {
   NODE_ENV: "test",
   MONGODB_URI: "",
   CORS_ORIGIN: "*",
+  FIREBASE_AUTH_TEST_MODE: "true",
+  GEMINI_API_KEY: "",
+  GOOGLE_API_KEY: "",
+  GROQ_API_KEY: "",
+  OPENAI_API_KEY: "",
 };
 
 const createTestApp = async () => {
@@ -237,5 +242,98 @@ test("text chat route returns configuration error when provider keys are missing
 
   assert.equal(response.statusCode, 503);
   assert.match(response.json().error, /No AI text provider is configured/i);
+});
+
+test("ai history endpoints reject unauthorized requests", async (t) => {
+  const app = await createTestApp();
+  t.after(async () => {
+    await app.close();
+  });
+
+  const response = await app.inject({
+    method: "GET",
+    url: "/api/ai/history",
+  });
+
+  assert.equal(response.statusCode, 401);
+  assert.match(response.json().error, /Unauthorized/i);
+});
+
+test("ai history endpoints persist, fetch, and isolate conversations by user", async (t) => {
+  const app = await createTestApp();
+  t.after(async () => {
+    await app.close();
+  });
+
+  const conversationId = "conversation-123456";
+  const userOneAuth = "Bearer test-token:user-1:user1@example.com:User%20One";
+  const userTwoAuth = "Bearer test-token:user-2:user2@example.com:User%20Two";
+
+  const upsertResponse = await app.inject({
+    method: "PUT",
+    url: `/api/ai/history/${encodeURIComponent(conversationId)}`,
+    headers: {
+      authorization: userOneAuth,
+    },
+    payload: {
+      messages: [
+        { role: "user", text: "Hello there" },
+        { role: "assistant", text: "Hi! How can I help?" },
+      ],
+    },
+  });
+  assert.equal(upsertResponse.statusCode, 200);
+  assert.equal(upsertResponse.json().data.id, conversationId);
+
+  const listResponse = await app.inject({
+    method: "GET",
+    url: "/api/ai/history?limit=30",
+    headers: {
+      authorization: userOneAuth,
+    },
+  });
+  assert.equal(listResponse.statusCode, 200);
+  assert.equal(listResponse.json().count, 1);
+  assert.equal(listResponse.json().data[0].id, conversationId);
+
+  const getResponse = await app.inject({
+    method: "GET",
+    url: `/api/ai/history/${encodeURIComponent(conversationId)}`,
+    headers: {
+      authorization: userOneAuth,
+    },
+  });
+  assert.equal(getResponse.statusCode, 200);
+  assert.equal(getResponse.json().data.messages.length, 2);
+
+  const isolatedGetResponse = await app.inject({
+    method: "GET",
+    url: `/api/ai/history/${encodeURIComponent(conversationId)}`,
+    headers: {
+      authorization: userTwoAuth,
+    },
+  });
+  assert.equal(isolatedGetResponse.statusCode, 404);
+
+  const invalidPayloadResponse = await app.inject({
+    method: "PUT",
+    url: `/api/ai/history/${encodeURIComponent(conversationId)}`,
+    headers: {
+      authorization: userOneAuth,
+    },
+    payload: {
+      messages: [],
+    },
+  });
+  assert.equal(invalidPayloadResponse.statusCode, 400);
+
+  const deleteResponse = await app.inject({
+    method: "DELETE",
+    url: `/api/ai/history/${encodeURIComponent(conversationId)}`,
+    headers: {
+      authorization: userOneAuth,
+    },
+  });
+  assert.equal(deleteResponse.statusCode, 200);
 });
 

@@ -1,235 +1,25 @@
-<template>
-  <div class="ai-page">
-    <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
-
-    <v-row class="ga-0">
-      <v-col cols="12">
-        <v-card ref="chatShell" :class="[
-          'chat-shell',
-          {
-            'chat-shell-fullscreen': isChatFullscreen,
-            'chat-shell-runner-open': runnerPanelOpen,
-            'chat-shell-compact': isCompactLayout,
-            'runner-resizing': runnerResizing,
-          },
-        ]" elevation="0" rounded="0">
-          <div class="chat-head-shell">
-            <v-toolbar class="chat-toolbar px-2 px-sm-3" density="comfortable" color="transparent">
-              <template #prepend>
-                <v-btn
-                  density="compact"
-                  variant="tonal"
-                  color="primary"
-                  rounded="xl"
-                  :icon="!showBackLabel"
-                  title="Back"
-                  aria-label="Back"
-                  class="mr-2 text-none"
-                  @click="goBack"
-                >
-                  <v-icon v-if="!showBackLabel" icon="mdi-arrow-left" />
-                  <template v-else>
-                    <v-icon start icon="mdi-arrow-left" />
-                    Back
-                  </template>
-                </v-btn>
-                <v-avatar size="33" color="primary" variant="tonal" class="mr-2">
-                  <v-icon size="18">mdi-robot-outline</v-icon>
-                </v-avatar>
-                <div class="chat-title-wrap">
-                  <p class="chat-title mb-0">Mindlytic AI</p>
-                </div>
-              </template>
-              <div class="chat-toolbar-actions">
-                <v-btn :size="showChatActionLabels ? 'small' : 'x-small'" color="primary" variant="tonal" rounded="lg"
-                  class="text-none" :icon="!showChatActionLabels" title="New Chat" aria-label="New Chat"
-                  @click="resetChat">
-                  <v-icon v-if="!showChatActionLabels" icon="mdi-plus" />
-                  <template v-else>
-                    <v-icon start icon="mdi-plus" />
-                    New Chat
-                  </template>
-                </v-btn>
-                <v-btn :size="showChatActionLabels ? 'small' : 'x-small'" color="primary" variant="outlined"
-                  rounded="lg" class="text-none" :icon="!showChatActionLabels" :disabled="loading || !canRegenerate"
-                  title="Regenerate" aria-label="Regenerate" @click="regenerateLastReply">
-                  <v-icon v-if="!showChatActionLabels" icon="mdi-refresh" />
-                  <template v-else>
-                    <v-icon start icon="mdi-refresh" />
-                    Regenerate
-                  </template>
-                </v-btn>
-                <v-btn :size="showChatActionLabels ? 'small' : 'x-small'" variant="tonal" color="primary" rounded="lg"
-                  class="text-none" :icon="!showChatActionLabels"
-                  :title="isChatFullscreen ? 'Exit Full Screen' : 'Full Screen'"
-                  :aria-label="isChatFullscreen ? 'Exit Full Screen' : 'Full Screen'" @click="toggleChatFullscreen">
-                  <v-icon v-if="!showChatActionLabels"
-                    :icon="isChatFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" />
-                  <template v-else>
-                    <v-icon start :icon="isChatFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" />
-                    {{ isChatFullscreen ? "Exit Full Screen" : "Full Screen" }}
-                  </template>
-                </v-btn>
-                <v-btn density="comfortable" variant="tonal" color="primary" rounded="lg"
-                  :title="searchOpen ? 'Close search' : 'Search messages'" @click="toggleSearch">
-                  <v-icon size="16">{{ searchOpen ? "mdi-close" : "mdi-magnify" }}</v-icon>
-                </v-btn>
-              </div>
-              <div class="chat-toolbar-model">
-                <v-select v-model="selectedModel" :items="availableModels" item-title="label" item-value="value"
-                  density="compact" variant="outlined" rounded="lg" hide-details class="model-select"
-                  :disabled="loading || !hasSelectedApiKey" title="Select AI model" />
-              </div>
-            </v-toolbar>
-            <v-expand-transition>
-              <div v-if="searchOpen" class="search-bar-wrap px-3 py-2">
-                <v-text-field v-model="searchQuery" density="compact" variant="outlined" rounded="lg" hide-details
-                  placeholder="Search messages..." prepend-inner-icon="mdi-magnify" clearable autofocus
-                  @click:clear="searchQuery = ''" />
-              </div>
-            </v-expand-transition>
-          </div>
-
-          <div ref="chatWorkspace" class="chat-workspace">
-            <div class="chat-main-shell">
-              <v-container class="chat-main pa-0">
-                <div ref="chatContainer" class="chat-stream px-2 px-sm-3 py-3" @click="handleChatClick">
-                  <div class="chat-inner">
-                    <div v-for="msg in messages" :key="msg.id" class="d-flex w-100 mb-2"
-                      :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
-                      <div :class="['message-stack', msg.role === 'user' ? 'message-stack-user' : 'message-stack-ai']">
-                        <v-avatar class="message-avatar" size="28" :color="msg.role === 'user' ? 'primary' : 'primary'"
-                          :variant="msg.role === 'user' ? 'flat' : 'tonal'" aria-hidden="true">
-                          <v-icon size="16">{{ msg.role === "user" ? "mdi-account" : "mdi-robot-outline" }}</v-icon>
-                        </v-avatar>
-
-                        <v-card :class="[
-                          'message-card',
-                          msg.role === 'user' ? 'message-card-user' : 'message-card-ai',
-                          msg.error ? 'message-card-error' : '',
-                          searchActive && isMessageSearchMatch(msg) ? 'message-card-search-hit' : '',
-                          searchActive && !isMessageSearchMatch(msg) ? 'message-card-search-dim' : '',
-                          searchActive && msg.id === editingMessageId ? 'message-card-search-focus' : '',
-                        ]" rounded="xl" elevation="1">
-                          <v-card-text class="message-card-body">
-                            <div class="message-meta d-flex align-center justify-space-between flex-wrap ga-2 mb-2">
-                              <span>{{ msg.role === "user" ? "You" : "Mindlytic AI" }}</span>
-                              <span>{{ formatTime(msg.createdAt) }}</span>
-                            </div>
-
-                            <div v-if="msg.role === 'assistant' && msg.text" class="markdown-body"
-                              v-html="parseMessage(msg.text)">
-                            </div>
-
-                            <p v-if="msg.role === 'user'" class="user-text">{{ replaceEmojiShortcodes(msg.text) }}</p>
-
-                            <div v-if="msg.role === 'assistant' && msg.text"
-                              class="d-flex justify-end mt-2">
-                              <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
-                                @click.stop="copyMessage(msg.text)">
-                                Copy reply
-                              </v-btn>
-                            </div>
-                          </v-card-text>
-                        </v-card>
-                      </div>
-                    </div>
-
-                    <div v-if="searchOpen && normalizedSearchQuery && !hasSearchResults"
-                      class="search-empty px-2 px-sm-3 py-2">
-                      No messages found for "{{ searchQuery }}".
-                    </div>
-
-                    <div v-if="loading" class="d-flex w-100 justify-start mb-2">
-                      <div class="message-stack message-stack-ai">
-                        <v-avatar class="message-avatar" size="28" color="primary" variant="tonal" aria-hidden="true">
-                          <v-icon size="16">mdi-robot-outline</v-icon>
-                        </v-avatar>
-                        <v-card class="message-card message-card-ai" rounded="xl" elevation="1">
-                          <v-card-text class="message-card-body">
-                            <div v-if="animatedText" class="markdown-body" v-html="parseMessage(animatedText)"></div>
-                            <span class="typewriter-cursor" aria-hidden="true">|</span>
-                          </v-card-text>
-                        </v-card>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </v-container>
-
-              <div class="composer">
-                <v-sheet color="transparent" class="pa-3 pa-sm-4">
-                  <div class="composer-inline">
-                    <v-textarea v-model="userInput" class="composer-input" :placeholder="composerPlaceholder"
-                      rows="2" variant="outlined" rounded="lg" hide-details
-                      :disabled="loading || !hasSelectedApiKey" @keydown="handlePromptKeydown"></v-textarea>
-                    <v-btn :color="loading ? 'error' : 'primary'" rounded="lg" class="text-none composer-send-btn"
-                      :icon="loading ? 'mdi-stop-circle-outline' : 'mdi-arrow-right-thin-circle-outline'"
-                      :aria-label="loading ? 'Stop' : 'Send'" :disabled="primaryActionDisabled"
-                      @click="handlePrimaryAction" />
-                  </div>
-                </v-sheet>
-              </div>
-            </div>
-
-            <div v-if="runnerPanelOpen && !isCompactLayout" class="runner-divider" role="separator"
-              aria-orientation="vertical" title="Resize runner panel" @pointerdown.stop.prevent="startRunnerResize"
-              @mousedown.stop.prevent="startRunnerResize" @touchstart.stop.prevent="startRunnerResize"></div>
-            <transition name="runner-panel-slide">
-              <aside v-if="runnerPanelOpen" class="runner-panel" :style="runnerPanelStyle" aria-live="polite">
-                <div class="runner-panel-head">
-                  <div>
-                    <p class="runner-panel-title mb-0">Code Runner</p>
-                    <p class="runner-panel-subtitle mb-0">
-                      {{ runnerMode === "web" ? "Web Preview" : `${runnerLanguageLabel} Console` }}
-                    </p>
-                  </div>
-                  <div class="runner-panel-controls">
-                    <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
-                      @click="setRunnerMode('web')">Web</v-btn>
-                    <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
-                      @click="setRunnerMode('console')">Console</v-btn>
-                    <v-btn size="small" variant="text" color="primary" icon="mdi-close"
-                      @click="closeCodeRunner"></v-btn>
-                  </div>
-                </div>
-                <div class="runner-panel-body">
-                  <iframe :key="runnerFrameKey" :class="['runner-frame', { 'runner-frame-web': runnerMode === 'web' }]"
-                    :srcdoc="runnerSrcdoc" sandbox="allow-scripts allow-modals" referrerpolicy="no-referrer"></iframe>
-                </div>
-              </aside>
-            </transition>
-          </div>
-        </v-card>
-      </v-col>
-    </v-row>
-
-  </div>
-</template>
-
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut as firebaseSignOut,
+} from "firebase/auth";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
-import Prism from "prismjs";
 import Alerts from "@/components/Alerts.vue";
 import { getApiBaseUrl } from "@/utils/apiBaseUrl";
+import { auth, googleProvider, hasRequiredFirebaseConfig } from "@/firebase";
 
-import "prismjs/themes/prism-tomorrow.css";
-import "prismjs/components/prism-bash";
-import "prismjs/components/prism-javascript";
-import "prismjs/components/prism-json";
-import "prismjs/components/prism-markup";
-import "prismjs/components/prism-python";
-import "prismjs/components/prism-typescript";
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+});
 
-const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_GOOGLE_API_KEY || "").trim();
-const GROQ_API_KEY = (import.meta.env.VITE_GROQ_API_KEY || "").trim();
-const GROQ_API_BASE = (import.meta.env.VITE_GROQ_API_BASE || "https://api.groq.com/openai/v1").trim().replace(/\/+$/, "");
-const OPENAI_API_KEY = (import.meta.env.VITE_OPENAI_API_KEY || "").trim();
-const OPENAI_BASE_URL = (import.meta.env.VITE_OPENAI_BASE_URL || "https://integrate.api.nvidia.com/v1").trim().replace(/\/+$/, "");
-const OPENAI_CHAT_MODEL = (import.meta.env.VITE_OPENAI_CHAT_MODEL || "microsoft/phi-3.5-mini-instruct").trim();
-const trimTrailingSlash = (value = "") => String(value || "").trim().replace(/\/+$/, "");
+const trimTrailingSlash = (value = "") =>
+  String(value || "")
+    .trim()
+    .replace(/\/+$/, "");
 const toApiUrl = (base = "", path = "") => {
   const normalizedBase = trimTrailingSlash(base);
   const normalizedPath = String(path || "").trim();
@@ -247,972 +37,1054 @@ const collectUnique = (values = []) => {
   }
   return result;
 };
-const BACKEND_CHAT_URLS = collectUnique([
-  toApiUrl(getApiBaseUrl(), "/api/ai/chat"),
-  toApiUrl(import.meta.env.VITE_API_URL_1, "/api/ai/chat"),
-  toApiUrl(import.meta.env.VITE_API_URL_2, "/api/ai/chat"),
-  toApiUrl(import.meta.env.VITE_API_URL, "/api/ai/chat"),
-]);
-const STORAGE_KEY = "mindlytic_ai_studio_v4";
-const MODEL_STORAGE_KEY = "mindlytic_model";
-const TEMPERATURE_STORAGE_KEY = "mindlytic_temp";
-const GEMINI_CHAT_MODEL = (import.meta.env.VITE_GEMINI_CHAT_MODEL || "gemini-2.5-flash").trim();
-const GROQ_CHAT_MODEL = (import.meta.env.VITE_GROQ_CHAT_MODEL || "llama-3.3-70b-versatile").trim();
-const ASSISTANT_LABEL = "Mindlytic AI";
-const ASSISTANT_SYSTEM_PROMPT =
-  "You are Mindlytic AI, an all-in-one assistant. Give practical, structured, and concise answers first, then add implementation details, edge cases, and simple teaching guidance when useful.";
-const REQUEST_TEMPERATURE = 1.5;
-const REQUEST_MAX_OUTPUT_TOKENS = 2000;
-const readStoredValue = (key, fallback = "") => {
-  if (typeof window === "undefined") return fallback;
-  try {
-    const value = window.localStorage.getItem(key);
-    return value == null ? fallback : value;
-  } catch {
-    return fallback;
-  }
-};
-const writeStoredValue = (key, value) => {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(key, value);
-  } catch (error) {
-    console.error("localStorage write failed", error);
-  }
-};
 
+const API_BASE_CANDIDATES = collectUnique([
+  getApiBaseUrl(),
+  import.meta.env.VITE_API_URL_1,
+  import.meta.env.VITE_API_URL_2,
+  import.meta.env.VITE_API_URL,
+]);
+const CHAT_API_URLS = collectUnique(
+  API_BASE_CANDIDATES.map((base) => toApiUrl(base, "/api/ai/chat")),
+);
+const getHistoryUrls = (path = "") =>
+  collectUnique(
+    API_BASE_CANDIDATES.map((base) => toApiUrl(base, `/api/ai/history${path}`)),
+  );
+
+const historyLimit = 30;
+const RETRYABLE_STATUSES = new Set([404, 502, 503, 504]);
+
+const GEMINI_API_KEY = (
+  import.meta.env.VITE_GEMINI_API_KEY ||
+  import.meta.env.VITE_GOOGLE_API_KEY ||
+  ""
+).trim();
+const GROQ_API_KEY = (import.meta.env.VITE_GROQ_API_KEY || "").trim();
+const GROQ_API_BASE = (
+  import.meta.env.VITE_GROQ_API_BASE || "https://api.groq.com/openai/v1"
+)
+  .trim()
+  .replace(/\/+$/, "");
+const OPENAI_API_KEY = (import.meta.env.VITE_OPENAI_API_KEY || "").trim();
+const OPENAI_BASE_URL = (
+  import.meta.env.VITE_OPENAI_BASE_URL || "https://integrate.api.nvidia.com/v1"
+)
+  .trim()
+  .replace(/\/+$/, "");
+const GEMINI_CHAT_MODEL = (
+  import.meta.env.VITE_GEMINI_CHAT_MODEL || "gemini-2.5-flash"
+).trim();
+const GROQ_CHAT_MODEL = (
+  import.meta.env.VITE_GROQ_CHAT_MODEL || "llama-3.3-70b-versatile"
+).trim();
+const OPENAI_CHAT_MODEL = (
+  import.meta.env.VITE_OPENAI_CHAT_MODEL || "microsoft/phi-3.5-mini-instruct"
+).trim();
+
+const ASSISTANT_SYSTEM_PROMPT =
+  "You are Mindlytic AI, an all-in-one assistant. Give practical, structured, and concise answers first.";
+const REQUEST_MAX_OUTPUT_TOKENS = 2000;
+const REQUEST_TEMPERATURE = 1;
+
+const authReady = ref(false);
+const signingIn = ref(false);
+const loadingHistory = ref(false);
+const loadingConversation = ref(false);
+const sending = ref(false);
+const sidebarOpen = ref(false);
+const selectedModel = ref("gemini");
+const avatarImageFailed = ref(false);
+const historyLoadError = ref("");
+
+const currentUser = ref(null);
+const conversations = ref([]);
+const activeConversationId = ref("");
+const messages = ref([]);
 const userInput = ref("");
-const loading = ref(false);
-const selectedModel = ref(readStoredValue(MODEL_STORAGE_KEY, "gemini-default"));
-const currentTemperature = ref(Number(readStoredValue(TEMPERATURE_STORAGE_KEY, String(REQUEST_TEMPERATURE))) || REQUEST_TEMPERATURE);
-const searchOpen = ref(false);
-const searchQuery = ref("");
-const editingMessageId = ref(null);
-const animatedText = ref("");
-const animationSpeed = ref(0);
-const animationChunkSize = 6;
+const chatScrollRef = ref(null);
+
+const runnerPanelOpen = ref(false);
+const runnerMode = ref("web");
+const runnerLanguage = ref("plaintext");
+const runnerTitle = ref("Code Runner");
+const runnerCode = ref("");
+const runnerSrcdoc = ref("");
+const runnerFrameKey = ref(0);
 
 const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
-const chatContainer = ref(null);
-const chatShell = ref(null);
-const chatWorkspace = ref(null);
-const viewportWidth = ref(typeof window !== "undefined" ? window.innerWidth : 1280);
-const viewportHeight = ref(typeof window !== "undefined" ? window.innerHeight : 900);
-const isChatFullscreen = ref(false);
-const runnerPanelOpen = ref(false);
-const runnerUsesFullscreen = ref(false);
-const runnerMode = ref("console");
-const runnerLanguageLabel = ref("Code");
-const runnerSrcdoc = ref("");
-const runnerFrameKey = ref(0);
-const runnerPanelWidth = ref(460);
-const runnerResizing = ref(false);
-const runnerCodeRaw = ref("");
-const runnerCodeLanguage = ref("plaintext");
-let activeResizeHandle = null;
-let activePointerId = null;
 
-const messages = ref([]);
-let nextId = 1;
-let activeController = null;
+let removeAuthListener = null;
 
-const resolveModelName = (key) => {
-  const map = {
-    "gemini-flash": "gemini-2.5-flash",
-    "gemini-default": GEMINI_CHAT_MODEL,
-    "groq-llama": "llama-3.3-70b-versatile",
-    "groq-default": GROQ_CHAT_MODEL,
-    "openai-phi": "microsoft/phi-3.5-mini-instruct",
-    "openai-default": OPENAI_CHAT_MODEL,
-  };
-  return map[key] || GEMINI_CHAT_MODEL;
+const nowIso = () => new Date().toISOString();
+const generateConversationId = () => {
+  if (typeof globalThis.crypto?.randomUUID === "function")
+    return globalThis.crypto.randomUUID();
+  return `conversation-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
-const resolveModelProvider = (key) => {
-  if (String(key || "").startsWith("openai-")) return "openai";
-  if (String(key || "").startsWith("groq-")) return "groq";
-  return "gemini";
+
+const isLikelyNetworkError = (error) =>
+  /failed to fetch|networkerror|load failed|network request failed|econnrefused|enotfound/i.test(
+    String(error?.message || ""),
+  );
+
+const getFriendlyFetchError = (error, label) => {
+  if (isLikelyNetworkError(error)) {
+    return `Failed to fetch ${label}. Check backend status and VITE_API_URL values.`;
+  }
+  return String(error?.message || `Unable to fetch ${label}.`);
 };
-const availableModels = computed(() => {
-  const models = [];
-  if (GEMINI_API_KEY) {
-    models.push({ label: "Gemini 2.5 Flash", value: "gemini-flash" });
-    if (GEMINI_CHAT_MODEL !== "gemini-2.5-flash") {
-      models.push({ label: `Gemini (${GEMINI_CHAT_MODEL})`, value: "gemini-default" });
-    }
-  }
-  if (GROQ_API_KEY) {
-    models.push({ label: "Llama 3.3 70B", value: "groq-llama" });
-    if (GROQ_CHAT_MODEL !== "llama-3.3-70b-versatile") {
-      models.push({ label: `Groq (${GROQ_CHAT_MODEL})`, value: "groq-default" });
-    }
-  }
-  if (OPENAI_API_KEY) {
-    models.push({ label: "Microsoft Phi 3.5 Mini", value: "openai-phi" });
-    if (OPENAI_CHAT_MODEL !== "microsoft/phi-3.5-mini-instruct") {
-      models.push({ label: `OpenAI (${OPENAI_CHAT_MODEL})`, value: "openai-default" });
-    }
-  }
-  if (!models.length) {
-    models.push({ label: "No model configured", value: "gemini-default", disabled: true });
-  }
-  return models;
-});
-const assistantProvider = computed(() => {
-  const provider = resolveModelProvider(selectedModel.value);
-  const modelName = resolveModelName(selectedModel.value);
-  if (provider === "gemini" && GEMINI_API_KEY) return { provider, modelName };
-  if (provider === "groq" && GROQ_API_KEY) return { provider, modelName };
-  if (provider === "openai" && OPENAI_API_KEY) return { provider, modelName };
-  const fallback = availableModels.value.find((item) => !item.disabled);
-  if (fallback) {
-    return { provider: resolveModelProvider(fallback.value), modelName: resolveModelName(fallback.value) };
-  }
-  return { provider: "gemini", modelName: GEMINI_CHAT_MODEL };
-});
-const normalizedTemperature = computed(() => {
-  const value = Number(currentTemperature.value);
-  if (!Number.isFinite(value)) return REQUEST_TEMPERATURE;
-  return Math.min(2, Math.max(0, value));
-});
-const hasDirectApiKey = computed(() => Boolean(GEMINI_API_KEY || GROQ_API_KEY || OPENAI_API_KEY));
-const hasBackendChatUrl = computed(() => BACKEND_CHAT_URLS.length > 0);
-const hasSelectedApiKey = computed(() => hasDirectApiKey.value || hasBackendChatUrl.value);
-const composerPlaceholder = computed(() =>
-  hasSelectedApiKey.value
-    ? `Message ${ASSISTANT_LABEL}...`
-    : "Set VITE_GEMINI_API_KEY, VITE_GROQ_API_KEY, or a backend /api/ai/chat URL to start chatting.",
-);
-const sendDisabled = computed(() => !userInput.value.trim() || !hasSelectedApiKey.value);
-const primaryActionDisabled = computed(() => (loading.value ? false : sendDisabled.value));
-const canRegenerate = computed(() => messages.value.some((m) => m.role === "user"));
-const normalizedSearchQuery = computed(() => searchQuery.value.trim().toLowerCase());
-const isMessageSearchMatch = (message) => {
-  const query = normalizedSearchQuery.value;
-  if (!query) return false;
-  return String(message?.text || "").toLowerCase().includes(query);
-};
-const filteredMessages = computed(() => {
-  if (!normalizedSearchQuery.value) return messages.value;
-  return messages.value.filter((message) => isMessageSearchMatch(message));
-});
-const searchActive = computed(() => searchOpen.value && Boolean(normalizedSearchQuery.value));
-const hasSearchResults = computed(() => filteredMessages.value.length > 0);
-const isShortScreen = computed(() => viewportWidth.value <= 900 || viewportHeight.value <= 820);
-const isCompactLayout = computed(() => viewportWidth.value <= 900);
-const showBackLabel = computed(() => viewportWidth.value > 768);
-const showChatActionLabels = computed(() => viewportWidth.value > 1024);
-const runnerPanelStyle = computed(() => (isCompactLayout.value ? {} : { width: `${runnerPanelWidth.value}px` }));
-const goBack = () => window.history.back();
+
 const showAlert = (message, type = "success") => {
-  alertMessage.value = message;
+  alertMessage.value = String(message || "");
   alertType.value = type === "error" ? "error" : "success";
   alertVisible.value = true;
 };
-const toggleSearch = () => {
-  searchOpen.value = !searchOpen.value;
-  if (!searchOpen.value) {
-    searchQuery.value = "";
-    editingMessageId.value = null;
-  }
-};
 
-const createMessage = (role, text, options = {}) => ({
-  id: nextId++,
-  role,
-  text: typeof text === "string" ? text : "",
-  error: Boolean(options.error),
-  createdAt: new Date().toISOString(),
+const normalizeSummary = (item = {}) => ({
+  id: String(item.id || ""),
+  title: String(item.title || "New chat").trim() || "New chat",
+  messageCount: Number.isFinite(item.messageCount) ? item.messageCount : 0,
+  updatedAt:
+    typeof item.updatedAt === "string" && item.updatedAt.trim()
+      ? item.updatedAt
+      : nowIso(),
 });
 
-const buildWelcomeText = () => {
-  const available = [
-    GEMINI_API_KEY ? "Gemini" : "",
-    GROQ_API_KEY ? "Groq" : "",
-  ].filter(Boolean);
-  if (!available.length) {
-    return "AI chat is unavailable. Add VITE_GEMINI_API_KEY or VITE_GROQ_API_KEY to continue.";
-  }
-  return `Welcome to ${ASSISTANT_LABEL}. Configured providers: ${available.join(" + ")}.`;
-};
-
-const formatTime = (iso) => new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-const scrollToBottom = async () => {
-  await nextTick();
-  if (chatContainer.value) chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
-};
-
-marked.setOptions({ breaks: true, gfm: true });
-const renderer = new marked.Renderer();
-const emojiShortcodeMap = Object.freeze({
-  smile: "\u{1F604}",
-  smiley: "\u{1F603}",
-  grin: "\u{1F601}",
-  grinning: "\u{1F600}",
-  joy: "\u{1F602}",
-  laugh: "\u{1F606}",
-  laughing: "\u{1F606}",
-  wink: "\u{1F609}",
-  blush: "\u{1F60A}",
-  heart_eyes: "\u{1F60D}",
-  thinking: "\u{1F914}",
-  cool: "\u{1F60E}",
-  thumbsup: "\u{1F44D}",
-  thumbs_up: "\u{1F44D}",
-  "+1": "\u{1F44D}",
-  thumbsdown: "\u{1F44E}",
-  thumbs_down: "\u{1F44E}",
-  "-1": "\u{1F44E}",
-  clap: "\u{1F44F}",
-  wave: "\u{1F44B}",
-  ok_hand: "\u{1F44C}",
-  muscle: "\u{1F4AA}",
-  pray: "\u{1F64F}",
-  rocket: "\u{1F680}",
-  fire: "\u{1F525}",
-  sparkles: "\u{2728}",
-  star: "\u{2B50}",
-  star2: "\u{1F31F}",
-  heart: "\u{2764}\u{FE0F}",
-  broken_heart: "\u{1F494}",
-  warning: "\u{26A0}\u{FE0F}",
-  info: "\u{2139}\u{FE0F}",
-  bulb: "\u{1F4A1}",
-  check: "\u{2705}",
-  x: "\u{274C}",
-  tada: "\u{1F389}",
-  party: "\u{1F973}",
-  cry: "\u{1F622}",
-  sob: "\u{1F62D}",
-  eyes: "\u{1F440}",
-  poop: "\u{1F4A9}",
+const normalizeMessage = (item = {}) => ({
+  role: item?.role === "assistant" ? "assistant" : "user",
+  text: String(item?.text || ""),
+  createdAt:
+    typeof item?.createdAt === "string" && item.createdAt.trim()
+      ? item.createdAt
+      : nowIso(),
+  error: Boolean(item?.error),
 });
-const languageAlias = {
-  js: "javascript",
-  ts: "typescript",
-  py: "python",
-  sh: "bash",
-  shell: "bash",
-  yml: "yaml",
-  md: "markdown",
-  html: "markup",
-  xml: "markup",
-};
-const webLanguages = new Set(["html", "htm", "markup", "xml", "xhtml", "svg", "css", "vue", "svelte", "astro"]);
-const jsLanguages = new Set(["javascript", "typescript"]);
-const pythonLanguages = new Set(["python"]);
 
-const normalizeCodeLanguage = (value = "") => {
-  const normalized = value.toLowerCase();
-  return languageAlias[normalized] || normalized || "plaintext";
-};
-
-const serializeForScript = (value = "") => JSON.stringify(String(value)).replace(/<\/script/gi, "<\\/script");
-const looksLikeWebCode = (value = "") =>
-  /<!doctype|<html|<head|<body|<main|<section|<div|<style|<script|<\/?[a-z][\w-]*(\s[^>]*)?>/i.test(String(value || ""));
-const isWebLanguage = (value = "") => {
-  const normalized = normalizeCodeLanguage(value);
-  if (webLanguages.has(normalized)) return true;
-  return /(^|[\s/_.-])(html?|xhtml|markup|svg|css|vue|svelte|astro)([\s/_.-]|$)/i.test(String(value || ""));
-};
-
-const buildWebRunnerDoc = (code, language) => {
-  const trimmed = (code || "").trim();
-  if (language === "css") {
-    return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${code}</style></head><body><main style="padding:24px;font-family:Segoe UI,sans-serif;"><h2>CSS Preview</h2><p>This preview uses your CSS in a sample page.</p><button style="padding:10px 16px;border-radius:999px;border:0;background:#0f766e;color:#fff;">Button</button></main></body></html>`;
-  }
-  if (/<!doctype html|<html[\s>]/i.test(trimmed)) return trimmed;
-  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>${code}</body></html>`;
-};
-
-const buildConsoleRunnerDoc = (code, language) => {
-  if (pythonLanguages.has(language)) {
-    return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{height:100%;margin:0;background:#f8fbfd;color:#11201d;font-family:'JetBrains Mono',Consolas,monospace}#term{height:100%;overflow:auto;padding:14px;white-space:pre-wrap;line-height:1.55}.line-info{color:#0f6a5e}.line-error{color:#c2414e}.line-result{color:#0f8a57}.line-log{color:#11201d}</style></head><body><div id="term"></div><script>const term=document.getElementById("term");const write=(text,type="log")=>{const line=document.createElement("div");line.className="line-"+type;line.textContent=String(text??"");term.appendChild(line);term.scrollTop=term.scrollHeight;};const loadScript=(src)=>new Promise((resolve,reject)=>{const script=document.createElement("script");script.src=src;script.onload=resolve;script.onerror=()=>reject(new Error("Failed to load runtime"));document.head.appendChild(script);});const requestInput=()=>{try{return window.prompt("Python input:")??null;}catch(error){write("input() is unavailable in this runner.","error");return null;}};(async()=>{write("Loading Python runtime...","info");try{await loadScript("https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.js");const pyodide=await loadPyodide({stdout:(msg)=>write(msg,"log"),stderr:(msg)=>write(msg,"error"),stdin:requestInput});if(typeof pyodide.setStdin==="function"){pyodide.setStdin({stdin:requestInput,isatty:true});}const result=await pyodide.runPythonAsync(${serializeForScript(
-      code,
-    )});if(result!==undefined&&result!==null){write(String(result),"result");}write("Execution completed.","info");}catch(error){write(error?.stack||String(error),"error");}})();<\/script></body></html>`;
-  }
-
-  if (jsLanguages.has(language)) {
-    return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{height:100%;margin:0;background:#f8fbfd;color:#11201d;font-family:'JetBrains Mono',Consolas,monospace}#term{height:100%;overflow:auto;padding:14px;white-space:pre-wrap;line-height:1.55}.line-info{color:#0f6a5e}.line-error{color:#c2414e}.line-result{color:#0f8a57}.line-warn{color:#b45309}.line-log{color:#11201d}</style></head><body><div id="term"></div><script>const term=document.getElementById("term");const write=(text,type="log")=>{const line=document.createElement("div");line.className="line-"+type;line.textContent=String(text??"");term.appendChild(line);term.scrollTop=term.scrollHeight;};const asText=(value)=>{if(typeof value==="string")return value;try{return JSON.stringify(value);}catch{return String(value);}};const runtimeConsole={log:(...args)=>write(args.map(asText).join(" "),"log"),info:(...args)=>write(args.map(asText).join(" "),"info"),warn:(...args)=>write(args.map(asText).join(" "),"warn"),error:(...args)=>write(args.map(asText).join(" "),"error")};window.addEventListener("error",(event)=>write(event.message||"Runtime error","error"));window.addEventListener("unhandledrejection",(event)=>write("Unhandled: "+asText(event.reason),"error"));(async()=>{try{const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;const runner=new AsyncFunction("console",${serializeForScript(
-      code,
-    )});const result=await runner(runtimeConsole);if(result!==undefined){write("=> "+asText(result),"result");}}catch(error){write(error?.stack||String(error),"error");}})();<\/script></body></html>`;
-  }
-
-  return `<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{height:100%;margin:0;background:#f8fbfd;color:#11201d;font-family:'JetBrains Mono',Consolas,monospace}#term{padding:14px;white-space:pre-wrap;line-height:1.55}</style></head><body><div id="term">Language "${language}" is not executable in this runner.\n\n${code}</div></body></html>`;
-};
-
-renderer.code = ({ text, lang }) => {
-  const language = (lang || "plaintext").trim();
-  const safeLanguage = normalizeCodeLanguage(language);
-  const grammar = Prism.languages[safeLanguage] || Prism.languages.plaintext;
-  const html = Prism.highlight(text, grammar, safeLanguage);
-
-  return `<div class="code-block-wrapper"><div class="code-header"><div class="code-header-left"><span class="code-dot dot-red"></span><span class="code-dot dot-yellow"></span><span class="code-dot dot-green"></span><span class="lang-label">${language || "plaintext"}</span></div><div class="code-header-actions"><button class="run-btn" aria-label="Run code">Run</button><button class="copy-btn" aria-label="Copy code">Copy</button></div></div><pre class="language-${safeLanguage}"><code class="language-${safeLanguage}">${html}</code></pre></div>`;
-};
-marked.use({ renderer });
-
-const replaceEmojiShortcodes = (input = "") =>
-  input.replace(/:([a-z0-9_+-]+):/gi, (fullMatch, rawCode) => {
-    const normalizedCode = rawCode.toLowerCase().replace(/-/g, "_");
-    return emojiShortcodeMap[normalizedCode] || fullMatch;
+const createMessage = (role, text, error = false) =>
+  normalizeMessage({
+    role,
+    text,
+    error,
+    createdAt: nowIso(),
   });
 
-const prepareAssistantMarkdown = (input = "") => replaceEmojiShortcodes(String(input || ""));
-
-const parseMessage = (rawText) =>
-  DOMPurify.sanitize(marked.parse(prepareAssistantMarkdown(rawText)), {
-    ADD_TAGS: ["button"],
-    ADD_ATTR: ["class", "aria-label"],
-  });
-
-const copyMessage = async (text) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    showAlert("Reply copied.");
-  } catch (error) {
-    console.error("copy failed", error);
-    showAlert("Unable to copy reply.", "error");
-  }
-};
-
-const getRunnerPanelMaxWidth = () => {
-  const shellWidth = chatWorkspace.value?.clientWidth || chatShell.value?.clientWidth || window.innerWidth;
-  if (isCompactLayout.value) return Math.max(280, Math.floor(shellWidth));
-  const hardMax = Math.floor(shellWidth * 0.82);
-  const mainAreaReserve = shellWidth - 320;
-  return Math.max(360, Math.min(hardMax, mainAreaReserve > 0 ? mainAreaReserve : hardMax));
-};
-
-const getRunnerPanelMinWidth = () => (isCompactLayout.value ? Math.min(280, getRunnerPanelMaxWidth()) : Math.min(320, getRunnerPanelMaxWidth()));
-
-const getEventClientX = (event) => {
-  if (typeof event?.clientX === "number") return event.clientX;
-  if (event?.touches?.[0] && typeof event.touches[0].clientX === "number") return event.touches[0].clientX;
-  if (event?.changedTouches?.[0] && typeof event.changedTouches[0].clientX === "number") return event.changedTouches[0].clientX;
-  return null;
-};
-
-const clampRunnerPanelWidth = (value) => {
-  const minWidth = getRunnerPanelMinWidth();
-  const maxWidth = getRunnerPanelMaxWidth();
-  return Math.min(maxWidth, Math.max(minWidth, Math.round(value)));
-};
-
-const onRunnerResize = (event) => {
-  if (!runnerResizing.value) return;
-  if (event.cancelable) event.preventDefault();
-  const pointerX = getEventClientX(event);
-  if (pointerX === null) return;
-  const rect = chatWorkspace.value?.getBoundingClientRect() || chatShell.value?.getBoundingClientRect();
-  if (!rect) return;
-  const nextWidth = rect.right - pointerX;
-  runnerPanelWidth.value = clampRunnerPanelWidth(nextWidth);
-};
-
-const stopRunnerResize = () => {
-  if (!runnerResizing.value) return;
-  runnerResizing.value = false;
-  document.body.style.userSelect = "";
-  document.body.style.cursor = "";
-  window.removeEventListener("pointermove", onRunnerResize);
-  window.removeEventListener("pointerup", stopRunnerResize);
-  window.removeEventListener("pointercancel", stopRunnerResize);
-  window.removeEventListener("mousemove", onRunnerResize);
-  window.removeEventListener("mouseup", stopRunnerResize);
-  window.removeEventListener("touchmove", onRunnerResize);
-  window.removeEventListener("touchend", stopRunnerResize);
-  window.removeEventListener("touchcancel", stopRunnerResize);
-  window.removeEventListener("blur", stopRunnerResize);
-  if (activeResizeHandle && activePointerId !== null && typeof activeResizeHandle.hasPointerCapture === "function") {
-    if (activeResizeHandle.hasPointerCapture(activePointerId)) {
-      activeResizeHandle.releasePointerCapture(activePointerId);
-    }
-  }
-  activeResizeHandle = null;
-  activePointerId = null;
-};
-
-const startRunnerResize = (event) => {
-  if (!runnerPanelOpen.value || isCompactLayout.value) return;
-  const pointerX = getEventClientX(event);
-  if (pointerX === null) return;
-  runnerResizing.value = true;
-  document.body.style.userSelect = "none";
-  document.body.style.cursor = "col-resize";
-  activeResizeHandle = event.currentTarget || null;
-  if (typeof event.pointerId === "number" && activeResizeHandle && typeof activeResizeHandle.setPointerCapture === "function") {
-    activePointerId = event.pointerId;
-    activeResizeHandle.setPointerCapture(event.pointerId);
-  }
-  onRunnerResize(event);
-  window.addEventListener("pointermove", onRunnerResize);
-  window.addEventListener("pointerup", stopRunnerResize);
-  window.addEventListener("pointercancel", stopRunnerResize);
-  window.addEventListener("mousemove", onRunnerResize);
-  window.addEventListener("mouseup", stopRunnerResize);
-  window.addEventListener("touchmove", onRunnerResize, { passive: false });
-  window.addEventListener("touchend", stopRunnerResize);
-  window.addEventListener("touchcancel", stopRunnerResize);
-  window.addEventListener("blur", stopRunnerResize);
-};
-
-const closeCodeRunner = async () => {
-  stopRunnerResize();
-  runnerPanelOpen.value = false;
-  if (runnerUsesFullscreen.value && document.fullscreenElement) {
-    try {
-      await document.exitFullscreen();
-    } catch (error) {
-      console.error("fullscreen exit failed", error);
-    } finally {
-      isChatFullscreen.value = false;
-      runnerUsesFullscreen.value = false;
-    }
-    return;
-  }
-  runnerUsesFullscreen.value = false;
-};
-
-const handleWindowResize = () => {
-  viewportWidth.value = window.innerWidth;
-  viewportHeight.value = window.innerHeight;
-  if (isCompactLayout.value) {
-    stopRunnerResize();
-    return;
-  }
-  runnerPanelWidth.value = clampRunnerPanelWidth(runnerPanelWidth.value);
-};
-
-const resolveRunnerMode = (code, language) => (isWebLanguage(language) || looksLikeWebCode(code) ? "web" : "console");
-
-const renderRunnerDocument = (requestedMode = null) => {
-  const safeLanguage = normalizeCodeLanguage(runnerCodeLanguage.value);
-  const mode = requestedMode || resolveRunnerMode(runnerCodeRaw.value, safeLanguage);
-  runnerMode.value = mode;
-  runnerSrcdoc.value =
-    mode === "web" ? buildWebRunnerDoc(runnerCodeRaw.value, safeLanguage) : buildConsoleRunnerDoc(runnerCodeRaw.value, safeLanguage);
-  runnerFrameKey.value += 1;
-};
-
-const setRunnerMode = (mode) => {
-  if (!runnerPanelOpen.value) return;
-  renderRunnerDocument(mode);
-};
-
-const getNativeFullscreenTarget = () => {
-  if (typeof document === "undefined") return null;
-  const target = document.documentElement;
-  return target instanceof HTMLElement ? target : null;
-};
-
-const openCodeRunner = (code, language) => {
-  const safeLanguage = normalizeCodeLanguage(language);
-  runnerUsesFullscreen.value = false;
-
-  runnerLanguageLabel.value = (language || safeLanguage || "Code").toUpperCase();
-  runnerCodeRaw.value = code;
-  runnerCodeLanguage.value = safeLanguage;
-  renderRunnerDocument();
-  runnerPanelWidth.value = clampRunnerPanelWidth(runnerPanelWidth.value);
-  runnerPanelOpen.value = true;
-};
-
-const handleChatClick = async (event) => {
-  const runButton = event.target.closest(".run-btn");
-  if (runButton) {
-    const wrapper = runButton.closest(".code-block-wrapper");
-    const code = wrapper?.querySelector("code")?.innerText || "";
-    const language = wrapper?.querySelector(".lang-label")?.textContent?.trim() || "plaintext";
-    if (!code.trim()) {
-      showAlert("No code found to run.", "error");
-      return;
-    }
-    openCodeRunner(code, language);
-    return;
-  }
-
-  const button = event.target.closest(".copy-btn");
-  if (!button) return;
-  const code = button.closest(".code-block-wrapper")?.querySelector("code");
-  if (!code) return;
-  try {
-    await navigator.clipboard.writeText(code.innerText);
-    button.textContent = "Copied";
-    window.setTimeout(() => {
-      button.textContent = "Copy";
-    }, 1500);
-  } catch (error) {
-    console.error("copy code failed", error);
-    showAlert("Unable to copy code block.", "error");
-  }
-};
-
-const supportsNativeFullscreen = () =>
-  Boolean(
-    typeof document !== "undefined" &&
-    document.fullscreenEnabled &&
-    getNativeFullscreenTarget() &&
-    typeof getNativeFullscreenTarget().requestFullscreen === "function",
+const sortConversations = () => {
+  conversations.value.sort((a, b) =>
+    String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")),
   );
-
-const handleFullscreenChange = () => {
-  const target = getNativeFullscreenTarget();
-  isChatFullscreen.value = Boolean(target && document.fullscreenElement === target);
-  if (runnerUsesFullscreen.value && runnerPanelOpen.value && !document.fullscreenElement) {
-    runnerPanelOpen.value = false;
-    runnerUsesFullscreen.value = false;
-  }
-  runnerPanelWidth.value = clampRunnerPanelWidth(runnerPanelWidth.value);
-  scrollToBottom();
 };
 
-const handleGlobalKeydown = (event) => {
-  if (event.key === "Escape" && isChatFullscreen.value && !document.fullscreenElement) {
-    isChatFullscreen.value = false;
-  }
-};
-
-const toggleChatFullscreen = async () => {
-  const target = getNativeFullscreenTarget();
-  if (!target) return;
-
-  if (supportsNativeFullscreen()) {
-    try {
-      if (document.fullscreenElement === target) {
-        await document.exitFullscreen();
-      } else {
-        await target.requestFullscreen();
-      }
-      return;
-    } catch (error) {
-      console.error("fullscreen toggle failed", error);
-    }
-  }
-
-  isChatFullscreen.value = !isChatFullscreen.value;
-  await scrollToBottom();
-};
-
-const buildConversationHistory = () =>
-  messages.value.filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.text === "string");
-
-const buildGeminiHistory = () =>
-  buildConversationHistory().map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.text }] }));
-
-const readApiError = async (response) => {
+const readErrorResponse = async (response) => {
   try {
-    const data = await response.json();
-    const message = data?.error?.message || data?.error || data?.message;
+    const payload = await response.json();
+    const message = payload?.error || payload?.message || payload?.details;
     if (typeof message === "string" && message.trim()) return message.trim();
-    return `Request failed (${response.status}).`;
   } catch {
-    const text = await response.text().catch(() => "");
-    if (text.trim()) return text.trim().slice(0, 500);
-    return `Request failed (${response.status}).`;
+    // ignore json parse errors
+  }
+  const text = await response.text().catch(() => "");
+  return text.trim()
+    ? text.trim().slice(0, 500)
+    : `Request failed (${response.status})`;
+};
+
+const escapeHtml = (value = "") =>
+  String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+const renderAssistantMessage = (text = "") => {
+  const raw = String(text || "");
+  if (!raw.trim()) return "";
+  try {
+    const parsed = marked.parse(raw);
+    const html = typeof parsed === "string" ? parsed : raw;
+    const codeBlocks = extractCodeBlocks(raw);
+    let codeIndex = 0;
+    const withInlineRunnerButtons = html.replace(
+      /<pre><code[\s\S]*?<\/code><\/pre>/gi,
+      (codeBlockHtml) => {
+        const rawBlockLanguage =
+          String(codeBlocks[codeIndex]?.language || "code").toLowerCase() ||
+          "code";
+        const rawBlockCode = String(codeBlocks[codeIndex]?.code || "");
+        const blockLanguage = inferRunnerLanguage(
+          rawBlockLanguage,
+          rawBlockCode,
+        );
+        const runButtonHtml = canRunInRunner(blockLanguage)
+          ? `<button type="button" class="code-runner-inline-btn" data-code-index="${codeIndex}" data-code-language="${escapeHtml(blockLanguage)}" data-code-action="run" aria-label="Run code">Run</button>`
+          : "";
+        const headerHtml = `
+        <div class="inline-code-runner-head">
+          <span class="inline-code-lang">${escapeHtml(blockLanguage)}</span>
+          <div class="inline-code-actions">
+            <button type="button" class="code-runner-inline-btn" data-code-index="${codeIndex}" data-code-language="${escapeHtml(blockLanguage)}" data-code-action="copy" aria-label="Copy code">Copy</button>
+            <button type="button" class="code-runner-inline-btn" data-code-index="${codeIndex}" data-code-language="${escapeHtml(blockLanguage)}" data-code-action="download" aria-label="Download code">Download</button>
+            ${runButtonHtml}
+          </div>
+        </div>`;
+        codeIndex += 1;
+        return `<div class="inline-code-runner">${headerHtml}${codeBlockHtml}</div>`;
+      },
+    );
+    return DOMPurify.sanitize(withInlineRunnerButtons, {
+      ADD_TAGS: ["button"],
+      ADD_ATTR: [
+        "target",
+        "rel",
+        "data-code-index",
+        "data-code-language",
+        "data-code-action",
+        "aria-label",
+      ],
+    });
+  } catch {
+    return `<p>${escapeHtml(raw)}</p>`;
   }
 };
 
-const requestBackendChat = async (provider = "auto", modelName = "", signal) => {
-  const normalizedProvider = ["auto", "gemini", "groq"].includes(String(provider || "").toLowerCase())
-    ? String(provider || "").toLowerCase()
-    : "auto";
-  const payload = {
-    provider: normalizedProvider,
-    messages: buildConversationHistory().map((m) => ({ role: m.role, text: m.text })),
+const CODE_FENCE_REGEX = /```([a-zA-Z0-9_+#.-]*)\r?\n([\s\S]*?)```/g;
+const extractCodeBlocks = (text = "") => {
+  const source = String(text || "");
+  return [...source.matchAll(CODE_FENCE_REGEX)].map((match) => ({
+    language:
+      String(match[1] || "plaintext")
+        .trim()
+        .toLowerCase() || "plaintext",
+    code: String(match[2] || "").trim(),
+  }));
+};
+
+const extractFirstCodeBlock = (text = "") => {
+  const [firstBlock] = extractCodeBlocks(text);
+  return firstBlock || { language: "", code: "" };
+};
+
+const messageHasCode = (message = {}) =>
+  Boolean(extractFirstCodeBlock(message.text).code);
+const messageHasRunnableCode = (message = {}) => {
+  const firstBlock = extractFirstCodeBlock(message?.text || "");
+  if (!firstBlock?.code) return false;
+  const resolvedLanguage = inferRunnerLanguage(
+    firstBlock.language,
+    firstBlock.code,
+  );
+  return canRunInRunner(resolvedLanguage);
+};
+
+const buildChatMessages = () =>
+  messages.value.map((message) => ({
+    role: message.role === "assistant" ? "assistant" : "user",
+    text: String(message.text || ""),
+  }));
+
+const buildOpenAiMessages = () => [
+  { role: "system", content: ASSISTANT_SYSTEM_PROMPT },
+  ...buildChatMessages().map((message) => ({
+    role: message.role,
+    content: message.text,
+  })),
+];
+
+const readOpenAiStyleText = (payload = {}) => {
+  const content = payload?.choices?.[0]?.message?.content;
+  if (typeof content === "string") return content.trim();
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => (typeof part?.text === "string" ? part.text : ""))
+      .join("")
+      .trim();
+  }
+  return "";
+};
+
+const requestBackendChat = async ({ provider = "auto", model = "" } = {}) => {
+  if (!CHAT_API_URLS.length) {
+    throw new Error("Backend chat API URL is not configured.");
+  }
+
+  const body = {
+    provider,
+    messages: buildChatMessages(),
     systemPrompt: ASSISTANT_SYSTEM_PROMPT,
-    temperature: normalizedTemperature.value,
+    temperature: REQUEST_TEMPERATURE,
     maxOutputTokens: REQUEST_MAX_OUTPUT_TOKENS,
   };
-  if (String(modelName || "").trim()) {
-    payload.model = String(modelName).trim();
-  }
-  const requestBody = JSON.stringify(payload);
-  const failures = [];
-  for (const url of BACKEND_CHAT_URLS) {
-    let response;
+  if (model) body.model = model;
+
+  let lastError = null;
+  for (let index = 0; index < CHAT_API_URLS.length; index += 1) {
     try {
-      response = await fetch(url, {
+      const response = await fetch(CHAT_API_URLS[index], {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        signal,
-        body: requestBody,
+        body: JSON.stringify(body),
       });
+
+      if (!response.ok) {
+        const message = await readErrorResponse(response);
+        const error = new Error(message);
+        lastError = error;
+        if (
+          index < CHAT_API_URLS.length - 1 &&
+          RETRYABLE_STATUSES.has(response.status)
+        )
+          continue;
+        throw error;
+      }
+
+      const payload = await response.json().catch(() => null);
+      const text = String(payload?.text || "").trim();
+      if (!text) throw new Error("Backend returned an empty AI response.");
+      return text;
     } catch (error) {
-      failures.push(`${url}: ${String(error?.message || "fetch failed")}`);
-      continue;
+      lastError = error;
+      if (!isLikelyNetworkError(error) || index === CHAT_API_URLS.length - 1)
+        throw error;
     }
-
-    if (!response.ok) {
-      failures.push(`${url}: ${await readApiError(response)}`);
-      continue;
-    }
-
-    const payload = await response.json().catch(() => null);
-    const text = String(payload?.text || "").trim();
-    if (!text) {
-      failures.push(`${url}: Backend returned an empty response.`);
-      continue;
-    }
-    return text;
   }
-  throw new Error(failures.length ? failures.join(" | ") : "No backend chat URL is configured.");
+
+  throw lastError || new Error("Unable to reach backend chat API.");
 };
 
-const requestGemini = async (signal, modelName = GEMINI_CHAT_MODEL) => {
-  if (!GEMINI_API_KEY) {
-    try {
-      return await requestBackendChat("gemini", modelName, signal);
-    } catch (backendError) {
-      return requestBackendChat("auto", "", signal).catch((autoError) => {
-        throw new Error(
-          `Gemini is unavailable. Backend Gemini: ${backendError?.message || "failed"} | Backend Auto: ${autoError?.message || "failed"}`,
-        );
-      });
-    }
-  }
+const requestGeminiDirect = async () => {
+  if (!GEMINI_API_KEY)
+    throw new Error("Gemini API key is missing in frontend env.");
 
-  try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(
-      GEMINI_API_KEY,
-    )}`;
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      signal,
-      body: JSON.stringify({
-        system_instruction: { parts: [{ text: ASSISTANT_SYSTEM_PROMPT }] },
-        contents: buildGeminiHistory(),
-        generationConfig: { temperature: normalizedTemperature.value, maxOutputTokens: REQUEST_MAX_OUTPUT_TOKENS },
-      }),
-    });
-    if (!response.ok) throw new Error(await readApiError(response));
-    const data = await response.json();
-    const text = data?.candidates?.[0]?.content?.parts?.map((p) => p?.text || "").join("").trim();
-    if (!text) throw new Error("Gemini returned an empty response.");
-    return text;
-  } catch (error) {
-    if (error?.name === "AbortError") throw error;
-    try {
-      return await requestBackendChat("gemini", modelName, signal);
-    } catch (backendError) {
-      try {
-        return await requestBackendChat("auto", "", signal);
-      } catch (autoError) {
-        throw new Error(
-          `Gemini request failed. Direct: ${error?.message || "failed"} | Backend Gemini: ${backendError?.message || "failed"} | Backend Auto: ${autoError?.message || "failed"}`,
-        );
-      }
-    }
-  }
-};
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+    GEMINI_CHAT_MODEL,
+  )}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
 
-const requestGroq = async (signal, modelName = GROQ_CHAT_MODEL) => {
-  if (!GROQ_API_KEY) {
-    try {
-      return await requestBackendChat("groq", modelName, signal);
-    } catch (backendError) {
-      return requestBackendChat("auto", "", signal).catch((autoError) => {
-        throw new Error(
-          `Groq is unavailable. Backend Groq: ${backendError?.message || "failed"} | Backend Auto: ${autoError?.message || "failed"}`,
-        );
-      });
-    }
-  }
-
-  const endpoint = `${GROQ_API_BASE}/chat/completions`;
-
-  try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${GROQ_API_KEY}`,
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: ASSISTANT_SYSTEM_PROMPT }] },
+      contents: buildChatMessages().map((message) => ({
+        role: message.role === "assistant" ? "model" : "user",
+        parts: [{ text: message.text }],
+      })),
+      generationConfig: {
+        temperature: REQUEST_TEMPERATURE,
+        maxOutputTokens: REQUEST_MAX_OUTPUT_TOKENS,
       },
-      signal,
-      body: JSON.stringify({
-        model: modelName,
-        messages: buildGroqMessages(),
-        temperature: normalizedTemperature.value,
-        max_tokens: REQUEST_MAX_OUTPUT_TOKENS,
-        stream: false,
-      }),
-    });
+    }),
+  });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: { message: `HTTP ${response.status}` } }));
-      const errorMessage = errorData?.error?.message || `Request failed with status ${response.status}`;
+  if (!response.ok) throw new Error(await readErrorResponse(response));
 
-      if (response.status === 401) {
-        throw new Error(
-          `Groq authentication failed at ${GROQ_API_BASE}. Check VITE_GROQ_API_KEY and VITE_GROQ_API_BASE. Original error: ${errorMessage}`,
-        );
-      } else if (response.status === 403) {
-        throw new Error(`Groq API access denied. Please verify your API key permissions. Original error: ${errorMessage}`);
-      } else {
-        throw new Error(`Groq API error: ${errorMessage}`);
-      }
-    }
-
-    const data = await response.json();
-    const content = data?.choices?.[0]?.message?.content;
-    const text = typeof content === "string" ? content.trim() : Array.isArray(content) ? content.map((part) => part?.text || "").join("").trim() : "";
-
-    if (!text) throw new Error("Groq returned an empty response.");
-    return text;
-  } catch (error) {
-    if (error?.name === "AbortError") {
-      throw error;
-    }
-    if (String(error?.message || "").toLowerCase().includes("fetch")) {
-      try {
-        return await requestBackendChat("groq", modelName, signal);
-      } catch (backendError) {
-        try {
-          return await requestBackendChat("auto", "", signal);
-        } catch (autoError) {
-          throw new Error(
-            `Network error connecting to Groq API. Direct: ${error.message}. Backend Groq: ${backendError?.message || "failed"} | Backend Auto: ${autoError?.message || "failed"}`,
-          );
-        }
-      }
-    }
-    throw error;
-  }
+  const payload = await response.json().catch(() => null);
+  const text =
+    payload?.candidates?.[0]?.content?.parts
+      ?.map((part) => (typeof part?.text === "string" ? part.text : ""))
+      .join("")
+      .trim() || "";
+  if (!text) throw new Error("Gemini returned an empty response.");
+  return text;
 };
 
-const requestOpenAI = async (signal, modelName = OPENAI_CHAT_MODEL) => {
-  if (!OPENAI_API_KEY) {
-    try {
-      return await requestBackendChat("openai", modelName, signal);
-    } catch (backendError) {
-      return requestBackendChat("auto", "", signal).catch((autoError) => {
-        throw new Error(
-          `OpenAI is unavailable. Backend OpenAI: ${backendError?.message || "failed"} | Backend Auto: ${autoError?.message || "failed"}`,
-        );
-      });
-    }
-  }
+const requestGroqDirect = async () => {
+  if (!GROQ_API_KEY)
+    throw new Error("Groq API key is missing in frontend env.");
 
-  const endpoint = `${OPENAI_BASE_URL}/chat/completions`;
+  const response = await fetch(`${GROQ_API_BASE}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: GROQ_CHAT_MODEL,
+      messages: buildOpenAiMessages(),
+      temperature: REQUEST_TEMPERATURE,
+      max_tokens: REQUEST_MAX_OUTPUT_TOKENS,
+      stream: false,
+    }),
+  });
 
-  try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-      signal,
-      body: JSON.stringify({
-        model: modelName,
-        messages: buildOpenAIMessages(),
-        temperature: normalizedTemperature.value,
-        max_tokens: REQUEST_MAX_OUTPUT_TOKENS,
-        stream: false,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: { message: `HTTP ${response.status}` } }));
-      const errorMessage = errorData?.error?.message || `Request failed with status ${response.status}`;
-
-      if (response.status === 401) {
-        throw new Error(
-          `OpenAI authentication failed at ${OPENAI_BASE_URL}. Check VITE_OPENAI_API_KEY and VITE_OPENAI_BASE_URL. Original error: ${errorMessage}`,
-        );
-      } else if (response.status === 403) {
-        throw new Error(`OpenAI API access denied. Please verify your API key permissions. Original error: ${errorMessage}`);
-      } else {
-        throw new Error(`OpenAI API error: ${errorMessage}`);
-      }
-    }
-
-    const data = await response.json();
-    const content = data?.choices?.[0]?.message?.content;
-    const text = typeof content === "string" ? content.trim() : Array.isArray(content) ? content.map((part) => part?.text || "").join("").trim() : "";
-
-    if (!text) throw new Error("OpenAI returned an empty response.");
-    return text;
-  } catch (error) {
-    if (error?.name === "AbortError") {
-      throw error;
-    }
-    if (String(error?.message || "").toLowerCase().includes("fetch")) {
-      try {
-        return await requestBackendChat("openai", modelName, signal);
-      } catch (backendError) {
-        try {
-          return await requestBackendChat("auto", "", signal);
-        } catch (autoError) {
-          throw new Error(
-            `Network error connecting to OpenAI. Direct: ${error.message}. Backend OpenAI: ${backendError?.message || "failed"} | Backend Auto: ${autoError?.message || "failed"}`,
-          );
-        }
-      }
-    }
-    throw error;
-  }
+  if (!response.ok) throw new Error(await readErrorResponse(response));
+  const payload = await response.json().catch(() => null);
+  const text = readOpenAiStyleText(payload);
+  if (!text) throw new Error("Llama/Groq returned an empty response.");
+  return text;
 };
 
-const buildOpenAIMessages = () => [
-  { role: "system", content: ASSISTANT_SYSTEM_PROMPT },
-  ...buildConversationHistory().map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text })),
-];
+const requestOpenAiDirect = async () => {
+  if (!OPENAI_API_KEY)
+    throw new Error("OpenAI API key is missing in frontend env.");
 
-const buildGroqMessages = () => [
-  { role: "system", content: ASSISTANT_SYSTEM_PROMPT },
-  ...buildConversationHistory().map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text })),
-];
+  const response = await fetch(`${OPENAI_BASE_URL}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: OPENAI_CHAT_MODEL,
+      messages: buildOpenAiMessages(),
+      temperature: REQUEST_TEMPERATURE,
+      max_tokens: REQUEST_MAX_OUTPUT_TOKENS,
+      stream: false,
+    }),
+  });
 
-const requestAssistantReply = async (signal) => {
-  const primaryProvider = assistantProvider.value.provider;
-  const primaryModel = assistantProvider.value.modelName;
-  const fallbackSequence = [];
+  if (!response.ok) throw new Error(await readErrorResponse(response));
+  const payload = await response.json().catch(() => null);
+  const text = readOpenAiStyleText(payload);
+  if (!text) throw new Error("OpenAI returned an empty response.");
+  return text;
+};
 
-  if (primaryProvider !== "gemini") fallbackSequence.push("gemini");
-  if (primaryProvider !== "groq") fallbackSequence.push("groq");
-  if (primaryProvider !== "openai") fallbackSequence.push("openai");
+const SUPPORTED_MODEL_PROVIDERS = new Set(["gemini", "groq", "openai"]);
+const normalizeSelectedProvider = (value) => {
+  const raw =
+    typeof value === "string"
+      ? value
+      : value && typeof value === "object"
+        ? (value.value ?? value.model ?? value.provider ?? "gemini")
+        : "gemini";
+  const normalized = String(raw || "")
+    .trim()
+    .toLowerCase();
+  return SUPPORTED_MODEL_PROVIDERS.has(normalized) ? normalized : "gemini";
+};
+
+const buildProviderAttempts = (provider = "gemini") => {
+  if (provider === "gemini") {
+    const attempts = [
+      () => requestBackendChat({ provider: "gemini", model: GEMINI_CHAT_MODEL }),
+    ];
+    if (GEMINI_API_KEY) attempts.push(() => requestGeminiDirect());
+    return attempts;
+  }
+
+  if (provider === "groq") {
+    const attempts = [
+      () => requestBackendChat({ provider: "groq", model: GROQ_CHAT_MODEL }),
+    ];
+    if (GROQ_API_KEY) attempts.push(() => requestGroqDirect());
+    return attempts;
+  }
 
   const attempts = [
-    { provider: primaryProvider, model: primaryModel },
-    ...fallbackSequence.map((provider) => {
-      if (provider === "gemini") return { provider, model: GEMINI_CHAT_MODEL };
-      if (provider === "groq") return { provider, model: GROQ_CHAT_MODEL };
-      if (provider === "openai") return { provider, model: OPENAI_CHAT_MODEL };
-      return { provider: "auto", model: "" };
-    }),
-    { provider: "auto", model: "" },
+    () => requestBackendChat({ provider: "openai", model: OPENAI_CHAT_MODEL }),
   ];
+  if (OPENAI_API_KEY) attempts.push(() => requestOpenAiDirect());
+  return attempts;
+};
+
+const requestAssistantReply = async () => {
+  const selectedProvider = normalizeSelectedProvider(selectedModel.value);
+  const attempts = buildProviderAttempts(selectedProvider);
   const failures = [];
 
   for (const attempt of attempts) {
     try {
-      if (attempt.provider === "gemini") return await requestGemini(signal, attempt.model);
-      if (attempt.provider === "groq") return await requestGroq(signal, attempt.model);
-      if (attempt.provider === "openai") return await requestOpenAI(signal, attempt.model);
-      if (attempt.provider === "auto") return await requestBackendChat("auto", "", signal);
-      failures.push(`Unsupported provider: ${attempt.provider}`);
+      return await attempt();
     } catch (error) {
-      if (error?.name === "AbortError") throw error;
-      failures.push(`${attempt.provider}: ${String(error?.message || "failed")}`);
+      failures.push(
+        `[${selectedProvider}] ${String(error?.message || "Request failed")}`,
+      );
     }
   }
 
   throw new Error(failures.join(" | "));
 };
 
-const generateAssistantReply = async () => {
-  if (!hasSelectedApiKey.value) {
-    showAlert("Missing API key for AI chat.", "error");
+const getAuthorizationHeader = async () => {
+  if (!auth?.currentUser) throw new Error("Please sign in first.");
+  const idToken = await auth.currentUser.getIdToken();
+  if (!idToken) throw new Error("Unable to retrieve auth token.");
+  return `Bearer ${idToken}`;
+};
+
+const authorizedFetchHistory = async (path = "", options = {}) => {
+  const historyUrls = getHistoryUrls(path);
+  if (!historyUrls.length)
+    throw new Error("History API URL is not configured.");
+
+  const authorization = await getAuthorizationHeader();
+  let lastError = null;
+
+  for (let index = 0; index < historyUrls.length; index += 1) {
+    try {
+      const response = await fetch(historyUrls[index], {
+        ...options,
+        headers: { ...(options.headers || {}), Authorization: authorization },
+      });
+
+      if (response.status === 401) {
+        if (auth) await firebaseSignOut(auth).catch(() => { });
+        throw new Error("Your session expired. Please sign in again.");
+      }
+
+      if (
+        index < historyUrls.length - 1 &&
+        RETRYABLE_STATUSES.has(response.status)
+      ) {
+        lastError = new Error(`History API returned ${response.status}.`);
+        continue;
+      }
+      return response;
+    } catch (error) {
+      lastError = error;
+      if (!isLikelyNetworkError(error) || index === historyUrls.length - 1)
+        throw error;
+    }
+  }
+
+  throw lastError || new Error("Unable to reach history API.");
+};
+
+const hasUser = computed(() => Boolean(currentUser.value));
+const canSend = computed(
+  () => hasUser.value && !sending.value && Boolean(userInput.value.trim()),
+);
+const isEmptyConversation = computed(() => messages.value.length === 0);
+const modelOptions = computed(() => [
+  { label: `Gemini (${GEMINI_CHAT_MODEL})`, value: "gemini" },
+  { label: `Llama (${GROQ_CHAT_MODEL})`, value: "groq" },
+  { label: `OpenAI (${OPENAI_CHAT_MODEL})`, value: "openai" },
+]);
+const activeConversationTitle = computed(() => {
+  const active = conversations.value.find(
+    (item) => item.id === activeConversationId.value,
+  );
+  return active?.title || "New chat";
+});
+const userInitial = computed(() => {
+  const displayName = String(currentUser.value?.displayName || "").trim();
+  if (displayName) return displayName.charAt(0).toUpperCase();
+  const email = String(currentUser.value?.email || "").trim();
+  if (email) return email.charAt(0).toUpperCase();
+  return "U";
+});
+const userAvatarSrc = computed(() => {
+  if (avatarImageFailed.value) return "";
+  const user = currentUser.value;
+  const candidates = [
+    String(user?.photoURL || "").trim(),
+    ...(Array.isArray(user?.providerData) ? user.providerData : []).map(
+      (item) => String(item?.photoURL || "").trim(),
+    ),
+  ].filter(Boolean);
+  return candidates[0] || "";
+});
+const runnerLanguageLabel = computed(() => {
+  const map = {
+    html: "HTML",
+    javascript: "JavaScript",
+    js: "JavaScript",
+    css: "CSS",
+    json: "JSON",
+    plaintext: "Text",
+  };
+  return map[runnerLanguage.value] || runnerLanguage.value.toUpperCase();
+});
+
+const formatDateLabel = (value) => {
+  if (!value) return "";
+  try {
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(new Date(value));
+  } catch {
+    return "";
+  }
+};
+
+const formatMessageTime = (value) => {
+  if (!value) return "";
+  try {
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(new Date(value));
+  } catch {
+    return "";
+  }
+};
+
+const getConversationTitleFromMessages = (conversationMessages = []) => {
+  const firstUser =
+    conversationMessages.find((message) => message.role === "user")?.text || "";
+  const normalized = String(firstUser || "")
+    .trim()
+    .replace(/\s+/g, " ");
+  if (!normalized) return "New chat";
+  return normalized.length > 80 ? `${normalized.slice(0, 77)}...` : normalized;
+};
+
+const insertOrUpdateConversationSummary = (conversation = {}) => {
+  const summary = normalizeSummary({
+    id: conversation.id,
+    title:
+      conversation.title ||
+      getConversationTitleFromMessages(conversation.messages || []),
+    updatedAt: conversation.updatedAt || nowIso(),
+    messageCount: Array.isArray(conversation.messages)
+      ? conversation.messages.length
+      : 0,
+  });
+  if (!summary.id) return;
+
+  const existingIndex = conversations.value.findIndex(
+    (item) => item.id === summary.id,
+  );
+  if (existingIndex >= 0) {
+    conversations.value[existingIndex] = {
+      ...conversations.value[existingIndex],
+      ...summary,
+    };
+  } else {
+    conversations.value.push(summary);
+  }
+  sortConversations();
+};
+
+const scrollToBottom = async () => {
+  await nextTick();
+  if (chatScrollRef.value) {
+    chatScrollRef.value.scrollTop = chatScrollRef.value.scrollHeight;
+  }
+};
+
+const copyText = async (value, successMessage = "Copied.") => {
+  const text = String(value || "");
+  if (!text.trim()) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    showAlert(successMessage, "success");
+  } catch {
+    showAlert("Clipboard permission denied.", "error");
+  }
+};
+
+const buildRunnerDoc = ({
+  code = "",
+  language = "plaintext",
+  mode = "web",
+}) => {
+  const lang = String(language || "plaintext").toLowerCase();
+  const source = String(code || "");
+  if (mode === "console") {
+    if (!["javascript", "js"].includes(lang)) {
+      return `<!doctype html><html><body style=\"margin:0;background:#0b1020;color:#d5ddf7;font-family:Consolas,monospace;padding:14px;\"><pre>${escapeHtml(source)}</pre></body></html>`;
+    }
+    return `<!doctype html><html><body style=\"margin:0;background:#0b1020;color:#d5ddf7;font-family:Consolas,monospace;padding:14px;\"><div id=\"out\"></div><script>const out=document.getElementById(\"out\");const log=(...a)=>{const d=document.createElement(\"div\");d.textContent=a.map((x)=>typeof x===\"string\"?x:JSON.stringify(x)).join(\" \");out.appendChild(d);};console.log=log;try{new Function(${JSON.stringify(source)})();}catch(e){log(\"ERROR:\",e?.message||\"unknown\");}<\\/script></body></html>`;
+  }
+  if (["html", "htm", "markup", "php"].includes(lang)) {
+    return /<html[\\s>]/i.test(source)
+      ? source
+      : `<!doctype html><html><body style=\"font-family:system-ui;padding:16px;\">${source}</body></html>`;
+  }
+  if (["javascript", "js"].includes(lang)) {
+    return `<!doctype html><html><body style=\"font-family:system-ui;padding:16px;\"><p>Open console for logs.</p><script>${source}<\\/script></body></html>`;
+  }
+  if (lang === "css") {
+    return `<!doctype html><html><head><style>${source}</style></head><body><main style=\"padding:16px;font-family:system-ui;\"><h2>CSS Preview</h2><button>Sample Button</button></main></body></html>`;
+  }
+  return `<!doctype html><html><body style=\"font-family:Consolas,monospace;padding:14px;\"><pre>${escapeHtml(source)}</pre></body></html>`;
+};
+
+const runRunnerPreview = () => {
+  runnerSrcdoc.value = buildRunnerDoc({
+    code: runnerCode.value,
+    language: runnerLanguage.value,
+    mode: runnerMode.value,
+  });
+  runnerFrameKey.value += 1;
+};
+
+const openRunnerWithCode = async ({
+  code = "",
+  language = "plaintext",
+  title = "Assistant code",
+} = {}) => {
+  const source = String(code || "").trim();
+  if (!source) {
+    showAlert("No runnable code block found.", "error");
     return;
   }
-  activeController = new AbortController();
-  loading.value = true;
-  animatedText.value = "";
-  await scrollToBottom();
+  const resolvedLanguage = inferRunnerLanguage(language, source);
+  if (!canRunInRunner(resolvedLanguage)) {
+    showAlert(
+      "Run is disabled for CSS snippets. Use Copy or Download.",
+      "error",
+    );
+    return;
+  }
+  runnerLanguage.value = resolvedLanguage;
+  runnerCode.value = source;
+  runnerTitle.value = title;
+  runnerMode.value = getRunnerModeForLanguage(resolvedLanguage);
+  runnerPanelOpen.value = true;
+  await nextTick();
+  runRunnerPreview();
+};
+
+function inferRunnerLanguage(language = "", code = "") {
+  const normalizedLanguage = String(language || "")
+    .trim()
+    .toLowerCase();
+  if (
+    normalizedLanguage &&
+    normalizedLanguage !== "plaintext" &&
+    normalizedLanguage !== "text"
+  ) {
+    return normalizedLanguage;
+  }
+
+  const source = String(code || "").trim();
+  if (!source) return "plaintext";
+  if (/<!doctype html|<html[\s>]|<head[\s>]|<body[\s>]/i.test(source))
+    return "html";
+  if (/\{[\s\S]*:[^;]+;?[\s\S]*\}/m.test(source)) return "css";
+  if (
+    /\b(const|let|var|function|=>|console\.|document\.|window\.)\b/.test(source)
+  )
+    return "javascript";
+  if (/\b(def |print\(|import |from .+ import )/.test(source)) return "python";
+  if (/<\?php|echo\s+/.test(source)) return "php";
+  if (/^\s*[\[{]/.test(source)) return "json";
+  return "plaintext";
+}
+
+function isWebRunnerLanguage(language = "") {
+  return ["html", "htm", "markup", "php"].includes(
+    String(language || "").toLowerCase(),
+  );
+}
+
+function canRunInRunner(language = "") {
+  return String(language || "").toLowerCase() !== "css";
+}
+
+function getRunnerModeForLanguage(language = "") {
+  return isWebRunnerLanguage(language) ? "web" : "console";
+}
+
+const openCodeRunnerForBlock = (message, index, blockIndex = 0) => {
+  const codeBlocks = extractCodeBlocks(message?.text || "");
+  if (!codeBlocks.length) {
+    showAlert("No runnable code block found.", "error");
+    return;
+  }
+
+  const normalizedIndex =
+    Number.isInteger(blockIndex) &&
+      blockIndex >= 0 &&
+      blockIndex < codeBlocks.length
+      ? blockIndex
+      : 0;
+  const block = codeBlocks[normalizedIndex];
+
+  const title =
+    codeBlocks.length > 1
+      ? `Assistant code #${index + 1}.${normalizedIndex + 1}`
+      : `Assistant code #${index + 1}`;
+  void openRunnerWithCode({
+    code: block.code,
+    language: block.language || "plaintext",
+    title,
+  });
+};
+
+const openCodeRunnerFromMessage = (message, index) => {
+  openCodeRunnerForBlock(message, index, 0);
+};
+
+const getCodeFilename = (language = "", index = 0) => {
+  const normalized = String(language || "txt").toLowerCase();
+  const extMap = {
+    javascript: "js",
+    js: "js",
+    typescript: "ts",
+    ts: "ts",
+    jsx: "jsx",
+    tsx: "tsx",
+    html: "html",
+    htm: "html",
+    css: "css",
+    json: "json",
+    python: "py",
+    py: "py",
+    bash: "sh",
+    shell: "sh",
+    sh: "sh",
+    sql: "sql",
+    xml: "xml",
+    yaml: "yml",
+    yml: "yml",
+    markdown: "md",
+    md: "md",
+    plaintext: "txt",
+    text: "txt",
+  };
+  const ext = extMap[normalized] || normalized || "txt";
+  return `assistant-code-${index + 1}.${ext}`;
+};
+
+const downloadCodeBlock = (code = "", language = "", index = 0) => {
+  const source = String(code || "");
+  if (!source.trim()) {
+    showAlert("No code found to download.", "error");
+    return;
+  }
+  const blob = new Blob([source], { type: "text/plain;charset=utf-8" });
+  const objectUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = objectUrl;
+  anchor.download = getCodeFilename(language, index);
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(objectUrl);
+};
+
+const handleAssistantMessageClick = (event, message, index) => {
+  const eventTarget = event?.target;
+  const hasElementType = typeof Element !== "undefined";
+  const clickableTarget =
+    hasElementType && eventTarget instanceof Element
+      ? eventTarget
+      : eventTarget?.parentElement || null;
+  const button = clickableTarget?.closest?.(".code-runner-inline-btn");
+  if (!button) return;
+  event.preventDefault();
+
+  const parsedIndex = Number.parseInt(
+    button.getAttribute("data-code-index") || "0",
+    10,
+  );
+  const blockIndex =
+    Number.isInteger(parsedIndex) && parsedIndex >= 0 ? parsedIndex : 0;
+  const inlineContainer = button.closest(".inline-code-runner");
+  const codeElement = inlineContainer?.querySelector?.("pre code");
+  const inlineCode = String(codeElement?.textContent || "").trim();
+  const inlineLanguage =
+    String(button.getAttribute("data-code-language") || "")
+      .trim()
+      .toLowerCase() || "plaintext";
+
+  const codeBlocks = extractCodeBlocks(message?.text || "");
+  const matchedBlock = codeBlocks[blockIndex];
+  const fallbackCode = String(matchedBlock?.code || "").trim();
+  const fallbackLanguage = String(matchedBlock?.language || "plaintext")
+    .trim()
+    .toLowerCase();
+
+  const blockCode = inlineCode || fallbackCode;
+  const blockLanguage = inlineLanguage || fallbackLanguage || "plaintext";
+  if (!blockCode) {
+    showAlert("No runnable code block found.", "error");
+    return;
+  }
+
+  const action = String(
+    button.getAttribute("data-code-action") || "run",
+  ).toLowerCase();
+  if (action === "copy") {
+    copyText(blockCode, "Code copied.");
+    return;
+  }
+  if (action === "download") {
+    downloadCodeBlock(blockCode, blockLanguage, blockIndex);
+    return;
+  }
+  if (!canRunInRunner(blockLanguage)) {
+    showAlert(
+      "Run is disabled for CSS snippets. Use Copy or Download.",
+      "error",
+    );
+    return;
+  }
+  void openRunnerWithCode({
+    code: blockCode,
+    language: blockLanguage,
+    title: `Assistant code #${index + 1}.${blockIndex + 1}`,
+  });
+};
+
+const closeRunnerPanel = () => {
+  runnerPanelOpen.value = false;
+};
+
+const resetToNewConversation = () => {
+  activeConversationId.value = generateConversationId();
+  messages.value = [];
+  userInput.value = "";
+};
+
+const loadConversationList = async () => {
+  if (!hasUser.value) {
+    conversations.value = [];
+    historyLoadError.value = "";
+    return;
+  }
+
+  loadingHistory.value = true;
+  historyLoadError.value = "";
   try {
-    const reply = await requestAssistantReply(activeController.signal);
-
-    // Add message with empty text first, then animate it
-    const newMessage = createMessage("assistant", "");
-    messages.value.push(newMessage);
-
-    // Animate the text in small chunks for a faster, smoother typing effect
-    let displayedText = "";
-    for (let i = 0; i < reply.length; i += animationChunkSize) {
-      displayedText += reply.slice(i, i + animationChunkSize);
-      animatedText.value = displayedText;
-      newMessage.text = displayedText;
-      if (i === 0 || (i / animationChunkSize) % 4 === 0 || i + animationChunkSize >= reply.length) {
-        await scrollToBottom();
-      }
-      if (animationSpeed.value > 0) {
-        await new Promise((resolve) => setTimeout(resolve, animationSpeed.value));
-      } else {
-        await new Promise((resolve) => requestAnimationFrame(() => resolve()));
-      }
-    }
+    const response = await authorizedFetchHistory(`?limit=${historyLimit}`);
+    if (!response.ok) throw new Error(await readErrorResponse(response));
+    const payload = await response.json().catch(() => ({ data: [] }));
+    conversations.value = Array.isArray(payload?.data)
+      ? payload.data.map(normalizeSummary)
+      : [];
+    sortConversations();
   } catch (error) {
-    if (error?.name === "AbortError") {
-      showAlert("Generation stopped.", "error");
-      return;
-    }
-    const errorMessage = String(error?.message || "Unknown error");
-    console.error("ai error", error);
-
-    // Handle API-specific error messages
-    let userFriendlyMessage = "Sorry, an error occurred.";
-    const normalizedError = errorMessage.toLowerCase();
-    if (normalizedError.includes("insufficient balance")) {
-      userFriendlyMessage = "Your API account balance is insufficient. Please add credits to your account to continue using the service.";
-    } else if (normalizedError.includes("expired") && normalizedError.includes("api key")) {
-      userFriendlyMessage = `Your Gemini API key has expired. Renew it or switch model to Groq.\n\n${errorMessage}`;
-    } else if (normalizedError.includes("invalid") && normalizedError.includes("api key")) {
-      userFriendlyMessage = `Your API key appears to be invalid.\n\n${errorMessage}`;
-    } else if (normalizedError.includes("authentication")) {
-      userFriendlyMessage = `Authentication failed.\n\n${errorMessage}`;
-    } else if (normalizedError.includes("not configured on the backend")) {
-      userFriendlyMessage = `AI provider is not configured on the backend. Add GEMINI_API_KEY or GROQ_API_KEY to backend .env.\n\n${errorMessage}`;
-    } else if (normalizedError.includes("network error") || normalizedError.includes("failed to fetch")) {
-      userFriendlyMessage = `Network connection error.\n\n${errorMessage}`;
-    } else if (normalizedError.includes("api key")) {
-      userFriendlyMessage = `There seems to be an issue with your API key configuration.\n\n${errorMessage}`;
-    } else {
-      userFriendlyMessage = `Sorry, an error occurred.\n\n${errorMessage}`;
-    }
-
-    messages.value.push(createMessage("assistant", userFriendlyMessage, { error: true }));
+    historyLoadError.value = getFriendlyFetchError(error, "chat history");
+    throw error;
   } finally {
-    loading.value = false;
-    animatedText.value = "";
-    activeController = null;
+    loadingHistory.value = false;
+  }
+};
+
+const openConversation = async (conversationId, closeSidebar = true) => {
+  const normalizedId = String(conversationId || "").trim();
+  if (!normalizedId || !hasUser.value) return;
+
+  loadingConversation.value = true;
+  try {
+    const response = await authorizedFetchHistory(
+      `/${encodeURIComponent(normalizedId)}`,
+    );
+    if (!response.ok) throw new Error(await readErrorResponse(response));
+
+    const payload = await response.json().catch(() => null);
+    const conversation = payload?.data;
+    if (!conversation?.id) throw new Error("Conversation data is invalid.");
+
+    activeConversationId.value = String(conversation.id);
+    messages.value = Array.isArray(conversation.messages)
+      ? conversation.messages.map(normalizeMessage)
+      : [];
+    insertOrUpdateConversationSummary(conversation);
+
+    if (closeSidebar) sidebarOpen.value = false;
     await scrollToBottom();
+  } catch (error) {
+    showAlert(getFriendlyFetchError(error, "conversation"), "error");
+  } finally {
+    loadingConversation.value = false;
+  }
+};
+
+const saveConversationHistory = async () => {
+  if (!hasUser.value || !activeConversationId.value || !messages.value.length)
+    return;
+
+  const payload = {
+    title: getConversationTitleFromMessages(messages.value),
+    messages: messages.value.map((message) => ({
+      role: message.role === "assistant" ? "assistant" : "user",
+      text: String(message.text || ""),
+      createdAt: message.createdAt,
+    })),
+  };
+
+  const response = await authorizedFetchHistory(
+    `/${encodeURIComponent(activeConversationId.value)}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    },
+  );
+  if (!response.ok) throw new Error(await readErrorResponse(response));
+  const body = await response.json().catch(() => null);
+  if (body?.data) insertOrUpdateConversationSummary(body.data);
+};
+
+const saveConversationHistorySafe = async () => {
+  try {
+    await saveConversationHistory();
+  } catch (error) {
+    showAlert(getFriendlyFetchError(error, "conversation history"), "error");
   }
 };
 
 const sendMessage = async () => {
   const prompt = userInput.value.trim();
-  if (!prompt || loading.value) return;
-  if (!hasSelectedApiKey.value) {
-    messages.value.push(createMessage("assistant", "Text model is not configured. Add VITE_GEMINI_API_KEY or VITE_GROQ_API_KEY.", { error: true }));
-    await scrollToBottom();
+  if (!prompt || sending.value) return;
+  if (!hasUser.value) {
+    showAlert("Please sign in with Google first.", "error");
     return;
   }
+
+  if (!activeConversationId.value)
+    activeConversationId.value = generateConversationId();
+
   messages.value.push(createMessage("user", prompt));
   userInput.value = "";
-  await generateAssistantReply();
-};
+  sending.value = true;
+  await scrollToBottom();
 
-const stopGeneration = () => {
-  if (activeController) activeController.abort();
-};
-
-const handlePrimaryAction = () => {
-  if (loading.value) {
-    stopGeneration();
-    return;
+  try {
+    const assistantText = String(await requestAssistantReply()).trim();
+    if (!assistantText)
+      throw new Error("AI provider returned an empty response.");
+    messages.value.push(createMessage("assistant", assistantText));
+  } catch (error) {
+    const userMessage = error?.message || "Unable to generate AI response.";
+    messages.value.push(
+      createMessage(
+        "assistant",
+        `Sorry, I could not generate a reply.\n\n${userMessage}`,
+        true,
+      ),
+    );
+    showAlert(getFriendlyFetchError(error, "AI response"), "error");
+  } finally {
+    sending.value = false;
+    await saveConversationHistorySafe();
+    await scrollToBottom();
   }
-  sendMessage();
 };
 
-const resetChat = () => {
-  stopGeneration();
-  messages.value = [createMessage("assistant", buildWelcomeText())];
-  showAlert("New chat started.");
-  scrollToBottom();
-};
+const deleteConversation = async (conversationId) => {
+  if (!hasUser.value || sending.value) return;
+  const normalizedId = String(conversationId || "").trim();
+  if (!normalizedId) return;
+  if (!window.confirm("Delete this conversation?")) return;
 
-const regenerateLastReply = async () => {
-  if (loading.value) return;
-  const lastUser = [...messages.value].reverse().find((m) => m.role === "user");
-  if (!lastUser) {
-    showAlert("No user prompt found.", "error");
-    return;
+  try {
+    const response = await authorizedFetchHistory(
+      `/${encodeURIComponent(normalizedId)}`,
+      { method: "DELETE" },
+    );
+    if (!response.ok) throw new Error(await readErrorResponse(response));
+
+    conversations.value = conversations.value.filter(
+      (item) => item.id !== normalizedId,
+    );
+    if (activeConversationId.value === normalizedId) {
+      if (conversations.value.length > 0) {
+        await openConversation(conversations.value[0].id, false);
+      } else {
+        resetToNewConversation();
+      }
+    }
+  } catch (error) {
+    showAlert(getFriendlyFetchError(error, "conversation"), "error");
   }
-  if (messages.value[messages.value.length - 1]?.role === "assistant") messages.value.pop();
-  await generateAssistantReply();
+};
+
+const startNewChat = () => {
+  if (!hasUser.value || sending.value) return;
+  resetToNewConversation();
+  sidebarOpen.value = false;
 };
 
 const handlePromptKeydown = (event) => {
@@ -1222,2381 +1094,1203 @@ const handlePromptKeydown = (event) => {
   }
 };
 
-const saveState = () => {
-  try {
-    const persistedMessages = messages.value.slice(-80).map((message) => ({
-      id: message.id,
-      role: message.role,
-      text: message.text || "",
-      error: Boolean(message.error),
-      createdAt: message.createdAt,
-    }));
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        messages: persistedMessages,
-        nextId,
-      }),
-    );
-  } catch (error) {
-    console.error("save failed", error);
-  }
-};
-
-const restoreState = () => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return false;
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed.messages)) {
-      messages.value = parsed.messages
-        .filter((m) => m && (m.role === "user" || m.role === "assistant"))
-        .map((m, index) => ({
-          id: typeof m.id === "number" ? m.id : index + 1,
-          role: m.role,
-          text: typeof m.text === "string" ? m.text : "",
-          error: Boolean(m.error),
-          createdAt: typeof m.createdAt === "string" ? m.createdAt : new Date().toISOString(),
-        }));
+const signInWithGoogle = async () => {
+  if (!auth || !googleProvider || signingIn.value) {
+    if (!hasRequiredFirebaseConfig) {
+      showAlert(
+        "Firebase config is missing. Add VITE_FIREBASE_* values first.",
+        "error",
+      );
     }
-    nextId = typeof parsed.nextId === "number" ? parsed.nextId : Math.max(1, ...messages.value.map((m, i) => (m.id || i) + 1));
-    return messages.value.length > 0;
-  } catch (error) {
-    console.error("restore failed", error);
-    return false;
-  }
-};
-
-watch(
-  availableModels,
-  (models) => {
-    const hasCurrent = models.some((model) => model.value === selectedModel.value && !model.disabled);
-    if (hasCurrent) return;
-    const fallback = models.find((model) => !model.disabled) || models[0];
-    selectedModel.value = fallback?.value || "gemini-default";
-  },
-  { immediate: true },
-);
-watch(
-  selectedModel,
-  (value) => {
-    writeStoredValue(MODEL_STORAGE_KEY, String(value || "gemini-default"));
-  },
-  { immediate: true },
-);
-watch(
-  normalizedTemperature,
-  (value) => {
-    if (value !== currentTemperature.value) currentTemperature.value = value;
-    writeStoredValue(TEMPERATURE_STORAGE_KEY, String(value));
-  },
-  { immediate: true },
-);
-watch(searchQuery, (value) => {
-  if (!String(value || "").trim()) {
-    editingMessageId.value = null;
-  }
-});
-watch(filteredMessages, (list) => {
-  if (!normalizedSearchQuery.value) return;
-  editingMessageId.value = list[0]?.id ?? null;
-});
-
-watch(runnerPanelWidth, (value) => {
-  const clamped = clampRunnerPanelWidth(value);
-  if (clamped !== value) runnerPanelWidth.value = clamped;
-});
-
-watch(isCompactLayout, (compact) => {
-  if (compact) {
-    stopRunnerResize();
     return;
   }
-  runnerPanelWidth.value = clampRunnerPanelWidth(runnerPanelWidth.value);
+  signingIn.value = true;
+  try {
+    await signInWithPopup(auth, googleProvider);
+  } catch (error) {
+    showAlert(error?.message || "Google sign-in failed.", "error");
+  } finally {
+    signingIn.value = false;
+  }
+};
+
+const signOutUser = async () => {
+  if (!auth) return;
+  try {
+    await firebaseSignOut(auth);
+  } catch (error) {
+    showAlert(error?.message || "Sign out failed.", "error");
+  }
+};
+
+const toggleSidebar = () => {
+  sidebarOpen.value = !sidebarOpen.value;
+};
+
+const setupAuth = () => {
+  if (!auth || !hasRequiredFirebaseConfig) {
+    authReady.value = true;
+    currentUser.value = null;
+    return;
+  }
+
+  removeAuthListener = onAuthStateChanged(auth, async (user) => {
+    authReady.value = false;
+    currentUser.value = user;
+    avatarImageFailed.value = false;
+    conversations.value = [];
+    messages.value = [];
+    historyLoadError.value = "";
+    runnerPanelOpen.value = false;
+
+    if (!user) {
+      activeConversationId.value = "";
+      authReady.value = true;
+      return;
+    }
+
+    try {
+      await loadConversationList();
+      if (conversations.value.length > 0) {
+        await openConversation(conversations.value[0].id, false);
+      } else {
+        resetToNewConversation();
+      }
+    } catch (error) {
+      resetToNewConversation();
+      showAlert(getFriendlyFetchError(error, "your history"), "error");
+    } finally {
+      authReady.value = true;
+    }
+  });
+};
+
+watch(
+  messages,
+  () => {
+    void scrollToBottom();
+  },
+  { deep: true },
+);
+
+watch(
+  () => runnerMode.value,
+  () => {
+    if (runnerPanelOpen.value && runnerCode.value.trim()) runRunnerPreview();
+  },
+);
+
+watch(selectedModel, (value) => {
+  const normalized = normalizeSelectedProvider(value);
+  if (normalized !== value) selectedModel.value = normalized;
 });
 
-watch(isShortScreen, () => {
-  runnerPanelWidth.value = clampRunnerPanelWidth(runnerPanelWidth.value);
-});
-
-watch(messages, saveState, { deep: true });
-
-onMounted(async () => {
-  if (!restoreState()) messages.value = [createMessage("assistant", buildWelcomeText())];
-  document.addEventListener("fullscreenchange", handleFullscreenChange);
-  window.addEventListener("keydown", handleGlobalKeydown);
-  window.addEventListener("resize", handleWindowResize);
-  runnerPanelWidth.value = clampRunnerPanelWidth(runnerPanelWidth.value);
-  await scrollToBottom();
+onMounted(() => {
+  setupAuth();
 });
 
 onUnmounted(() => {
-  document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  window.removeEventListener("keydown", handleGlobalKeydown);
-  window.removeEventListener("resize", handleWindowResize);
-  stopRunnerResize();
-  if (isChatFullscreen.value && document.fullscreenElement) {
-    document.exitFullscreen().catch(() => { });
+  if (typeof removeAuthListener === "function") {
+    removeAuthListener();
   }
-  isChatFullscreen.value = false;
-  runnerPanelOpen.value = false;
-  stopGeneration();
 });
 </script>
 
+<template>
+  <div class="mindlytic-page">
+    <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
+
+    <div class="mindlytic-layout">
+      <div v-if="hasUser && sidebarOpen" class="sidebar-backdrop" @click="sidebarOpen = false"></div>
+
+      <aside class="chat-sidebar" :class="{ 'chat-sidebar-open': sidebarOpen }" v-if="hasUser">
+        <div class="sidebar-brand">
+          <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" class="w-8 brand-logo-mark" />
+          <div class="brand-copy">
+            <p class="brand-name">mindlytic</p>
+            <p class="brand-subtitle">AI Workspace</p>
+          </div>
+          <v-btn class="sidebar-toggle-btn" icon="mdi-close" density="comfortable" size="small" variant="tonal"
+            title="Close sidebar" @click="sidebarOpen = false" />
+        </div>
+
+        <v-btn class="new-chat-btn text-none" color="primary" variant="flat" rounded="xl" prepend-icon="mdi-plus"
+          :disabled="!hasUser || sending" @click="startNewChat">
+          New chat
+        </v-btn>
+
+        <div class="history-wrap">
+          <p class="history-title">Today</p>
+
+          <div v-if="loadingHistory" class="history-empty">
+            Loading history...
+          </div>
+          <div v-else-if="!hasUser" class="history-empty">
+            Sign in to see your chats.
+          </div>
+          <div v-else-if="conversations.length === 0" class="history-empty">
+            No saved chats yet.
+          </div>
+          <p v-if="historyLoadError" class="history-error">
+            {{ historyLoadError }}
+          </p>
+
+          <div v-if="conversations.length > 0" class="history-list">
+            <button v-for="item in conversations" :key="item.id" class="history-item" :class="{
+              'history-item-active': item.id === activeConversationId,
+            }" :disabled="loadingConversation || sending" @click="openConversation(item.id)">
+              <div class="history-content">
+                <p class="history-item-title">{{ item.title }}</p>
+                <p class="history-item-meta">
+                  {{ formatDateLabel(item.updatedAt) }}
+                </p>
+              </div>
+              <v-btn icon="mdi-delete-outline" size="x-small" variant="text" color="error" class="history-delete-btn"
+                :disabled="sending" @click.stop="deleteConversation(item.id)" />
+            </button>
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <template v-if="hasUser">
+            <div class="user-profile">
+              <v-avatar size="32" class="mr-2" color="primary" variant="tonal">
+                <img v-if="userAvatarSrc" :src="userAvatarSrc" alt="Profile" class="profile-image"
+                  referrerpolicy="no-referrer" @error="avatarImageFailed = true" />
+                <span v-else class="avatar-initial">{{ userInitial }}</span>
+              </v-avatar>
+              <div class="user-copy">
+                <p class="user-name">
+                  {{ currentUser?.displayName || "Signed in user" }}
+                </p>
+                <p class="user-email">{{ currentUser?.email }}</p>
+              </div>
+              <v-btn icon="mdi-logout" size="small" variant="text" color="red" @click="signOutUser" />
+            </div>
+          </template>
+          <template v-else>
+            <p class="user-email">Google sign-in is required.</p>
+          </template>
+        </div>
+      </aside>
+
+      <section class="chat-main">
+        <header class="chat-mobile-head">
+          <v-btn v-if="hasUser" icon="mdi-menu" size="small" variant="text" @click="toggleSidebar" />
+          <span class="chat-mobile-title">{{
+            hasUser ? activeConversationTitle : "Mindlytic AI"
+            }}</span>
+
+          <v-btn density="comfortable" variant="text" icon="mdi-plus"
+            :disabled="!hasUser || sending" @click="startNewChat" />
+        </header>
+
+        <v-progress-linear v-if="!authReady" class="session-top-loader" indeterminate color="primary" height="3" />
+
+        <div v-if="!authReady" class="session-loader-spacer"></div>
+
+        <div v-else-if="!hasRequiredFirebaseConfig" class="state-card">
+          <h2>Firebase config missing</h2>
+          <p>
+            Add `VITE_FIREBASE_*` keys in frontend `.env` to enable Google
+            sign-in.
+          </p>
+        </div>
+
+        <div v-else-if="!hasUser" class="state-card state-card-auth">
+          <div class="auth-content">
+            <div class="auth-header">
+              <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" class="auth-logo" />
+              <h1 class="auth-title">Mindlytic AI</h1>
+            </div>
+
+            <v-btn color="primary" rounded="xl" variant="flat" class="text-none google-auth-btn" :loading="signingIn"
+              :disabled="signingIn" prepend-icon="mdi-google" @click="signInWithGoogle">
+              Sign in with Google
+            </v-btn>
+          </div>
+        </div>
+
+        <template v-else>
+          <div class="workspace-shell" :class="{ 'workspace-shell-with-runner': runnerPanelOpen }">
+            <div class="chat-workspace" :class="{ 'chat-workspace-empty': isEmptyConversation }">
+              <div ref="chatScrollRef" class="chat-scroll" :class="{ 'chat-scroll-empty': isEmptyConversation }">
+                <div v-if="isEmptyConversation" class="empty-state">
+                  <p class="empty-title">How can I help you?</p>
+                  <p class="empty-subtitle">
+                    Ask anything to start a new conversation.
+                  </p>
+                </div>
+
+                <div v-else class="message-thread">
+                  <div v-for="(message, index) in messages" :key="`${message.createdAt}-${index}`" class="message-row"
+                    :class="message.role === 'assistant'
+                        ? 'message-row-ai'
+                        : 'message-row-user'
+                      ">
+                    <div class="message-bubble" :class="message.error ? 'message-bubble-error' : ''">
+                      <div v-if="message.role === 'assistant'" class="markdown-body"
+                        v-html="renderAssistantMessage(message.text)" @click="
+                          handleAssistantMessageClick($event, message, index)
+                          "></div>
+                      <p v-else class="message-text">{{ message.text }}</p>
+                      <p class="message-time">
+                        {{ formatMessageTime(message.createdAt) }}
+                      </p>
+
+                      <div v-if="message.role === 'assistant'" class="message-actions">
+                        <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
+                          @click="copyText(message.text, 'Reply copied.')">Copy</v-btn>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div v-if="sending" class="message-row message-row-ai">
+                    <div class="message-bubble message-bubble-thinking">
+                      <p class="message-text">Thinking...</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="composer-shell" :class="{ 'composer-shell-floating': isEmptyConversation }">
+                <div class="composer-panel">
+                  <v-textarea v-model="userInput" class="composer-input" placeholder="Message Mindlytic AI" hide-details
+                    rows="1" auto-grow max-rows="6" variant="plain" :disabled="sending || loadingConversation"
+                    @keydown="handlePromptKeydown" />
+                  <div class="composer-bottom-tools">
+                    <v-select v-model="selectedModel" :items="modelOptions" item-title="label" item-value="value"
+                      :return-object="false" density="compact" hide-details variant="outlined"
+                      :menu-props="{
+                        maxHeight: 280,
+                        minWidth: 270,
+                        maxWidth: 270,
+                        contentClass: 'composer-model-menu',
+                      }" class="composer-model-select"
+                      :disabled="sending || loadingConversation" />
+                    <v-btn icon color="primary" class="composer-send" :disabled="!canSend" :loading="sending"
+                      @click="sendMessage">
+                      <v-icon icon="mdi-arrow-up" />
+                    </v-btn>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <aside v-if="runnerPanelOpen" class="ai-runner-panel">
+              <div class="ai-runner-head">
+                <div>
+                  <p class="ai-runner-title">{{ runnerTitle }}</p>
+                </div>
+                <div class="ai-runner-head-actions">
+                  <v-btn size="x-small" color="primary" variant="tonal" class="text-none"
+                    @click="runnerMode = 'web'">Web</v-btn>
+                  <v-btn size="x-small" color="primary" variant="tonal" class="text-none"
+                    @click="runnerMode = 'console'">Console</v-btn>
+                  <v-btn size="small" variant="text" color="primary" icon="mdi-close" @click="closeRunnerPanel" />
+                </div>
+              </div>
+              <iframe :key="runnerFrameKey" :srcdoc="runnerSrcdoc" class="ai-runner-frame"
+                sandbox="allow-scripts allow-modals" referrerpolicy="no-referrer" title="Code runner preview"></iframe>
+            </aside>
+          </div>
+        </template>
+      </section>
+    </div>
+  </div>
+</template>
+
 <style scoped>
-.ai-page {
-  min-height: calc(100vh - 64px);
-  font-family: "Space Grotesk", "Segoe UI", sans-serif;
-  overflow-x: hidden;
-  background:
-    radial-gradient(circle at 15% 0%, rgba(57, 153, 128, 0.2), transparent 30%),
-    radial-gradient(circle at 92% 10%, rgba(247, 178, 103, 0.25), transparent 35%),
-    linear-gradient(180deg, #f2f8f5, #e7f4ec);
-}
-
-.hero-shell {
-  border-bottom: 1px solid rgba(76, 207, 183, 0.12);
-  background:
-    radial-gradient(circle at 12% 10%, rgba(41, 127, 108, 0.2), transparent 28%),
-    radial-gradient(circle at 88% 14%, rgba(242, 180, 80, 0.12), transparent 24%),
-    linear-gradient(152deg, rgba(15, 34, 30, 0.96), rgba(7, 18, 16, 0.94));
-}
-
-.hero-kicker {
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--portfolio-primary);
-  font-weight: 700;
-}
-
-.hero-title {
-  font-size: clamp(2rem, 3.2vw, 3rem);
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-  color: var(--portfolio-ink);
-}
-
-.hero-subtitle {
-  color: var(--portfolio-muted);
-  line-height: 1.7;
-}
-
-.hero-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.stat-card {
-  border: 1px solid rgba(15, 143, 124, 0.12);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 10px 8px;
-  text-align: center;
-}
-
-.stat-value {
-  display: block;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--portfolio-ink);
-}
-
-.stat-label {
-  display: block;
-  font-size: 0.72rem;
-  color: var(--portfolio-muted);
-}
-
-.chat-shell {
-  --chat-bubble-max-width: 720px;
-  --chat-accent: #1f6feb;
-  --chat-accent-strong: #184fae;
-  --chat-border: #d5e1ee;
-  --chat-surface: #ffffff;
-  --chat-surface-alt: #f4f8fd;
-  --chat-muted: #4f6279;
-  background: linear-gradient(180deg, #fcfdff, #f6f9fd);
+.mindlytic-page {
+  height: 100dvh;
+  background: #ffffff;
   overflow: hidden;
+}
+
+.mindlytic-layout {
+  height: 100%;
   display: flex;
-  flex-direction: column;
   position: relative;
-  min-height: clamp(510px, 76vh, 920px);
 }
 
-.chat-head-shell {
-  position: sticky;
-  z-index: 6;
-  border-bottom: 1px solid var(--chat-border);
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(8px);
-}
-
-.chat-head-container {
-  width: 100%;
-}
-
-.chat-head {
-  display: inline-flex;
-  width: 100%;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  padding: 14px;
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.chat-head-identity {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-
-.chat-head-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  flex-wrap: nowrap;
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.chat-head-actions::-webkit-scrollbar {
-  display: none;
-}
-
-.chat-head-actions :deep(.chat-action-btn) {
-  min-height: 34px;
-  white-space: nowrap;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  box-shadow: none;
-}
-
-.chat-head-subline {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 10px;
-  padding: 0 14px 10px;
-  font-size: 0.72rem;
-  color: var(--chat-muted);
-  letter-spacing: 0.01em;
-}
-
-.chat-head-subline span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  border-radius: 999px;
-  border: 1px solid #d9e4f2;
-  background: #f6f9fe;
-  padding: 2px 9px;
-}
-
-.chat-head-subline span::before {
-  display: none;
-}
-
-.chat-head-subline code {
-  border-radius: 999px;
-  border: 1px solid #ccdaf0;
-  background: #eef4ff;
-  color: #1e4f98;
-  padding: 1px 6px;
-  font-size: 0.7rem;
-  font-family: "JetBrains Mono", monospace;
-}
-
-.hero-shell :deep(.v-chip),
-.chat-head :deep(.v-chip) {
-  border: 1px solid rgba(39, 91, 177, 0.28);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
-
-.hero-shell :deep(.v-chip) {
-  min-height: 24px;
-}
-
-.chat-head :deep(.v-chip) {
-  min-height: 23px;
-  font-size: 0.7rem;
-}
-
-.chat-shell-fullscreen {
+.sidebar-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 1200;
-  width: 100vw;
-  height: 100dvh;
-  max-width: none;
-  border-radius: 0 !important;
-  margin: 0 !important;
+  background: rgba(13, 18, 34, 0.32);
+  z-index: 12;
 }
 
-.chat-shell-fullscreen .chat-head-shell {
-  top: 0;
-}
-
-.chat-shell-fullscreen .chat-head-container,
-.chat-shell-fullscreen .chat-stream-inner,
-.chat-shell-fullscreen .composer-inner {
-  width: 100%;
-  box-sizing: border-box;
-  margin-inline: auto;
-  padding-inline: var(--chat-fullscreen-inline-space);
-}
-
-.chat-shell-fullscreen .chat-head-container {
-  max-width: var(--chat-fullscreen-shell-width);
-}
-
-.chat-shell-fullscreen .chat-stream-inner,
-.chat-shell-fullscreen .composer-inner {
-  max-width: var(--chat-fullscreen-content-width);
-}
-
-.chat-workspace {
-  display: flex;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.chat-main-shell {
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 0 !important;
-}
-
-.chat-main {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 0;
-  width: 100%;
-  padding: 0 !important;
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.chat-shell-fullscreen .chat-stream {
-  flex: 1 1 auto;
-  min-height: 0;
-  max-height: none;
-  padding-inline: 10px;
-}
-
-.chat-shell-runner-open .chat-head,
-.chat-shell-runner-open .chat-main {
-  transform: translateX(-10px);
-}
-
-.chat-shell-compact.chat-shell-runner-open .chat-workspace {
-  display: block;
+.chat-sidebar {
+  width: 286px;
+  min-width: 286px;
+  max-width: 286px;
   height: 100%;
-}
-
-.chat-shell-compact.chat-shell-runner-open .chat-main-shell,
-.chat-shell-compact.chat-shell-runner-open .chat-head-shell,
-.chat-shell-compact.chat-shell-runner-open .chat-head,
-.chat-shell-compact.chat-shell-runner-open .chat-main {
-  display: none;
-}
-
-.chat-shell-compact.chat-shell-runner-open .runner-divider {
-  display: none;
-}
-
-.chat-shell-compact.chat-shell-runner-open .runner-panel {
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  height: 100% !important;
-  flex: 1 1 auto;
-  border-top: none;
-  box-shadow: none;
-}
-
-.chat-shell-compact.chat-shell-runner-open .runner-panel-body {
-  height: 100%;
-}
-
-.runner-divider {
-  position: relative;
-  z-index: 3;
-  flex: 0 0 14px;
-  width: 14px;
-  cursor: col-resize;
-  touch-action: none;
-  background: linear-gradient(180deg, rgba(13, 79, 66, 0.08), rgba(13, 79, 66, 0.04));
-}
-
-.runner-divider::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 6px;
-  width: 2px;
-  height: 62px;
-  border-radius: 999px;
-  transform: translateY(-50%);
-  background: rgba(16, 88, 74, 0.46);
-  transition: background 0.2s ease;
-}
-
-.runner-divider:hover::before,
-.runner-resizing .runner-divider::before {
-  background: rgba(16, 88, 74, 0.82);
-}
-
-.runner-panel {
-  position: relative;
-  z-index: 2;
-  flex: 0 0 auto;
-  min-width: 320px;
-  max-width: 72%;
-  height: 100% !important;
-  display: flex;
-  flex-direction: column;
-  background: linear-gradient(180deg, #eaf7f1, #dff2ea);
-  box-shadow: -8px 0 18px rgba(5, 24, 20, 0.16);
-}
-
-.runner-resizing .runner-frame {
-  pointer-events: none;
-}
-
-.runner-panel-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  padding: 12px;
-  border-bottom: 1px solid rgba(13, 79, 66, 0.18);
-}
-
-.runner-panel-controls {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.runner-panel-title {
-  color: #15483d;
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-.runner-panel-subtitle {
-  color: #3b6258;
-  font-size: 0.74rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.runner-size-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  border-bottom: 1px solid rgba(13, 79, 66, 0.14);
-}
-
-.runner-size-label {
-  font-size: 0.72rem;
-  color: #31564d;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.runner-width-range {
-  flex: 1 1 auto;
-}
-
-.runner-size-value {
-  min-width: 56px;
-  text-align: right;
-  font-size: 0.72rem;
-  color: #31564d;
-}
-
-.runner-panel-body {
-  flex: 1 1 auto;
-  min-height: 0;
-  padding: 12px;
-}
-
-.runner-frame {
-  width: 100%;
-  height: 100%;
-  border: 1px solid rgba(15, 143, 124, 0.14);
-  border-radius: 12px;
-  background: #f8fbfd;
-}
-
-.runner-frame-web {
   background: #ffffff;
-}
-
-.runner-panel-slide-enter-active,
-.runner-panel-slide-leave-active {
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
-}
-
-.runner-panel-slide-enter-from,
-.runner-panel-slide-leave-to {
-  transform: translateX(26px);
-  opacity: 0;
-}
-
-.chat-stream {
-  flex: 1 1 auto;
-  min-height: 280px;
-  max-height: min(62vh, 680px);
-  overflow-y: auto;
-  touch-action: pan-y;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  scroll-behavior: smooth;
-  scrollbar-gutter: stable both-edges;
-  padding: clamp(12px, 2vw, 18px);
-}
-
-.chat-stream::-webkit-scrollbar {
-  width: 9px;
-}
-
-.chat-stream::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-color: rgba(97, 127, 168, 0.35);
-  background-clip: padding-box;
-}
-
-.chat-stream::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.chat-stream-inner,
-.composer-inner {
-  width: 100%;
-}
-
-.chat-inner {
+  border-right: 1px solid #e9ecef;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding-bottom: 8px;
+  padding: 16px 14px;
+  position: relative;
+  z-index: 14;
 }
 
-.message-row {
+.sidebar-brand {
   display: flex;
-  width: 100%;
-  align-items: flex-end;
+  align-items: center;
   gap: 10px;
+  min-height: 42px;
 }
 
-.message-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #cdd9e8;
+.brand-logo-mark {
   flex: 0 0 auto;
-  box-shadow: none;
 }
 
-.avatar-ai {
-  background: #edf3ff;
-  color: #2a5db8;
-}
-
-.avatar-user {
-  background: #1f6feb;
-  color: #f4f9ff;
-}
-
-.bubble {
-  width: min(calc(100% - 40px), var(--chat-bubble-max-width));
-  max-width: 100%;
-  border: 1px solid #d8e3f0;
-  border-radius: 16px;
-  padding: 12px 13px;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
-  animation: bubble-in 0.2s ease-out both;
-  overflow-wrap: anywhere;
-}
-
-.bubble-user {
-  background: linear-gradient(145deg, var(--chat-accent), var(--chat-accent-strong));
-  color: #ffffff;
-  border-color: rgba(25, 92, 190, 0.55);
-  border-bottom-right-radius: 6px;
-}
-
-.bubble-ai {
-  background: var(--chat-surface);
-  color: #1b2f46;
-  border-bottom-left-radius: 6px;
-}
-
-.bubble-error {
-  background: #fff4f2;
-  border-color: rgba(191, 69, 52, 0.4);
-}
-
-.bubble-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-  font-size: 0.69rem;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--chat-muted);
-  opacity: 0.95;
-}
-
-.user-text {
-  white-space: pre-wrap;
-  line-height: 1.66;
-  overflow-wrap: anywhere;
-}
-
-.mini-btn {
-  border: 1px solid #c6d6ea;
-  border-radius: 999px;
-  background: #ffffff;
-  color: #2f4f72;
-  padding: 4px 10px;
-  font-size: 0.72rem;
-  cursor: pointer;
-  transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
-}
-
-.mini-btn:hover {
-  transform: translateY(-1px);
-  border-color: #9ab5db;
-  background: #f6f9ff;
-}
-
-.mini-btn:focus-visible {
-  outline: 2px solid rgba(42, 93, 184, 0.45);
-  outline-offset: 2px;
-}
-
-@keyframes bubble-in {
-  from {
-    transform: translateY(4px);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.typing {
-  display: inline-flex;
-  gap: 6px;
-}
-
-.typing span {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #2d62be;
-  animation: pulse 1s infinite;
-}
-
-.typing span:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.typing span:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-.typewriter-cursor {
-  display: inline-block;
-  margin-left: 2px;
-  color: #2d62be;
-  font-weight: 700;
-  line-height: 1;
-  animation: blink 0.7s step-end infinite;
-  vertical-align: baseline;
-  user-select: none;
-}
-
-@keyframes blink {
-  0%,
-  49% {
-    opacity: 1;
-  }
-
-  50%,
-  100% {
-    opacity: 0;
-  }
-}
-
-@keyframes pulse {
-
-  0%,
-  100% {
-    opacity: 0.35;
-    transform: translateY(0);
-  }
-
-  50% {
-    opacity: 1;
-    transform: translateY(-4px);
-  }
-}
-
-.composer {
-  position: sticky;
-  bottom: 0;
-  flex: 0 0 auto;
-  border-top: 1px solid var(--chat-border);
-  background: rgba(248, 251, 255, 0.95);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 -6px 16px rgba(15, 23, 42, 0.08);
-  padding: 14px;
-  padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
-}
-
-.chat-shell-fullscreen .composer {
-  padding-inline: 0;
-}
-
-.composer :deep(.v-field) {
-  border: 1px solid #d3deeb;
-  border-radius: 12px;
-  background: #ffffff;
-}
-
-.composer :deep(.v-field__input) {
-  line-height: 1.55;
-}
-
-.composer :deep(textarea) {
-  overflow-y: auto !important;
-}
-
-.composer-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.composer-button-stack {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.composer-send-btn {
-  min-width: 122px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
-
-.markdown-body {
-  font-size: 0.92rem;
-  line-height: 1.66;
-  color: #1b2f46;
-  overflow-wrap: anywhere;
-}
-
-.markdown-body :deep(h1),
-.markdown-body :deep(h2),
-.markdown-body :deep(h3),
-.markdown-body :deep(h4) {
-  margin: 0.4rem 0 0.35rem;
-  line-height: 1.35;
-}
-
-.markdown-body :deep(h1) {
-  font-size: 1.06rem;
-}
-
-.markdown-body :deep(h2) {
-  font-size: 1rem;
-}
-
-.markdown-body :deep(h3),
-.markdown-body :deep(h4) {
-  font-size: 0.95rem;
-}
-
-.markdown-body :deep(p) {
-  margin: 0 0 0.62rem;
-}
-
-.markdown-body :deep(code:not(pre code)) {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.78rem;
-  font-weight: bolder;
-  line-height: 1.24;
-  border-radius: 5px;
-  padding: 1px 5px;
-  border: 1px solid rgba(33, 71, 120, 0.18);
-  background: #f4f8fd;
-  color: #1b466e;
-  overflow-wrap: anywhere;
-}
-
-.markdown-body :deep(.code-block-wrapper) {
-  margin: 12px 0;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #dbe5f0;
-  background: #ffffff;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
-}
-
-.markdown-body :deep(.code-header) {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  background: #fafcff;
-  border-bottom: 1px solid #e6edf5;
-  color: #2c3f57;
-}
-
-.markdown-body :deep(.code-header-actions) {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.markdown-body :deep(.code-header-left) {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.markdown-body :deep(.code-dot) {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.markdown-body :deep(.dot-red) {
-  background: #ff6b6b;
-}
-
-.markdown-body :deep(.dot-yellow) {
-  background: #ffd166;
-}
-
-.markdown-body :deep(.dot-green) {
-  background: #06d6a0;
-}
-
-.markdown-body :deep(.lang-label) {
-  margin-left: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.72rem;
-  color: #4a5f78;
-  font-weight: 500;
-}
-
-.markdown-body :deep(.copy-btn) {
-  border-radius: 6px;
-  border: 1px solid #ccd9e8;
-  background: #ffffff;
-  color: #2c4f72;
-  padding: 3px 9px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.markdown-body :deep(.run-btn) {
-  border: 1px solid rgba(15, 143, 124, 0.18);
-  border-radius: 6px;
-  background: rgba(15, 143, 124, 0.08);
-  color: #0f6559;
-  padding: 3px 9px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.markdown-body :deep(.copy-btn:hover) {
-  background: rgba(15, 143, 124, 0.12);
-  border-color: rgba(15, 143, 124, 0.28);
-}
-
-.markdown-body :deep(.run-btn:hover) {
-  background: rgba(15, 143, 124, 0.16);
-  border-color: rgba(15, 143, 124, 0.28);
-}
-
-.markdown-body :deep(pre[class*="language-"]) {
-  margin: 0;
-  padding: 14px 15px;
-  background: #fcfdff;
-  color: #1a2735;
-  overflow-x: auto;
-}
-
-.markdown-body :deep(pre[class*="language-"] code) {
-  color: black;
-  font-family: "JetBrains Mono", "Consolas", monospace;
-  font-size: 0.84rem;
-  line-height: 1.65;
-}
-
-.markdown-body :deep(.token.comment),
-.markdown-body :deep(.token.prolog),
-.markdown-body :deep(.token.doctype),
-.markdown-body :deep(.token.cdata) {
-  color: #6e7781;
-}
-
-.markdown-body :deep(.token.punctuation) {
-  color: #57606a;
-}
-
-.markdown-body :deep(.token.property),
-.markdown-body :deep(.token.tag),
-.markdown-body :deep(.token.constant),
-.markdown-body :deep(.token.symbol),
-.markdown-body :deep(.token.deleted) {
-  color: #b35900;
-}
-
-.markdown-body :deep(.token.boolean),
-.markdown-body :deep(.token.number) {
-  color: #0a66c2;
-}
-
-.markdown-body :deep(.token.selector),
-.markdown-body :deep(.token.attr-name),
-.markdown-body :deep(.token.string),
-.markdown-body :deep(.token.char),
-.markdown-body :deep(.token.builtin),
-.markdown-body :deep(.token.inserted) {
-  color: #0f766e;
-}
-
-.markdown-body :deep(.token.operator),
-.markdown-body :deep(.token.entity),
-.markdown-body :deep(.token.url),
-.markdown-body :deep(.token.atrule),
-.markdown-body :deep(.token.attr-value),
-.markdown-body :deep(.token.keyword) {
-  color: #0b5cad;
-}
-
-.markdown-body :deep(.token.function),
-.markdown-body :deep(.token.class-name) {
-  color: #1f4f8f;
-}
-
-.markdown-body :deep(.token.regex),
-.markdown-body :deep(.token.important),
-.markdown-body :deep(.token.variable) {
-  color: #be123c;
-}
-
-@media (max-width: 1264px) {
-  .ai-page :deep(.v-container) {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-
-  .chat-shell {
-    min-height: 70vh;
-  }
-}
-
-@media (max-width: 960px) {
-  .hero-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .chat-shell {
-    min-height: min(80dvh, 820px);
-    height: auto;
-  }
-
-  .chat-stream {
-    max-height: none;
-    min-height: 240px;
-  }
-
-  .bubble {
-    width: min(calc(100% - 40px), 620px);
-  }
-
-  .chat-head-identity {
-    width: auto;
-    flex: 0 0 auto;
-    justify-content: flex-start;
-  }
-
-  .chat-head-actions {
-    width: auto;
-    flex: 1 1 auto;
-    justify-content: flex-end;
-  }
-
-  .chat-head-subline {
-    gap: 6px 10px;
-  }
-}
-
-@media (max-width: 760px) {
-  .chat-head {
-    padding: 11px;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: flex-start;
-  }
-
-  .chat-head-identity {
-    flex: 1 1 auto;
-  }
-
-  .chat-head-actions {
-    width: 100%;
-    justify-content: flex-start;
-    gap: 8px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 2px;
-  }
-
-  .chat-head-actions :deep(.chat-action-btn) {
-    min-width: 34px !important;
-    width: 34px !important;
-    height: 34px;
-    padding: 0;
-  }
-
-  .chat-head-actions :deep(.chat-action-btn .v-btn__content) {
-    justify-content: center;
-  }
-
-  .chat-head-subline {
-    padding: 0 11px 10px;
-    font-size: 0.69rem;
-    gap: 6px 8px;
-  }
-
-  .chat-head-subline span {
-    padding: 2px 7px;
-  }
-
-  .bubble {
-    width: min(calc(100% - 38px), 100%);
-  }
-
-  .bubble-meta {
-    flex-wrap: wrap;
-  }
-
-  .message-avatar {
-    width: 26px;
-    height: 26px;
-  }
-
-  .composer-send-btn {
-    min-width: 104px;
-  }
-
-  .composer-hints {
-    gap: 6px;
-    margin-top: 9px;
-  }
-
-  .composer-hints span {
-    font-size: 0.68rem;
-    padding: 3px 8px;
-  }
-}
-
-@media (max-width: 600px) {
-  .hero-stats-col {
-    display: none !important;
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-  }
-
-  .ai-page {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .hero-title {
-    font-size: clamp(1.55rem, 8vw, 2.1rem);
-    line-height: 1.15;
-  }
-
-  .hero-stats {
-    grid-template-columns: 1fr;
-  }
-
-  .composer {
-    padding-top: 10px;
-    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .composer-actions {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  .composer-button-stack {
-    width: 100%;
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .composer-send-btn {
-    width: 100%;
-  }
-
-  .chat-shell {
-    min-height: calc(100dvh - 132px);
-    height: auto;
-    max-height: none;
-    border-radius: 14px;
-  }
-
-  .chat-head {
-    padding: 10px 10px 8px;
-  }
-
-  .chat-head-actions {
-    gap: 6px;
-  }
-
-  .chat-head-actions :deep(.chat-action-btn) {
-    width: 32px !important;
-    height: 32px;
-  }
-
-  .chat-head-actions :deep(.chat-action-btn .v-icon) {
-    font-size: 17px;
-  }
-
-  .chat-head-subline {
-    padding: 0 10px 9px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-  }
-
-  .chat-head-subline::-webkit-scrollbar {
-    display: none;
-  }
-
-  .chat-stream {
-    min-height: 210px;
-    padding: 10px;
-  }
-
-  .markdown-body {
-    font-size: 0.88rem;
-  }
-
-  .bubble {
-    width: min(calc(100% - 34px), 100%);
-    padding: 10px 11px;
-    border-radius: 14px;
-  }
-
-  .bubble-meta {
-    font-size: 0.66rem;
-  }
-
-  .message-row {
-    gap: 8px;
-  }
-
-  .message-avatar {
-    width: 24px;
-    height: 24px;
-  }
-
-  .composer-hints {
-    gap: 5px;
-  }
-
-  .composer-hints span {
-    width: fit-content;
-    max-width: 100%;
-    font-size: 0.67rem;
-    padding: 2px 7px;
-  }
-
-  .composer-hints span:nth-child(2) {
-    display: none;
-  }
-
-  .runner-divider {
-    display: none;
-  }
-
-  .runner-panel {
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    flex-basis: min(52dvh, 420px);
-    height: min(52dvh, 420px);
-  }
-
-  .chat-shell-runner-open .chat-head,
-  .chat-shell-runner-open .chat-main {
-    transform: none;
-  }
-}
-
-@media (max-width: 420px) {
-  .chat-head-subline span:nth-child(2) {
-    display: none;
-  }
-
-  .composer-hints {
-    display: none;
-  }
-}
-
-@media (max-height: 820px) {
-
-  .chat-shell-fullscreen.chat-shell-runner-open .chat-main-shell,
-  .chat-shell-fullscreen.chat-shell-runner-open .chat-head-shell,
-  .chat-shell-fullscreen.chat-shell-runner-open .chat-head,
-  .chat-shell-fullscreen.chat-shell-runner-open .chat-main,
-  .chat-shell-fullscreen.chat-shell-runner-open .runner-divider {
-    display: none;
-  }
-
-  .chat-shell-fullscreen.chat-shell-runner-open .chat-workspace {
-    display: block;
-    height: 100%;
-  }
-
-  .chat-shell-fullscreen.chat-shell-runner-open .runner-panel {
-    width: 100% !important;
-    min-width: 0;
-    max-width: 100%;
-    height: 100% !important;
-    flex: 1 1 auto;
-    box-shadow: none;
-    border-top: none;
-  }
-
-  .chat-shell-fullscreen.chat-shell-runner-open .runner-panel-body {
-    height: 100%;
-  }
-}
-
-/* ===== Chatbox Redesign (Vuetify-first) ===== */
-.chat-shell {
-  --chat-max-width: 760px;
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.16);
-  background: rgb(var(--v-theme-surface));
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
-  min-height: clamp(520px, 76vh, 920px);
-}
-
-.chat-head-shell {
-  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.14);
-  background: rgba(var(--v-theme-surface), 0.95);
-  backdrop-filter: blur(8px);
-}
-
-.chat-toolbar {
-  min-height: 58px;
-}
-
-.chat-title-wrap {
-  line-height: 1.2;
-}
-
-.chat-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: rgb(var(--v-theme-on-surface));
-}
-
-.chat-subtitle {
-  font-size: 0.72rem;
-  color: rgba(var(--v-theme-on-surface), 0.68);
-}
-
-.chat-toolbar-actions {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-}
-
-.chat-toolbar-actions::-webkit-scrollbar {
-  display: none;
-}
-
-.chat-toolbar-actions :deep(.v-btn) {
-  white-space: nowrap;
-}
-
-.chat-toolbar-hints {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.chat-toolbar-hints code,
-.composer-hints code {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.66rem;
-}
-
-.chat-main {
-  padding: 0 !important;
-}
-
-.chat-stream {
-  max-height: none;
-  overflow-y: auto;
-  scrollbar-gutter: stable both-edges;
-}
-
-.chat-inner {
-  gap: 4px;
-}
-
-.message-stack {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-  max-width: 100%;
-}
-
-.message-stack-user {
-  flex-direction: row-reverse;
-  margin-left: auto;
-}
-
-.message-stack-ai {
-  flex-direction: row;
-}
-
-.message-card {
-  width: fit-content;
-  max-width: min(var(--chat-max-width), calc(100vw - 130px));
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.14);
-}
-
-.message-card-body {
-  padding: 12px 14px !important;
-}
-
-.message-card-ai {
-  color: rgb(var(--v-theme-on-surface));
-}
-
-.message-card-user {
-  background: linear-gradient(155deg,
-      rgb(var(--v-theme-primary)),
-      rgba(var(--v-theme-primary), 0.8));
-  color: #ffffff;
-  border-color: rgba(var(--v-theme-primary), 0.58);
-}
-
-.message-card-user .message-meta,
-.message-card-user .user-text {
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.message-card-error {
-  background: rgba(var(--v-theme-error), 0.16);
-  color: rgb(var(--v-theme-on-surface));
-  border-color: rgba(var(--v-theme-error), 0.45);
-}
-
-.message-meta {
-  font-size: 0.68rem;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: rgba(var(--v-theme-on-surface), 0.62);
-}
-
-.user-text {
-  margin: 0;
-  white-space: pre-wrap;
-  line-height: 1.62;
-  overflow-wrap: anywhere;
-}
-
-.composer {
-  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.14);
-  background: rgba(var(--v-theme-surface), 0.98);
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.composer :deep(.v-field) {
-  border-color: rgba(var(--v-theme-on-surface), 0.18);
-  background: rgba(var(--v-theme-surface), 0.96);
-}
-
-.composer-hints {
-  gap: 6px;
-}
-
-.composer-actions {
-  justify-content: flex-end;
-}
-
-.composer-send-btn {
-  min-width: 124px;
-}
-
-.runner-panel {
-  background: rgba(var(--v-theme-surface), 0.98);
-  border-left: 1px solid rgba(var(--v-theme-on-surface), 0.14);
-}
-
-.runner-panel-head {
-  border-bottom-color: rgba(var(--v-theme-on-surface), 0.14);
-}
-
-.runner-panel-title {
-  color: rgb(var(--v-theme-on-surface));
-}
-
-.runner-panel-subtitle {
-  color: rgba(var(--v-theme-on-surface), 0.62);
-}
-
-@media (max-width: 960px) {
-  .chat-shell {
-    min-height: min(80dvh, 860px);
-    height: auto;
-  }
-
-  .message-card {
-    max-width: min(100%, calc(100vw - 116px));
-  }
-}
-
-@media (max-width: 760px) {
-  .chat-toolbar-actions {
-    width: 100%;
-    margin-left: 0;
-    justify-content: flex-start;
-    padding-bottom: 4px;
-  }
-
-  .chat-toolbar-hints {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .chat-toolbar-hints::-webkit-scrollbar {
-    display: none;
-  }
-
-  .message-card {
-    max-width: min(100%, calc(100vw - 94px));
-  }
-
-  .message-card-body {
-    padding: 10px 12px !important;
-  }
-}
-
-@media (max-width: 600px) {
-  .chat-shell {
-    min-height: calc(100dvh - 132px);
-    height: auto;
-    max-height: none;
-    border-radius: 16px;
-  }
-
-  .message-stack {
-    gap: 8px;
-  }
-
-  .message-card {
-    max-width: min(100%, calc(100vw - 78px));
-  }
-
-  .composer-actions {
-    display: block;
-  }
-
-  .composer-send-btn {
-    width: 100%;
-  }
-
-  .hint-optional {
-    display: none;
-  }
-}
-
-@media (max-width: 420px) {
-  .composer-hints {
-    display: none;
-  }
-}
-
-/* Theme-aware surfaces so dark mode follows Vuetify theme */
-.ai-page {
-  background: rgb(var(--v-theme-background));
-}
-
-.hero-shell {
-  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.12);
-  background: linear-gradient(180deg,
-      rgba(var(--v-theme-surface), 0.96),
-      rgba(var(--v-theme-surface), 0.9));
-}
-
-.hero-kicker {
-  color: rgb(var(--v-theme-primary));
-}
-
-.hero-title {
-  color: rgb(var(--v-theme-on-surface));
-}
-
-.hero-subtitle {
-  color: rgba(var(--v-theme-on-surface), 0.72);
-}
-
-.stat-card {
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.16);
-  background: rgba(var(--v-theme-surface), 0.95);
-}
-
-.stat-value {
-  color: rgb(var(--v-theme-on-surface));
-}
-
-.stat-label {
-  color: rgba(var(--v-theme-on-surface), 0.62);
-}
-
-/* ===== Minimal Vuetify Dark Reset ===== */
-.ai-page {
-  background: rgb(var(--v-theme-background)) !important;
-}
-
-.hero-shell {
-  background: transparent !important;
-  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
-}
-
-.hero-kicker,
-.hero-title,
-.hero-subtitle {
-  color: rgb(var(--v-theme-on-surface)) !important;
-}
-
-.hero-subtitle {
-  opacity: 0.72;
-}
-
-.stat-card {
-  background: rgb(var(--v-theme-surface)) !important;
-  border-color: rgba(var(--v-theme-on-surface), 0.14) !important;
-}
-
-.chat-shell {
-  background: rgb(var(--v-theme-surface)) !important;
-  border-color: rgba(var(--v-theme-on-surface), 0.14) !important;
-  box-shadow: none !important;
-}
-
-.chat-workspace,
-.chat-main-shell,
-.chat-main {
-  overflow-y: auto !important;
-}
-
-.chat-head-shell {
-  background: rgb(var(--v-theme-surface)) !important;
-  border-bottom-color: rgba(var(--v-theme-on-surface), 0.12) !important;
-}
-
-.chat-title,
-.chat-subtitle {
-  color: rgb(var(--v-theme-on-surface)) !important;
-}
-
-.chat-subtitle {
-  opacity: 0.68;
-}
-
-.chat-toolbar-hints,
-.composer-hints {
-  display: none !important;
-}
-
-.chat-stream {
-  max-height: none !important;
-  min-height: 280px;
-  padding-bottom: 8px;
-}
-
-.message-card {
-  background: rgb(var(--v-theme-surface)) !important;
-  border-color: rgba(var(--v-theme-on-surface), 0.14) !important;
-  box-shadow: none !important;
-  max-width: min(780px, calc(100vw - 120px)) !important;
-}
-
-.message-card-ai {
-  background: rgb(var(--v-theme-surface)) !important;
-  color: rgb(var(--v-theme-on-surface)) !important;
-}
-
-.message-card-user {
-  background: rgb(var(--v-theme-primary)) !important;
-  color: rgb(var(--v-theme-on-primary)) !important;
-  border-color: rgba(var(--v-theme-primary), 0.7) !important;
-}
-
-.message-meta {
-  color: rgba(var(--v-theme-on-surface), 0.64) !important;
-}
-
-.message-card-user .message-meta {
-  color: rgba(var(--v-theme-on-primary), 0.84) !important;
-}
-
-.composer {
-  background: rgb(var(--v-theme-surface)) !important;
-  border-top-color: rgba(var(--v-theme-on-surface), 0.12) !important;
-  box-shadow: none !important;
-}
-
-.chat-toolbar :deep(.v-toolbar__content) {
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  min-width: 0;
-  gap: 8px;
-}
-
-.chat-toolbar :deep(.v-toolbar__prepend) {
-  margin-inline-end: 0;
+.brand-copy {
   min-width: 0;
   flex: 1 1 auto;
 }
 
-.chat-toolbar :deep(.v-toolbar__prepend .v-avatar) {
-  flex: 0 0 auto;
+.brand-name {
+  margin: 0;
+  font-size: 1.18rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #000000;
+  text-transform: lowercase;
 }
 
-.chat-title-wrap {
+.brand-subtitle {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #6b7692;
+}
+
+.sidebar-toggle-btn {
+  display: none;
+}
+
+.new-chat-btn {
+  --v-btn-height: 44px;
+  width: 100%;
+  font-weight: 600;
+  min-height: 44px !important;
+  height: 44px !important;
+  border: 1px solid rgba(109, 126, 167, 0.22) !important;
+  background: #ffffff !important;
+  color: #2a3552 !important;
+  box-shadow: none !important;
+}
+
+.history-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.history-title {
+  margin: 6px 6px 8px;
+  font-size: 0.72rem;
+  color: #7a869f;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.history-empty {
+  margin: 8px 6px;
+  font-size: 0.86rem;
+  color: #7a869f;
+}
+
+.history-error {
+  margin: 0 6px 8px;
+  font-size: 0.77rem;
+  color: #a2374c;
+  line-height: 1.45;
+}
+
+.history-list {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 2px;
+}
+
+.history-item {
+  width: 100%;
+  border: 1px solid rgba(114, 131, 168, 0.2);
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 9px 8px 9px 11px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.history-item-active {
+  border-color: rgba(33, 93, 207, 0.62);
+  background: rgba(228, 237, 255, 0.7);
+}
+
+.history-content {
   min-width: 0;
+  flex: 1 1 auto;
 }
 
-.chat-title {
+.history-item-title {
+  margin: 0;
+  color: #1b253c;
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.35;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.chat-toolbar-actions {
-  flex: 0 1 auto;
-  min-width: 0;
-  max-width: 100%;
-  overflow-x: visible;
-  overflow-y: visible;
-  flex-wrap: nowrap;
-  gap: 6px;
+.history-item-meta {
+  margin: 3px 0 0;
+  color: #77829d;
+  font-size: 0.72rem;
 }
 
-.chat-toolbar-actions :deep(.v-btn) {
-  flex: 0 0 auto;
+.sidebar-footer {
+  border-top: 1px solid rgba(114, 131, 168, 0.2);
+  padding-top: 10px;
 }
 
-.chat-toolbar-model {
-  flex: 1 1 176px;
-  min-width: 132px;
-  max-width: 190px;
-  margin-left: 8px;
-}
-
-.model-select :deep(.v-field) {
-  font-size: 0.78rem;
-  border-radius: 10px;
-}
-
-.model-select {
-  width: 100%;
-  min-width: 0;
-}
-
-.model-select :deep(.v-field__input) {
-  padding-top: 4px;
-  padding-bottom: 4px;
-  min-height: 32px;
-}
-
-.search-bar-wrap {
-  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-  background: rgba(var(--v-theme-surface), 0.97);
-}
-
-.search-bar-wrap :deep(.v-field) {
-  font-size: 0.84rem;
-}
-
-.search-empty {
-  font-size: 0.78rem;
-  color: rgba(var(--v-theme-on-surface), 0.66);
-}
-
-.message-card-search-hit {
-  border-color: rgba(var(--v-theme-primary), 0.54) !important;
-}
-
-.message-card-search-focus {
-  box-shadow: 0 0 0 1px rgba(var(--v-theme-primary), 0.52) !important;
-}
-
-.message-card-search-dim {
-  filter: blur(1.8px) saturate(0.58);
-  opacity: 0.42;
-  transform: scale(0.994);
-  transition: filter 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
-}
-
-.composer-inline {
-  width: min(560px, 100%);
-  margin-inline: auto;
+.user-profile {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
 }
 
-.composer-input {
-  flex: 1 1 auto;
-}
-
-.composer :deep(.v-sheet) {
-  padding: 8px 10px !important;
-}
-
-.composer-input :deep(textarea) {
-  min-height: 42px;
-  line-height: 1.3;
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-
-.composer :deep(.v-field) {
-  background: rgb(var(--v-theme-surface)) !important;
-  border-color: rgba(var(--v-theme-on-surface), 0.16) !important;
-  min-height: 42px;
-}
-
-.composer-actions {
-  display: none !important;
-}
-
-.composer-send-btn {
-  width: 42px !important;
-  min-width: 42px !important;
-  height: 42px;
-  padding: 0 !important;
-  flex: 0 0 auto;
-}
-
-.runner-panel {
-  background: rgb(var(--v-theme-surface)) !important;
-  border-left-color: rgba(var(--v-theme-on-surface), 0.14) !important;
-}
-
-@media (max-width: 1180px) {
-  .chat-toolbar-actions {
-    gap: 5px;
-  }
-
-  .chat-toolbar-model {
-    flex-basis: 156px;
-    min-width: 120px;
-    max-width: 168px;
-  }
-}
-
-@media (min-width: 961px) {
-  .chat-shell {
-    min-height: 864px !important;
-    height: calc(100dvh - 210px) !important;
-    max-height: 920px !important;
-  }
-
-  .chat-workspace {
-    height: 100% !important;
-    min-height: 0 !important;
-    overflow-y: auto !important;
-  }
-}
-
-@media (max-width: 960px) {
-  .message-card {
-    max-width: min(100%, calc(100vw - 100px)) !important;
-  }
-}
-
-@media (max-width: 760px) {
-  .chat-head-shell {
-    overflow: visible;
-  }
-
-  .chat-toolbar {
-    min-height: auto;
-    height: auto;
-    overflow: visible;
-  }
-
-  .chat-toolbar :deep(.v-toolbar__content) {
-    align-items: center;
-    flex-wrap: wrap;
-    min-height: 0 !important;
-    height: auto !important;
-    row-gap: 8px;
-    column-gap: 6px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    overflow: visible;
-  }
-
-  .chat-toolbar :deep(.v-toolbar__prepend) {
-    flex: 1 1 auto;
-    width: auto;
-    min-width: 0;
-    margin: 0;
-  }
-
-  .chat-toolbar :deep(.v-toolbar__prepend .v-avatar) {
-    display: inline-flex;
-    width: 22px !important;
-    height: 22px !important;
-    min-width: 22px !important;
-  }
-
-  .chat-title {
-    font-size: 0.9rem;
-  }
-
-  .chat-toolbar-actions {
-    width: auto;
-    max-width: calc(100% - 120px);
-    margin-left: auto;
-    justify-content: flex-end;
-    flex-wrap: nowrap;
-    gap: 6px;
-    row-gap: 0;
-    white-space: nowrap;
-    overflow-x: auto;
-  }
-
-  .chat-toolbar-actions :deep(.v-btn) {
-    min-width: 34px;
-    height: 34px;
-    padding-inline: 10px;
-  }
-
-  .chat-toolbar-model {
-    flex: 1 1 100%;
-    width: 100%;
-    max-width: 100%;
-    margin-left: 0;
-    order: 3;
-    position: relative;
-    z-index: 2;
-  }
-
-  .model-select {
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-  }
-
-  .message-avatar {
-    display: none !important;
-  }
-
-  .message-stack {
-    gap: 0;
-  }
-
-  .message-card {
-    max-width: min(100%, calc(100vw - 36px)) !important;
-  }
-}
-
-@media (max-width: 600px) {
-  .chat-toolbar :deep(.v-toolbar__content) {
-    row-gap: 6px;
-  }
-
-  .chat-toolbar-actions {
-    gap: 5px;
-    max-width: calc(100% - 106px);
-  }
-
-  .chat-toolbar-actions :deep(.v-btn) {
-    min-width: 32px;
-    height: 32px;
-    padding-inline: 8px;
-  }
-
-  .model-select :deep(.v-field__input) {
-    min-height: 30px;
-  }
-
-  .chat-shell {
-    min-height: calc(100dvh - 132px) !important;
-    height: calc(100dvh - 132px) !important;
-    max-height: calc(100dvh - 132px) !important;
-  }
-
-  .chat-workspace {
-    height: 100% !important;
-    min-height: 0 !important;
-    overflow-y: auto !important;
-  }
-
-  .message-avatar {
-    display: none !important;
-  }
-
-  .message-stack {
-    gap: 0;
-  }
-
-  .message-card {
-    max-width: min(100%, calc(100vw - 28px)) !important;
-  }
-
-  .composer-inline {
-    width: min(100%, 420px);
-    gap: 6px;
-  }
-
-  .composer-send-btn {
-    width: 40px !important;
-    min-width: 40px !important;
-    height: 40px;
-  }
-}
-
-/* ===== Responsive Stability Layer (final override) ===== */
-.ai-page {
+.profile-image {
   width: 100%;
-  height: 100dvh;
-  min-height: 100dvh;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 999px;
+}
+
+.avatar-initial {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1f65d6;
+}
+
+.user-copy {
+  min-width: 0;
+}
+
+.user-name {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #1b253c;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #6f7a93;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fc;
+  min-height: 0;
   overflow: hidden;
 }
 
-.ai-page :deep(.v-row) {
-  height: 100%;
-  margin: 0 !important;
-}
-
-.ai-page :deep(.v-col) {
-  height: 100%;
-  padding: 0 !important;
-}
-
-.chat-shell {
-  width: min(100%, 100vw);
-  margin-inline: auto;
-  min-height: 100dvh !important;
-  height: 100dvh !important;
-  max-height: 100dvh !important;
-}
-
-.chat-shell:not(.chat-shell-fullscreen) {
-  border-radius: clamp(12px, 1vw, 18px);
-}
-
-.chat-shell-fullscreen {
-  width: 100vw !important;
-  height: 100dvh !important;
-  min-height: 100dvh !important;
-  max-height: 100dvh !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
-}
-
-.chat-workspace,
-.chat-main-shell,
-.chat-main,
-.chat-stream {
-  min-height: 0 !important;
-}
-
-.chat-workspace {
-  height: 100%;
-}
-
-.chat-stream {
-  flex: 1 1 auto;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
-}
-
-.chat-shell-fullscreen .chat-workspace {
-  height: 100% !important;
-  overflow: hidden !important;
-}
-
-.chat-shell-fullscreen .chat-stream {
-  padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
-}
-
-.chat-shell-fullscreen .composer {
-  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
-}
-
-.chat-toolbar-model {
-  flex: 1 1 196px;
-  min-width: 132px;
-  max-width: 220px;
-}
-
-.message-card {
-  max-width: min(760px, calc(100% - 2px), calc(100vw - 120px)) !important;
-}
-
-.runner-panel {
-  max-width: min(76vw, 860px);
-}
-
-@media (max-width: 1200px) {
-  .chat-shell {
-    min-height: 100dvh !important;
-    height: 100dvh !important;
-    max-height: 100dvh !important;
-  }
-
-  .chat-toolbar-model {
-    flex-basis: 176px;
-    max-width: 198px;
-  }
-}
-
-@media (max-width: 1024px) {
-  .chat-shell {
-    min-height: 100dvh !important;
-    height: 100dvh !important;
-    max-height: 100dvh !important;
-  }
-
-  .chat-toolbar-actions {
-    max-width: 100%;
-  }
-
-  .chat-toolbar-model {
-    flex: 1 1 100%;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    margin-left: 0;
-    order: 3;
-  }
-
-  .message-card {
-    max-width: min(100%, calc(100vw - 82px)) !important;
-  }
-
-  .chat-shell-runner-open .chat-workspace {
-    display: block;
-    height: 100%;
-  }
-
-  .chat-shell-runner-open .chat-main-shell,
-  .chat-shell-runner-open .chat-head-shell,
-  .chat-shell-runner-open .chat-head,
-  .chat-shell-runner-open .chat-main,
-  .chat-shell-runner-open .runner-divider {
-    display: none !important;
-  }
-
-  .chat-shell-runner-open .runner-panel {
-    width: 100% !important;
-    min-width: 0;
-    max-width: 100%;
-    height: 100% !important;
-    flex: 1 1 auto;
-    border-left: none;
-  }
-
-  .chat-shell-runner-open .runner-panel-body {
-    height: 100%;
-  }
-}
-
-@media (max-width: 760px) {
-  .chat-shell {
-    min-height: 100dvh !important;
-    height: 100dvh !important;
-    max-height: 100dvh !important;
-  }
-
-  .message-avatar {
-    display: none !important;
-  }
-
-  .message-stack {
-    gap: 0;
-  }
-
-  .message-card {
-    max-width: min(100%, calc(100vw - 34px)) !important;
-  }
-}
-
-@media (max-width: 600px) {
-  .ai-page {
-    height: 100svh;
-    min-height: 100svh;
-    overflow: hidden;
-  }
-
-  .chat-shell {
-    min-height: 100svh !important;
-    height: 100svh !important;
-    max-height: 100svh !important;
-    border-radius: 12px;
-  }
-
-  .chat-toolbar-actions {
-    max-width: 100%;
-    margin-left: 0;
-  }
-
-  .chat-toolbar-actions :deep(.v-btn) {
-    min-width: 32px;
-    height: 32px;
-    padding-inline: 8px;
-  }
-
-  .message-card {
-    max-width: min(100%, calc(100vw - 20px)) !important;
-  }
-
-  .composer {
-    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .composer-inline {
-    width: 100%;
-    gap: 6px;
-  }
-}
-
-@media (max-width: 420px) {
-  .chat-title {
-    font-size: 0.86rem;
-  }
-
-  .message-card-body {
-    padding: 10px !important;
-  }
-}
-
-/* ===== Composer UI (final override) ===== */
-.composer {
-  --composer-border: rgba(var(--v-theme-on-surface), 0.16);
-  --composer-glow: rgba(var(--v-theme-primary), 0.16);
-  --composer-surface-a: rgba(var(--v-theme-surface), 0.9);
-  --composer-surface-b: rgba(var(--v-theme-surface), 0.98);
-  padding: clamp(8px, 1.4vw, 14px);
-  padding-bottom: calc(clamp(8px, 1.4vw, 14px) + env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.12);
-  background: linear-gradient(180deg, rgba(var(--v-theme-surface), 0.78), rgba(var(--v-theme-surface), 0.96));
-  backdrop-filter: blur(10px);
-}
-
-.composer :deep(.v-sheet) {
-  padding: 0 !important;
-  background: transparent !important;
-}
-
-.composer-inline {
-  width: min(860px, 100%);
-  margin-inline: auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 10px;
-  padding: 8px;
-  border: 1px solid var(--composer-border);
-  border-radius: 18px;
-  background: linear-gradient(145deg, var(--composer-surface-a), var(--composer-surface-b));
-  box-shadow:
-    0 10px 28px rgba(8, 16, 27, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.54);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.composer-inline:focus-within {
-  border-color: rgba(var(--v-theme-primary), 0.5);
-  box-shadow:
-    0 0 0 3px var(--composer-glow),
-    0 12px 30px rgba(8, 16, 27, 0.11),
-    inset 0 1px 0 rgba(255, 255, 255, 0.58);
-}
-
-.composer-input {
-  min-width: 0;
-}
-
-.composer-input :deep(.v-field) {
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  min-height: 46px;
-}
-
-.composer-input :deep(.v-field__outline) {
+.chat-mobile-head {
   display: none;
 }
 
-.composer-input :deep(.v-field__input) {
-  padding: 4px 8px !important;
+.session-top-loader {
+  flex: 0 0 auto;
+}
+
+.session-loader-spacer {
+  flex: 1 1 auto;
+}
+
+.state-card {
+  margin: auto;
+  width: min(92%, 500px);
+  border: 1px solid rgba(119, 136, 172, 0.26);
+  background: linear-gradient(165deg, #ffffff 0%, #fbfdff 58%, #f6f9ff 100%);
+  border-radius: 18px;
+  padding: 18px 20px;
+  text-align: center;
+  box-shadow:
+    0 12px 26px rgba(27, 44, 73, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.92) inset;
+  position: relative;
+  overflow: hidden;
+}
+
+.state-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 50%;
+  width: 300px;
+  height: 140px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle,
+      rgba(126, 208, 255, 0.22) 0%,
+      rgba(126, 208, 255, 0) 72%);
+  pointer-events: none;
+}
+
+.state-card h2 {
+  margin: 0;
+  color: #1d2740;
+  font-size: clamp(1.12rem, 1.7vw, 1.32rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.state-card p {
+  margin: 8px 0 0;
+  color: #5f6b88;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.state-card-auth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 62vh;
+  text-align: center;
+  width: min(92%, 560px);
+  padding: clamp(24px, 4vw, 40px);
+  border: 1px solid rgba(114, 131, 168, 0.24);
+  border-radius: 24px;
+  background:
+    radial-gradient(120px 100px at 50% 14%,
+      rgba(107, 192, 255, 0.2),
+      rgba(107, 192, 255, 0)),
+    linear-gradient(155deg, #ffffff 0%, #f8fbff 55%, #f1f6ff 100%);
+  box-shadow:
+    0 16px 36px rgba(23, 40, 68, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.92) inset;
+  position: relative;
+  overflow: hidden;
+}
+
+.state-card-auth::before {
+  display: none;
+}
+
+.auth-content {
+  width: min(100%, 320px);
+  margin: 0 auto;
+  display: grid;
+  justify-items: center;
+  gap: 1.12rem;
+}
+
+.auth-header {
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.auth-logo {
+  width: 72px;
+  height: 72px;
+  padding: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(123, 145, 189, 0.26);
+  background: linear-gradient(170deg, #ffffff 0%, #f5f8ff 100%);
+  box-shadow:
+    0 10px 22px rgba(62, 93, 146, 0.16),
+    0 1px 0 rgba(255, 255, 255, 0.94) inset;
+  display: block;
+  object-fit: contain;
+}
+
+.auth-title {
+  font-family: "Space Grotesk", "Manrope", sans-serif;
+  font-size: clamp(2rem, 4.2vw, 2.45rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.04;
+  color: #12203d;
+  margin: 0;
+}
+
+.google-auth-btn {
+  width: 100%;
+  max-width: 292px;
+  margin: 0 auto;
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  min-height: 50px;
+  padding: 0.75rem 1.45rem;
+  background: linear-gradient(135deg, #4285f4 0%, #34a853 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  box-shadow:
+    0 10px 18px rgba(31, 105, 208, 0.22),
+    0 2px 8px rgba(30, 122, 72, 0.2);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.google-auth-btn:hover {
+  box-shadow:
+    0 14px 24px rgba(31, 105, 208, 0.26),
+    0 4px 10px rgba(30, 122, 72, 0.22);
+  transform: translateY(-2px);
+  filter: saturate(1.06);
+}
+
+.google-auth-btn:active {
+  transform: translateY(0);
+}
+
+.workspace-shell {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.chat-workspace {
+  flex: 1 1 0%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.workspace-shell-with-runner .chat-workspace {
+  border-right: 1px solid rgba(114, 131, 168, 0.2);
+}
+
+.workspace-shell-with-runner .message-thread {
+  width: min(100%, 820px);
+}
+
+.workspace-shell-with-runner .composer-panel {
+  width: min(100%, 820px);
+}
+
+.chat-workspace-empty {
+  justify-content: center;
+}
+
+.chat-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 32px clamp(14px, 3vw, 36px) 18px;
+}
+
+.chat-scroll-empty {
+  overflow-y: hidden;
+  flex: 0 0 auto;
+  padding: 0 clamp(14px, 3vw, 36px);
+}
+
+.empty-state {
+  width: min(100%, 760px);
+  margin: 0 auto 20px;
+  text-align: center;
+}
+
+.empty-title {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  color: #333333;
+}
+
+.empty-subtitle {
+  margin: 8px 0 0;
+  color: #666666;
+  font-size: 0.9rem;
+}
+
+.message-thread {
+  width: min(100%, 900px);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message-row {
+  display: flex;
+}
+
+.message-row-user {
+  justify-content: flex-end;
+}
+
+.message-row-ai {
+  justify-content: flex-start;
+}
+
+.message-bubble {
+  max-width: min(100%, 740px);
+  border-radius: 16px;
+  border: 1px solid #e9ecef;
+  background: #ffffff;
+  padding: 12px 14px;
+}
+
+.message-row-user .message-bubble {
+  background: #e3f2fd;
+  color: #000000;
+  border-color: #bbdefb;
+}
+
+.message-bubble-error {
+  border-color: rgba(209, 71, 90, 0.42);
+  background: #fff3f5;
+  color: #852737;
+}
+
+.message-bubble-thinking {
+  background: #eef3ff;
+}
+
+.message-text {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.62;
+  font-size: 0.96rem;
+}
+
+.message-time {
+  margin: 7px 0 0;
+  font-size: 0.7rem;
+  opacity: 0.72;
+}
+
+.markdown-body {
+  font-size: 0.94rem;
+  line-height: 1.62;
+  color: #1f2a44;
+}
+
+.message-row-user .markdown-body {
+  color: #ffffff;
+}
+
+.markdown-body :deep(:not(pre) > code) {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #0f766e;
+  font-size: 0.88em;
+  font-family:
+    "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
+    monospace;
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: underline;
+  text-decoration-color: rgba(15, 118, 110, 0.34);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.message-row-user .markdown-body :deep(:not(pre) > code) {
+  color: #eef6ff;
+  text-decoration-color: rgba(238, 246, 255, 0.56);
+}
+
+.markdown-body :deep(.inline-code-runner) {
+  border: 1px solid rgba(63, 91, 145, 0.42);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #121b3a 0%, #0b1530 100%);
+  margin: 10px 0;
+  box-shadow: inset 0 1px 0 rgba(145, 182, 255, 0.09);
+  overflow: hidden;
+}
+
+.markdown-body :deep(.inline-code-runner-head) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid rgba(126, 169, 255, 0.16);
+}
+
+.markdown-body :deep(.inline-code-lang) {
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  color: rgba(228, 239, 255, 0.92);
+  font-weight: 600;
+}
+
+.markdown-body :deep(.inline-code-actions) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.markdown-body :deep(.code-runner-inline-btn) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  padding: 3px 11px;
+  border: 1px solid rgba(126, 169, 255, 0.4);
+  border-radius: 999px;
+  background: rgba(43, 87, 165, 0.4);
+  color: #e8f2ff;
+  font-size: 0.73rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.markdown-body :deep(.code-runner-inline-btn:hover) {
+  background: rgba(56, 108, 198, 0.52);
+  border-color: rgba(165, 198, 255, 0.52);
+}
+
+.markdown-body :deep(pre) {
+  background: rgba(5, 15, 40, 0.82);
+  color: #e7f2ff;
+  border-radius: 0;
+  margin: 0;
+  padding: 12px 14px;
+  overflow: auto;
+  font-size: 0.85rem;
+  line-height: 1.62;
+  max-height: 360px;
+}
+
+.message-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.composer-shell {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  padding: 10px clamp(10px, 2.2vw, 26px) calc(10px + env(safe-area-inset-bottom, 0px));
+  background-color: transparent !important;
+}
+
+.composer-shell-floating {
+  border-top: none;
+  background: transparent !important;
+}
+
+.composer-panel {
+  width: min(100%, 860px);
+  max-width: 860px;
+  margin: 0 auto;
+  border: 1px solid #e9ecef;
+  background: #ffffff;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 10px 10px;
+}
+
+.composer-input {
+  width: 100%;
 }
 
 .composer-input :deep(textarea) {
-  min-height: 46px;
-  max-height: 46px;
-  line-height: 1.4;
-  padding: 11px 2px 10px;
-  resize: none;
-  overflow-y: auto !important;
-  scrollbar-gutter: stable;
+  max-height: 150px;
+  min-height: 58px;
+  line-height: 1.38;
+  padding: 12px 2px 8px;
 }
 
-.composer-input :deep(textarea::placeholder) {
-  color: rgba(var(--v-theme-on-surface), 0.74);
-  opacity: 1;
+.composer-bottom-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-height: 40px;
 }
 
-.composer-send-btn {
-  width: 48px !important;
-  min-width: 48px !important;
-  height: 48px !important;
+.composer-model-select {
+  flex: 0 0 270px;
+  width: 270px;
+  max-width: calc(100% - 50px);
+  align-self: center;
+}
+
+.composer-model-select :deep(.v-field) {
+  min-height: 34px !important;
+  border-radius: 10px;
+  background: transparent !important;
+  border: 1px solid rgba(114, 131, 168, 0.28) !important;
+  box-shadow: none !important;
+}
+
+.composer-model-select :deep(.v-field__input) {
+  min-height: 34px !important;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-inline: 8px 4px;
+  font-size: 0.86rem;
+}
+
+.composer-model-select :deep(.v-select__selection-text) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.composer-model-select :deep(.v-field__outline) {
+  opacity: 0;
+}
+
+:deep(.composer-model-menu) {
   border-radius: 14px !important;
-  margin-bottom: 1px;
-  padding: 0 !important;
-  box-shadow: 0 10px 18px rgba(8, 16, 27, 0.2);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  overflow: hidden !important;
+  box-shadow: 0 14px 30px rgba(24, 36, 60, 0.2) !important;
 }
 
-.composer-send-btn :deep(.v-icon) {
-  font-size: 25px !important;
+:deep(.composer-model-menu .v-list) {
+  padding: 6px !important;
+  background: #ffffff;
 }
 
-.composer-send-btn:not(.v-btn--disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 13px 22px rgba(8, 16, 27, 0.24);
+:deep(.composer-model-menu .v-list-item) {
+  min-height: 42px;
+  border-radius: 10px;
+  margin: 2px 0;
 }
 
-.composer-send-btn:not(.v-btn--disabled):active {
-  transform: translateY(0) scale(0.98);
+:deep(.composer-model-menu .v-list-item-title) {
+  font-size: 0.94rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.composer-send-btn.v-btn--disabled {
-  opacity: 0.64;
-  box-shadow: none;
-  filter: saturate(0.82);
+.composer-send {
+  width: 40px;
+  height: 40px;
+  margin-left: auto;
 }
 
-@media (max-width: 760px) {
-  .composer-inline {
-    border-radius: 15px;
-    padding: 7px;
-    gap: 8px;
+.ai-runner-panel {
+  flex: 0 0 clamp(360px, 33vw, 520px);
+  width: clamp(360px, 33vw, 520px);
+  min-width: 360px;
+  max-width: 520px;
+  background: linear-gradient(180deg, #f6f9ff 0%, #f1f6ff 100%);
+  border-left: 1px solid rgba(114, 131, 168, 0.24);
+  display: flex;
+  gap: 0;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ai-runner-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 2px;
+  padding: 9px 10px;
+}
+
+.ai-runner-title {
+  margin: 0;
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #1f2e4e;
+  line-height: 1.2;
+}
+
+.ai-runner-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.ai-runner-frame {
+  flex: 1 1 auto;
+  height: 100%;
+  width: 100%;
+  display: block;
+  border: 1px solid rgba(105, 124, 166, 0.34);
+  background: #ffffff;
+  min-height: 0;
+  box-shadow: 0 8px 16px rgba(18, 40, 80, 0.08);
+}
+
+@media (max-width: 1024px) {
+  .workspace-shell {
+    flex-direction: column;
   }
 
-  .composer-input :deep(textarea) {
-    padding: 10px 2px 9px;
-    max-height: 44px;
+  .workspace-shell-with-runner .chat-workspace {
+    border-right: none;
   }
 
-  .composer-send-btn {
-    width: 44px !important;
-    min-width: 44px !important;
-    height: 44px !important;
-    border-radius: 12px !important;
-  }
-
-  .composer-send-btn :deep(.v-icon) {
-    font-size: 23px !important;
+  .ai-runner-panel {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    border-top: 1px solid rgba(114, 131, 168, 0.2);
+    min-height: min(48dvh, 500px);
+    max-height: 52dvh;
   }
 }
 
-@media (max-width: 420px) {
-  .composer {
-    padding: 6px;
-    padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+@media (max-width: 980px) {
+  .chat-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    box-shadow: 0 20px 40px rgba(20, 30, 52, 0.24);
   }
 
-  .composer-inline {
-    padding: 6px;
-    border-radius: 13px;
-    gap: 6px;
+  .chat-sidebar-open {
+    transform: translateX(0);
   }
 
-  .composer-input :deep(textarea) {
-    min-height: 42px;
-    max-height: 42px;
-    padding: 9px 1px 8px;
+  .chat-mobile-head {
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(114, 131, 168, 0.2);
+    background: #f4f6fc;
+    padding: 0 8px;
   }
 
-  .composer-send-btn {
-    width: 42px !important;
-    min-width: 42px !important;
-    height: 42px !important;
-    border-radius: 11px !important;
+  .chat-mobile-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0 10px;
+    color: #1a2440;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
   }
 
-  .composer-send-btn :deep(.v-icon) {
-    font-size: 21px !important;
+  .sidebar-toggle-btn {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 620px) {
+  .state-card {
+    border-radius: 14px;
+    padding: 14px 12px;
+  }
+
+  .state-card-auth {
+    min-height: min(62vh, 440px);
+    width: calc(100% - 16px);
+    padding: 24px 16px;
+    border-radius: 18px;
+  }
+
+  .auth-content {
+    width: min(100%, 290px);
+    gap: 1rem;
+  }
+
+  .auth-logo {
+    width: 66px;
+    height: 66px;
+    padding: 9px;
+  }
+
+  .google-auth-btn {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 2px;
+  }
+
+  .message-bubble {
+    max-width: 100%;
+  }
+
+  .composer-shell {
+    padding-inline: 8px;
+  }
+
+  .composer-panel {
+    border-radius: 14px;
+    gap: 7px;
+    padding: 6px 8px 8px;
+  }
+
+  .composer-bottom-tools {
+    align-items: center;
+  }
+
+  .composer-model-select {
+    flex: 1 1 auto;
+    width: auto;
+    max-width: calc(100% - 50px);
+  }
+
+  .composer-send {
+    width: 40px;
+    height: 40px;
+  }
+
+  .ai-runner-head {
+    flex-wrap: wrap;
+  }
+
+  .ai-runner-head-actions {
+    width: 100%;
+    justify-content: flex-end;
   }
 }
 </style>

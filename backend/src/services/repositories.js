@@ -5,6 +5,9 @@ const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const normalizeCourseName = (value) => value.trim().replace(/\s+/g, " ").toLowerCase();
 const normalizeMediaKey = (value = "") => value.trim().replace(/\s+/g, " ").toLowerCase();
 const normalizeSnippetContent = (value = "") => String(value).trim();
+const normalizeConversationTitle = (value = "") => String(value || "").trim().replace(/\s+/g, " ");
+const normalizeConversationMessageText = (value = "") => String(value || "").trim();
+const MAX_CONVERSATION_MESSAGES = 80;
 
 const createCourseRecord = ({ name, category, level, durationHours, tags = [] }) => {
   const trimmedName = name.trim().replace(/\s+/g, " ");
@@ -90,6 +93,65 @@ const createSnippetRecord = ({ ownerKey, title = "", content }) => {
   };
 };
 
+const sanitizeConversationMessages = (messages = []) =>
+  messages
+    .map((message) => ({
+      role: message?.role === "assistant" ? "assistant" : "user",
+      text: normalizeConversationMessageText(message?.text || ""),
+      createdAt: typeof message?.createdAt === "string" && message.createdAt.trim() ? message.createdAt : nowIso(),
+    }))
+    .filter((message) => message.text.length > 0)
+    .slice(-MAX_CONVERSATION_MESSAGES);
+
+const compactConversationTitle = (value = "", fallback = "New chat") => {
+  const normalized = normalizeConversationTitle(value);
+  if (!normalized) return fallback;
+  return normalized.length > 120 ? `${normalized.slice(0, 117)}...` : normalized;
+};
+
+const deriveConversationTitle = ({ title = "", messages = [] }) => {
+  const fromInput = compactConversationTitle(title, "");
+  if (fromInput) return fromInput;
+  const firstUserPrompt = messages.find((message) => message.role === "user")?.text || messages[0]?.text || "";
+  return compactConversationTitle(firstUserPrompt, "New chat");
+};
+
+const toPublicAiConversationSummary = (document) => {
+  const item = toPublicDocument(document);
+  if (!item) return null;
+  const messages = Array.isArray(item.messages) ? item.messages : [];
+
+  delete item.ownerUid;
+  delete item.ownerEmail;
+  delete item.ownerName;
+  delete item.messages;
+
+  return {
+    ...item,
+    messageCount: messages.length,
+    lastMessageAt: messages[messages.length - 1]?.createdAt || item.updatedAt || item.createdAt,
+  };
+};
+
+const toPublicAiConversation = (document) => {
+  const item = toPublicDocument(document);
+  if (!item) return null;
+  const messages = Array.isArray(item.messages) ? item.messages : [];
+
+  delete item.ownerUid;
+  delete item.ownerEmail;
+  delete item.ownerName;
+
+  return {
+    ...item,
+    messages: messages.map((message) => ({
+      role: message?.role === "assistant" ? "assistant" : "user",
+      text: String(message?.text || ""),
+      createdAt: typeof message?.createdAt === "string" && message.createdAt.trim() ? message.createdAt : nowIso(),
+    })),
+  };
+};
+
 const nowIso = () => new Date().toISOString();
 const generateId = () => {
   if (typeof globalThis.crypto?.randomUUID === "function") {
@@ -112,12 +174,14 @@ export const createRepositories = ({ db, logger }) => {
     media: [],
     subscriptions: [],
     ttsSnippets: [],
+    aiConversations: [],
   };
 
   const coursesCollection = db?.collection("courses");
   const mediaCollection = db?.collection("media");
   const subscriptionsCollection = db?.collection("subscriptions");
   const ttsSnippetsCollection = db?.collection("tts_snippets");
+  const aiConversationsCollection = db?.collection("ai_conversations");
 
   const listCourses = async ({ search = "", limit = 50, sort = "asc" }) => {
     const normalizedSearch = search.trim();
@@ -376,6 +440,148 @@ export const createRepositories = ({ db, logger }) => {
     return { removed: memoryStore.ttsSnippets.length < before };
   };
 
+  const listAiConversations = async ({ ownerUid, limit = 30 }) => {
+    const normalizedOwnerUid = String(ownerUid || "").trim();
+    const safeLimit = Number.isInteger(limit) ? Math.max(1, Math.min(50, limit)) : 30;
+
+    if (aiConversationsCollection) {
+      const conversations = await aiConversationsCollection
+        .find({ ownerUid: normalizedOwnerUid })
+        .sort({ updatedAt: -1 })
+        .limit(safeLimit)
+        .toArray();
+      return conversations.map(toPublicAiConversationSummary);
+    }
+
+    const conversations = memoryStore.aiConversations
+      .filter((item) => item.ownerUid === normalizedOwnerUid)
+      .sort((a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")));
+
+    return clone(conversations.slice(0, safeLimit).map(toPublicAiConversationSummary));
+  };
+
+  const getAiConversation = async ({ ownerUid, id }) => {
+    const normalizedOwnerUid = String(ownerUid || "").trim();
+    const normalizedId = String(id || "").trim();
+
+    if (aiConversationsCollection) {
+      const conversation = await aiConversationsCollection.findOne({
+        ownerUid: normalizedOwnerUid,
+        id: normalizedId,
+      });
+      return toPublicAiConversation(conversation);
+    }
+
+    const conversation = memoryStore.aiConversations.find(
+      (item) => item.ownerUid === normalizedOwnerUid && item.id === normalizedId,
+    );
+    return clone(toPublicAiConversation(conversation));
+  };
+
+  const upsertAiConversation = async ({
+    ownerUid,
+    ownerEmail = "",
+    ownerName = "",
+    id = "",
+    title = "",
+    messages = [],
+  }) => {
+    const normalizedOwnerUid = String(ownerUid || "").trim();
+    const normalizedId = String(id || "").trim();
+    const conversationId = normalizedId || generateId();
+    const normalizedMessages = sanitizeConversationMessages(messages);
+    const now = nowIso();
+    const conversationTitle = deriveConversationTitle({
+      title,
+      messages: normalizedMessages,
+    });
+
+    if (aiConversationsCollection) {
+      const existing = await aiConversationsCollection.findOne({
+        ownerUid: normalizedOwnerUid,
+        id: conversationId,
+      });
+
+      if (existing) {
+        await aiConversationsCollection.updateOne(
+          { ownerUid: normalizedOwnerUid, id: conversationId },
+          {
+            $set: {
+              ownerEmail: String(ownerEmail || "").trim().toLowerCase(),
+              ownerName: String(ownerName || "").trim(),
+              title: conversationTitle,
+              messages: normalizedMessages,
+              updatedAt: now,
+            },
+          },
+        );
+      } else {
+        await aiConversationsCollection.insertOne({
+          id: conversationId,
+          ownerUid: normalizedOwnerUid,
+          ownerEmail: String(ownerEmail || "").trim().toLowerCase(),
+          ownerName: String(ownerName || "").trim(),
+          title: conversationTitle,
+          messages: normalizedMessages,
+          createdAt: now,
+          updatedAt: now,
+        });
+      }
+
+      const saved = await aiConversationsCollection.findOne({
+        ownerUid: normalizedOwnerUid,
+        id: conversationId,
+      });
+      return toPublicAiConversation(saved);
+    }
+
+    const existingIndex = memoryStore.aiConversations.findIndex(
+      (item) => item.ownerUid === normalizedOwnerUid && item.id === conversationId,
+    );
+
+    if (existingIndex >= 0) {
+      const existing = memoryStore.aiConversations[existingIndex];
+      existing.ownerEmail = String(ownerEmail || "").trim().toLowerCase();
+      existing.ownerName = String(ownerName || "").trim();
+      existing.title = conversationTitle;
+      existing.messages = normalizedMessages;
+      existing.updatedAt = now;
+      return clone(toPublicAiConversation(existing));
+    }
+
+    const record = {
+      id: conversationId,
+      ownerUid: normalizedOwnerUid,
+      ownerEmail: String(ownerEmail || "").trim().toLowerCase(),
+      ownerName: String(ownerName || "").trim(),
+      title: conversationTitle,
+      messages: normalizedMessages,
+      createdAt: now,
+      updatedAt: now,
+    };
+    memoryStore.aiConversations.push(record);
+    return clone(toPublicAiConversation(record));
+  };
+
+  const removeAiConversation = async ({ ownerUid, id }) => {
+    const normalizedOwnerUid = String(ownerUid || "").trim();
+    const normalizedId = String(id || "").trim();
+
+    if (aiConversationsCollection) {
+      const result = await aiConversationsCollection.deleteOne({
+        ownerUid: normalizedOwnerUid,
+        id: normalizedId,
+      });
+      return { removed: result.deletedCount > 0 };
+    }
+
+    const before = memoryStore.aiConversations.length;
+    memoryStore.aiConversations = memoryStore.aiConversations.filter(
+      (item) => !(item.ownerUid === normalizedOwnerUid && item.id === normalizedId),
+    );
+    return { removed: memoryStore.aiConversations.length < before };
+  };
+
   const subscribe = async ({ email, name = "", source = "web", ip = "", userAgent = "" }) => {
     const normalized = normalizeEmail(email);
     const now = nowIso();
@@ -548,6 +754,10 @@ export const createRepositories = ({ db, logger }) => {
     listTtsSnippets,
     addTtsSnippet,
     removeTtsSnippet,
+    listAiConversations,
+    getAiConversation,
+    upsertAiConversation,
+    removeAiConversation,
     subscribe,
     getSubscriptionStatus,
     unsubscribe,

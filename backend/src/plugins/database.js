@@ -71,6 +71,14 @@ const ensureIndexes = async (db, log) => {
         { ownerKey: 1, normalizedContent: 1 },
         { name: "uq_tts_snippets_owner_content", unique: true },
       ),
+      db.collection("ai_conversations").createIndex(
+        { ownerUid: 1, updatedAt: -1 },
+        { name: "idx_ai_conversations_owner_updated" },
+      ),
+      db.collection("ai_conversations").createIndex(
+        { ownerUid: 1, id: 1 },
+        { name: "uq_ai_conversations_owner_id", unique: true },
+      ),
     ]);
   } catch (error) {
     log.warn({ err: error }, "Index creation skipped due to an existing index or conflicting data.");

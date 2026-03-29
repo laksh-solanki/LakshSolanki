@@ -139,3 +139,81 @@ test("worker image route is unavailable", async () => {
 
   assert.equal(response.status, 404);
 });
+
+test("worker ai history rejects unauthorized requests", async () => {
+  const response = await worker.fetch(
+    new Request("https://mindlytic.example/api/ai/history"),
+    {
+      MONGODB_URI: "",
+      NODE_ENV: "test",
+      FIREBASE_AUTH_TEST_MODE: "true",
+    },
+  );
+
+  assert.equal(response.status, 401);
+  const body = await response.json();
+  assert.match(body.error, /Unauthorized/i);
+});
+
+test("worker ai history persists and isolates conversations by user", async () => {
+  const conversationId = "worker-conversation-123";
+  const userOneAuth = "Bearer test-token:worker-user-1:worker1@example.com:Worker%20One";
+  const userTwoAuth = "Bearer test-token:worker-user-2:worker2@example.com:Worker%20Two";
+  const env = {
+    MONGODB_URI: "",
+    NODE_ENV: "test",
+    FIREBASE_AUTH_TEST_MODE: "true",
+  };
+
+  const createResponse = await worker.fetch(
+    new Request(`https://mindlytic.example/api/ai/history/${encodeURIComponent(conversationId)}`, {
+      method: "PUT",
+      headers: {
+        authorization: userOneAuth,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        messages: [
+          { role: "user", text: "worker hello" },
+          { role: "assistant", text: "worker hi" },
+        ],
+      }),
+    }),
+    env,
+  );
+  assert.equal(createResponse.status, 200);
+
+  const listResponse = await worker.fetch(
+    new Request("https://mindlytic.example/api/ai/history?limit=30", {
+      headers: {
+        authorization: userOneAuth,
+      },
+    }),
+    env,
+  );
+  assert.equal(listResponse.status, 200);
+  const listBody = await listResponse.json();
+  assert.equal(listBody.count, 1);
+  assert.equal(listBody.data[0].id, conversationId);
+
+  const isolatedGetResponse = await worker.fetch(
+    new Request(`https://mindlytic.example/api/ai/history/${encodeURIComponent(conversationId)}`, {
+      headers: {
+        authorization: userTwoAuth,
+      },
+    }),
+    env,
+  );
+  assert.equal(isolatedGetResponse.status, 404);
+
+  const deleteResponse = await worker.fetch(
+    new Request(`https://mindlytic.example/api/ai/history/${encodeURIComponent(conversationId)}`, {
+      method: "DELETE",
+      headers: {
+        authorization: userOneAuth,
+      },
+    }),
+    env,
+  );
+  assert.equal(deleteResponse.status, 200);
+});

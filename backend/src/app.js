@@ -70,8 +70,8 @@ export const buildApp = async (options = {}) => {
 
   await app.register(cors, {
     origin: createCorsOriginHandler(env.corsOrigins),
-    methods: ["GET", "POST", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "X-Admin-Key"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Admin-Key"],
     strictPreflight: true,
     maxAge: 86400,
   });
