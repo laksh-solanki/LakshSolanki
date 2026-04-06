@@ -6,6 +6,30 @@ import {
   signOut as firebaseSignOut,
 } from "firebase/auth";
 import { marked } from "marked";
+import Prism from "prismjs";
+import "prismjs/components/prism-bash";
+import "prismjs/components/prism-c";
+import "prismjs/components/prism-clike";
+import "prismjs/components/prism-cpp";
+import "prismjs/components/prism-csharp";
+import "prismjs/components/prism-css";
+import "prismjs/components/prism-go";
+import "prismjs/components/prism-java";
+import "prismjs/components/prism-javascript";
+import "prismjs/components/prism-json";
+import "prismjs/components/prism-jsx";
+import "prismjs/components/prism-markdown";
+import "prismjs/components/prism-markup";
+import "prismjs/components/prism-php";
+import "prismjs/components/prism-powershell";
+import "prismjs/components/prism-python";
+import "prismjs/components/prism-ruby";
+import "prismjs/components/prism-rust";
+import "prismjs/components/prism-sql";
+import "prismjs/components/prism-tsx";
+import "prismjs/components/prism-typescript";
+import "prismjs/components/prism-yaml";
+import "prismjs/themes/prism.css";
 import DOMPurify from "dompurify";
 import Alerts from "@/components/Alerts.vue";
 import { getApiBaseUrl } from "@/utils/apiBaseUrl";
@@ -96,6 +120,8 @@ const sidebarOpen = ref(false);
 const selectedModel = ref("gemini");
 const avatarImageFailed = ref(false);
 const historyLoadError = ref("");
+const THEME_STORAGE_KEY = "mindlytic-ai-theme";
+const pageTheme = ref("light");
 
 const currentUser = ref(null);
 const conversations = ref([]);
@@ -199,6 +225,54 @@ const escapeHtml = (value = "") =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
+const decodeHtmlEntities = (value = "") =>
+  String(value)
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&quot;", '"')
+    .replaceAll("&#039;", "'")
+    .replaceAll("&#39;", "'")
+    .replaceAll("&amp;", "&");
+
+const PRISM_LANGUAGE_ALIASES = {
+  js: "javascript",
+  mjs: "javascript",
+  cjs: "javascript",
+  jsx: "jsx",
+  ts: "typescript",
+  tsx: "tsx",
+  py: "python",
+  rb: "ruby",
+  sh: "bash",
+  shell: "bash",
+  zsh: "bash",
+  ps1: "powershell",
+  psql: "sql",
+  yml: "yaml",
+  md: "markdown",
+  html: "markup",
+  xml: "markup",
+  svg: "markup",
+  vue: "markup",
+  csharp: "csharp",
+  cs: "csharp",
+  cplusplus: "cpp",
+  plaintext: "text",
+  text: "text",
+};
+
+const resolvePrismLanguage = (language = "") => {
+  const normalized = String(language || "")
+    .trim()
+    .toLowerCase();
+  if (!normalized) return "text";
+  const alias = PRISM_LANGUAGE_ALIASES[normalized] || normalized;
+  return Prism.languages[alias] ? alias : "text";
+};
+
+const highlightCodeForDisplay = (code = "", _language = "") =>
+  escapeHtml(String(code || ""));
+
 const renderAssistantMessage = (text = "") => {
   const raw = String(text || "");
   if (!raw.trim()) return "";
@@ -206,37 +280,75 @@ const renderAssistantMessage = (text = "") => {
     const parsed = marked.parse(raw);
     const html = typeof parsed === "string" ? parsed : raw;
     const codeBlocks = extractCodeBlocks(raw);
+    const renderedCodeBlocks = [];
     let codeIndex = 0;
-    const withInlineRunnerButtons = html.replace(
+    const withInlineRunnerPlaceholders = html.replace(
       /<pre><code[\s\S]*?<\/code><\/pre>/gi,
       (codeBlockHtml) => {
+        const currentCodeIndex = codeIndex;
+        const languageFromHtmlMatch = String(codeBlockHtml || "").match(
+          /class="[^"]*language-([a-zA-Z0-9_+#.-]+)[^"]*"/i,
+        );
+        const languageFromHtml = String(languageFromHtmlMatch?.[1] || "")
+          .trim()
+          .toLowerCase();
+        const codeFromHtml = decodeHtmlEntities(
+          String(codeBlockHtml || "")
+            .replace(/^<pre><code[^>]*>/i, "")
+            .replace(/<\/code><\/pre>$/i, ""),
+        );
         const rawBlockLanguage =
-          String(codeBlocks[codeIndex]?.language || "code").toLowerCase() ||
+          String(
+            codeBlocks[currentCodeIndex]?.language || languageFromHtml || "code",
+          ).toLowerCase() ||
           "code";
-        const rawBlockCode = String(codeBlocks[codeIndex]?.code || "");
+        const rawBlockCode = String(
+          codeBlocks[currentCodeIndex]?.code || codeFromHtml || "",
+        );
         const blockLanguage = inferRunnerLanguage(
           rawBlockLanguage,
           rawBlockCode,
         );
+        const shouldUseInferredLanguage = [
+          "code",
+          "text",
+          "plaintext",
+        ].includes(rawBlockLanguage);
+        const prismLanguage = resolvePrismLanguage(
+          shouldUseInferredLanguage ? blockLanguage : rawBlockLanguage,
+        );
+        const highlightedCode = highlightCodeForDisplay(
+          rawBlockCode,
+          prismLanguage,
+        );
+        const codeHtml = `<pre><code class="code-block-text">${highlightedCode}</code></pre>`;
         const runButtonHtml = canRunInRunner(blockLanguage)
-          ? `<button type="button" class="code-runner-inline-btn" data-code-index="${codeIndex}" data-code-language="${escapeHtml(blockLanguage)}" data-code-action="run" aria-label="Run code">Run</button>`
+          ? `<button type="button" class="code-runner-inline-btn" data-code-index="${currentCodeIndex}" data-code-language="${escapeHtml(blockLanguage)}" data-code-action="run" aria-label="Run code">Run</button>`
           : "";
         const headerHtml = `
         <div class="inline-code-runner-head">
           <span class="inline-code-lang">${escapeHtml(blockLanguage)}</span>
           <div class="inline-code-actions">
-            <button type="button" class="code-runner-inline-btn" data-code-index="${codeIndex}" data-code-language="${escapeHtml(blockLanguage)}" data-code-action="copy" aria-label="Copy code">Copy</button>
-            <button type="button" class="code-runner-inline-btn" data-code-index="${codeIndex}" data-code-language="${escapeHtml(blockLanguage)}" data-code-action="download" aria-label="Download code">Download</button>
+            <button type="button" class="code-runner-inline-btn" data-code-index="${currentCodeIndex}" data-code-language="${escapeHtml(blockLanguage)}" data-code-action="copy" aria-label="Copy code">Copy</button>
+            <button type="button" class="code-runner-inline-btn" data-code-index="${currentCodeIndex}" data-code-language="${escapeHtml(blockLanguage)}" data-code-action="download" aria-label="Download code">Download</button>
             ${runButtonHtml}
           </div>
         </div>`;
+        const renderedBlockHtml = `<div class="inline-code-runner">${headerHtml}${codeHtml}</div>`;
+        const placeholder = `__MINDLYTIC_CODE_BLOCK_${currentCodeIndex}__`;
+        renderedCodeBlocks.push({
+          placeholder,
+          html: renderedBlockHtml,
+        });
         codeIndex += 1;
-        return `<div class="inline-code-runner">${headerHtml}${codeBlockHtml}</div>`;
+        return placeholder;
       },
     );
-    return DOMPurify.sanitize(withInlineRunnerButtons, {
-      ADD_TAGS: ["button"],
+
+    const sanitized = DOMPurify.sanitize(withInlineRunnerPlaceholders, {
+      ADD_TAGS: ["button", "span"],
       ADD_ATTR: [
+        "class",
         "target",
         "rel",
         "data-code-index",
@@ -245,6 +357,11 @@ const renderAssistantMessage = (text = "") => {
         "aria-label",
       ],
     });
+
+    return renderedCodeBlocks.reduce(
+      (output, block) => output.replace(block.placeholder, block.html),
+      sanitized,
+    );
   } catch {
     return `<p>${escapeHtml(raw)}</p>`;
   }
@@ -544,14 +661,21 @@ const authorizedFetchHistory = async (path = "", options = {}) => {
 };
 
 const hasUser = computed(() => Boolean(currentUser.value));
+const isDarkTheme = computed(() => pageTheme.value === "dark");
+const themeToggleLabel = computed(() =>
+  isDarkTheme.value ? "Switch to light theme" : "Switch to black theme",
+);
+const themeToggleIcon = computed(() =>
+  isDarkTheme.value ? "mdi-white-balance-sunny" : "mdi-weather-night",
+);
 const canSend = computed(
   () => hasUser.value && !sending.value && Boolean(userInput.value.trim()),
 );
 const isEmptyConversation = computed(() => messages.value.length === 0);
 const modelOptions = computed(() => [
-  { label: `Gemini (${GEMINI_CHAT_MODEL})`, value: "gemini" },
-  { label: `Llama (${GROQ_CHAT_MODEL})`, value: "groq" },
-  { label: `OpenAI (${OPENAI_CHAT_MODEL})`, value: "openai" },
+  { label: "Gemini (Recommanded)", value: "gemini" },
+  { label: "Llama (normal coding)", value: "groq" },
+  { label: "Open Ai (higher coding)", value: "openai" },
 ]);
 const activeConversationTitle = computed(() => {
   const active = conversations.value.find(
@@ -588,6 +712,22 @@ const runnerLanguageLabel = computed(() => {
   };
   return map[runnerLanguage.value] || runnerLanguage.value.toUpperCase();
 });
+const composerMenuProps = computed(() => ({
+  maxHeight: 280,
+  minWidth: 270,
+  maxWidth: 270,
+  contentClass: isDarkTheme.value
+    ? "composer-model-menu composer-model-menu-dark"
+    : "composer-model-menu",
+}));
+
+const normalizeTheme = (value) => (value === "dark" ? "dark" : "light");
+const applyTheme = (value) => {
+  pageTheme.value = normalizeTheme(value);
+};
+const toggleTheme = () => {
+  applyTheme(isDarkTheme.value ? "light" : "dark");
+};
 
 const formatDateLabel = (value) => {
   if (!value) return "";
@@ -1185,7 +1325,18 @@ watch(selectedModel, (value) => {
   if (normalized !== value) selectedModel.value = normalized;
 });
 
+watch(pageTheme, (value) => {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(THEME_STORAGE_KEY, normalizeTheme(value));
+});
+
 onMounted(() => {
+  if (typeof window !== "undefined") {
+    const savedTheme = normalizeTheme(
+      window.localStorage.getItem(THEME_STORAGE_KEY),
+    );
+    applyTheme(savedTheme);
+  }
   setupAuth();
 });
 
@@ -1197,7 +1348,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="mindlytic-page">
+  <div class="mindlytic-page" :class="{ 'theme-dark': isDarkTheme }">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
     <div class="mindlytic-layout">
@@ -1265,7 +1416,20 @@ onUnmounted(() => {
                 </p>
                 <p class="user-email">{{ currentUser?.email }}</p>
               </div>
-              <v-btn icon="mdi-logout" size="small" variant="text" color="red" @click="signOutUser" />
+              <v-menu location="top end" offset="8">
+                <template #activator="{ props }">
+                  <v-btn v-bind="props" icon="mdi-dots-vertical" size="small" variant="text" class="profile-menu-btn" />
+                </template>
+                <v-list density="compact" class="profile-menu-list" :class="{ 'profile-menu-list-dark': isDarkTheme }">
+                  <v-list-item :prepend-icon="themeToggleIcon" @click="toggleTheme">
+                    <v-list-item-title>{{ themeToggleLabel }}</v-list-item-title>
+                  </v-list-item>
+                  <v-divider />
+                  <v-list-item prepend-icon="mdi-logout" @click="signOutUser">
+                    <v-list-item-title>Logout</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
             </div>
           </template>
           <template v-else>
@@ -1275,14 +1439,14 @@ onUnmounted(() => {
       </aside>
 
       <section class="chat-main">
-        <header class="chat-mobile-head">
-          <v-btn v-if="hasUser" icon="mdi-menu" size="small" variant="text" @click="toggleSidebar" />
+        <header v-if="hasUser" class="chat-mobile-head">
+          <v-btn icon="mdi-menu" size="small" variant="text" @click="toggleSidebar" />
           <span class="chat-mobile-title">{{
             hasUser ? activeConversationTitle : "Mindlytic AI"
-            }}</span>
+          }}</span>
 
-          <v-btn density="comfortable" variant="text" icon="mdi-plus"
-            :disabled="!hasUser || sending" @click="startNewChat" />
+          <v-btn density="comfortable" variant="text" icon="mdi-plus" :disabled="!hasUser || sending"
+            @click="startNewChat" />
         </header>
 
         <v-progress-linear v-if="!authReady" class="session-top-loader" indeterminate color="primary" height="3" />
@@ -1304,10 +1468,10 @@ onUnmounted(() => {
               <h1 class="auth-title">Mindlytic AI</h1>
             </div>
 
-            <v-btn color="primary" rounded="xl" variant="flat" class="text-none google-auth-btn" :loading="signingIn"
+           <v-btn color="primary" rounded="xl" variant="flat" class="text-none google-auth-btn" :loading="signingIn"
               :disabled="signingIn" prepend-icon="mdi-google" @click="signInWithGoogle">
               Sign in with Google
-            </v-btn>
+            </v-btn>  
           </div>
         </div>
 
@@ -1325,8 +1489,8 @@ onUnmounted(() => {
                 <div v-else class="message-thread">
                   <div v-for="(message, index) in messages" :key="`${message.createdAt}-${index}`" class="message-row"
                     :class="message.role === 'assistant'
-                        ? 'message-row-ai'
-                        : 'message-row-user'
+                      ? 'message-row-ai'
+                      : 'message-row-user'
                       ">
                     <div class="message-bubble" :class="message.error ? 'message-bubble-error' : ''">
                       <div v-if="message.role === 'assistant'" class="markdown-body"
@@ -1359,14 +1523,9 @@ onUnmounted(() => {
                     rows="1" auto-grow max-rows="6" variant="plain" :disabled="sending || loadingConversation"
                     @keydown="handlePromptKeydown" />
                   <div class="composer-bottom-tools">
-                    <v-select v-model="selectedModel" :items="modelOptions" item-title="label" item-value="value"
+                    <v-select :key="`model-select-${pageTheme}`" v-model="selectedModel" :items="modelOptions" item-title="label" item-value="value"
                       :return-object="false" density="compact" hide-details variant="outlined"
-                      :menu-props="{
-                        maxHeight: 280,
-                        minWidth: 270,
-                        maxWidth: 270,
-                        contentClass: 'composer-model-menu',
-                      }" class="composer-model-select"
+                      :menu-props="composerMenuProps" class="composer-model-select"
                       :disabled="sending || loadingConversation" />
                     <v-btn icon color="primary" class="composer-send" :disabled="!canSend" :loading="sending"
                       @click="sendMessage">
@@ -1377,17 +1536,19 @@ onUnmounted(() => {
               </div>
             </div>
 
+            <div v-if="runnerPanelOpen" class="runner-backdrop" @click="closeRunnerPanel"></div>
             <aside v-if="runnerPanelOpen" class="ai-runner-panel">
               <div class="ai-runner-head">
-                <div>
+                <div class="ai-runner-head-main">
                   <p class="ai-runner-title">{{ runnerTitle }}</p>
                 </div>
                 <div class="ai-runner-head-actions">
-                  <v-btn size="x-small" color="primary" variant="tonal" class="text-none"
+                  <v-btn size="x-small" color="primary" variant="tonal" class="text-none runner-mode-btn"
                     @click="runnerMode = 'web'">Web</v-btn>
-                  <v-btn size="x-small" color="primary" variant="tonal" class="text-none"
+                  <v-btn size="x-small" color="primary" variant="tonal" class="text-none runner-mode-btn"
                     @click="runnerMode = 'console'">Console</v-btn>
-                  <v-btn size="small" variant="text" color="primary" icon="mdi-close" @click="closeRunnerPanel" />
+                  <v-btn size="small" variant="text" color="primary" icon="mdi-close" class="runner-close-btn"
+                    @click="closeRunnerPanel" />
                 </div>
               </div>
               <iframe :key="runnerFrameKey" :srcdoc="runnerSrcdoc" class="ai-runner-frame"
@@ -1418,6 +1579,10 @@ onUnmounted(() => {
   inset: 0;
   background: rgba(13, 18, 34, 0.32);
   z-index: 12;
+}
+
+.runner-backdrop {
+  display: none;
 }
 
 .chat-sidebar {
@@ -1573,7 +1738,7 @@ onUnmounted(() => {
   padding: 8px;
   background: #f8f9fa;
   border-radius: 8px;
-  border: 1px solid #e9ecef;
+  border: 2px solid #d4d6d7;
 }
 
 .profile-image {
@@ -1591,6 +1756,7 @@ onUnmounted(() => {
 
 .user-copy {
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .user-name {
@@ -1610,6 +1776,36 @@ onUnmounted(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.profile-menu-btn {
+  color: #5f6f8f;
+}
+
+:deep(.profile-menu-list) {
+  min-width: 205px;
+  padding: 6px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(114, 131, 168, 0.3);
+  background: #ffffff !important;
+  box-shadow: 0 14px 30px rgba(24, 36, 60, 0.22) !important;
+}
+
+:deep(.profile-menu-list .v-list-item) {
+  min-height: 38px;
+  border-radius: 9px;
+  margin: 2px 0;
+}
+
+:deep(.profile-menu-list .v-list-item-title) {
+  color: #213252;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+:deep(.profile-menu-list .v-divider) {
+  margin: 4px 2px !important;
+  opacity: 0.5;
 }
 
 .chat-main {
@@ -1682,12 +1878,12 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 62vh;
+  min-height: clamp(360px, 56vh, 500px);
   text-align: center;
-  width: min(92%, 560px);
-  padding: clamp(24px, 4vw, 40px);
+  width: min(90%, 460px);
+  padding: clamp(20px, 3.2vw, 30px);
   border: 1px solid rgba(114, 131, 168, 0.24);
-  border-radius: 24px;
+  border-radius: 20px;
   background:
     radial-gradient(120px 100px at 50% 14%,
       rgba(107, 192, 255, 0.2),
@@ -1705,24 +1901,24 @@ onUnmounted(() => {
 }
 
 .auth-content {
-  width: min(100%, 320px);
+  width: min(100%, 296px);
   margin: 0 auto;
   display: grid;
   justify-items: center;
-  gap: 1.12rem;
+  gap: 0.88rem;
 }
 
 .auth-header {
   margin: 0;
   display: grid;
   justify-items: center;
-  gap: 14px;
+  gap: 10px;
 }
 
 .auth-logo {
-  width: 72px;
-  height: 72px;
-  padding: 10px;
+  width: 60px;
+  height: 60px;
+  padding: 8px;
   border-radius: 50%;
   border: 1px solid rgba(123, 145, 189, 0.26);
   background: linear-gradient(170deg, #ffffff 0%, #f5f8ff 100%);
@@ -1735,44 +1931,58 @@ onUnmounted(() => {
 
 .auth-title {
   font-family: "Space Grotesk", "Manrope", sans-serif;
-  font-size: clamp(2rem, 4.2vw, 2.45rem);
+  font-size: clamp(1.7rem, 3.4vw, 2.2rem);
   font-weight: 700;
   letter-spacing: -0.03em;
-  line-height: 1.04;
+  line-height: 1.08;
   color: #12203d;
   margin: 0;
 }
 
 .google-auth-btn {
+  width: min(100%, 320px);
+  min-height: 46px;
+  display: flex;
+  position: relative;
+  justify-content: center;
+  padding: 0 0.95rem;
+  font-size: 0.82rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  vertical-align: middle;
+  align-items: center;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  color: rgb(65, 63, 63);
+  background-color: #fff;
+  cursor: pointer;
+  transition: all .6s ease;
+}
+
+.google-auth-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.google-auth-label {
   width: 100%;
-  max-width: 292px;
-  margin: 0 auto;
-  font-size: 1rem;
-  font-weight: 650;
+  text-align: center;
+  padding: 0;
   letter-spacing: 0.01em;
-  min-height: 50px;
-  padding: 0.75rem 1.45rem;
-  background: linear-gradient(135deg, #4285f4 0%, #34a853 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.55) !important;
-  box-shadow:
-    0 10px 18px rgba(31, 105, 208, 0.22),
-    0 2px 8px rgba(30, 122, 72, 0.2);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    filter 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .google-auth-btn:hover {
-  box-shadow:
-    0 14px 24px rgba(31, 105, 208, 0.26),
-    0 4px 10px rgba(30, 122, 72, 0.22);
-  transform: translateY(-2px);
-  filter: saturate(1.06);
-}
-
-.google-auth-btn:active {
-  transform: translateY(0);
+  transform: scale(1.015);
 }
 
 .workspace-shell {
@@ -1932,11 +2142,13 @@ onUnmounted(() => {
 }
 
 .markdown-body :deep(.inline-code-runner) {
-  border: 1px solid rgba(63, 91, 145, 0.42);
+  border: 1px solid rgba(114, 131, 168, 0.32);
   border-radius: 14px;
-  background: linear-gradient(180deg, #121b3a 0%, #0b1530 100%);
+  background: linear-gradient(180deg, #fbfdff 0%, #f3f8ff 100%);
   margin: 10px 0;
-  box-shadow: inset 0 1px 0 rgba(145, 182, 255, 0.09);
+  box-shadow:
+    0 6px 14px rgba(21, 41, 78, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
   overflow: hidden;
 }
 
@@ -1946,14 +2158,14 @@ onUnmounted(() => {
   justify-content: space-between;
   gap: 10px;
   padding: 10px 12px 8px;
-  border-bottom: 1px solid rgba(126, 169, 255, 0.16);
+  border-bottom: 1px solid rgba(114, 131, 168, 0.22);
 }
 
 .markdown-body :deep(.inline-code-lang) {
   font-size: 0.78rem;
   letter-spacing: 0.02em;
   text-transform: lowercase;
-  color: rgba(228, 239, 255, 0.92);
+  color: #415170;
   font-weight: 600;
 }
 
@@ -1969,10 +2181,10 @@ onUnmounted(() => {
   justify-content: center;
   min-height: 26px;
   padding: 3px 11px;
-  border: 1px solid rgba(126, 169, 255, 0.4);
+  border: 1px solid rgba(114, 131, 168, 0.42);
   border-radius: 999px;
-  background: rgba(43, 87, 165, 0.4);
-  color: #e8f2ff;
+  background: #eaf1ff;
+  color: #203a67;
   font-size: 0.73rem;
   font-weight: 600;
   cursor: pointer;
@@ -1982,13 +2194,13 @@ onUnmounted(() => {
 }
 
 .markdown-body :deep(.code-runner-inline-btn:hover) {
-  background: rgba(56, 108, 198, 0.52);
-  border-color: rgba(165, 198, 255, 0.52);
+  background: #dde9ff;
+  border-color: rgba(79, 111, 173, 0.48);
 }
 
 .markdown-body :deep(pre) {
-  background: rgba(5, 15, 40, 0.82);
-  color: #e7f2ff;
+  background: #f7faff;
+  color: #1f2a44;
   border-radius: 0;
   margin: 0;
   padding: 12px 14px;
@@ -1996,6 +2208,60 @@ onUnmounted(() => {
   font-size: 0.85rem;
   line-height: 1.62;
   max-height: 360px;
+}
+
+.markdown-body :deep(pre code) {
+  display: block;
+  font-family:
+    "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
+    monospace;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.markdown-body :deep(pre code .token.comment),
+.markdown-body :deep(pre code .token.prolog),
+.markdown-body :deep(pre code .token.doctype),
+.markdown-body :deep(pre code .token.cdata) {
+  color: #6a737d;
+}
+
+.markdown-body :deep(pre code .token.keyword),
+.markdown-body :deep(pre code .token.operator.important),
+.markdown-body :deep(pre code .token.atrule) {
+  color: #0000ff;
+}
+
+.markdown-body :deep(pre code .token.string),
+.markdown-body :deep(pre code .token.attr-value) {
+  color: #a31515;
+}
+
+.markdown-body :deep(pre code .token.number),
+.markdown-body :deep(pre code .token.boolean),
+.markdown-body :deep(pre code .token.constant) {
+  color: #098658;
+}
+
+.markdown-body :deep(pre code .token.function) {
+  color: #795e26;
+}
+
+.markdown-body :deep(pre code .token.class-name),
+.markdown-body :deep(pre code .token.builtin),
+.markdown-body :deep(pre code .token.type) {
+  color: #267f99;
+}
+
+.markdown-body :deep(pre code .token.property),
+.markdown-body :deep(pre code .token.variable),
+.markdown-body :deep(pre code .token.parameter) {
+  color: #001080;
+}
+
+.markdown-body :deep(pre code .token.punctuation),
+.markdown-body :deep(pre code .token.operator) {
+  color: #1f2328;
 }
 
 .message-actions {
@@ -2022,9 +2288,9 @@ onUnmounted(() => {
   width: min(100%, 860px);
   max-width: 860px;
   margin: 0 auto;
-  border: 1px solid #e9ecef;
+  border: 2px solid #e9ecef;
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 20px;
   display: flex;
   justify-content: space-between;
   flex-direction: column;
@@ -2133,22 +2399,53 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding-inline: 2px;
-  padding: 9px 10px;
+  padding: 6px 8px;
+  gap: 6px;
+  min-height: 42px;
+}
+
+.ai-runner-head-main {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .ai-runner-title {
   margin: 0;
-  font-size: 0.94rem;
-  font-weight: 700;
+  font-size: 0.84rem;
+  font-weight: 600;
   color: #1f2e4e;
-  line-height: 1.2;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ai-runner-head-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: flex-end;
+  gap: 4px;
   flex: 0 0 auto;
+  min-width: 0;
+}
+
+.runner-mode-btn {
+  --v-btn-height: 24px;
+  min-width: 50px;
+  padding-inline: 8px !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.01em;
+}
+
+.runner-mode-btn :deep(.v-btn__content) {
+  line-height: 1;
+}
+
+.runner-close-btn {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
 }
 
 .ai-runner-frame {
@@ -2162,23 +2459,432 @@ onUnmounted(() => {
   box-shadow: 0 8px 16px rgba(18, 40, 80, 0.08);
 }
 
-@media (max-width: 1024px) {
-  .workspace-shell {
-    flex-direction: column;
-  }
+.mindlytic-page.theme-dark {
+  background: #05080f;
+  color: #e6eeff;
+}
 
+.mindlytic-page.theme-dark .sidebar-backdrop {
+  background: rgba(3, 5, 10, 0.64);
+}
+
+.mindlytic-page.theme-dark .runner-backdrop {
+  background: rgba(3, 5, 10, 0.64);
+}
+
+.mindlytic-page.theme-dark .chat-sidebar {
+  background: #0c1320;
+  border-right-color: #1f2d44;
+}
+
+.mindlytic-page.theme-dark .brand-name {
+  color: #f4f8ff;
+}
+
+.mindlytic-page.theme-dark .brand-subtitle {
+  color: #9db0d3;
+}
+
+.mindlytic-page.theme-dark .new-chat-btn {
+  border-color: rgba(132, 160, 211, 0.3) !important;
+  background: #101c2f !important;
+  color: #e4eeff !important;
+}
+
+.mindlytic-page.theme-dark .history-title,
+.mindlytic-page.theme-dark .history-empty,
+.mindlytic-page.theme-dark .history-item-meta,
+.mindlytic-page.theme-dark .user-email {
+  color: #9cb0d4;
+}
+
+.mindlytic-page.theme-dark .history-item {
+  border-color: rgba(132, 160, 211, 0.26);
+  background: #101a2b;
+}
+
+.mindlytic-page.theme-dark .history-item-active {
+  border-color: rgba(112, 171, 255, 0.66);
+  background: rgba(31, 60, 104, 0.62);
+}
+
+.mindlytic-page.theme-dark .history-item-title,
+.mindlytic-page.theme-dark .user-name {
+  color: #e6eeff;
+}
+
+.mindlytic-page.theme-dark .sidebar-footer {
+  border-top-color: rgba(132, 160, 211, 0.22);
+}
+
+.mindlytic-page.theme-dark .user-profile {
+  background: #0f1828;
+  border-color: #20324f;
+}
+
+.mindlytic-page.theme-dark .profile-menu-btn {
+  color: #a5bbdf;
+}
+
+.mindlytic-page.theme-dark .chat-main {
+  background: #070d18;
+}
+
+.mindlytic-page.theme-dark .chat-mobile-head {
+  border-bottom-color: rgba(132, 160, 211, 0.22);
+  background: #0c1525;
+}
+
+.mindlytic-page.theme-dark .chat-mobile-title {
+  color: #e6eeff;
+}
+
+.mindlytic-page.theme-dark .state-card {
+  border-color: rgba(132, 160, 211, 0.26);
+  background: linear-gradient(165deg, #101a2c 0%, #0d1727 58%, #0a1220 100%);
+  box-shadow:
+    0 12px 26px rgba(4, 9, 20, 0.5),
+    0 1px 0 rgba(165, 190, 237, 0.12) inset;
+}
+
+.mindlytic-page.theme-dark .state-card h2,
+.mindlytic-page.theme-dark .auth-title,
+.mindlytic-page.theme-dark .empty-title {
+  color: #edf3ff;
+}
+
+.mindlytic-page.theme-dark .state-card p,
+.mindlytic-page.theme-dark .empty-subtitle {
+  color: #9eb1d3;
+}
+
+.mindlytic-page.theme-dark .state-card-auth {
+  border-color: rgba(132, 160, 211, 0.24);
+  background:
+    radial-gradient(120px 100px at 50% 14%,
+      rgba(70, 140, 255, 0.22),
+      rgba(70, 140, 255, 0)),
+    linear-gradient(155deg, #0f1a2b 0%, #0b1423 55%, #09101d 100%);
+  box-shadow:
+    0 16px 36px rgba(3, 8, 19, 0.54),
+    0 1px 0 rgba(165, 190, 237, 0.12) inset;
+}
+
+.mindlytic-page.theme-dark .auth-logo {
+  border-color: rgba(132, 160, 211, 0.28);
+  background: linear-gradient(170deg, #121d31 0%, #0d1829 100%);
+  box-shadow:
+    0 10px 22px rgba(3, 8, 19, 0.44),
+    0 1px 0 rgba(165, 190, 237, 0.1) inset;
+}
+
+.mindlytic-page.theme-dark .workspace-shell-with-runner .chat-workspace {
+  border-right-color: rgba(132, 160, 211, 0.22);
+}
+
+.mindlytic-page.theme-dark .message-bubble {
+  border-color: #253a57;
+  background: #10192a;
+  color: #e6eeff;
+}
+
+.mindlytic-page.theme-dark .message-row-user .message-bubble {
+  background: #163154;
+  border-color: #2e5f9e;
+  color: #edf4ff;
+}
+
+.mindlytic-page.theme-dark .message-bubble-thinking {
+  background: #0f223c;
+}
+
+.mindlytic-page.theme-dark .message-bubble-error {
+  border-color: rgba(224, 108, 130, 0.5);
+  background: rgba(103, 25, 43, 0.45);
+  color: #ffd9e0;
+}
+
+.mindlytic-page.theme-dark .markdown-body {
+  color: #dbe8ff;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(p),
+.mindlytic-page.theme-dark .markdown-body :deep(li),
+.mindlytic-page.theme-dark .markdown-body :deep(ul),
+.mindlytic-page.theme-dark .markdown-body :deep(ol),
+.mindlytic-page.theme-dark .markdown-body :deep(blockquote),
+.mindlytic-page.theme-dark .markdown-body :deep(h1),
+.mindlytic-page.theme-dark .markdown-body :deep(h2),
+.mindlytic-page.theme-dark .markdown-body :deep(h3),
+.mindlytic-page.theme-dark .markdown-body :deep(h4),
+.mindlytic-page.theme-dark .markdown-body :deep(h5),
+.mindlytic-page.theme-dark .markdown-body :deep(h6),
+.mindlytic-page.theme-dark .markdown-body :deep(td),
+.mindlytic-page.theme-dark .markdown-body :deep(th) {
+  color: #dbe8ff !important;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(strong),
+.mindlytic-page.theme-dark .markdown-body :deep(b) {
+  color: #f3f7ff !important;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(blockquote) {
+  border-left-color: rgba(139, 192, 255, 0.45) !important;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(a) {
+  color: #8bc0ff;
+}
+
+.mindlytic-page.theme-dark .message-time {
+  color: rgba(218, 232, 255, 0.85);
+  opacity: 1;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(:not(pre) > code) {
+  color: #6be3d4;
+  text-decoration-color: rgba(107, 227, 212, 0.38);
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(.inline-code-runner) {
+  border-color: rgba(126, 169, 255, 0.38);
+  background: linear-gradient(180deg, #13203c 0%, #0e1a33 100%);
+  box-shadow:
+    0 6px 14px rgba(4, 9, 20, 0.4),
+    inset 0 1px 0 rgba(145, 182, 255, 0.09);
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(.inline-code-runner-head) {
+  border-bottom-color: rgba(126, 169, 255, 0.24);
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(.inline-code-lang) {
+  color: #dce9ff;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(.code-runner-inline-btn) {
+  border-color: rgba(126, 169, 255, 0.4);
+  background: rgba(43, 87, 165, 0.4);
+  color: #e8f2ff;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(.code-runner-inline-btn:hover) {
+  background: rgba(56, 108, 198, 0.52);
+  border-color: rgba(165, 198, 255, 0.52);
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(pre) {
+  background: rgba(5, 15, 40, 0.82);
+  color: #e7f2ff;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.comment),
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.prolog),
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.doctype),
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.cdata) {
+  color: #6a9955;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.keyword),
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.atrule) {
+  color: #569cd6;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.string),
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.attr-value) {
+  color: #ce9178;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.number),
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.boolean),
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.constant) {
+  color: #b5cea8;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.function),
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.method) {
+  color: #dcdcaa;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.class-name),
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.builtin),
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.type) {
+  color: #4ec9b0;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.property),
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.variable),
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.parameter),
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.attr-name) {
+  color: #9cdcfe;
+}
+
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.punctuation),
+.mindlytic-page.theme-dark .markdown-body :deep(pre code .token.operator) {
+  color: #d4d4d4;
+}
+
+.mindlytic-page.theme-dark .composer-panel {
+  border-color: #253a57;
+  background: #0f192a;
+  color: #e6eeff;
+  --v-theme-on-surface: 230, 238, 255;
+}
+
+.mindlytic-page.theme-dark .composer-input :deep(.v-input__control),
+.mindlytic-page.theme-dark .composer-input :deep(.v-field),
+.mindlytic-page.theme-dark .composer-input :deep(.v-field__field),
+.mindlytic-page.theme-dark .composer-input :deep(.v-field__input) {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.mindlytic-page.theme-dark .composer-input :deep(.v-field__overlay),
+.mindlytic-page.theme-dark .composer-input :deep(.v-field__underlay) {
+  opacity: 0 !important;
+  display: none !important;
+}
+
+.mindlytic-page.theme-dark .composer-model-select :deep(.v-field) {
+  border-color: rgba(132, 160, 211, 0.35) !important;
+  background: rgba(10, 18, 31, 0.7) !important;
+}
+
+.mindlytic-page.theme-dark .composer-model-select :deep(.v-field__input),
+.mindlytic-page.theme-dark .composer-input :deep(textarea) {
+  color: #e6eeff !important;
+  -webkit-text-fill-color: #e6eeff !important;
+}
+
+.mindlytic-page.theme-dark .composer-model-select :deep(.v-select__selection-text) {
+  color: #e6eeff;
+}
+
+.mindlytic-page.theme-dark .composer-input :deep(.v-field__input),
+.mindlytic-page.theme-dark .composer-input :deep(.v-field__input textarea) {
+  color: #e6eeff !important;
+  -webkit-text-fill-color: #e6eeff !important;
+  text-shadow: none !important;
+}
+
+.mindlytic-page.theme-dark .composer-input :deep(textarea) {
+  background: transparent !important;
+  caret-color: #e6eeff;
+}
+
+.mindlytic-page.theme-dark .composer-input :deep(.v-field__input) {
+  min-height: 58px !important;
+  align-items: flex-start !important;
+  padding-top: 12px !important;
+  padding-bottom: 8px !important;
+}
+
+.mindlytic-page.theme-dark .composer-input :deep(.v-field::before),
+.mindlytic-page.theme-dark .composer-input :deep(.v-field::after) {
+  display: none !important;
+}
+
+.mindlytic-page.theme-dark .composer-input :deep(textarea::placeholder) {
+  color: #97accf;
+}
+
+.mindlytic-page.theme-dark .ai-runner-panel {
+  background: linear-gradient(180deg, #0f1b2f 0%, #0a1423 100%);
+  border-left-color: rgba(132, 160, 211, 0.24);
+}
+
+.mindlytic-page.theme-dark .ai-runner-title {
+  color: #e6eeff;
+}
+
+.mindlytic-page.theme-dark .ai-runner-frame {
+  border-color: rgba(132, 160, 211, 0.34);
+  background: #0a1220;
+  box-shadow: 0 8px 16px rgba(2, 6, 15, 0.4);
+}
+
+:deep(.composer-model-menu-dark .v-list) {
+  background: #0f192a !important;
+  color: #e6eeff !important;
+}
+
+:deep(.composer-model-menu-dark .v-list-item) {
+  color: #e6eeff !important;
+}
+
+:deep(.composer-model-menu-dark .v-list-item-title),
+:deep(.composer-model-menu-dark .v-list-item-subtitle),
+:deep(.composer-model-menu-dark .v-list-item .v-icon) {
+  color: #e6eeff !important;
+}
+
+:deep(.composer-model-menu-dark .v-list-item:hover) {
+  background: rgba(132, 160, 211, 0.16) !important;
+}
+
+:deep(.composer-model-menu-dark .v-list-item--active) {
+  background: rgba(132, 160, 211, 0.24) !important;
+}
+
+:deep(.composer-model-menu-dark) {
+  border: 1px solid rgba(132, 160, 211, 0.34) !important;
+  background: #0f192a !important;
+  box-shadow: 0 14px 30px rgba(2, 6, 15, 0.45) !important;
+}
+
+:deep(.profile-menu-list-dark) {
+  border-color: rgba(132, 160, 211, 0.36) !important;
+  background: #0f192a !important;
+  box-shadow: 0 14px 30px rgba(2, 6, 15, 0.45) !important;
+}
+
+:deep(.profile-menu-list-dark .v-list-item-title),
+:deep(.profile-menu-list-dark .v-icon) {
+  color: #e6eeff !important;
+}
+
+:deep(.profile-menu-list-dark .v-list-item:hover) {
+  background: rgba(132, 160, 211, 0.16) !important;
+}
+
+:deep(.profile-menu-list-dark .v-divider) {
+  border-color: rgba(132, 160, 211, 0.28) !important;
+}
+
+@media (max-width: 1024px) {
   .workspace-shell-with-runner .chat-workspace {
     border-right: none;
   }
 
+  .runner-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(13, 18, 34, 0.38);
+    z-index: 15;
+  }
+
   .ai-runner-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 16;
     flex: 0 0 auto;
-    width: 100%;
-    max-width: 100%;
+    width: 100vw;
+    max-width: 100vw;
     min-width: 0;
-    border-top: 1px solid rgba(114, 131, 168, 0.2);
-    min-height: min(48dvh, 500px);
-    max-height: 52dvh;
+    border-top: none;
+    border-left: none;
+    min-height: 0;
+    max-height: none;
+    box-shadow: none;
+  }
+
+  .ai-runner-head {
+    padding: 10px 12px;
   }
 }
 
@@ -2223,6 +2929,7 @@ onUnmounted(() => {
   .sidebar-toggle-btn {
     display: inline-flex;
   }
+
 }
 
 @media (max-width: 620px) {
@@ -2232,27 +2939,41 @@ onUnmounted(() => {
   }
 
   .state-card-auth {
-    min-height: min(62vh, 440px);
-    width: calc(100% - 16px);
-    padding: 24px 16px;
-    border-radius: 18px;
+    min-height: auto;
+    width: calc(100% - 20px);
+    padding: 20px 14px;
+    border-radius: 16px;
   }
 
   .auth-content {
-    width: min(100%, 290px);
-    gap: 1rem;
+    width: min(100%, 280px);
+    gap: 0.82rem;
   }
 
   .auth-logo {
-    width: 66px;
-    height: 66px;
-    padding: 9px;
+    width: 56px;
+    height: 56px;
+    padding: 7px;
+  }
+
+  .auth-title {
+    font-size: clamp(1.55rem, 8vw, 1.95rem);
   }
 
   .google-auth-btn {
     width: 100%;
     max-width: 100%;
     margin-top: 2px;
+    min-height: 44px;
+    padding-inline: 0.82rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.01em;
+  }
+
+  .google-auth-icon {
+    left: 12px;
+    width: 22px;
+    height: 22px;
   }
 
   .message-bubble {
@@ -2285,12 +3006,199 @@ onUnmounted(() => {
   }
 
   .ai-runner-head {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: center;
+    padding: 6px 7px;
+    min-height: 40px;
+  }
+
+  .ai-runner-head-main {
+    width: auto;
+    min-width: 0;
+  }
+
+  .ai-runner-title {
+    font-size: 0.8rem;
   }
 
   .ai-runner-head-actions {
-    width: 100%;
+    width: auto;
+    flex-wrap: nowrap;
     justify-content: flex-end;
+    gap: 4px;
+    row-gap: 0;
   }
+
+  .runner-mode-btn {
+    min-width: 46px;
+    --v-btn-height: 22px;
+    padding-inline: 7px !important;
+    font-size: 0.68rem !important;
+  }
+}
+</style>
+
+<style>
+.v-overlay__content.composer-model-menu {
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  box-shadow: 0 14px 30px rgba(24, 36, 60, 0.2) !important;
+}
+
+.v-overlay__content.composer-model-menu .v-list {
+  padding: 6px !important;
+  background: #ffffff !important;
+}
+
+.v-overlay__content.composer-model-menu .v-list-item {
+  min-height: 42px;
+  border-radius: 10px;
+  margin: 2px 0;
+}
+
+.v-overlay__content.composer-model-menu .v-list-item-title {
+  font-size: 0.94rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.v-overlay__content.composer-model-menu-dark {
+  border: 1px solid rgba(132, 160, 211, 0.34) !important;
+  background: #0f192a !important;
+  box-shadow: 0 14px 30px rgba(2, 6, 15, 0.45) !important;
+}
+
+.v-overlay__content.composer-model-menu-dark .v-list {
+  background: #0f192a !important;
+  color: #e6eeff !important;
+}
+
+.v-overlay__content.composer-model-menu-dark .v-list-item,
+.v-overlay__content.composer-model-menu-dark .v-list-item-title,
+.v-overlay__content.composer-model-menu-dark .v-list-item-subtitle,
+.v-overlay__content.composer-model-menu-dark .v-list-item .v-icon {
+  color: #e6eeff !important;
+}
+
+.v-overlay__content.composer-model-menu-dark .v-list-item:hover {
+  background: rgba(132, 160, 211, 0.16) !important;
+}
+
+.v-overlay__content.composer-model-menu-dark .v-list-item--active {
+  background: rgba(132, 160, 211, 0.24) !important;
+}
+
+.mindlytic-page .inline-code-runner pre code {
+  display: block;
+  font-family:
+    "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo,
+    monospace;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.mindlytic-page .inline-code-runner pre code .token.comment,
+.mindlytic-page .inline-code-runner pre code .token.prolog,
+.mindlytic-page .inline-code-runner pre code .token.doctype,
+.mindlytic-page .inline-code-runner pre code .token.cdata {
+  color: #6a737d !important;
+}
+
+.mindlytic-page .inline-code-runner pre code .token.keyword,
+.mindlytic-page .inline-code-runner pre code .token.atrule {
+  color: #0000ff !important;
+}
+
+.mindlytic-page .inline-code-runner pre code .token.string,
+.mindlytic-page .inline-code-runner pre code .token.attr-value {
+  color: #a31515 !important;
+}
+
+.mindlytic-page .inline-code-runner pre code .token.number,
+.mindlytic-page .inline-code-runner pre code .token.boolean,
+.mindlytic-page .inline-code-runner pre code .token.constant {
+  color: #098658 !important;
+}
+
+.mindlytic-page .inline-code-runner pre code .token.function {
+  color: #795e26 !important;
+}
+
+.mindlytic-page .inline-code-runner pre code .token.class-name,
+.mindlytic-page .inline-code-runner pre code .token.builtin,
+.mindlytic-page .inline-code-runner pre code .token.type {
+  color: #267f99 !important;
+}
+
+.mindlytic-page .inline-code-runner pre code .token.property,
+.mindlytic-page .inline-code-runner pre code .token.variable,
+.mindlytic-page .inline-code-runner pre code .token.parameter {
+  color: #001080 !important;
+}
+
+.mindlytic-page .inline-code-runner pre code .token.punctuation,
+.mindlytic-page .inline-code-runner pre code .token.operator {
+  color: #1f2328 !important;
+}
+
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.comment,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.prolog,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.doctype,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.cdata {
+  color: #6a9955 !important;
+}
+
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.keyword,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.atrule {
+  color: #569cd6 !important;
+}
+
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.string,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.attr-value {
+  color: #ce9178 !important;
+}
+
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.number,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.boolean,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.constant {
+  color: #b5cea8 !important;
+}
+
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.function,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.method {
+  color: #dcdcaa !important;
+}
+
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.class-name,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.builtin,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.type {
+  color: #4ec9b0 !important;
+}
+
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.property,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.variable,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.parameter,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.attr-name {
+  color: #9cdcfe !important;
+}
+
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.punctuation,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token.operator {
+  color: #d4d4d4 !important;
+}
+
+.mindlytic-page .markdown-body pre code,
+.mindlytic-page .markdown-body pre code .token,
+.mindlytic-page .inline-code-runner pre code,
+.mindlytic-page .inline-code-runner pre code .token {
+  color: #111111 !important;
+}
+
+.mindlytic-page.theme-dark .markdown-body pre code,
+.mindlytic-page.theme-dark .markdown-body pre code .token,
+.mindlytic-page.theme-dark .inline-code-runner pre code,
+.mindlytic-page.theme-dark .inline-code-runner pre code .token {
+  color: #f2f5ff !important;
 }
 </style>
