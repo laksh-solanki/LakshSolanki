@@ -71,9 +71,6 @@ const API_BASE_CANDIDATES = collectUnique([
 const CHAT_API_URLS = collectUnique(
   API_BASE_CANDIDATES.map((base) => toApiUrl(base, "/api/ai/chat")),
 );
-const CAPTCHA_VERIFY_URLS = collectUnique(
-  API_BASE_CANDIDATES.map((base) => toApiUrl(base, "/api/ai/captcha/verify")),
-);
 const getHistoryUrls = (path = "") =>
   collectUnique(
     API_BASE_CANDIDATES.map((base) => toApiUrl(base, `/api/ai/history${path}`)),
@@ -113,12 +110,6 @@ const ASSISTANT_SYSTEM_PROMPT =
   "You are Mindlytic AI, an all-in-one assistant. Give practical, structured, and concise answers first.";
 const REQUEST_MAX_OUTPUT_TOKENS = 2000;
 const REQUEST_TEMPERATURE = 1;
-const TURNSTILE_API_SCRIPT_ID = "mindlytic-turnstile-api";
-const TURNSTILE_API_SCRIPT_SRC =
-  "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-const CLOUDFLARE_TURNSTILE_SITE_KEY = (
-  import.meta.env.VITE_CLOUDFLARE_SITE_KEY || ""
-).trim();
 
 const authReady = ref(false);
 const signingIn = ref(false);
@@ -150,14 +141,8 @@ const runnerFrameKey = ref(0);
 const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
-const captchaToken = ref("");
-const captchaReady = ref(false);
-const captchaRendering = ref(false);
-const captchaContainerRef = ref(null);
 
 let removeAuthListener = null;
-let turnstileScriptPromise = null;
-let turnstileWidgetId = "";
 
 const nowIso = () => new Date().toISOString();
 const generateConversationId = () => {
@@ -676,7 +661,6 @@ const authorizedFetchHistory = async (path = "", options = {}) => {
 };
 
 const hasUser = computed(() => Boolean(currentUser.value));
-const turnstileEnabled = computed(() => Boolean(CLOUDFLARE_TURNSTILE_SITE_KEY));
 const isDarkTheme = computed(() => pageTheme.value === "dark");
 const themeToggleLabel = computed(() =>
   isDarkTheme.value ? "Switch to light theme" : "Switch to black theme",
@@ -687,11 +671,6 @@ const themeToggleIcon = computed(() =>
 const canSend = computed(
   () => hasUser.value && !sending.value && Boolean(userInput.value.trim()),
 );
-const canSignInWithGoogle = computed(() => {
-  if (signingIn.value) return false;
-  if (!turnstileEnabled.value) return true;
-  return Boolean(captchaToken.value.trim());
-});
 const isEmptyConversation = computed(() => messages.value.length === 0);
 const modelOptions = computed(() => [
   { label: "Gemini (Recommanded)", value: "gemini" },
@@ -1255,206 +1234,6 @@ const handlePromptKeydown = (event) => {
   }
 };
 
-const getTurnstileApi = () => {
-  const turnstile = globalThis?.turnstile;
-  if (!turnstile || typeof turnstile.render !== "function") return null;
-  return turnstile;
-};
-
-const clearCaptchaState = () => {
-  captchaToken.value = "";
-};
-
-const removeTurnstileWidget = () => {
-  const turnstile = getTurnstileApi();
-  if (turnstile && turnstileWidgetId) {
-    try {
-      turnstile.remove(turnstileWidgetId);
-    } catch {
-      // ignore widget cleanup errors
-    }
-  }
-  turnstileWidgetId = "";
-  clearCaptchaState();
-  captchaReady.value = false;
-};
-
-const resetTurnstileWidget = () => {
-  clearCaptchaState();
-  const turnstile = getTurnstileApi();
-  if (!turnstile || !turnstileWidgetId) return;
-  try {
-    turnstile.reset(turnstileWidgetId);
-  } catch {
-    // ignore widget reset errors
-  }
-};
-
-const loadTurnstileScript = async () => {
-  if (!turnstileEnabled.value || typeof document === "undefined") return null;
-
-  const existingApi = getTurnstileApi();
-  if (existingApi) return existingApi;
-
-  if (!turnstileScriptPromise) {
-    turnstileScriptPromise = new Promise((resolve, reject) => {
-      const timeoutId = setTimeout(() => {
-        reject(new Error("Cloudflare captcha script timed out while loading."));
-      }, 12000);
-
-      const resolveApi = () => {
-        const api = getTurnstileApi();
-        if (api) {
-          clearTimeout(timeoutId);
-          resolve(api);
-          return;
-        }
-        clearTimeout(timeoutId);
-        reject(new Error("Cloudflare Turnstile failed to initialize."));
-      };
-
-      let script = document.getElementById(TURNSTILE_API_SCRIPT_ID);
-      if (!script) {
-        script = document.createElement("script");
-        script.id = TURNSTILE_API_SCRIPT_ID;
-        script.src = TURNSTILE_API_SCRIPT_SRC;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-      }
-
-      script.addEventListener("load", resolveApi, { once: true });
-      script.addEventListener(
-        "error",
-        () => {
-          clearTimeout(timeoutId);
-          reject(new Error("Unable to load Cloudflare captcha script."));
-        },
-        { once: true },
-      );
-    });
-  }
-
-  try {
-    return await turnstileScriptPromise;
-  } catch (error) {
-    turnstileScriptPromise = null;
-    throw error;
-  }
-};
-
-const renderTurnstileWidget = async () => {
-  if (!turnstileEnabled.value || hasUser.value || !authReady.value) {
-    removeTurnstileWidget();
-    return;
-  }
-
-  await nextTick();
-  const container = captchaContainerRef.value;
-  if (!container) return;
-
-  const turnstile = await loadTurnstileScript();
-  if (!turnstile) {
-    throw new Error("Cloudflare captcha is unavailable.");
-  }
-
-  removeTurnstileWidget();
-  container.innerHTML = "";
-
-  const theme = isDarkTheme.value ? "dark" : "light";
-  turnstileWidgetId = turnstile.render(container, {
-    sitekey: CLOUDFLARE_TURNSTILE_SITE_KEY,
-    theme,
-    callback: (token) => {
-      captchaToken.value = String(token || "").trim();
-      captchaReady.value = true;
-    },
-    "expired-callback": () => {
-      clearCaptchaState();
-    },
-    "error-callback": (code) => {
-      clearCaptchaState();
-      const errorCode = String(code || "").trim();
-      if (errorCode) {
-        showAlert(
-          `Captcha failed (${errorCode}). Check Turnstile domain/site key settings.`,
-          "error",
-        );
-        return;
-      }
-      showAlert(
-        "Captcha failed. Check Turnstile domain/site key settings and retry.",
-        "error",
-      );
-    },
-  });
-  captchaReady.value = true;
-};
-
-const ensureCaptchaWidget = async () => {
-  if (!turnstileEnabled.value || hasUser.value || !authReady.value) {
-    removeTurnstileWidget();
-    return;
-  }
-  if (captchaRendering.value) return;
-
-  captchaRendering.value = true;
-  try {
-    await renderTurnstileWidget();
-  } finally {
-    captchaRendering.value = false;
-  }
-};
-
-const verifyCaptchaToken = async () => {
-  if (!turnstileEnabled.value) return;
-
-  const token = String(captchaToken.value || "").trim();
-  if (!token) throw new Error("Please complete captcha before signing in.");
-  if (!CAPTCHA_VERIFY_URLS.length) {
-    throw new Error(
-      "Captcha verification endpoint is not configured. Check VITE_API_URL values.",
-    );
-  }
-
-  let lastError = null;
-  for (let index = 0; index < CAPTCHA_VERIFY_URLS.length; index += 1) {
-    try {
-      const response = await fetch(CAPTCHA_VERIFY_URLS[index], {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
-
-      if (!response.ok) {
-        const message = await readErrorResponse(response);
-        const error = new Error(message);
-        lastError = error;
-        if (
-          index < CAPTCHA_VERIFY_URLS.length - 1 &&
-          RETRYABLE_STATUSES.has(response.status)
-        )
-          continue;
-        throw error;
-      }
-
-      const payload = await response.json().catch(() => null);
-      if (payload?.success !== true) {
-        throw new Error(
-          String(payload?.error || "Captcha verification failed."),
-        );
-      }
-      return;
-    } catch (error) {
-      lastError = error;
-      if (!isLikelyNetworkError(error) || index === CAPTCHA_VERIFY_URLS.length - 1)
-        throw error;
-    }
-  }
-
-  throw lastError || new Error("Unable to verify captcha.");
-};
-
 const signInWithGoogle = async () => {
   if (!auth || !googleProvider || signingIn.value) {
     if (!hasRequiredFirebaseConfig) {
@@ -1465,28 +1244,14 @@ const signInWithGoogle = async () => {
     }
     return;
   }
-  if (turnstileEnabled.value && !captchaReady.value) {
-    showAlert("Captcha is still loading. Please wait a moment and retry.", "error");
-    return;
-  }
 
   signingIn.value = true;
   try {
-    await verifyCaptchaToken();
     await signInWithPopup(auth, googleProvider);
   } catch (error) {
-    const rawMessage = String(error?.message || "").trim();
-    if (/secret key is not configured on backend/i.test(rawMessage)) {
-      showAlert(
-        "Backend captcha secret is missing. Add CLOUDFLARE_TURNSTILE_SECRET_KEY in backend/.env and restart backend.",
-        "error",
-      );
-    } else {
-      showAlert(rawMessage || "Google sign-in failed.", "error");
-    }
+    showAlert(error?.message || "Google sign-in failed.", "error");
   } finally {
     signingIn.value = false;
-    if (turnstileEnabled.value) resetTurnstileWidget();
   }
 };
 
@@ -1564,22 +1329,7 @@ watch(selectedModel, (value) => {
 watch(pageTheme, (value) => {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(THEME_STORAGE_KEY, normalizeTheme(value));
-  if (!hasUser.value && turnstileEnabled.value) {
-    void ensureCaptchaWidget().catch((error) => {
-      showAlert(error?.message || "Unable to load captcha.", "error");
-    });
-  }
 });
-
-watch(
-  () => [authReady.value, hasUser.value, turnstileEnabled.value],
-  () => {
-    void ensureCaptchaWidget().catch((error) => {
-      showAlert(error?.message || "Unable to load captcha.", "error");
-    });
-  },
-  { immediate: true },
-);
 
 onMounted(() => {
   if (typeof window !== "undefined") {
@@ -1589,16 +1339,12 @@ onMounted(() => {
     applyTheme(savedTheme);
   }
   setupAuth();
-  void ensureCaptchaWidget().catch((error) => {
-    showAlert(error?.message || "Unable to load captcha.", "error");
-  });
 });
 
 onUnmounted(() => {
   if (typeof removeAuthListener === "function") {
     removeAuthListener();
   }
-  removeTurnstileWidget();
 });
 </script>
 
@@ -1723,13 +1469,8 @@ onUnmounted(() => {
               <h1 class="auth-title">Mindlytic AI</h1>
             </div>
 
-            <div v-if="turnstileEnabled" class="captcha-wrap">
-              <p class="captcha-label">Security check required before sign-in.</p>
-              <div ref="captchaContainerRef" class="captcha-container"></div>
-            </div>
-
             <v-btn color="primary" rounded="xl" variant="flat" class="text-none google-auth-btn" :loading="signingIn"
-              :disabled="!canSignInWithGoogle" prepend-icon="mdi-google" @click="signInWithGoogle">
+              :disabled="signingIn" prepend-icon="mdi-google" @click="signInWithGoogle">
               Sign in with Google
             </v-btn>
           </div>
@@ -2197,28 +1938,6 @@ onUnmounted(() => {
   line-height: 1.08;
   color: #12203d;
   margin: 0;
-}
-
-.captcha-wrap {
-  width: min(100%, 320px);
-  display: grid;
-  gap: 8px;
-  justify-items: center;
-}
-
-.captcha-label {
-  margin: 0;
-  color: #5f6b88;
-  font-size: 0.78rem;
-  line-height: 1.3;
-  text-align: center;
-}
-
-.captcha-container {
-  width: 100%;
-  min-height: 66px;
-  display: flex;
-  justify-content: center;
 }
 
 .google-auth-btn {
@@ -2860,10 +2579,6 @@ onUnmounted(() => {
     0 1px 0 rgba(165, 190, 237, 0.1) inset;
 }
 
-.mindlytic-page.theme-dark .captcha-label {
-  color: #9eb1d3;
-}
-
 .mindlytic-page.theme-dark .workspace-shell-with-runner .chat-workspace {
   border-right-color: rgba(132, 160, 211, 0.22);
 }
@@ -3244,14 +2959,6 @@ onUnmounted(() => {
 
   .auth-title {
     font-size: clamp(1.55rem, 8vw, 1.95rem);
-  }
-
-  .captcha-wrap {
-    width: 100%;
-  }
-
-  .captcha-label {
-    font-size: 0.74rem;
   }
 
   .google-auth-btn {

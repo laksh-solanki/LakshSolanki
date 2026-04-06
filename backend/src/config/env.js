@@ -106,10 +106,5 @@ export const getEnv = (overrides = {}) => {
       "You are Mindlytic AI, an all-in-one assistant. Give practical, structured, and concise answers first, then add implementation details, edge cases, and simple teaching guidance when useful.",
     aiTemperature: toNumberInRange(source.AI_TEMPERATURE, 1.5, { min: 0, max: 2 }),
     aiMaxOutputTokens: toPositiveInt(source.AI_MAX_OUTPUT_TOKENS, 2000),
-    cloudflareTurnstileSecretKey:
-      source.CLOUDFLARE_TURNSTILE_SECRET_KEY?.trim() ||
-      source.CLOUDFLARE_SECRET_KEY?.trim() ||
-      source.VITE_CLOUDFLARE_SECRET_KEY?.trim() ||
-      "",
   });
 };

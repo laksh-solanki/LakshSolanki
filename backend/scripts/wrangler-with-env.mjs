@@ -29,11 +29,6 @@ const optionalVars = {
   MONGODB_SERVER_SELECTION_TIMEOUT_MS:
     process.env.MONGODB_SERVER_SELECTION_TIMEOUT_MS?.trim() || "",
   MONGODB_CONNECT_TIMEOUT_MS: process.env.MONGODB_CONNECT_TIMEOUT_MS?.trim() || "",
-  CLOUDFLARE_TURNSTILE_SECRET_KEY:
-    process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY?.trim() ||
-    process.env.CLOUDFLARE_SECRET_KEY?.trim() ||
-    process.env.VITE_CLOUDFLARE_SECRET_KEY?.trim() ||
-    "",
 };
 
 const args = [wranglerCommand];
