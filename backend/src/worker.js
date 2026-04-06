@@ -5,6 +5,7 @@ import { createFirebaseTokenVerifier } from "./lib/firebase-auth.js";
 
 const REQUEST_TIMEOUT_MS = 80000;
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
+const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 const METHODS_WITHOUT_BODY = new Set(["GET", "HEAD"]);
 
 let workerStatePromise;
@@ -184,6 +185,11 @@ const getEnvConfig = (bindings = {}) => {
       "You are Mindlytic AI, an all-in-one assistant. Give practical, structured, and concise answers first, then add implementation details, edge cases, and simple teaching guidance when useful.",
     aiTemperature: toNumberInRange(source.AI_TEMPERATURE, 1.5, { min: 0, max: 2 }),
     aiMaxOutputTokens: toPositiveInt(source.AI_MAX_OUTPUT_TOKENS, 2000),
+    cloudflareTurnstileSecretKey:
+      source.CLOUDFLARE_TURNSTILE_SECRET_KEY?.trim() ||
+      source.CLOUDFLARE_SECRET_KEY?.trim() ||
+      source.VITE_CLOUDFLARE_SECRET_KEY?.trim() ||
+      "",
   });
 };
 
@@ -594,6 +600,12 @@ const resolveChatProvider = (requestedProvider, envConfig) => {
   return "";
 };
 
+const getTurnstileErrorMessage = (payload = {}) => {
+  const codes = Array.isArray(payload?.["error-codes"]) ? payload["error-codes"] : [];
+  if (!codes.length) return "Captcha verification failed. Please retry.";
+  return `Captcha verification failed (${codes.join(", ")}).`;
+};
+
 const ensureString = (value) => (typeof value === "string" ? value : "");
 
 const handleCoursesGet = async (request, state) => {
@@ -959,6 +971,69 @@ const handleSubscribeDelete = async (request, state) => {
   }
 
   return jsonResponse(request, envConfig, 200, { message: "Unsubscribed successfully" });
+};
+
+const handleAiCaptchaVerifyPost = async (request, state) => {
+  const { envConfig } = state;
+  const body = await parseRequestBody(request, envConfig);
+  const token = ensureString(body.token).trim();
+
+  if (!token) {
+    return jsonResponse(request, envConfig, 400, {
+      success: false,
+      error: "Captcha token is required.",
+    });
+  }
+
+  const secretKey = ensureString(envConfig.cloudflareTurnstileSecretKey).trim();
+  if (!secretKey) {
+    return jsonResponse(request, envConfig, 503, {
+      success: false,
+      error: "Cloudflare Turnstile secret key is not configured on backend.",
+    });
+  }
+
+  const payload = new URLSearchParams();
+  payload.set("secret", secretKey);
+  payload.set("response", token);
+  const remoteIp = getClientIp(request);
+  if (remoteIp) payload.set("remoteip", remoteIp);
+
+  let verifyResponse;
+  try {
+    verifyResponse = await fetch(TURNSTILE_VERIFY_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: payload.toString(),
+    });
+  } catch (error) {
+    return jsonResponse(request, envConfig, 502, {
+      success: false,
+      error: `Unable to verify captcha right now. Please try again. (${error?.message || "network error"})`,
+    });
+  }
+
+  const verifyPayload = await verifyResponse.json().catch(() => null);
+  if (!verifyPayload || typeof verifyPayload.success !== "boolean") {
+    return jsonResponse(request, envConfig, 502, {
+      success: false,
+      error: "Captcha verification service returned an invalid response.",
+    });
+  }
+
+  if (!verifyPayload.success) {
+    return jsonResponse(request, envConfig, 400, {
+      success: false,
+      error: getTurnstileErrorMessage(verifyPayload),
+      details: Array.isArray(verifyPayload?.["error-codes"]) ? verifyPayload["error-codes"] : [],
+    });
+  }
+
+  return jsonResponse(request, envConfig, 200, {
+    success: true,
+  });
 };
 
 const handleAiChatPost = async (request, state) => {
@@ -1396,6 +1471,10 @@ const handleRoute = async (request, state) => {
 
   if (path === "/api/ai/chat" && method === "POST") {
     return handleAiChatPost(request, state);
+  }
+
+  if (path === "/api/ai/captcha/verify" && method === "POST") {
+    return handleAiCaptchaVerifyPost(request, state);
   }
 
   if (path === "/api/ai/history" && method === "GET") {

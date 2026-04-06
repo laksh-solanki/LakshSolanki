@@ -1,5 +1,6 @@
 const REQUEST_TIMEOUT_MS = 80000;
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
+const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 const chatBodySchema = {
   type: "object",
@@ -24,6 +25,15 @@ const chatBodySchema = {
     systemPrompt: { type: "string", maxLength: 4000 },
     temperature: { type: "number", minimum: 0, maximum: 2 },
     maxOutputTokens: { type: "integer", minimum: 1, maximum: 8192 },
+  },
+  additionalProperties: false,
+};
+
+const captchaVerifyBodySchema = {
+  type: "object",
+  required: ["token"],
+  properties: {
+    token: { type: "string", minLength: 8, maxLength: 4096 },
   },
   additionalProperties: false,
 };
@@ -129,7 +139,81 @@ const resolveChatProvider = (requestedProvider, envConfig) => {
   return "";
 };
 
+const getTurnstileErrorMessage = (payload = {}) => {
+  const codes = Array.isArray(payload?.["error-codes"]) ? payload["error-codes"] : [];
+  if (!codes.length) return "Captcha verification failed. Please retry.";
+  return `Captcha verification failed (${codes.join(", ")}).`;
+};
+
 export const registerAiRoutes = async (app) => {
+  app.post(
+    "/api/ai/captcha/verify",
+    {
+      schema: {
+        body: captchaVerifyBodySchema,
+      },
+    },
+    async (request, reply) => {
+      const secretKey = String(app.envConfig.cloudflareTurnstileSecretKey || "").trim();
+      if (!secretKey) {
+        return reply.code(503).send({
+          success: false,
+          error: "Cloudflare Turnstile secret key is not configured on backend.",
+        });
+      }
+
+      const token = String(request.body.token || "").trim();
+      if (!token) {
+        return reply.code(400).send({
+          success: false,
+          error: "Captcha token is required.",
+        });
+      }
+
+      const body = new URLSearchParams();
+      body.set("secret", secretKey);
+      body.set("response", token);
+      if (request.ip) body.set("remoteip", request.ip);
+
+      let verifyResponse;
+      try {
+        verifyResponse = await fetch(TURNSTILE_VERIFY_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: body.toString(),
+        });
+      } catch (error) {
+        request.log.error({ err: error }, "Turnstile verification failed");
+        return reply.code(502).send({
+          success: false,
+          error: "Unable to verify captcha right now. Please try again.",
+        });
+      }
+
+      const payload = await verifyResponse.json().catch(() => null);
+      if (!payload || typeof payload.success !== "boolean") {
+        return reply.code(502).send({
+          success: false,
+          error: "Captcha verification service returned an invalid response.",
+        });
+      }
+
+      if (!payload.success) {
+        return reply.code(400).send({
+          success: false,
+          error: getTurnstileErrorMessage(payload),
+          details: Array.isArray(payload?.["error-codes"]) ? payload["error-codes"] : [],
+        });
+      }
+
+      return reply.code(200).send({
+        success: true,
+      });
+    },
+  );
+
   app.post(
     "/api/ai/chat",
     {

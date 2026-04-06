@@ -11,6 +11,7 @@ const testEnv = {
   GOOGLE_API_KEY: "",
   GROQ_API_KEY: "",
   OPENAI_API_KEY: "",
+  CLOUDFLARE_TURNSTILE_SECRET_KEY: "",
 };
 
 const createTestApp = async () => {
@@ -242,6 +243,24 @@ test("text chat route returns configuration error when provider keys are missing
 
   assert.equal(response.statusCode, 503);
   assert.match(response.json().error, /No AI text provider is configured/i);
+});
+
+test("captcha verify route returns configuration error when secret key is missing", async (t) => {
+  const app = await createTestApp();
+  t.after(async () => {
+    await app.close();
+  });
+
+  const response = await app.inject({
+    method: "POST",
+    url: "/api/ai/captcha/verify",
+    payload: {
+      token: "test-token",
+    },
+  });
+
+  assert.equal(response.statusCode, 503);
+  assert.match(response.json().error, /secret key is not configured/i);
 });
 
 test("ai history endpoints reject unauthorized requests", async (t) => {

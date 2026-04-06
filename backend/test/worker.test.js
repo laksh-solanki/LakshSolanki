@@ -140,6 +140,27 @@ test("worker image route is unavailable", async () => {
   assert.equal(response.status, 404);
 });
 
+test("worker captcha verify route returns configuration error when secret key is missing", async () => {
+  const response = await worker.fetch(
+    new Request("https://mindlytic.example/api/ai/captcha/verify", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        token: "test-token",
+      }),
+    }),
+    {
+      MONGODB_URI: "",
+    },
+  );
+
+  assert.equal(response.status, 503);
+  const body = await response.json();
+  assert.match(body.error, /secret key is not configured/i);
+});
+
 test("worker ai history rejects unauthorized requests", async () => {
   const response = await worker.fetch(
     new Request("https://mindlytic.example/api/ai/history"),
