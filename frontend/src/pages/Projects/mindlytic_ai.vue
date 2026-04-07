@@ -142,6 +142,9 @@ const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
 
+const deleteDialog = ref(false);
+const deleteConversationId = ref("");
+
 let removeAuthListener = null;
 
 const nowIso = () => new Date().toISOString();
@@ -1193,11 +1196,23 @@ const sendMessage = async () => {
   }
 };
 
-const deleteConversation = async (conversationId) => {
+const deleteConversation = (conversationId) => {
   if (!hasUser.value || sending.value) return;
   const normalizedId = String(conversationId || "").trim();
   if (!normalizedId) return;
-  if (!window.confirm("Delete this conversation?")) return;
+
+  deleteConversationId.value = normalizedId;
+  deleteDialog.value = true;
+};
+
+const closeDeleteDialog = () => {
+  deleteDialog.value = false;
+  deleteConversationId.value = "";
+};
+
+const confirmDelete = async () => {
+  const normalizedId = deleteConversationId.value;
+  if (!normalizedId) return;
 
   try {
     const response = await authorizedFetchHistory(
@@ -1218,6 +1233,8 @@ const deleteConversation = async (conversationId) => {
     }
   } catch (error) {
     showAlert(getFriendlyFetchError(error, "conversation"), "error");
+  } finally {
+    closeDeleteDialog();
   }
 };
 
@@ -1352,58 +1369,83 @@ onUnmounted(() => {
   <div class="mindlytic-page" :class="{ 'theme-dark': isDarkTheme }">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
-    <div class="mindlytic-layout">
-      <div v-if="hasUser && sidebarOpen" class="sidebar-backdrop" @click="sidebarOpen = false"></div>
+   <v-dialog v-model="deleteDialog" max-width="360">
+      <v-card class="rounded-xl elevation-2 pa-5">
 
-      <aside class="chat-sidebar" :class="{ 'chat-sidebar-open': sidebarOpen }" v-if="hasUser">
-        <div class="sidebar-brand">
-          <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" class="w-8 brand-logo-mark" />
-          <div class="brand-copy">
-            <p class="brand-name">mindlytic</p>
-            <p class="brand-subtitle">AI Workspace</p>
-          </div>
-          <v-btn class="sidebar-toggle-btn" icon="mdi-close" density="comfortable" size="small" variant="tonal"
-            title="Close sidebar" @click="sidebarOpen = false" />
+        <!-- Title -->
+        <div class="text-subtitle-1 font-weight-medium mb-2">
+          Delete conversation?
         </div>
 
-        <v-btn class="new-chat-btn text-none" color="primary" variant="flat" rounded="xl" prepend-icon="mdi-plus"
-          :disabled="!hasUser || sending" @click="startNewChat">
-          New chat
-        </v-btn>
-
-        <div class="history-wrap">
-          <p class="history-title">Today</p>
-
-          <div v-if="loadingHistory" class="history-empty">
-            Loading history...
-          </div>
-          <div v-else-if="!hasUser" class="history-empty">
-            Sign in to see your chats.
-          </div>
-          <div v-else-if="conversations.length === 0" class="history-empty">
-            No saved chats yet.
-          </div>
-          <p v-if="historyLoadError" class="history-error">
-            {{ historyLoadError }}
-          </p>
-
-          <div v-if="conversations.length > 0" class="history-list">
-            <button v-for="item in conversations" :key="item.id" class="history-item" :class="{
-              'history-item-active': item.id === activeConversationId,
-            }" :disabled="loadingConversation || sending" @click="openConversation(item.id)">
-              <div class="history-content">
-                <p class="history-item-title">{{ item.title }}</p>
-                <p class="history-item-meta">
-                  {{ formatDateLabel(item.updatedAt) }}
-                </p>
-              </div>
-              <v-btn icon="mdi-delete-outline" size="x-small" variant="text" color="error" class="history-delete-btn"
-                :disabled="sending" @click.stop="deleteConversation(item.id)" />
-            </button>
-          </div>
+        <!-- Description -->
+        <div class="text-body-2 text-medium-emphasis mb-6">
+          This will permanently remove it.
         </div>
 
-        <div class="sidebar-footer">
+        <!-- Actions -->
+        <div class="d-flex justify-end ga-2">
+          <v-btn variant="text" class="text-medium-emphasis" @click="closeDeleteDialog">
+            Cancel
+          </v-btn>
+
+          <v-btn color="red" variant="flat" class="px-4" :loading="deleting" @click="confirmDelete">
+            Delete
+          </v-btn>
+        </div>
+
+      </v-card>
+      </v-dialog>
+
+
+      <div class="mindlytic-layout">
+        <div v-if="hasUser && sidebarOpen" class="sidebar-backdrop" @click="sidebarOpen = false"></div>
+
+        <aside class="chat-sidebar" :class="{ 'chat-sidebar-open': sidebarOpen }" v-if="hasUser">
+          <div class="sidebar-brand">
+            <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" class="w-8 brand-logo-mark" />
+            <div class="brand-copy">
+              <p class="brand-name">mindlytic</p>
+              <p class="brand-subtitle">AI Workspace</p>
+            </div>
+            <v-btn class="sidebar-toggle-btn" icon="mdi-close" density="comfortable" size="small" variant="tonal"
+              title="Close sidebar" @click="sidebarOpen = false" />
+          </div>
+
+          <v-btn class="new-chat-btn text-none" color="primary" variant="flat" rounded="xl" prepend-icon="mdi-plus"
+            :disabled="!hasUser || sending" @click="startNewChat">
+            New chat
+          </v-btn>
+
+          <div class="history-wrap">
+            <p class="history-title my-2">Recent Chats</p>
+
+            <div v-if="loadingHistory" class="history-empty">
+              Loading history...
+            </div>
+            <div v-else-if="!hasUser" class="history-empty">
+              Sign in to see your chats.
+            </div>
+            <div v-else-if="conversations.length === 0" class="history-empty">
+              No saved chats yet.
+            </div>
+            <p v-if="historyLoadError" class="history-error">
+              {{ historyLoadError }}
+            </p>
+
+            <div v-if="conversations.length > 0" class="history-list">
+              <button v-for="item in conversations" :key="item.id" class="history-item" :class="{
+                'history-item-active': item.id === activeConversationId,
+              }" :disabled="loadingConversation || sending" @click="openConversation(item.id)">
+                <div class="history-content">
+                  <p class="history-item-title">{{ item.title }}</p>
+                </div>
+                <v-btn icon="mdi-delete" size="x-small" variant="outlined" color="error" class="history-delete-btn"
+                  :disabled="sending" @click.stop="deleteConversation(item.id)" />
+              </button>
+            </div>
+          </div>
+
+          <v-divider opacity="0.4" />
           <template v-if="hasUser">
             <div class="user-profile">
               <v-avatar size="32" class="mr-2" color="primary" variant="tonal">
@@ -1417,9 +1459,10 @@ onUnmounted(() => {
                 </p>
                 <p class="user-email">{{ currentUser?.email }}</p>
               </div>
-              <v-menu location="top end" offset="8">
+              <v-menu location="top end" offset="12">
                 <template #activator="{ props }">
-                  <v-btn v-bind="props" icon="mdi-dots-vertical" size="small" variant="text" class="profile-menu-btn" />
+                  <v-btn v-bind="props" icon="mdi-dots-horizontal" density="comfortable" variant="outlined"
+                    class="profile-menu-btn" />
                 </template>
                 <v-list density="compact" class="profile-menu-list" :class="{ 'profile-menu-list-dark': isDarkTheme }">
                   <v-list-item :prepend-icon="themeToggleIcon" @click="toggleTheme">
@@ -1436,129 +1479,133 @@ onUnmounted(() => {
           <template v-else>
             <p class="user-email">Google sign-in is required.</p>
           </template>
-        </div>
-      </aside>
+        </aside>
 
-      <section class="chat-main">
-        <header v-if="hasUser" class="chat-mobile-head">
-          <v-btn icon="mdi-menu" size="small" variant="text" @click="toggleSidebar" />
-          <span class="chat-mobile-title">{{
-            hasUser ? activeConversationTitle : "Mindlytic AI"
-          }}</span>
+        <section class="chat-main">
+          <header v-if="hasUser" class="chat-mobile-head">
+            <v-btn icon="mdi-menu" size="small" variant="text" @click="toggleSidebar" />
+            <span class="chat-mobile-title">{{
+              hasUser ? activeConversationTitle : "Mindlytic AI"
+              }}</span>
 
-          <v-btn density="comfortable" variant="text" icon="mdi-plus" :disabled="!hasUser || sending"
-            @click="startNewChat" />
-        </header>
+            <v-btn density="comfortable" variant="text" icon="mdi-plus" :disabled="!hasUser || sending"
+              @click="startNewChat" />
+          </header>
 
-        <v-progress-linear v-if="!authReady" class="session-top-loader" indeterminate color="primary" height="3" />
+          <v-progress-linear v-if="!authReady" class="session-top-loader" indeterminate color="primary" height="3" />
 
-        <div v-if="!authReady" class="session-loader-spacer"></div>
+          <div v-if="!authReady" class="session-loader-spacer"></div>
 
-        <div v-else-if="!hasRequiredFirebaseConfig" class="state-card">
-          <h2>Firebase config missing</h2>
-          <p>
-            Add `VITE_FIREBASE_*` keys in frontend `.env` to enable Google
-            sign-in.
-          </p>
-        </div>
-
-        <div v-else-if="!hasUser" class="state-card state-card-auth">
-          <div class="auth-content">
-            <div class="auth-header">
-              <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" class="auth-logo" />
-              <h1 class="auth-title">Mindlytic AI</h1>
-            </div>
-
-            <v-btn color="primary" rounded="xl" variant="flat" class="text-none google-auth-btn" :loading="signingIn"
-              :disabled="signingIn" prepend-icon="mdi-google" @click="signInWithGoogle">
-              Sign in with Google
-            </v-btn>
+          <div v-else-if="!hasRequiredFirebaseConfig" class="state-card">
+            <h2>Firebase config missing</h2>
+            <p>
+              Add `VITE_FIREBASE_*` keys in frontend `.env` to enable Google
+              sign-in.
+            </p>
           </div>
-        </div>
 
-        <template v-else>
-          <div class="workspace-shell" :class="{ 'workspace-shell-with-runner': runnerPanelOpen }">
-            <div class="chat-workspace" :class="{ 'chat-workspace-empty': isEmptyConversation }">
-              <div ref="chatScrollRef" class="chat-scroll" :class="{ 'chat-scroll-empty': isEmptyConversation }">
-                <div v-if="isEmptyConversation" class="empty-state">
-                  <p class="empty-title">How can I help you?</p>
-                  <p class="empty-subtitle">
-                    Ask anything to start a new conversation.
-                  </p>
-                </div>
+          <div v-else-if="!hasUser" class="state-card-auth">
+            <div class="auth-content">
+              <div class="auth-header">
+                <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" class="auth-logo" />
+                <h1 class="auth-title">Mindlytic AI</h1>
+              </div>
 
-                <div v-else class="message-thread">
-                  <div v-for="(message, index) in messages" :key="`${message.createdAt}-${index}`" class="message-row"
-                    :class="message.role === 'assistant'
-                      ? 'message-row-ai'
-                      : 'message-row-user'
-                      ">
-                    <div class="message-bubble" :class="message.error ? 'message-bubble-error' : ''">
-                      <div v-if="message.role === 'assistant'" class="markdown-body"
-                        v-html="renderAssistantMessage(message.text)" @click="
-                          handleAssistantMessageClick($event, message, index)
-                          "></div>
-                      <p v-else class="message-text">{{ message.text }}</p>
-                      <p class="message-time">
-                        {{ formatMessageTime(message.createdAt) }}
-                      </p>
+              <v-btn color="primary" rounded="xl" variant="flat" class="text-none google-auth-btn" :loading="signingIn"
+                :disabled="signingIn" prepend-icon="mdi-google" @click="signInWithGoogle">
+                Sign in with Google
+              </v-btn>
+            </div>
+          </div>
 
-                      <div v-if="message.role === 'assistant'" class="message-actions">
-                        <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
-                          @click="copyText(message.text, 'Reply copied.')">Copy</v-btn>
+          <template v-else>
+            <div class="workspace-shell" :class="{ 'workspace-shell-with-runner': runnerPanelOpen }">
+              <div class="chat-workspace" :class="{ 'chat-workspace-empty': isEmptyConversation }">
+                <div ref="chatScrollRef" class="chat-scroll" :class="{ 'chat-scroll-empty': isEmptyConversation }">
+                  <div v-if="isEmptyConversation" class="empty-state">
+                    <p class="empty-title">How can I help you?</p>
+                    <p class="empty-subtitle">
+                      Ask anything to start a new conversation.
+                    </p>
+                  </div>
+
+                  <div v-else class="message-thread">
+                    <div v-for="(message, index) in messages" :key="`${message.createdAt}-${index}`" class="message-row"
+                      :class="message.role === 'assistant'
+                        ? 'message-row-ai'
+                        : 'message-row-user'
+                        ">
+                      <div class="message-bubble" :class="message.error ? 'message-bubble-error' : ''">
+                        <div v-if="message.role === 'assistant'" class="markdown-body"
+                          v-html="renderAssistantMessage(message.text)" @click="
+                            handleAssistantMessageClick($event, message, index)
+                            "></div>
+                        <p v-else class="message-text">{{ message.text }}</p>
+                        <p class="message-time">
+                          {{ formatMessageTime(message.createdAt) }}
+                        </p>
+
+                        <div v-if="message.role === 'assistant'" class="message-actions">
+                          <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
+                            @click="copyText(message.text, 'Reply copied.')">Copy</v-btn>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div v-if="sending" class="message-row message-row-ai">
+                      <div class="message-bubble message-bubble-thinking">
+                        <div class="thinking-dots">
+                          <span class="dot"></span>
+                          <span class="dot"></span>
+                          <span class="dot"></span>
+                        </div>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  <div v-if="sending" class="message-row message-row-ai">
-                    <div class="message-bubble message-bubble-thinking">
-                      <p class="message-text">Thinking...</p>
+                <div class="composer-shell" :class="{ 'composer-shell-floating': isEmptyConversation }">
+                  <div class="composer-panel">
+                    <v-textarea v-model="userInput" class="composer-input" placeholder="Message Mindlytic AI"
+                      hide-details rows="1" auto-grow max-rows="6" variant="plain"
+                      :disabled="sending || loadingConversation" @keydown="handlePromptKeydown" />
+                    <div class="composer-bottom-tools">
+                      <v-select :key="`model-select-${pageTheme}`" v-model="selectedModel" :items="modelOptions"
+                        item-title="label" item-value="value" :return-object="false" density="compact" hide-details
+                        variant="outlined" :menu-props="composerMenuProps" class="composer-model-select"
+                        :disabled="sending || loadingConversation" />
+                      <v-btn icon color="primary" class="composer-send" :disabled="!canSend" :loading="sending"
+                        @click="sendMessage">
+                        <v-icon icon="mdi-arrow-up" />
+                      </v-btn>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div class="composer-shell" :class="{ 'composer-shell-floating': isEmptyConversation }">
-                <div class="composer-panel">
-                  <v-textarea v-model="userInput" class="composer-input" placeholder="Message Mindlytic AI" hide-details
-                    rows="1" auto-grow max-rows="6" variant="plain" :disabled="sending || loadingConversation"
-                    @keydown="handlePromptKeydown" />
-                  <div class="composer-bottom-tools">
-                    <v-select :key="`model-select-${pageTheme}`" v-model="selectedModel" :items="modelOptions" item-title="label" item-value="value"
-                      :return-object="false" density="compact" hide-details variant="outlined"
-                      :menu-props="composerMenuProps" class="composer-model-select"
-                      :disabled="sending || loadingConversation" />
-                    <v-btn icon color="primary" class="composer-send" :disabled="!canSend" :loading="sending"
-                      @click="sendMessage">
-                      <v-icon icon="mdi-arrow-up" />
-                    </v-btn>
+              <div v-if="runnerPanelOpen" class="runner-backdrop" @click="closeRunnerPanel"></div>
+              <aside v-if="runnerPanelOpen" class="ai-runner-panel">
+                <div class="ai-runner-head">
+                  <div class="ai-runner-head-main">
+                    <p class="ai-runner-title">{{ runnerTitle }}</p>
+                  </div>
+                  <div class="ai-runner-head-actions">
+                    <v-btn size="x-small" color="primary" variant="tonal" class="text-none runner-mode-btn"
+                      @click="runnerMode = 'web'">Web</v-btn>
+                    <v-btn size="x-small" color="primary" variant="tonal" class="text-none runner-mode-btn"
+                      @click="runnerMode = 'console'">Console</v-btn>
+                    <v-btn size="small" variant="text" color="primary" icon="mdi-close" class="runner-close-btn"
+                      @click="closeRunnerPanel" />
                   </div>
                 </div>
-              </div>
+                <iframe :key="runnerFrameKey" :srcdoc="runnerSrcdoc" class="ai-runner-frame"
+                  sandbox="allow-scripts allow-modals" referrerpolicy="no-referrer"
+                  title="Code runner preview"></iframe>
+              </aside>
             </div>
-
-            <div v-if="runnerPanelOpen" class="runner-backdrop" @click="closeRunnerPanel"></div>
-            <aside v-if="runnerPanelOpen" class="ai-runner-panel">
-              <div class="ai-runner-head">
-                <div class="ai-runner-head-main">
-                  <p class="ai-runner-title">{{ runnerTitle }}</p>
-                </div>
-                <div class="ai-runner-head-actions">
-                  <v-btn size="x-small" color="primary" variant="tonal" class="text-none runner-mode-btn"
-                    @click="runnerMode = 'web'">Web</v-btn>
-                  <v-btn size="x-small" color="primary" variant="tonal" class="text-none runner-mode-btn"
-                    @click="runnerMode = 'console'">Console</v-btn>
-                  <v-btn size="small" variant="text" color="primary" icon="mdi-close" class="runner-close-btn"
-                    @click="closeRunnerPanel" />
-                </div>
-              </div>
-              <iframe :key="runnerFrameKey" :srcdoc="runnerSrcdoc" class="ai-runner-frame"
-                sandbox="allow-scripts allow-modals" referrerpolicy="no-referrer" title="Code runner preview"></iframe>
-            </aside>
-          </div>
-        </template>
-      </section>
-    </div>
+          </template>
+        </section>
+      </div>
   </div>
 </template>
 
@@ -1592,7 +1639,7 @@ onUnmounted(() => {
   max-width: 286px;
   height: 100%;
   background: #ffffff;
-  border-right: 1px solid #e9ecef;
+  border-right: 1px solid #b9babb;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -1642,7 +1689,7 @@ onUnmounted(() => {
   font-weight: 600;
   min-height: 44px !important;
   height: 44px !important;
-  border: 1px solid rgba(109, 126, 167, 0.22) !important;
+  border: 1px solid #b9babb !important;
   background: #ffffff !important;
   color: #2a3552 !important;
   box-shadow: none !important;
@@ -1656,7 +1703,6 @@ onUnmounted(() => {
 }
 
 .history-title {
-  margin: 6px 6px 8px;
   font-size: 0.72rem;
   color: #7a869f;
   text-transform: uppercase;
@@ -1687,7 +1733,7 @@ onUnmounted(() => {
 
 .history-item {
   width: 100%;
-  border: 1px solid rgba(114, 131, 168, 0.2);
+  border: 1px solid #b9babb;
   background: #ffffff;
   border-radius: 12px;
   padding: 9px 8px 9px 11px;
@@ -1714,7 +1760,7 @@ onUnmounted(() => {
   color: #1b253c;
   font-size: 0.86rem;
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1726,11 +1772,6 @@ onUnmounted(() => {
   font-size: 0.72rem;
 }
 
-.sidebar-footer {
-  border-top: 1px solid rgba(114, 131, 168, 0.2);
-  padding-top: 10px;
-}
-
 .user-profile {
   display: flex;
   align-items: center;
@@ -1738,8 +1779,8 @@ onUnmounted(() => {
   margin-bottom: 4px;
   padding: 8px;
   background: #f8f9fa;
-  border-radius: 8px;
-  border: 2px solid #d4d6d7;
+  border-radius: 12px;
+  border: 1px solid #b9babb;
 }
 
 .profile-image {
@@ -1784,7 +1825,7 @@ onUnmounted(() => {
 }
 
 :deep(.profile-menu-list) {
-  min-width: 205px;
+  min-width: 200px;
   padding: 6px !important;
   border-radius: 12px !important;
   border: 1px solid rgba(114, 131, 168, 0.3);
@@ -1832,69 +1873,12 @@ onUnmounted(() => {
   flex: 1 1 auto;
 }
 
-.state-card {
-  margin: auto;
-  width: min(92%, 500px);
-  border: 1px solid rgba(119, 136, 172, 0.26);
-  background: linear-gradient(165deg, #ffffff 0%, #fbfdff 58%, #f6f9ff 100%);
-  border-radius: 18px;
-  padding: 18px 20px;
-  text-align: center;
-  box-shadow:
-    0 12px 26px rgba(27, 44, 73, 0.08),
-    0 1px 0 rgba(255, 255, 255, 0.92) inset;
-  position: relative;
-  overflow: hidden;
-}
-
-.state-card::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto auto 50%;
-  width: 300px;
-  height: 140px;
-  transform: translateX(-50%);
-  background: radial-gradient(circle,
-      rgba(126, 208, 255, 0.22) 0%,
-      rgba(126, 208, 255, 0) 72%);
-  pointer-events: none;
-}
-
-.state-card h2 {
-  margin: 0;
-  color: #1d2740;
-  font-size: clamp(1.12rem, 1.7vw, 1.32rem);
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-}
-
-.state-card p {
-  margin: 8px 0 0;
-  color: #5f6b88;
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
 .state-card-auth {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: clamp(360px, 56vh, 500px);
+  display: grid;
+  place-content: center;
+  background: #d4d4d4;
+  min-height: 100% !important;
   text-align: center;
-  width: min(90%, 460px);
-  padding: clamp(20px, 3.2vw, 30px);
-  border: 1px solid rgba(114, 131, 168, 0.24);
-  border-radius: 20px;
-  background:
-    radial-gradient(120px 100px at 50% 14%,
-      rgba(107, 192, 255, 0.2),
-      rgba(107, 192, 255, 0)),
-    linear-gradient(155deg, #ffffff 0%, #f8fbff 55%, #f1f6ff 100%);
-  box-shadow:
-    0 16px 36px rgba(23, 40, 68, 0.1),
-    0 1px 0 rgba(255, 255, 255, 0.92) inset;
-  position: relative;
-  overflow: hidden;
 }
 
 .state-card-auth::before {
@@ -2091,7 +2075,51 @@ onUnmounted(() => {
 }
 
 .message-bubble-thinking {
-  background: #eef3ff;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8efff 100%);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.08);
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.thinking-dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.thinking-dots .dot {
+  width: 7px;
+  height: 7px;
+  background: #3b82f6;
+  border-radius: 50%;
+  animation: thinking-jump 1.4s infinite ease-in-out both;
+}
+
+.thinking-dots .dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.thinking-dots .dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes thinking-jump {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+
+  40% {
+    transform: scale(1);
+    opacity: 1;
+    background: #2563eb;
+  }
 }
 
 .message-text {
@@ -2289,7 +2317,7 @@ onUnmounted(() => {
   width: min(100%, 860px);
   max-width: 860px;
   margin: 0 auto;
-  border: 2px solid #e9ecef;
+  border: 1px solid #bbbbbb;
   background: #ffffff;
   border-radius: 20px;
   display: flex;
@@ -2329,7 +2357,7 @@ onUnmounted(() => {
   min-height: 34px !important;
   border-radius: 10px;
   background: transparent !important;
-  border: 1px solid rgba(114, 131, 168, 0.28) !important;
+  border: 1px solid rgba(85, 79, 79, 0.627) !important;
   box-shadow: none !important;
 }
 
@@ -2344,32 +2372,36 @@ onUnmounted(() => {
 .composer-model-select :deep(.v-select__selection-text) {
   white-space: nowrap;
   overflow: hidden;
+  border-radius: 10px;
   text-overflow: ellipsis;
 }
 
 .composer-model-select :deep(.v-field__outline) {
+  border-radius: 10px !important;
   opacity: 0;
 }
 
 :deep(.composer-model-menu) {
   border-radius: 14px !important;
-  overflow: hidden !important;
-  box-shadow: 0 14px 30px rgba(24, 36, 60, 0.2) !important;
+  border: 1px solid rgb(0, 0, 0) !important;
+  box-shadow: 0 14px 30px rgba(255, 255, 255, 0) !important;
 }
 
 :deep(.composer-model-menu .v-list) {
   padding: 6px !important;
-  background: #ffffff;
+  border-radius: 14px !important;
+  background: #000000;
 }
 
 :deep(.composer-model-menu .v-list-item) {
   min-height: 42px;
-  border-radius: 10px;
+  border-radius: 14px !important;
   margin: 2px 0;
 }
 
 :deep(.composer-model-menu .v-list-item-title) {
   font-size: 0.94rem;
+  border-radius: 20px !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2596,7 +2628,33 @@ onUnmounted(() => {
 }
 
 .mindlytic-page.theme-dark .message-bubble-thinking {
-  background: #0f223c;
+  background: linear-gradient(135deg, #1a2a47 0%, #111a2e 100%);
+  border: 1px solid rgba(100, 150, 255, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.mindlytic-page.theme-dark .thinking-dots .dot {
+  background: #60a5fa;
+}
+
+@keyframes thinking-jump-dark {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+
+  40% {
+    transform: scale(1);
+    opacity: 1;
+    background: #93c5fd;
+  }
+}
+
+.mindlytic-page.theme-dark .thinking-dots .dot {
+  animation-name: thinking-jump-dark;
 }
 
 .mindlytic-page.theme-dark .message-bubble-error {

@@ -30,7 +30,7 @@ onMounted(() => {
 <style>
 /* Consistent scrollbar styling across portfolio pages */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
   height: 8px;
 }
 
