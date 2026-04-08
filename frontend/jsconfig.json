@@ -1,19 +1,21 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "target": "es5",
+    "target": "esnext",
     "module": "esnext",
     "baseUrl": "./",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "paths": {
       "@/*": ["src/*"]
     },
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
+    "lib": ["esnext", "dom", "dom.iterable"]
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "vite.config.*"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }

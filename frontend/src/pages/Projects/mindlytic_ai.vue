@@ -143,6 +143,7 @@ const alertMessage = ref("");
 const alertType = ref("success");
 
 const deleteDialog = ref(false);
+const deleting = ref(false);
 const deleteConversationId = ref("");
 
 let removeAuthListener = null;
@@ -1212,8 +1213,9 @@ const closeDeleteDialog = () => {
 
 const confirmDelete = async () => {
   const normalizedId = deleteConversationId.value;
-  if (!normalizedId) return;
+  if (!normalizedId || deleting.value) return;
 
+  deleting.value = true;
   try {
     const response = await authorizedFetchHistory(
       `/${encodeURIComponent(normalizedId)}`,
@@ -1234,6 +1236,7 @@ const confirmDelete = async () => {
   } catch (error) {
     showAlert(getFriendlyFetchError(error, "conversation"), "error");
   } finally {
+    deleting.value = false;
     closeDeleteDialog();
   }
 };
@@ -1369,7 +1372,7 @@ onUnmounted(() => {
   <div class="mindlytic-page" :class="{ 'theme-dark': isDarkTheme }">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
-   <v-dialog v-model="deleteDialog" max-width="360">
+    <v-dialog v-model="deleteDialog" max-width="360">
       <v-card class="rounded-xl elevation-2 pa-5">
 
         <!-- Title -->
@@ -1394,218 +1397,217 @@ onUnmounted(() => {
         </div>
 
       </v-card>
-      </v-dialog>
+    </v-dialog>
 
 
-      <div class="mindlytic-layout">
-        <div v-if="hasUser && sidebarOpen" class="sidebar-backdrop" @click="sidebarOpen = false"></div>
+    <div class="mindlytic-layout">
+      <div v-if="hasUser && sidebarOpen" class="sidebar-backdrop" @click="sidebarOpen = false"></div>
 
-        <aside class="chat-sidebar" :class="{ 'chat-sidebar-open': sidebarOpen }" v-if="hasUser">
-          <div class="sidebar-brand">
-            <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" class="w-8 brand-logo-mark" />
-            <div class="brand-copy">
-              <p class="brand-name">mindlytic</p>
-              <p class="brand-subtitle">AI Workspace</p>
-            </div>
-            <v-btn class="sidebar-toggle-btn" icon="mdi-close" density="comfortable" size="small" variant="tonal"
-              title="Close sidebar" @click="sidebarOpen = false" />
+      <aside class="chat-sidebar" :class="{ 'chat-sidebar-open': sidebarOpen }" v-if="hasUser">
+        <div class="sidebar-brand">
+          <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" class="w-8 brand-logo-mark" />
+          <div class="brand-copy">
+            <p class="brand-name">mindlytic</p>
+            <p class="brand-subtitle">AI Workspace</p>
           </div>
+          <v-btn class="sidebar-toggle-btn" icon="mdi-close" density="comfortable" size="small" variant="tonal"
+            title="Close sidebar" @click="sidebarOpen = false" />
+        </div>
 
-          <v-btn class="new-chat-btn text-none" color="primary" variant="flat" rounded="xl" prepend-icon="mdi-plus"
-            :disabled="!hasUser || sending" @click="startNewChat">
-            New chat
-          </v-btn>
+        <v-btn class="new-chat-btn text-none" color="primary" variant="flat" rounded="xl" prepend-icon="mdi-plus"
+          :disabled="!hasUser || sending" @click="startNewChat">
+          New chat
+        </v-btn>
 
-          <div class="history-wrap">
-            <p class="history-title my-2">Recent Chats</p>
+        <div class="history-wrap">
+          <p class="history-title my-2">Recent Chats</p>
 
-            <div v-if="loadingHistory" class="history-empty">
-              Loading history...
+          <div v-if="loadingHistory" class="history-empty">
+            Loading history...
+          </div>
+          <div v-else-if="!hasUser" class="history-empty">
+            Sign in to see your chats.
+          </div>
+          <div v-else-if="conversations.length === 0" class="history-empty">
+            No saved chats yet.
+          </div>
+          <p v-if="historyLoadError" class="history-error">
+            {{ historyLoadError }}
+          </p>
+
+          <div v-if="conversations.length > 0" class="history-list">
+            <button v-for="item in conversations" :key="item.id" class="history-item" :class="{
+              'history-item-active': item.id === activeConversationId,
+            }" :disabled="loadingConversation || sending" @click="openConversation(item.id)">
+              <div class="history-content">
+                <p class="history-item-title">{{ item.title }}</p>
+              </div>
+              <v-btn icon="mdi-delete" size="x-small" variant="outlined" color="error" class="history-delete-btn"
+                :disabled="sending" @click.stop="deleteConversation(item.id)" />
+            </button>
+          </div>
+        </div>
+
+        <v-divider opacity="0.4" />
+        <template v-if="hasUser">
+          <div class="user-profile">
+            <v-avatar size="32" class="mr-2" color="primary" variant="tonal">
+              <img v-if="userAvatarSrc" :src="userAvatarSrc" alt="Profile" class="profile-image"
+                referrerpolicy="no-referrer" @error="avatarImageFailed = true" />
+              <span v-else class="avatar-initial">{{ userInitial }}</span>
+            </v-avatar>
+            <div class="user-copy">
+              <p class="user-name">
+                {{ currentUser?.displayName || "Signed in user" }}
+              </p>
+              <p class="user-email">{{ currentUser?.email }}</p>
             </div>
-            <div v-else-if="!hasUser" class="history-empty">
-              Sign in to see your chats.
-            </div>
-            <div v-else-if="conversations.length === 0" class="history-empty">
-              No saved chats yet.
-            </div>
-            <p v-if="historyLoadError" class="history-error">
-              {{ historyLoadError }}
-            </p>
+            <v-menu location="top end" offset="12">
+              <template #activator="{ props }">
+                <v-btn v-bind="props" icon="mdi-dots-horizontal" density="comfortable" variant="outlined"
+                  class="profile-menu-btn" />
+              </template>
+              <v-list density="compact" class="profile-menu-list" :class="{ 'profile-menu-list-dark': isDarkTheme }">
+                <v-list-item :prepend-icon="themeToggleIcon" @click="toggleTheme">
+                  <v-list-item-title>{{ themeToggleLabel }}</v-list-item-title>
+                </v-list-item>
+                <v-divider />
+                <v-list-item prepend-icon="mdi-logout" @click="signOutUser">
+                  <v-list-item-title>Logout</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </div>
+        </template>
+        <template v-else>
+          <p class="user-email">Google sign-in is required.</p>
+        </template>
+      </aside>
 
-            <div v-if="conversations.length > 0" class="history-list">
-              <button v-for="item in conversations" :key="item.id" class="history-item" :class="{
-                'history-item-active': item.id === activeConversationId,
-              }" :disabled="loadingConversation || sending" @click="openConversation(item.id)">
-                <div class="history-content">
-                  <p class="history-item-title">{{ item.title }}</p>
+      <section class="chat-main">
+        <header v-if="hasUser" class="chat-mobile-head">
+          <v-btn icon="mdi-menu" size="small" variant="text" @click="toggleSidebar" />
+          <span class="chat-mobile-title">{{
+            hasUser ? activeConversationTitle : "Mindlytic AI"
+          }}</span>
+
+          <v-btn density="comfortable" variant="text" icon="mdi-plus" :disabled="!hasUser || sending"
+            @click="startNewChat" />
+        </header>
+
+        <v-progress-linear v-if="!authReady" class="session-top-loader" indeterminate color="primary" height="3" />
+
+        <div v-if="!authReady" class="session-loader-spacer"></div>
+
+        <div v-else-if="!hasRequiredFirebaseConfig" class="state-card">
+          <h2>Firebase config missing</h2>
+          <p>
+            Add `VITE_FIREBASE_*` keys in frontend `.env` to enable Google
+            sign-in.
+          </p>
+        </div>
+
+        <div v-else-if="!hasUser" class="state-card-auth">
+          <div class="auth-content">
+            <div class="auth-header">
+              <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" class="auth-logo" />
+              <h1 class="auth-title">Mindlytic AI</h1>
+            </div>
+
+            <v-btn color="primary" rounded="xl" variant="flat" class="text-none google-auth-btn" :loading="signingIn"
+              :disabled="signingIn" prepend-icon="mdi-google" @click="signInWithGoogle">
+              Sign in with Google
+            </v-btn>
+          </div>
+        </div>
+
+        <template v-else>
+          <div class="workspace-shell" :class="{ 'workspace-shell-with-runner': runnerPanelOpen }">
+            <div class="chat-workspace" :class="{ 'chat-workspace-empty': isEmptyConversation }">
+              <div ref="chatScrollRef" class="chat-scroll" :class="{ 'chat-scroll-empty': isEmptyConversation }">
+                <div v-if="isEmptyConversation" class="empty-state">
+                  <p class="empty-title">How can I help you?</p>
+                  <p class="empty-subtitle">
+                    Ask anything to start a new conversation.
+                  </p>
                 </div>
-                <v-btn icon="mdi-delete" size="x-small" variant="outlined" color="error" class="history-delete-btn"
-                  :disabled="sending" @click.stop="deleteConversation(item.id)" />
-              </button>
-            </div>
-          </div>
 
-          <v-divider opacity="0.4" />
-          <template v-if="hasUser">
-            <div class="user-profile">
-              <v-avatar size="32" class="mr-2" color="primary" variant="tonal">
-                <img v-if="userAvatarSrc" :src="userAvatarSrc" alt="Profile" class="profile-image"
-                  referrerpolicy="no-referrer" @error="avatarImageFailed = true" />
-                <span v-else class="avatar-initial">{{ userInitial }}</span>
-              </v-avatar>
-              <div class="user-copy">
-                <p class="user-name">
-                  {{ currentUser?.displayName || "Signed in user" }}
-                </p>
-                <p class="user-email">{{ currentUser?.email }}</p>
-              </div>
-              <v-menu location="top end" offset="12">
-                <template #activator="{ props }">
-                  <v-btn v-bind="props" icon="mdi-dots-horizontal" density="comfortable" variant="outlined"
-                    class="profile-menu-btn" />
-                </template>
-                <v-list density="compact" class="profile-menu-list" :class="{ 'profile-menu-list-dark': isDarkTheme }">
-                  <v-list-item :prepend-icon="themeToggleIcon" @click="toggleTheme">
-                    <v-list-item-title>{{ themeToggleLabel }}</v-list-item-title>
-                  </v-list-item>
-                  <v-divider />
-                  <v-list-item prepend-icon="mdi-logout" @click="signOutUser">
-                    <v-list-item-title>Logout</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </div>
-          </template>
-          <template v-else>
-            <p class="user-email">Google sign-in is required.</p>
-          </template>
-        </aside>
+                <div v-else class="message-thread">
+                  <div v-for="(message, index) in messages" :key="`${message.createdAt}-${index}`" class="message-row"
+                    :class="message.role === 'assistant'
+                      ? 'message-row-ai'
+                      : 'message-row-user'
+                      ">
+                    <div class="message-bubble" :class="message.error ? 'message-bubble-error' : ''">
+                      <div v-if="message.role === 'assistant'" class="markdown-body"
+                        v-html="renderAssistantMessage(message.text)" @click="
+                          handleAssistantMessageClick($event, message, index)
+                          "></div>
+                      <p v-else class="message-text">{{ message.text }}</p>
+                      <p class="message-time">
+                        {{ formatMessageTime(message.createdAt) }}
+                      </p>
 
-        <section class="chat-main">
-          <header v-if="hasUser" class="chat-mobile-head">
-            <v-btn icon="mdi-menu" size="small" variant="text" @click="toggleSidebar" />
-            <span class="chat-mobile-title">{{
-              hasUser ? activeConversationTitle : "Mindlytic AI"
-              }}</span>
-
-            <v-btn density="comfortable" variant="text" icon="mdi-plus" :disabled="!hasUser || sending"
-              @click="startNewChat" />
-          </header>
-
-          <v-progress-linear v-if="!authReady" class="session-top-loader" indeterminate color="primary" height="3" />
-
-          <div v-if="!authReady" class="session-loader-spacer"></div>
-
-          <div v-else-if="!hasRequiredFirebaseConfig" class="state-card">
-            <h2>Firebase config missing</h2>
-            <p>
-              Add `VITE_FIREBASE_*` keys in frontend `.env` to enable Google
-              sign-in.
-            </p>
-          </div>
-
-          <div v-else-if="!hasUser" class="state-card-auth">
-            <div class="auth-content">
-              <div class="auth-header">
-                <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" class="auth-logo" />
-                <h1 class="auth-title">Mindlytic AI</h1>
-              </div>
-
-              <v-btn color="primary" rounded="xl" variant="flat" class="text-none google-auth-btn" :loading="signingIn"
-                :disabled="signingIn" prepend-icon="mdi-google" @click="signInWithGoogle">
-                Sign in with Google
-              </v-btn>
-            </div>
-          </div>
-
-          <template v-else>
-            <div class="workspace-shell" :class="{ 'workspace-shell-with-runner': runnerPanelOpen }">
-              <div class="chat-workspace" :class="{ 'chat-workspace-empty': isEmptyConversation }">
-                <div ref="chatScrollRef" class="chat-scroll" :class="{ 'chat-scroll-empty': isEmptyConversation }">
-                  <div v-if="isEmptyConversation" class="empty-state">
-                    <p class="empty-title">How can I help you?</p>
-                    <p class="empty-subtitle">
-                      Ask anything to start a new conversation.
-                    </p>
-                  </div>
-
-                  <div v-else class="message-thread">
-                    <div v-for="(message, index) in messages" :key="`${message.createdAt}-${index}`" class="message-row"
-                      :class="message.role === 'assistant'
-                        ? 'message-row-ai'
-                        : 'message-row-user'
-                        ">
-                      <div class="message-bubble" :class="message.error ? 'message-bubble-error' : ''">
-                        <div v-if="message.role === 'assistant'" class="markdown-body"
-                          v-html="renderAssistantMessage(message.text)" @click="
-                            handleAssistantMessageClick($event, message, index)
-                            "></div>
-                        <p v-else class="message-text">{{ message.text }}</p>
-                        <p class="message-time">
-                          {{ formatMessageTime(message.createdAt) }}
-                        </p>
-
-                        <div v-if="message.role === 'assistant'" class="message-actions">
-                          <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
-                            @click="copyText(message.text, 'Reply copied.')">Copy</v-btn>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div v-if="sending" class="message-row message-row-ai">
-                      <div class="message-bubble message-bubble-thinking">
-                        <div class="thinking-dots">
-                          <span class="dot"></span>
-                          <span class="dot"></span>
-                          <span class="dot"></span>
-                        </div>
+                      <div v-if="message.role === 'assistant'" class="message-actions">
+                        <v-btn size="x-small" variant="tonal" color="primary" class="text-none"
+                          @click="copyText(message.text, 'Reply copied.')">Copy</v-btn>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div class="composer-shell" :class="{ 'composer-shell-floating': isEmptyConversation }">
-                  <div class="composer-panel">
-                    <v-textarea v-model="userInput" class="composer-input" placeholder="Message Mindlytic AI"
-                      hide-details rows="1" auto-grow max-rows="6" variant="plain"
-                      :disabled="sending || loadingConversation" @keydown="handlePromptKeydown" />
-                    <div class="composer-bottom-tools">
-                      <v-select :key="`model-select-${pageTheme}`" v-model="selectedModel" :items="modelOptions"
-                        item-title="label" item-value="value" :return-object="false" density="compact" hide-details
-                        variant="outlined" :menu-props="composerMenuProps" class="composer-model-select"
-                        :disabled="sending || loadingConversation" />
-                      <v-btn icon color="primary" class="composer-send" :disabled="!canSend" :loading="sending"
-                        @click="sendMessage">
-                        <v-icon icon="mdi-arrow-up" />
-                      </v-btn>
+                  <div v-if="sending" class="message-row message-row-ai">
+                    <div class="message-bubble message-bubble-thinking">
+                      <div class="thinking-dots">
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div v-if="runnerPanelOpen" class="runner-backdrop" @click="closeRunnerPanel"></div>
-              <aside v-if="runnerPanelOpen" class="ai-runner-panel">
-                <div class="ai-runner-head">
-                  <div class="ai-runner-head-main">
-                    <p class="ai-runner-title">{{ runnerTitle }}</p>
-                  </div>
-                  <div class="ai-runner-head-actions">
-                    <v-btn size="x-small" color="primary" variant="tonal" class="text-none runner-mode-btn"
-                      @click="runnerMode = 'web'">Web</v-btn>
-                    <v-btn size="x-small" color="primary" variant="tonal" class="text-none runner-mode-btn"
-                      @click="runnerMode = 'console'">Console</v-btn>
-                    <v-btn size="small" variant="text" color="primary" icon="mdi-close" class="runner-close-btn"
-                      @click="closeRunnerPanel" />
+              <div class="composer-shell" :class="{ 'composer-shell-floating': isEmptyConversation }">
+                <div class="composer-panel">
+                  <v-textarea v-model="userInput" class="composer-input" placeholder="Message Mindlytic AI" hide-details
+                    rows="1" auto-grow max-rows="6" variant="plain" :disabled="sending || loadingConversation"
+                    @keydown="handlePromptKeydown" />
+                  <div class="composer-bottom-tools">
+                    <v-select :key="`model-select-${pageTheme}`" v-model="selectedModel" :items="modelOptions"
+                      item-title="label" item-value="value" :return-object="false" density="compact" hide-details
+                      variant="outlined" :menu-props="composerMenuProps" class="composer-model-select"
+                      :disabled="sending || loadingConversation" />
+                    <v-btn icon color="primary" class="composer-send" :disabled="!canSend" :loading="sending"
+                      @click="sendMessage">
+                      <v-icon icon="mdi-arrow-up" />
+                    </v-btn>
                   </div>
                 </div>
-                <iframe :key="runnerFrameKey" :srcdoc="runnerSrcdoc" class="ai-runner-frame"
-                  sandbox="allow-scripts allow-modals" referrerpolicy="no-referrer"
-                  title="Code runner preview"></iframe>
-              </aside>
+              </div>
             </div>
-          </template>
-        </section>
-      </div>
+
+            <div v-if="runnerPanelOpen" class="runner-backdrop" @click="closeRunnerPanel"></div>
+            <aside v-if="runnerPanelOpen" class="ai-runner-panel">
+              <div class="ai-runner-head">
+                <div class="ai-runner-head-main">
+                  <p class="ai-runner-title">{{ runnerTitle }}</p>
+                </div>
+                <div class="ai-runner-head-actions">
+                  <v-btn size="x-small" color="primary" variant="tonal" class="text-none runner-mode-btn"
+                    @click="runnerMode = 'web'">Web</v-btn>
+                  <v-btn size="x-small" color="primary" variant="tonal" class="text-none runner-mode-btn"
+                    @click="runnerMode = 'console'">Console</v-btn>
+                  <v-btn size="small" variant="text" color="primary" icon="mdi-close" class="runner-close-btn"
+                    @click="closeRunnerPanel" />
+                </div>
+              </div>
+              <iframe :key="runnerFrameKey" :srcdoc="runnerSrcdoc" class="ai-runner-frame"
+                sandbox="allow-scripts allow-modals" referrerpolicy="no-referrer" title="Code runner preview"></iframe>
+            </aside>
+          </div>
+        </template>
+      </section>
+    </div>
   </div>
 </template>
 
@@ -1874,10 +1876,12 @@ onUnmounted(() => {
 }
 
 .state-card-auth {
-  display: grid;
-  place-content: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: #d4d4d4;
   min-height: 100% !important;
+  width: 100% !important;
   text-align: center;
 }
 

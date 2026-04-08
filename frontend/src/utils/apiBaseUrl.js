@@ -10,8 +10,8 @@ export const getApiBaseUrl = () => {
   const isLocal = LOCAL_HOSTS.has(window.location.hostname);
 
   const selectedUrl = isLocal
-    ? localUrl || sharedUrl || "http://localhost:5001"
-    : remoteUrl || sharedUrl || DEFAULT_REMOTE_API;
+    ? sharedUrl || localUrl || "http://localhost:5001"
+    : sharedUrl || remoteUrl || DEFAULT_REMOTE_API;
 
   return trimTrailingSlash(selectedUrl);
 };
