@@ -143,7 +143,7 @@ const alertMessage = ref("");
 const alertType = ref("success");
 
 const deleteDialog = ref(false);
-const deleting = ref(false);
+const isDeleting = ref(false);
 const deleteConversationId = ref("");
 
 let removeAuthListener = null;
@@ -1213,9 +1213,9 @@ const closeDeleteDialog = () => {
 
 const confirmDelete = async () => {
   const normalizedId = deleteConversationId.value;
-  if (!normalizedId || deleting.value) return;
+  if (!normalizedId || isDeleting.value) return;
 
-  deleting.value = true;
+  isDeleting.value = true;
   try {
     const response = await authorizedFetchHistory(
       `/${encodeURIComponent(normalizedId)}`,
@@ -1236,7 +1236,7 @@ const confirmDelete = async () => {
   } catch (error) {
     showAlert(getFriendlyFetchError(error, "conversation"), "error");
   } finally {
-    deleting.value = false;
+    isDeleting.value = false;
     closeDeleteDialog();
   }
 };
@@ -1391,7 +1391,7 @@ onUnmounted(() => {
             Cancel
           </v-btn>
 
-          <v-btn color="red" variant="flat" class="px-4" :loading="deleting" @click="confirmDelete">
+          <v-btn color="red" variant="flat" class="px-4" :loading="isDeleting" @click="confirmDelete">
             Delete
           </v-btn>
         </div>
