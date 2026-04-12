@@ -53,7 +53,8 @@ onMounted(() => {
 .hub-page,
 .forge-page,
 .lab-page,
-.certificate-page {
+.certificate-page,
+.mindlytic-page {
   background: rgb(var(--v-theme-background)) !important;
 }
 
@@ -62,7 +63,8 @@ onMounted(() => {
 .hub-page .hero-shell,
 .forge-page .hero-shell,
 .lab-page .hero-shell,
-.certificate-page .hero-shell {
+.certificate-page .hero-shell,
+.mindlytic-page .hero-shell {
   background: transparent !important;
   border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
 }
@@ -82,8 +84,8 @@ onMounted(() => {
 .certificate-page .hero-shell > .v-container {
   max-width: none !important;
   width: 100% !important;
-  padding-left: clamp(12px, 2vw, 28px) !important;
-  padding-right: clamp(12px, 2vw, 28px) !important;
+  padding-left: clamp(10px, 1.6vw, 22px) !important;
+  padding-right: clamp(10px, 1.6vw, 22px) !important;
 }
 
 /* Match project main containers with AI chat main container background */

@@ -118,8 +118,8 @@
               style="--delay: 0.3s">
               <h3 class="text-h5 mb-4">Career Highlights</h3>
               <v-row>
-                <v-col v-for="item in highlights" :key="item.title" cols="12" sm="6" lg="3">
-                  <div class="dev-highlight-box pa-4">
+                <v-col v-for="item in highlights" :key="item.title" cols="12" sm="6" lg="3" class="d-flex">
+                  <div class="dev-highlight-box pa-4 w-100">
                     <p class="text-h5 font-weight-bold text-primary mb-1">{{ item.value }}</p>
                     <p class="font-weight-bold mb-1">{{ item.title }}</p>
                     <p class="text-caption muted-copy mb-0">{{ item.caption }}</p>
@@ -206,7 +206,7 @@
           </div>
 
           <v-row>
-            <v-col v-for="(card, index) in strengths" :key="card.title" cols="12" sm="6" md="4">
+            <v-col v-for="(card, index) in strengths" :key="card.title" cols="12" sm="6" md="4" class="d-flex">
               <v-card class="strength-card pa-5 h-100 startup-card" rounded="xl" elevation="0"
                 :style="`--delay: ${0.1 + index * 0.1}s`">
                 <v-avatar size="46" color="teal-lighten-5" class="mb-4">
@@ -228,7 +228,7 @@
           <h2 class="text-h4 font-weight-bold mb-6">How projects are delivered</h2>
 
           <div class="process-grid">
-            <article v-for="(step, index) in processSteps" :key="step.title" class="process-card startup-card"
+            <article v-for="(step, index) in processSteps" :key="step.title" class="process-card startup-card h-100"
               :style="`--delay: ${0.1 + index * 0.1}s`">
               <span class="process-index">0{{ index + 1 }}</span>
               <h3 class="text-h6 font-weight-bold mb-2">{{ step.title }}</h3>
@@ -431,6 +431,7 @@ const scrollToSubscribe = () => {
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.75);
   padding: 14px;
+  min-height: 94px;
 }
 
 .metric-value {
@@ -474,6 +475,8 @@ const scrollToSubscribe = () => {
 .strength-card {
   border: 1px solid rgba(19, 111, 99, 0.16);
   background: linear-gradient(160deg, #ffffff 0%, #f4fbf8 100%);
+  display: flex;
+  flex-direction: column;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -500,6 +503,8 @@ const scrollToSubscribe = () => {
   border-radius: 16px;
   padding: 18px;
   background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
 }
 
 .process-index {
@@ -530,7 +535,8 @@ const scrollToSubscribe = () => {
 }
 
 .profile-merge-wrap {
-  max-width: 13 00px;
+  max-width: min(var(--page-max-width), 100%);
+  margin-inline: auto;
 }
 
 .dev-profile-card {
@@ -552,12 +558,20 @@ const scrollToSubscribe = () => {
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.7);
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .dev-timeline-card {
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.76);
   border: 1px solid rgba(19, 111, 99, 0.14);
+}
+
+@media (max-width: 1264px) {
+  .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 960px) {

@@ -24,6 +24,7 @@ const closeDrawer = () => {
 
 <template>
   <v-navigation-drawer
+    v-if="$vuetify.display.smAndDown"
     v-model="drawer"
     temporary
     location="right"
@@ -74,7 +75,7 @@ const closeDrawer = () => {
   </v-navigation-drawer>
 
   <v-app-bar class="portfolio-header" flat height="78">
-    <v-container class="d-flex align-center py-0">
+    <v-container class="header-container d-flex align-center py-0">
       <router-link to="/" class="brand-link d-flex align-center text-decoration-none">
         <mainsvgicon />
       </router-link>
@@ -127,6 +128,13 @@ const closeDrawer = () => {
   background: rgba(255, 255, 255, 0.84) !important;
   border-bottom: 1px solid rgba(15, 143, 124, 0.12);
   box-shadow: 0 10px 28px rgba(18, 38, 33, 0.08);
+}
+
+.header-container {
+  width: 100%;
+  max-width: min(var(--page-max-width), 100%) !important;
+  padding-left: var(--page-gutter) !important;
+  padding-right: var(--page-gutter) !important;
 }
 
 .nav-cluster {
@@ -281,6 +289,13 @@ const closeDrawer = () => {
 .drawer-cta-btn {
   font-weight: 700;
   letter-spacing: 0.01em;
+}
+
+@media (max-width: 960px) {
+  .header-container {
+    padding-left: var(--page-gutter-tight) !important;
+    padding-right: var(--page-gutter-tight) !important;
+  }
 }
 
 @media (max-width: 600px) {

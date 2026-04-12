@@ -2,6 +2,9 @@
 
 :root {
   color-scheme: light;
+  --page-max-width: 1360px;
+  --page-gutter: clamp(12px, 1.8vw, 24px);
+  --page-gutter-tight: clamp(10px, 1.4vw, 20px);
   --portfolio-bg: #f5f8fb;
   --portfolio-bg-soft: #edf4f2;
   --portfolio-surface: #ffffff;
@@ -95,12 +98,41 @@ kbd {
   background: transparent !important;
 }
 
+.v-main,
+.v-main__scroller {
+  overflow-x: hidden;
+}
+
 .v-application__wrap {
   min-height: 100dvh;
 }
 
 .v-theme--portfolioLight {
   color-scheme: light;
+}
+
+.v-theme--portfolioLight .text-primary {
+  color: rgb(var(--v-theme-primary)) !important;
+}
+
+.v-theme--portfolioLight .text-secondary {
+  color: rgb(var(--v-theme-secondary)) !important;
+}
+
+.v-theme--portfolioLight .bg-primary {
+  background-color: rgb(var(--v-theme-primary)) !important;
+  color: rgb(var(--v-theme-on-primary)) !important;
+}
+
+.home-shell,
+.projects-shell,
+.about-page > section > .v-container,
+.about-page > .profile-merge > .v-container,
+.premium-footer > .v-container {
+  width: 100%;
+  max-width: min(var(--page-max-width), 100%) !important;
+  padding-left: var(--page-gutter) !important;
+  padding-right: var(--page-gutter) !important;
 }
 
 .v-field {
@@ -528,6 +560,15 @@ kbd {
 }
 
 @media (max-width: 600px) {
+  .home-shell,
+  .projects-shell,
+  .about-page > section > .v-container,
+  .about-page > .profile-merge > .v-container,
+  .premium-footer > .v-container {
+    padding-left: var(--page-gutter-tight) !important;
+    padding-right: var(--page-gutter-tight) !important;
+  }
+
   .section-shell {
     border-radius: 18px;
   }

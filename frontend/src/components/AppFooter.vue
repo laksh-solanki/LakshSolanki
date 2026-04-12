@@ -20,8 +20,8 @@ const socialLinks = [
 <template>
   <v-footer class="premium-footer px-0 py-0">
     <v-container class="py-10 py-md-14">
-      <v-row class="ga-0">
-        <v-col cols="12" lg="4" class="pr-lg-8 mb-8 mb-lg-0">
+      <v-row class="ga-0 footer-main-row">
+        <v-col cols="12" md="6" lg="4" class="pr-lg-8 mb-8 mb-lg-0">
           <mainsvgicon :size="44" />
           <p class="footer-description mt-4 mb-5">
             Building premium digital products with strong UX, practical architecture, and reliable delivery.
@@ -45,7 +45,7 @@ const socialLinks = [
           </div>
         </v-col>
 
-        <v-col cols="12" sm="4" lg="2" class="mb-8 mb-lg-0">
+        <v-col cols="6" md="3" lg="2" class="mb-8 mb-lg-0">
           <p class="footer-title">Navigation</p>
           <div class="d-flex flex-column ga-2">
             <router-link v-for="item in quickLinks" :key="item.path" :to="item.path" class="footer-link">
@@ -54,14 +54,14 @@ const socialLinks = [
           </div>
         </v-col>
 
-        <v-col cols="12" sm="4" lg="3" class="mb-8 mb-lg-0">
+        <v-col cols="6" md="3" lg="3" class="mb-8 mb-lg-0">
           <p class="footer-title">Services</p>
           <ul class="service-list">
             <li v-for="service in services" :key="service">{{ service }}</li>
           </ul>
         </v-col>
 
-        <v-col id="subscribe-container" cols="12" sm="4" lg="3" class="subscribe-anchor">
+        <v-col id="subscribe-container" cols="12" md="6" lg="3" class="subscribe-anchor">
           <p class="footer-title">Get Updates</p>
           <EmailRegisterPopup />
         </v-col>
@@ -69,9 +69,9 @@ const socialLinks = [
 
       <div class="footer-bottom mt-8 pt-5 d-flex flex-column flex-md-row align-start align-md-center justify-space-between ga-3">
         <p class="mb-0 text-caption footer-meta">
-          (c) {{ new Date().getFullYear() }} Laksh Solanki. Premium portfolio crafted with Vue and Vuetify.
+          © {{ new Date().getFullYear() }} Laksh Solanki. Premium portfolio crafted with Vue and Vuetify.
         </p>
-        <div class="d-flex align-center ga-4 text-caption footer-meta">
+        <div class="d-flex align-center ga-4 text-caption footer-meta footer-bottom-meta">
           <span>Built for desktop and mobile</span>
           <span>Version 2.0</span>
         </div>
@@ -89,6 +89,10 @@ const socialLinks = [
     radial-gradient(circle at 18% 0%, rgba(15, 143, 124, 0.08), transparent 38%),
     radial-gradient(circle at 92% 12%, rgba(209, 138, 31, 0.08), transparent 30%),
     linear-gradient(165deg, #ffffff 0%, #f3f8f6 45%, #eef4f1 100%);
+}
+
+.footer-main-row {
+  row-gap: 14px;
 }
 
 .cta-band {
@@ -151,8 +155,21 @@ const socialLinks = [
   gap: 8px;
 }
 
+.subscribe-anchor {
+  display: flex;
+  flex-direction: column;
+}
+
+.subscribe-anchor :deep(.newsletter-card) {
+  height: 100%;
+}
+
 .footer-bottom {
   border-top: 1px solid rgba(15, 143, 124, 0.12);
+}
+
+.footer-bottom-meta {
+  flex-wrap: wrap;
 }
 
 .subscribe-note {
@@ -201,6 +218,15 @@ const socialLinks = [
 }
 
 @media (max-width: 960px) {
+  .footer-main-row {
+    row-gap: 18px;
+  }
+
+  .service-list {
+    padding-left: 0;
+    list-style: none;
+  }
+
   .cta-btn {
     width: 100%;
   }

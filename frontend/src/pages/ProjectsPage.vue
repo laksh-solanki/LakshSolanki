@@ -118,18 +118,18 @@ const projects = ref([
     </section>
 
     <v-row>
-      <v-col v-for="project in projects" :key="project.id" cols="12" md="6" lg="4">
+      <v-col v-for="project in projects" :key="project.id" cols="12" md="6" lg="4" class="d-flex">
         <v-card class="section-shell project-card h-100" :to="project.link" flat hover rounded="lg">
-          <v-img :src="project.image" height="200" cover class="project-media"></v-img>
+          <v-img :src="project.image" cover class="project-media"></v-img>
 
-          <div class="pa-5 d-flex flex-5 flex-column h-100">
+          <div class="pa-5 d-flex flex-column project-card-body">
             <p class="text-caption text-primary font-weight-bold text-uppercase mb-2">
               {{ project.category }}
             </p>
             <h2 class="text-h6 mb-2">{{ project.title }}</h2>
-            <p class="muted-copy mb-1">{{ project.description }}</p>
+            <p class="muted-copy mb-1 project-description">{{ project.description }}</p>
 
-            <div class="d-flex flex-wrap ga-2 mt-3 mb-2">
+            <div class="d-flex flex-wrap ga-2 mt-3 mb-2 project-tag-row">
               <v-chip
                 v-for="tag in project.tags"
                 :key="tag"
@@ -140,7 +140,7 @@ const projects = ref([
                 {{ tag }}
               </v-chip>
             </div>
-            <span class="text-primary font-weight-bold">Open project -></span>
+            <span class="text-primary font-weight-bold project-link">Open project -></span>
           </div>
         </v-card>
       </v-col>
@@ -150,7 +150,7 @@ const projects = ref([
 
 <style scoped>
 .projects-shell {
-  max-width: 1240px;
+  max-width: min(var(--page-max-width), 100%);
 }
 
 .intro-copy {
@@ -203,11 +203,53 @@ const projects = ref([
 }
 
 .project-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
   overflow: hidden;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .project-media {
+  aspect-ratio: 16 / 9;
+  min-height: 180px;
+  max-height: 220px;
+  background:
+    radial-gradient(circle at 82% 16%, rgba(209, 138, 31, 0.18), transparent 36%),
+    linear-gradient(145deg, rgba(241, 247, 245, 0.95), rgba(229, 239, 236, 0.94));
+}
+
+.project-media :deep(.v-img__img) {
+  object-fit: cover;
+}
+
+.project-card-body {
+  min-height: 260px;
+  flex: 1 1 auto;
+}
+
+.project-description {
+  flex: 1 1 auto;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.project-tag-row {
+  min-height: 34px;
+  align-content: flex-start;
+}
+
+.project-link {
+  margin-top: auto;
+  padding-top: 2px;
+}
+
+.project-media,
+.project-description,
+.project-link {
   transition: transform 0.45s ease;
 }
 
@@ -223,6 +265,19 @@ const projects = ref([
 @media (max-width: 600px) {
   .intro-copy {
     max-width: none;
+  }
+
+  .project-media {
+    min-height: 162px;
+    max-height: 190px;
+  }
+
+  .project-card-body {
+    min-height: 0;
+  }
+
+  .project-description {
+    -webkit-line-clamp: 5;
   }
 }
 </style>
