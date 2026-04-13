@@ -42,7 +42,7 @@ html,
 body,
 #app {
   min-height: 100%;
-  overflow-x: clip;
+  overflow-x: auto;
   background: var(--portfolio-bg);
 }
 
