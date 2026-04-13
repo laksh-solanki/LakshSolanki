@@ -34,7 +34,25 @@ export default defineConfig({
         families: [
           {
             name: "Roboto",
-            weights: [400, 500, 700],
+            weights: [400, 700],
+            styles: ["normal"],
+            subset: "latin",
+          },
+          {
+            name: "Manrope",
+            weights: [400, 700],
+            styles: ["normal"],
+            subset: "latin",
+          },
+          {
+            name: "Space Grotesk",
+            weights: [400, 700],
+            styles: ["normal"],
+            subset: "latin",
+          },
+          {
+            name: "JetBrains Mono",
+            weights: [400, 600],
             styles: ["normal"],
             subset: "latin",
           },
@@ -70,6 +88,7 @@ export default defineConfig({
     cssCodeSplit: true,
     modulePreload: { polyfill: false },
     sourcemap: false,
+    chunkSizeWarningLimit: 1200, // Set warning limit to 1200KB to accommodate large vendor chunk
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -81,18 +100,20 @@ export default defineConfig({
             return "vuetify";
           }
 
-          if (
-            id.includes("jspdf") ||
-            id.includes("pdfjs-dist") ||
-            id.includes("jszip") ||
-            id.includes("file-saver") ||
-            id.includes("html2canvas")
-          ) {
-            return "tooling";
+          if (id.includes("jspdf") || id.includes("pdfjs-dist")) {
+            return "pdf-tools";
+          }
+
+          if (id.includes("jszip") || id.includes("file-saver") || id.includes("html2canvas")) {
+            return "file-tools";
           }
 
           if (id.includes("marked") || id.includes("prismjs") || id.includes("dompurify")) {
             return "ai-rendering";
+          }
+
+          if (id.includes("firebase")) {
+            return "firebase";
           }
 
           return "vendor";
