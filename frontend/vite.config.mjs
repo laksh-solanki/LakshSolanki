@@ -50,7 +50,6 @@ export default defineConfig({
   },
 
   define: {
-    // Better way to handle process.env in Vite
     "process.env": {},
   },
 
