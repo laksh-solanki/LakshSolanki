@@ -21,6 +21,7 @@ const stripFontPreloads = () => ({
 });
 
 export default defineConfig({
+  base: process.env.VITE_BASE_URL || '/',
   plugins: [
     stripFontPreloads(),
     tailwindcss(),
@@ -89,6 +90,7 @@ export default defineConfig({
     modulePreload: { polyfill: false },
     sourcemap: false,
     chunkSizeWarningLimit: 1200, // Set warning limit to 1200KB to accommodate large vendor chunk
+    minify: 'esbuild', // Ensure proper minification
     rollupOptions: {
       output: {
         manualChunks(id) {

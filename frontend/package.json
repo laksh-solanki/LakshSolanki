@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "preview:dist": "vite preview --host",
+    "test:deploy": "VITE_BASE_URL=/ npm run build && npx serve dist -s -l 3001"
   },
   "dependencies": {
     "@fontsource/jetbrains-mono": "^5.2.8",
