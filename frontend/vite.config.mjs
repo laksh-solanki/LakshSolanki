@@ -45,7 +45,6 @@ export default defineConfig({
   ],
 
   optimizeDeps: {
-    rollupOptions: {},
     exclude: ["vuetify"],
   },
 
