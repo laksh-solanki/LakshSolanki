@@ -49,7 +49,7 @@ export default defineConfig({
   },
 
   define: {
-    "process.env": {},
+    // Removed process.env override as it breaks production build for Vuetify
   },
 
   resolve: {
