@@ -52,13 +52,9 @@ export default defineConfig(async () => {
       }),
     ],
 
-    // ⚠️  Do NOT exclude vuetify here.
-    //     optimizeDeps.exclude causes Vite to skip pre-bundling Vuetify which
-    //     breaks CSS chunk ordering in production, resulting in styles never loading.
     optimizeDeps: {},
 
     define: {
-      // Required so Vuetify's internal IS_DEV / treeshake guards work in prod
       "process.env.NODE_ENV": JSON.stringify(
         process.env.NODE_ENV || "production"
       ),
@@ -78,17 +74,6 @@ export default defineConfig(async () => {
 
     build: {
       target: "esnext",
-
-      // ⚠️  CRITICAL — must be FALSE for Render / static hosts.
-      //
-      //      When cssCodeSplit is true, Vite puts Vuetify's CSS into a separate
-      //      chunk file (e.g. vuetify-XXXX.css). Static hosts like Render serve
-      //      chunks in parallel without guaranteed ordering, so the JS that
-      //      registers Vuetify components executes BEFORE the CSS chunk loads →
-      //      components render with zero styling.
-      //
-      //      Setting this to false inlines all CSS into one index.css that is
-      //      always loaded first via a <link> tag in index.html.
       cssCodeSplit: false,
 
       chunkSizeWarningLimit: 1200,
