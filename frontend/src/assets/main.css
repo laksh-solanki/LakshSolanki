@@ -1,3 +1,4 @@
+@import "tailwindcss";
 
 :root {
   --page-max-width: 1360px;
@@ -69,8 +70,8 @@ svg {
   background: rgba(15, 143, 124, 0.16);
 }
 
-.v-row > .v-col,
-.v-row > [class*="v-col-"] {
+.v-row>.v-col,
+.v-row>[class*="v-col-"] {
   min-width: 0;
 }
 
@@ -124,9 +125,9 @@ kbd {
 
 .home-shell,
 .projects-shell,
-.about-page > section > .v-container,
-.about-page > .profile-merge > .v-container,
-.premium-footer > .v-container {
+.about-page>section>.v-container,
+.about-page>.profile-merge>.v-container,
+.premium-footer>.v-container {
   width: 100%;
   max-width: min(var(--page-max-width), 100%) !important;
   padding-left: var(--page-gutter) !important;
@@ -558,11 +559,12 @@ kbd {
 }
 
 @media (max-width: 600px) {
+
   .home-shell,
   .projects-shell,
-  .about-page > section > .v-container,
-  .about-page > .profile-merge > .v-container,
-  .premium-footer > .v-container {
+  .about-page>section>.v-container,
+  .about-page>.profile-merge>.v-container,
+  .premium-footer>.v-container {
     padding-left: var(--page-gutter-tight) !important;
     padding-right: var(--page-gutter-tight) !important;
   }
