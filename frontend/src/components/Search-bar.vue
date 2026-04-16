@@ -1,20 +1,21 @@
 <template>
-  <v-btn
-    color="primary"
-    rounded="xl"
-    variant="outlined"
-    class="search-trigger text-none"
-    :class="{ 'search-trigger--compact': $vuetify.display.smAndDown }"
-    :icon="$vuetify.display.smAndDown"
-    @click="openPalette"
-  >
-    <v-icon icon="mdi-magnify" :start="!$vuetify.display.smAndDown"></v-icon>
-    <template v-if="$vuetify.display.mdAndUp">
-      <span class="search-trigger__label">Search...</span>
-      <kbd class="search-trigger__kbd">Ctrl K</kbd>
-    </template>
-  </v-btn>
-
+  <div class="search-bar-root" v-bind="$attrs">
+    <v-btn
+      color="primary"
+      rounded="xl"
+      variant="outlined"
+      class="search-trigger text-none"
+      :class="{ 'search-trigger--compact': $vuetify.display.smAndDown }"
+      :icon="$vuetify.display.smAndDown"
+      @click="openPalette"
+    >
+      <v-icon icon="mdi-magnify" :start="!$vuetify.display.smAndDown" :class="{ 'ma-0': $vuetify.display.smAndDown }"></v-icon>
+      <template v-if="$vuetify.display.mdAndUp">
+        <span class="search-trigger__label">Search...</span>
+        <kbd class="search-trigger__kbd">Ctrl K</kbd>
+      </template>
+    </v-btn>
+  </div>
   <v-dialog
     v-model="isOpen"
     max-width="780"
@@ -117,6 +118,10 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
+
+defineOptions({
+  inheritAttrs: false
+});
 
 const router = useRouter();
 const isOpen = ref(false);
@@ -442,7 +447,15 @@ onUnmounted(() => {
 }
 
 .search-trigger--compact {
-  min-width: 44px;
+  min-width: 44px !important;
+  width: 44px !important;
+  height: 44px !important;
+  padding: 0 !important;
+  justify-content: center !important;
+}
+
+.search-trigger--compact :deep(.v-icon) {
+  margin: 0 !important; /* Force centering for the icon */
 }
 
 .palette-shell {

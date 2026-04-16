@@ -349,7 +349,8 @@ const premiumStackLines = premiumStackLinks
       </div>
     </section>
 
-    <section class="mb-10 home-section">
+    <!-- ═══ STATS SECTION ═══ -->
+    <section class="mb-12 home-section">
       <v-row>
         <v-col
           v-for="(stat, index) in impactStats"
@@ -357,50 +358,42 @@ const premiumStackLines = premiumStackLinks
           cols="12"
           sm="4"
         >
-          <v-card
-            class="section-shell pa-6 stat-card h-100 startup-stat border"
-            rounded="xl"
+          <div
+            class="prem-stat-card startup-stat"
             :style="{ '--delay': `${0.08 + index * 0.09}s` }"
-            flat
           >
-            <p class="text-h4 font-weight-bold mb-1">{{ stat.value }}</p>
-            <p class="muted-copy mb-0">{{ stat.label }}</p>
-          </v-card>
+            <div class="prem-stat-glow"></div>
+            <span class="prem-stat-value">{{ stat.value }}</span>
+            <span class="prem-stat-label">{{ stat.label }}</span>
+          </div>
         </v-col>
       </v-row>
     </section>
 
-    <section class="mb-10 home-section">
-      <div
-        class="d-flex align-center justify-space-between mb-4 flex-wrap ga-3 startup-heading"
-        style="--delay: 0.08s"
-      >
-        <h2 class="text-h4 mb-0">What I Build</h2>
-        <v-btn to="/projects" variant="text" color="primary" class="text-none"
-          >See all projects</v-btn
+    <!-- ═══ WHAT I BUILD ═══ -->
+    <section class="mb-12 home-section">
+      <div class="prem-section-head startup-heading" style="--delay: 0.08s">
+        <div>
+          <p class="prem-kicker">PREMIUM STACK</p>
+          <h2 class="prem-section-title">What I Build</h2>
+        </div>
+        <v-btn
+          to="/projects"
+          variant="outlined"
+          rounded="xl"
+          class="prem-ghost-btn text-none"
         >
+          <v-icon start size="16">mdi-arrow-right</v-icon>
+          See all projects
+        </v-btn>
       </div>
-      <v-card
-        class="section-shell pa-6 pa-md-8 luxe-flow-card startup-flow-card"
-        flat
-      >
-        <div class="luxe-orb"></div>
 
-        <div
-          class="d-flex align-center justify-space-between mb-5 flex-wrap ga-3 luxe-head"
-        >
-          <div class="d-flex align-center ga-3">
-            <div>
-              <p class="text-overline mb-0 luxe-kicker">PREMIUM STACK</p>
-            </div>
-          </div>
-          <v-chip
-            size="small"
-            color="secondary"
-            variant="flat"
-            class="luxe-chip"
-            >2026</v-chip
-          >
+      <div class="prem-panel startup-flow-card">
+        <div class="prem-panel-glow prem-panel-glow-tl"></div>
+        <div class="prem-panel-glow prem-panel-glow-br"></div>
+
+        <div class="prem-panel-header">
+          <v-chip size="small" class="prem-year-chip">2026 Stack</v-chip>
         </div>
 
         <div class="premium-stack-map" aria-label="Premium stack graph">
@@ -435,11 +428,7 @@ const premiumStackLines = premiumStackLinks
               '--d': `${0.2 + index * 0.04}s`,
             }"
           >
-            <v-icon
-              v-if="node.icon"
-              class="premium-node-core"
-              :icon="node.icon"
-            />
+            <v-icon v-if="node.icon" class="premium-node-core" :icon="node.icon" />
             <span v-else class="premium-node-core">{{ node.short }}</span>
             <span class="premium-node-check">✓</span>
             <span class="premium-node-label">{{ node.label }}</span>
@@ -453,58 +442,47 @@ const premiumStackLines = premiumStackLinks
             class="premium-mobile-item"
             :style="{ '--d': `${0.12 + index * 0.03}s` }"
           >
-            <span
-              class="premium-mobile-dot"
-              :style="{ '--ring': node.ring }"
-            ></span>
-            <v-icon
-              v-if="node.icon"
-              class="premium-mobile-icon"
-              :icon="node.icon"
-              size="16"
-            />
+            <span class="premium-mobile-dot" :style="{ '--ring': node.ring }"></span>
+            <v-icon v-if="node.icon" class="premium-mobile-icon" :icon="node.icon" size="16" />
             <span class="premium-mobile-label">{{ node.label }}</span>
           </div>
         </div>
-      </v-card>
+      </div>
     </section>
 
-    <section class="mb-10 home-section">
-      <div
-        class="d-flex align-center justify-space-between mb-4 flex-wrap ga-3 startup-heading"
-        style="--delay: 0.08s"
-      >
-        <h2 class="text-h4 mb-0">How I Deliver</h2>
+    <!-- ═══ HOW I DELIVER ═══ -->
+    <section class="mb-12 home-section">
+      <div class="prem-section-head startup-heading" style="--delay: 0.08s">
+        <div>
+          <p class="prem-kicker">COLLABORATION MODEL</p>
+          <h2 class="prem-section-title">How I Deliver</h2>
+        </div>
       </div>
-      <v-card
-        class="section-shell pa-6 pa-md-8 minimal-content-card startup-flow-card"
-        flat
-      >
+
+      <div class="prem-panel prem-deliver-panel startup-flow-card">
+        <div class="prem-panel-glow prem-panel-glow-tl"></div>
         <v-row class="ga-0" align="start">
-          <v-col cols="12" md="5" class="pr-md-6">
-            <p class="text-overline mb-2 content-kicker">COLLABORATION MODEL</p>
-            <h3 class="text-h5 mb-3 content-title">
+          <v-col cols="12" md="5" class="pr-md-8">
+            <h3 class="prem-sub-title mb-3">
               Minimal process, maximum clarity and execution.
             </h3>
-            <p class="muted-copy mb-5">
+            <p class="prem-muted mb-6">
               I partner closely with teams to keep delivery lean, practical, and
               focused on real outcomes.
             </p>
             <div class="d-flex flex-wrap ga-2">
-              <v-chip
+              <span
                 v-for="(item, index) in deliveryFocus"
                 :key="item"
-                size="small"
-                color="primary"
-                variant="tonal"
                 class="delivery-chip"
                 :style="{ '--delay': `${0.2 + index * 0.05}s` }"
               >
+                <v-icon size="12" class="mr-1">mdi-check-circle-outline</v-icon>
                 {{ item }}
-              </v-chip>
+              </span>
             </div>
           </v-col>
-          <v-col cols="12" md="7" class="mt-6 mt-md-0">
+          <v-col cols="12" md="7" class="mt-8 mt-md-0">
             <div class="collab-list">
               <article
                 v-for="(item, index) in collaborationSteps"
@@ -514,64 +492,76 @@ const premiumStackLines = premiumStackLinks
               >
                 <span class="collab-step">{{ item.step }}</span>
                 <div>
-                  <h4 class="text-subtitle-1 font-weight-bold mb-1">
-                    {{ item.title }}
-                  </h4>
-                  <p class="muted-copy mb-0">{{ item.description }}</p>
+                  <h4 class="collab-title mb-1">{{ item.title }}</h4>
+                  <p class="prem-muted mb-0">{{ item.description }}</p>
                 </div>
               </article>
             </div>
           </v-col>
         </v-row>
-      </v-card>
+      </div>
     </section>
 
+    <!-- ═══ WHAT YOU CAN EXPECT + CTA ═══ -->
     <section class="home-section">
-      <div
-        class="d-flex align-center justify-space-between mb-4 flex-wrap ga-3 startup-heading"
-        style="--delay: 0.1s"
-      >
-        <h2 class="text-h4 mb-0">What You Can Expect</h2>
+      <div class="prem-section-head startup-heading" style="--delay: 0.1s">
+        <div>
+          <p class="prem-kicker">VALUES</p>
+          <h2 class="prem-section-title">What You Can Expect</h2>
+        </div>
       </div>
-      <v-row>
+
+      <v-row class="mb-6">
         <v-col
           v-for="(pillar, index) in valuePillars"
           :key="pillar.title"
           cols="12"
           md="4"
         >
-          <v-card
-            class="section-shell pa-5 h-100 expectation-card startup-project"
+          <div
+            class="prem-pillar-card startup-project"
             :style="{ '--delay': `${0.14 + index * 0.09}s` }"
-            flat
           >
-            <v-avatar size="42" color="primary" variant="tonal" class="mb-4">
-              <v-icon :icon="pillar.icon" size="20"></v-icon>
-            </v-avatar>
-            <h3 class="text-h6 mb-2">{{ pillar.title }}</h3>
-            <p class="muted-copy mb-0">{{ pillar.description }}</p>
-          </v-card>
+            <div class="prem-pillar-icon-wrap">
+              <v-icon :icon="pillar.icon" size="22" class="prem-pillar-icon"></v-icon>
+            </div>
+            <h3 class="prem-pillar-title">{{ pillar.title }}</h3>
+            <p class="prem-muted mb-0">{{ pillar.description }}</p>
+          </div>
         </v-col>
       </v-row>
 
-      <v-card class="section-shell pa-5 pa-md-6 mt-6 cta-slab startup-heading" flat>
-        <v-row align="center">
-          <v-col cols="12" md="8">
-            <h3 class="text-h5 mb-2">Looking for a focused development partner?</h3>
-            <p class="muted-copy mb-0">
-              Explore projects or review my profile to see how I build and deliver.
-            </p>
-          </v-col>
-          <v-col cols="12" md="4" class="d-flex flex-wrap ga-3 justify-md-end mt-4 mt-md-0">
-            <v-btn to="/projects" color="primary" rounded="xl" class="text-none">
-              Browse Projects
-            </v-btn>
-            <v-btn to="/about" variant="outlined" color="primary" rounded="xl" class="text-none">
-              About Me
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-card>
+      <!-- CTA Banner -->
+      <div class="prem-cta-banner startup-heading" style="--delay:0.2s">
+        <div class="prem-cta-glow"></div>
+        <div class="prem-cta-content">
+          <h3 class="prem-cta-title">Looking for a focused development partner?</h3>
+          <p class="prem-cta-sub">Explore projects or review my profile to see how I build and deliver.</p>
+        </div>
+        <div class="prem-cta-actions">
+          <v-btn
+            to="/projects"
+            rounded="xl"
+            size="large"
+            class="prem-cta-btn-primary text-none px-7"
+            elevation="0"
+          >
+            <v-icon start>mdi-rocket-launch-outline</v-icon>
+            Browse Projects
+          </v-btn>
+          <v-btn
+            to="/about"
+            variant="outlined"
+            rounded="xl"
+            size="large"
+            class="prem-cta-btn-outline text-none px-7"
+            elevation="0"
+          >
+            <v-icon start>mdi-account-outline</v-icon>
+            About Me
+          </v-btn>
+        </div>
+      </div>
     </section>
   </v-container>
 </template>
@@ -680,14 +670,14 @@ const premiumStackLines = premiumStackLinks
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #7cf5d0;
+  color: #39bca3;
   margin-bottom: 1.4rem;
 }
 .hero-v2-eyebrow-dot {
   width: 8px; height: 8px;
   border-radius: 50%;
-  background: #7cf5d0;
-  box-shadow: 0 0 8px 2px rgba(124, 245, 208, 0.7);
+  background: #39bca3;
+  box-shadow: 0 0 8px 2px rgba(57, 188, 163, 0.7);
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
@@ -701,7 +691,7 @@ const premiumStackLines = premiumStackLinks
   margin: 0 0 0.6rem;
 }
 .hero-v2-name-grad {
-  background: linear-gradient(92deg, #a78bfa 0%, #60a5fa 52%, #34d399 100%);
+  background: linear-gradient(92deg, #39bca3 0%, #0f8f7c 48%, #60a5fa 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -719,10 +709,10 @@ const premiumStackLines = premiumStackLinks
   display: flex;
   align-items: center;
 }
-.hero-v2-role-prefix { color: #a78bfa; margin-right: 0.25rem; }
+.hero-v2-role-prefix { color: #39bca3; margin-right: 0.25rem; }
 .hero-v2-typed { color: #e2e8f0; }
 .hero-v2-cursor {
-  color: #7cf5d0;
+  color: #39bca3;
   font-weight: 300;
   animation: blink-cursor 0.9s step-end infinite;
 }
@@ -755,15 +745,15 @@ const premiumStackLines = premiumStackLinks
   transition: background 0.22s, border-color 0.22s;
 }
 .hero-v2-stat-pill:hover {
-  background: rgba(167,139,250,0.13);
-  border-color: rgba(167,139,250,0.36);
+  background: rgba(15,143,124,0.12);
+  border-color: rgba(15,143,124,0.35);
 }
 .hero-v2-stat-value {
   font-size: 1.45rem;
   font-weight: 800;
   color: #ffffff;
   line-height: 1;
-  background: linear-gradient(135deg, #a78bfa, #60a5fa);
+  background: linear-gradient(135deg, #39bca3, #0f8f7c);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -786,21 +776,21 @@ const premiumStackLines = premiumStackLinks
   margin-bottom: 2rem;
 }
 .hero-v2-btn-primary {
-  background: linear-gradient(108deg, #7c3aed, #4f46e5) !important;
+  background: linear-gradient(108deg, #0b6f60, #0f8f7c) !important;
   color: #fff !important;
-  box-shadow: 0 8px 28px rgba(99, 60, 232, 0.48) !important;
+  box-shadow: 0 8px 28px rgba(15,143,124,0.48) !important;
   transition: box-shadow 0.22s, transform 0.18s !important;
 }
 .hero-v2-btn-primary:hover {
-  box-shadow: 0 12px 36px rgba(99, 60, 232, 0.65) !important;
+  box-shadow: 0 12px 36px rgba(15,143,124,0.65) !important;
   transform: translateY(-2px);
 }
 .hero-v2-btn-outline {
-  border-color: rgba(167,139,250,0.55) !important;
-  color: #c4b5fd !important;
+  border-color: rgba(15,143,124,0.5) !important;
+  color: #39bca3 !important;
 }
 .hero-v2-btn-outline:hover {
-  background: rgba(167,139,250,0.1) !important;
+  background: rgba(15,143,124,0.1) !important;
 }
 
 /* Tech chips */
@@ -814,16 +804,16 @@ const premiumStackLines = premiumStackLinks
   font-weight: 700;
   padding: 0.3rem 0.72rem;
   border-radius: 999px;
-  background: rgba(167,139,250,0.12);
-  border: 1px solid rgba(167,139,250,0.26);
-  color: #c4b5fd;
+  background: rgba(15,143,124,0.1);
+  border: 1px solid rgba(15,143,124,0.24);
+  color: #39bca3;
   letter-spacing: 0.03em;
   cursor: default;
   transition: background 0.18s, border-color 0.18s;
 }
 .hero-v2-chip:hover {
-  background: rgba(167,139,250,0.22);
-  border-color: rgba(167,139,250,0.5);
+  background: rgba(15,143,124,0.2);
+  border-color: rgba(15,143,124,0.48);
 }
 
 /* ── Photo side ── */
@@ -838,15 +828,15 @@ const premiumStackLines = premiumStackLinks
 .hero-v2-ring {
   position: absolute;
   border-radius: 50%;
-  border: 1px solid rgba(167,139,250,0.15);
+  border: 1px solid rgba(15,143,124,0.14);
   top: 50%; left: 50%;
   transform: translate(-50%, -48%);
   pointer-events: none;
   animation: ring-spin 24s linear infinite;
 }
 .hero-v2-ring-1 { width: 420px; height: 420px; }
-.hero-v2-ring-2 { width: 540px; height: 540px; border-color: rgba(96,165,250,0.1); animation-duration: 36s; animation-direction: reverse; }
-.hero-v2-ring-3 { width: 660px; height: 660px; border-color: rgba(52,211,153,0.07); animation-duration: 52s; }
+.hero-v2-ring-2 { width: 540px; height: 540px; border-color: rgba(15,143,124,0.08); animation-duration: 36s; animation-direction: reverse; }
+.hero-v2-ring-3 { width: 660px; height: 660px; border-color: rgba(57,188,163,0.06); animation-duration: 52s; }
 
 .hero-v2-photo-glow {
   position: absolute;
@@ -856,7 +846,7 @@ const premiumStackLines = premiumStackLinks
   width: 340px;
   height: 340px;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 100%, rgba(122, 65, 255, 0.55) 0%, rgba(99, 60, 232, 0.25) 38%, transparent 68%);
+  background: radial-gradient(circle at 50% 100%, rgba(15,143,124,0.55) 0%, rgba(11,111,96,0.25) 38%, transparent 68%);
   filter: blur(28px);
   pointer-events: none;
 }
@@ -869,7 +859,7 @@ const premiumStackLines = premiumStackLinks
   width: 240px;
   height: 24px;
   border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(122,65,255,0.6) 0%, transparent 72%);
+  background: radial-gradient(ellipse, rgba(15,143,124,0.6) 0%, transparent 72%);
   filter: blur(10px);
   pointer-events: none;
 }
@@ -881,7 +871,7 @@ const premiumStackLines = premiumStackLinks
   max-height: 92%;
   object-fit: contain;
   object-position: bottom;
-  filter: drop-shadow(0 24px 64px rgba(122, 65, 255, 0.45)) drop-shadow(0 4px 16px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 24px 64px rgba(15,143,124,0.42)) drop-shadow(0 4px 16px rgba(0,0,0,0.5));
   animation: photo-float 6s ease-in-out infinite;
   user-select: none;
 }
@@ -925,7 +915,7 @@ const premiumStackLines = premiumStackLinks
 .hero-v2-scroll-line {
   width: 1.5px;
   height: 36px;
-  background: linear-gradient(to bottom, rgba(167,139,250,0.7), transparent);
+  background: linear-gradient(to bottom, rgba(15,143,124,0.7), transparent);
   animation: scroll-line-pulse 2.4s ease-in-out infinite;
 }
 .hero-v2-scroll-label {
@@ -933,7 +923,7 @@ const premiumStackLines = premiumStackLinks
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(167,139,250,0.6);
+  color: rgba(15,143,124,0.6);
 }
 
 .profile-fact,
@@ -981,8 +971,8 @@ const premiumStackLines = premiumStackLinks
   50%       { opacity: 0; }
 }
 @keyframes pulse-dot {
-  0%,100% { box-shadow: 0 0 8px 2px rgba(124,245,208,0.7); }
-  50%     { box-shadow: 0 0 14px 5px rgba(124,245,208,0.35); }
+  0%,100% { box-shadow: 0 0 8px 2px rgba(57,188,163,0.7); }
+  50%     { box-shadow: 0 0 14px 5px rgba(57,188,163,0.35); }
 }
 @keyframes ring-spin {
   from { transform: translate(-50%, -48%) rotate(0deg); }
@@ -1009,145 +999,351 @@ const premiumStackLines = premiumStackLinks
   animation: startup-panel 0.78s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
 }
 
-.stat-card {
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
+/* ═══════════════════════════════════════════════
+   PREMIUM STAT CARDS
+═══════════════════════════════════════════════ */
+.prem-stat-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(15,143,124,0.18);
+  border-radius: 20px;
+  padding: 2rem 1.8rem;
+  text-align: center;
+  backdrop-filter: blur(14px);
+  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+  box-shadow: 0 10px 30px rgba(15,143,124,0.06);
+}
+.prem-stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(15,143,124,0.12);
+  border-color: rgba(15,143,124,0.35);
+}
+.prem-stat-glow {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 50% 0%, rgba(15,143,124,0.12) 0%, transparent 65%);
+  pointer-events: none;
+}
+.prem-stat-value {
+  display: block;
+  font-size: clamp(2.4rem, 4vw, 3.2rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #0b6f60 0%, #0f8f7c 50%, #39bca3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.prem-stat-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #5e706a;
 }
 
-.stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 34px rgba(16, 35, 31, 0.12);
+/* ═══════════════════════════════════════════════
+   PREMIUM SECTION HEADING
+═══════════════════════════════════════════════ */
+.prem-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
-
-.minimal-content-card {
-  border-color: rgba(19, 111, 99, 0.18);
-  background: linear-gradient(158deg, #ffffff, #f2faf7);
-}
-
-.content-kicker {
-  letter-spacing: 0.12em;
-  color: #136f63;
+.prem-kicker {
+  font-size: 0.72rem;
   font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #39bca3;
+  margin-bottom: 0.35rem;
+}
+.prem-section-title {
+  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(110deg, #0e201d 0%, #0b6f60 55%, #0f8f7c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+.prem-ghost-btn {
+  border-color: rgba(15,143,124,0.28) !important;
+  color: #0f8f7c !important;
+  transition: background 0.2s, border-color 0.2s !important;
+}
+.prem-ghost-btn:hover {
+  background: rgba(15,143,124,0.06) !important;
+  border-color: rgba(15,143,124,0.5) !important;
 }
 
-.content-title {
-  max-width: 23ch;
+/* ═══════════════════════════════════════════════
+   PREMIUM PANEL (shared glass card)
+═══════════════════════════════════════════════ */
+.prem-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid rgba(15,143,124,0.15);
+  background:
+    radial-gradient(ellipse at 8% 12%, rgba(15,143,124,0.05) 0%, transparent 48%),
+    radial-gradient(ellipse at 90% 88%, rgba(57,188,163,0.04) 0%, transparent 44%),
+    linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(244,249,247,0.85) 55%, rgba(237,245,242,0.85) 100%);
+  backdrop-filter: blur(14px);
+  padding: 2rem 2rem;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.06);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.prem-panel:hover {
+  box-shadow: 0 24px 56px rgba(0,0,0,0.09), 0 0 0 1px rgba(15,143,124,0.22);
+  transform: translateY(-2px);
+}
+.prem-panel-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(70px);
+  opacity: 0.6;
+}
+.prem-panel-glow-tl {
+  top: -120px;
+  left: -80px;
+  background: radial-gradient(circle, rgba(15,143,124,0.25) 0%, transparent 70%);
+}
+.prem-panel-glow-br {
+  bottom: -100px;
+  right: -60px;
+  background: radial-gradient(circle, rgba(57,188,163,0.25) 0%, transparent 70%);
+}
+.prem-panel-header {
+  margin-bottom: 1.2rem;
+}
+.prem-year-chip {
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  background: rgba(15,143,124,0.08) !important;
+  border: 1px solid rgba(15,143,124,0.22) !important;
+  color: #0f8f7c !important;
+  backdrop-filter: blur(8px);
 }
 
+/* Deliver panel extras */
+.prem-deliver-panel .prem-panel-glow-tl {
+  background: radial-gradient(circle, rgba(15,143,124,0.2) 0%, transparent 70%);
+}
+.prem-deliver-panel .prem-panel-glow-br {
+  background: radial-gradient(circle, rgba(96,165,250,0.15) 0%, transparent 70%);
+}
+
+/* ─── Sub-title & muted ─── */
+.prem-sub-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0e201d;
+  letter-spacing: -0.02em;
+  max-width: 26ch;
+  line-height: 1.4;
+}
+.prem-muted {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #5e706a;
+}
+
+/* ─── Delivery chips ─── */
 .delivery-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.38rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: rgba(15,143,124,0.06);
+  border: 1px solid rgba(15,143,124,0.18);
+  color: #0f8f7c;
   opacity: 0;
   animation: chip-in 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--delay, 0s);
+  transition: background 0.2s, border-color 0.2s;
+}
+.delivery-chip:hover {
+  background: rgba(15,143,124,0.12);
+  border-color: rgba(15,143,124,0.3);
 }
 
+/* ─── Collab steps ─── */
 .collab-list {
   display: grid;
-  gap: 0.8rem;
+  gap: 0.9rem;
 }
-
 .collab-item {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: start;
-  gap: 0.8rem;
-  padding: 0.9rem 1rem;
-  border-radius: 14px;
-  border: 1px solid rgba(15, 143, 124, 0.14);
-  background: rgba(255, 255, 255, 0.82);
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  border-radius: 16px;
+  border: 1px solid rgba(15,143,124,0.12);
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(8px);
   opacity: 0;
   animation: startup-scale 0.62s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--delay, 0s);
+  transition: border-color 0.22s, background 0.22s;
 }
-
+.collab-item:hover {
+  border-color: rgba(15,143,124,0.28);
+  background: rgba(15,143,124,0.04);
+}
 .collab-step {
-  min-width: 2rem;
-  height: 2rem;
+  min-width: 2.2rem;
+  height: 2.2rem;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 800;
-  color: #0b6f60;
-  background: rgba(15, 143, 124, 0.12);
+  color: #ffffff;
+  background: linear-gradient(135deg, #0f8f7c, #0b6f60);
+  flex-shrink: 0;
+}
+.collab-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #0e201d;
 }
 
-.expectation-card {
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
-}
-
-.expectation-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 34px rgba(16, 35, 31, 0.12);
-}
-
-.cta-slab {
-  border-style: dashed;
-  border-width: 1px;
-  border-color: rgba(15, 143, 124, 0.26);
-  background: linear-gradient(155deg, rgba(255, 255, 255, 0.95), rgba(236, 247, 243, 0.96));
-}
-
-.luxe-flow-card {
+/* ═══════════════════════════════════════════════
+   PREMIUM PILLAR CARDS
+═══════════════════════════════════════════════ */
+.prem-pillar-card {
   position: relative;
   overflow: hidden;
-  border-radius: 22px;
-  border: 1px solid rgba(19, 111, 99, 0.24);
+  border-radius: 20px;
+  border: 1px solid rgba(15,143,124,0.2);
   background:
-    radial-gradient(
-      circle at 7% 14%,
-      rgba(19, 111, 99, 0.16) 0%,
-      transparent 34%
-    ),
-    linear-gradient(155deg, #ffffff 0%, #f5fcf8 54%, #eef7ff 100%);
-  box-shadow: 0 18px 36px rgba(16, 35, 31, 0.11);
-  transition:
-    transform 0.28s ease,
-    box-shadow 0.28s ease;
+    radial-gradient(ellipse at 10% 0%, rgba(15,143,124,0.14) 0%, transparent 55%),
+    linear-gradient(150deg, #071812 0%, #080e18 100%);
+  padding: 1.8rem 1.6rem;
+  height: 100%;
+  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
 }
-
-.luxe-flow-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 24px 44px rgba(16, 35, 31, 0.15);
+.prem-pillar-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 54px rgba(15,143,124,0.2);
+  border-color: rgba(15,143,124,0.42);
 }
-
-.luxe-orb {
-  position: absolute;
-  top: -100px;
-  right: -50px;
-  width: 260px;
-  height: 260px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(245, 158, 11, 0.2) 0%,
-    rgba(245, 158, 11, 0) 74%
-  );
-  pointer-events: none;
-  animation: luxe-orb-float 6s ease-in-out infinite;
+.prem-pillar-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(15,143,124,0.12);
+  border: 1px solid rgba(15,143,124,0.26);
+  display: grid;
+  place-items: center;
+  margin-bottom: 1.2rem;
+  transition: background 0.22s, border-color 0.22s;
 }
-
-.luxe-head {
-  position: relative;
-  z-index: 1;
+.prem-pillar-card:hover .prem-pillar-icon-wrap {
+  background: rgba(15,143,124,0.22);
+  border-color: rgba(15,143,124,0.5);
 }
-
-.luxe-kicker {
-  letter-spacing: 0.13em;
-  color: #136f63;
+.prem-pillar-icon {
+  color: #39bca3 !important;
+}
+.prem-pillar-title {
+  font-size: 1.1rem;
   font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.01em;
 }
 
-.luxe-avatar {
-  border: 2px solid #ffffff;
-  box-shadow: 0 8px 20px rgba(19, 111, 99, 0.22);
+/* ═══════════════════════════════════════════════
+   CTA BANNER
+═══════════════════════════════════════════════ */
+.prem-cta-banner {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid rgba(15,143,124,0.22);
+  background:
+    radial-gradient(ellipse at 0% 50%, rgba(15,143,124,0.1) 0%, transparent 52%),
+    radial-gradient(ellipse at 100% 50%, rgba(57,188,163,0.08) 0%, transparent 52%),
+    linear-gradient(120deg, #ffffff 0%, #f4f9f7 60%, #edf5f2 100%);
+  padding: 2.2rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.8rem;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.06);
 }
-
-.luxe-chip {
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+.prem-cta-glow {
+  position: absolute;
+  top: -80px;
+  left: -60px;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(15,143,124,0.15) 0%, transparent 70%);
+  filter: blur(64px);
+  pointer-events: none;
+}
+.prem-cta-content {
+  flex: 1;
+  min-width: 240px;
+}
+.prem-cta-title {
+  font-size: clamp(1.25rem, 2.5vw, 1.7rem);
+  font-weight: 800;
+  color: #0e201d;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+}
+.prem-cta-sub {
+  font-size: 0.95rem;
+  color: #5e706a;
+  line-height: 1.65;
+  margin: 0;
+}
+.prem-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+.prem-cta-btn-primary {
+  background: linear-gradient(108deg, #0b6f60, #0f8f7c) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 28px rgba(15,143,124,0.45) !important;
+  transition: box-shadow 0.22s, transform 0.18s !important;
+}
+.prem-cta-btn-primary:hover {
+  box-shadow: 0 12px 36px rgba(15,143,124,0.62) !important;
+  transform: translateY(-2px);
+}
+.prem-cta-btn-outline {
+  border-color: rgba(15,143,124,0.48) !important;
+  color: #39bca3 !important;
+  transition: background 0.2s !important;
+}
+.prem-cta-btn-outline:hover {
+  background: rgba(15,143,124,0.1) !important;
 }
 
 .premium-stack-map {
@@ -1503,6 +1699,32 @@ const premiumStackLines = premiumStackLinks
   .hero-v2-scroll-cue { display: none; }
   .hero-v2-badge { font-size: 0.68rem; padding: 0.32rem 0.6rem; }
   .luxe-flow-card { padding: 1.15rem !important; }
+  
+  /* Premium panels responsive */
+  .prem-stat-card {
+    padding: 1.5rem 1.2rem;
+  }
+  .prem-panel {
+    padding: 1.5rem 1.25rem;
+  }
+  .collab-item {
+    gap: 0.75rem;
+    padding: 0.8rem 1rem;
+  }
+  .prem-cta-banner {
+    padding: 1.5rem 1.25rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 1.25rem;
+  }
+  .prem-cta-actions {
+    justify-content: center;
+    width: 100%;
+  }
+  .prem-cta-btn-primary, .prem-cta-btn-outline {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
