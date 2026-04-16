@@ -1,6 +1,5 @@
 
 :root {
-  color-scheme: light;
   --page-max-width: 1360px;
   --page-gutter: clamp(12px, 1.8vw, 24px);
   --page-gutter-tight: clamp(10px, 1.4vw, 20px);
@@ -40,7 +39,7 @@
 html,
 body,
 #app {
-  min-height: 100% !important;
+  min-height: 100%;
   overflow-x: auto;
   background: var(--portfolio-bg);
 }
