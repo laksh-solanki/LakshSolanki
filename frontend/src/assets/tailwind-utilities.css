@@ -1,0 +1,107 @@
+/* Tailwind CSS v4 Utility Classes Reference
+ *
+ * This file documents custom utilities available in this project.
+ * Import @tailwindcss in main.css to use these utilities.
+ *
+ * CUSTOM THEME COLORS (usable as classes):
+ * - bg-portfolio-bg, bg-portfolio-primary, bg-portfolio-secondary
+ * - text-portfolio-ink, text-portfolio-primary, text-portfolio-muted
+ * - border-portfolio-stroke, border-portfolio-primary
+ *
+ * CUSTOM FONTS:
+ * - font-sans (Manrope)
+ * - font-heading (Space Grotesk)
+ * - font-mono (JetBrains Mono)
+ *
+ * CUSTOM SHADOW:
+ * - shadow-portfolio
+ *
+ * EXAMPLE USAGE IN VUE COMPONENTS:
+ * <div class="bg-portfolio-primary text-portfolio-ink font-heading shadow-portfolio">
+ *   Content here
+ * </div>
+ */
+
+/* Common utility patterns for this portfolio */
+
+/* Flexbox utilities with portfolio spacing */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Gradient backgrounds */
+.bg-portfolio-gradient {
+  background: var(--portfolio-gradient);
+}
+
+.bg-portfolio-panel {
+  background: var(--portfolio-panel-gradient);
+}
+
+/* Surface variants */
+.bg-surface-soft {
+  background: var(--portfolio-surface-soft);
+}
+
+.bg-surface-muted {
+  background: var(--portfolio-surface-muted);
+}
+
+/* Text emphasis */
+.text-ink {
+  color: var(--portfolio-ink);
+}
+
+.text-ink-soft {
+  color: var(--portfolio-ink-soft);
+}
+
+.text-muted {
+  color: var(--portfolio-muted);
+}
+
+/* Border utilities */
+.border-portfolio {
+  border: 1px solid rgba(15, 143, 124, 0.12);
+}
+
+.border-portfolio-strong {
+  border: 1px solid rgba(15, 143, 124, 0.18);
+}
+
+/* Rounded corners matching portfolio design */
+.rounded-portfolio {
+  border-radius: 24px;
+}
+
+.rounded-portfolio-sm {
+  border-radius: 14px;
+}
+
+/* Container utilities */
+.container-narrow {
+  max-width: min(var(--page-max-width), 100%);
+  padding-left: var(--page-gutter);
+  padding-right: var(--page-gutter);
+}
+
+/* Responsive hiding */
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}

@@ -9,9 +9,9 @@ node_modules
 
 # Log files
 npm-debug.log*
+pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
 
 # Editor directories and files
 .idea
@@ -21,3 +21,10 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Wrangler
+.wrangler/state
+*.local
+
+# Test
+coverage/

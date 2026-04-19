@@ -1,6 +1,33 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Portfolio Theme Configuration - Tailwind CSS v4 */
+@theme {
+  /* Custom colors for portfolio theme */
+  --color-portfolio-bg: #f5f8fb;
+  --color-portfolio-bg-soft: #edf4f2;
+  --color-portfolio-surface: #ffffff;
+  --color-portfolio-surface-strong: #f7fbf9;
+  --color-portfolio-surface-soft: rgba(255, 255, 255, 0.82);
+  --color-portfolio-surface-muted: rgba(242, 248, 246, 0.94);
+  --color-portfolio-ink: #10201d;
+  --color-portfolio-ink-soft: #203833;
+  --color-portfolio-muted: #5e706a;
+  --color-portfolio-primary: #0f8f7c;
+  --color-portfolio-primary-strong: #0b6f60;
+  --color-portfolio-primary-soft: rgba(15, 143, 124, 0.1);
+  --color-portfolio-secondary: #d18a1f;
+  --color-portfolio-secondary-soft: rgba(209, 138, 31, 0.12);
+  --color-portfolio-stroke: #d7e4de;
+  --color-portfolio-stroke-strong: #bfd6cf;
+
+  /* Custom shadow */
+  --shadow-portfolio: 0 18px 46px rgba(18, 38, 33, 0.09);
+
+  /* Custom fonts */
+  --font-sans: "Manrope", "Segoe UI", sans-serif;
+  --font-heading: "Space Grotesk", "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", "Consolas", monospace;
+}
 
 :root {
   --page-max-width: 1360px;
