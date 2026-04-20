@@ -335,7 +335,7 @@ onUnmounted(() => {
     <v-container class="py-8 py-md-12">
       <v-row class="ga-0">
         <v-col cols="12">
-          <v-card class="tool-shell pa-5 pa-md-6 mb-6" rounded="xl" elevation="0">
+          <v-card class="tool-shell p-5 p-md-6 mb-6" rounded="xl" elevation="0">
             <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-3">
               <div class="d-flex align-center flex-wrap ga-2">
                 <v-btn variant="flat" color="primary" rounded="lg" class="text-none" :loading="running" prepend-icon="mdi-play" @click="compilePreview(false)">Compile</v-btn>
@@ -374,10 +374,10 @@ onUnmounted(() => {
 
       <v-row class="ga-0">
         <v-col cols="12">
-          <v-card class="tool-shell pa-4 preview-bottom-card" rounded="xl" elevation="0">
+          <v-card class="tool-shell p-4 preview-bottom-card" rounded="xl" elevation="0">
             <div class="d-flex align-center justify-space-between mb-3 flex-wrap ga-2">
               <h3 class="text-h6 font-weight-bold mb-0">Live Preview</h3>
-              <v-chip size="small" variant="tonal" color="secondary">{{ runCount }} runs · {{ lastRunMs }} ms</v-chip>
+              <v-chip size="small" variant="tonal" color="secondary">{{ runCount }} runs &middot; {{ lastRunMs }} ms</v-chip>
             </div>
             <div class="preview-stage">
               <iframe :srcdoc="srcdoc" class="preview-frame" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>

@@ -37,9 +37,9 @@ const closeDrawer = () => {
         <v-btn class="drawer-close" icon="mdi-close" variant="tonal" size="small" @click="closeDrawer"></v-btn>
       </div>
 
-      <nav class="drawer-nav flex-grow-1">
+      <nav class="drawer-nav flex-1">
         <p class="drawer-subtitle">Navigation</p>
-        <v-list class="bg-transparent pa-0 drawer-links" nav>
+        <v-list class="bg-transparent p-0 drawer-links" nav>
           <v-list-item
             v-for="link in navLinks"
             :key="link.path"

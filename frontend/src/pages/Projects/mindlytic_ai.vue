@@ -81,7 +81,7 @@ const GROQ_CHAT_MODEL = (
   import.meta.env.VITE_GROQ_CHAT_MODEL || "llama-3.3-70b-versatile"
 ).trim();
 const OPENAI_CHAT_MODEL = (
-  import.meta.env.VITE_OPENAI_CHAT_MODEL || "microsoft/phi-3.5-mini-instruct"
+  import.meta.env.VITE_OPENAI_CHAT_MODEL || "meta/llama-3.3-70b-instruct"
 ).trim();
 
 const ASSISTANT_SYSTEM_PROMPT =
@@ -109,7 +109,6 @@ const userInput = ref("");
 const chatScrollRef = ref(null);
 
 const runnerPanelOpen = ref(false);
-const runnerMode = ref("web");
 const runnerLanguage = ref("plaintext");
 const runnerTitle = ref("Code Runner");
 const runnerCode = ref("");
@@ -252,8 +251,21 @@ const resolvePrismLanguage = (language = "") => {
   return Prism.languages[alias] ? alias : "text";
 };
 
-const highlightCodeForDisplay = (code = "", _language = "") =>
-  escapeHtml(String(code || ""));
+const highlightCodeForDisplay = (code = "", language = "") => {
+  const source = String(code || "");
+  if (!source) return "";
+  const prismLanguage = resolvePrismLanguage(language);
+  if (prismLanguage === "text") return escapeHtml(source);
+  try {
+    return Prism.highlight(
+      source,
+      Prism.languages[prismLanguage],
+      prismLanguage,
+    );
+  } catch {
+    return escapeHtml(source);
+  }
+};
 
 const renderAssistantMessage = (text = "") => {
   const raw = String(text || "");
@@ -799,13 +811,8 @@ const buildRunnerDoc = ({
 }) => {
   const lang = String(language || "plaintext").toLowerCase();
   const source = String(code || "");
-  if (mode === "console") {
-    if (!["javascript", "js"].includes(lang)) {
-      return `<!doctype html><html><body style=\"margin:0;background:#0b1020;color:#d5ddf7;font-family:Consolas,monospace;padding:14px;\"><pre>${escapeHtml(source)}</pre></body></html>`;
-    }
-    return `<!doctype html><html><body style=\"margin:0;background:#0b1020;color:#d5ddf7;font-family:Consolas,monospace;padding:14px;\"><div id=\"out\"></div><script>const out=document.getElementById(\"out\");const log=(...a)=>{const d=document.createElement(\"div\");d.textContent=a.map((x)=>typeof x===\"string\"?x:JSON.stringify(x)).join(\" \");out.appendChild(d);};console.log=log;try{new Function(${JSON.stringify(source)})();}catch(e){log(\"ERROR:\",e?.message||\"unknown\");}<\\/script></body></html>`;
-  }
-  if (["html", "htm", "markup", "php"].includes(lang)) {
+
+  if (["html", "htm", "markup"].includes(lang)) {
     return /<html[\\s>]/i.test(source)
       ? source
       : `<!doctype html><html><body style=\"font-family:system-ui;padding:16px;\">${source}</body></html>`;
@@ -823,7 +830,7 @@ const runRunnerPreview = () => {
   runnerSrcdoc.value = buildRunnerDoc({
     code: runnerCode.value,
     language: runnerLanguage.value,
-    mode: runnerMode.value,
+    mode: "web",
   });
   runnerFrameKey.value += 1;
 };
@@ -841,7 +848,7 @@ const openRunnerWithCode = async ({
   const resolvedLanguage = inferRunnerLanguage(language, source);
   if (!canRunInRunner(resolvedLanguage)) {
     showAlert(
-      "Run is disabled for CSS snippets. Use Copy or Download.",
+      "Run is disabled for this code type. Use Copy or Download.",
       "error",
     );
     return;
@@ -849,7 +856,6 @@ const openRunnerWithCode = async ({
   runnerLanguage.value = resolvedLanguage;
   runnerCode.value = source;
   runnerTitle.value = title;
-  runnerMode.value = getRunnerModeForLanguage(resolvedLanguage);
   runnerPanelOpen.value = true;
   await nextTick();
   runRunnerPreview();
@@ -883,17 +889,15 @@ function inferRunnerLanguage(language = "", code = "") {
 }
 
 function isWebRunnerLanguage(language = "") {
-  return ["html", "htm", "markup", "php"].includes(
+  return ["html", "htm", "markup"].includes(
     String(language || "").toLowerCase(),
   );
 }
 
 function canRunInRunner(language = "") {
-  return String(language || "").toLowerCase() !== "css";
-}
-
-function getRunnerModeForLanguage(language = "") {
-  return isWebRunnerLanguage(language) ? "web" : "console";
+  return ["html", "htm", "markup"].includes(
+    String(language || "").toLowerCase(),
+  );
 }
 
 const openCodeRunnerForBlock = (message, index, blockIndex = 0) => {
@@ -1312,13 +1316,6 @@ watch(
   { deep: true },
 );
 
-watch(
-  () => runnerMode.value,
-  () => {
-    if (runnerPanelOpen.value && runnerCode.value.trim()) runRunnerPreview();
-  },
-);
-
 watch(selectedModel, (value) => {
   const normalized = normalizeSelectedProvider(value);
   if (normalized !== value) selectedModel.value = normalized;
@@ -1351,7 +1348,7 @@ onUnmounted(() => {
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
     <v-dialog v-model="deleteDialog" max-width="360">
-      <v-card class="rounded-xl elevation-2 pa-5">
+      <v-card class="rounded-xl elevation-2 p-5">
 
         <!-- Title -->
         <div class="text-subtitle-1 font-weight-medium mb-2">
@@ -1420,7 +1417,7 @@ onUnmounted(() => {
               <div class="history-content">
                 <p class="history-item-title">{{ item.title }}</p>
               </div>
-              <v-btn icon="mdi-delete" size="x-small" variant="outlined" color="error" class="history-delete-btn"
+              <v-btn icon="mdi-delete" size="x-small" variant="plain" color="error" class="history-delete-btn p  -1"
                 :disabled="sending" @click.stop="deleteConversation(item.id)" />
             </button>
           </div>
@@ -1443,7 +1440,7 @@ onUnmounted(() => {
                 <v-btn v-bind="props" icon="mdi-dots-horizontal" density="comfortable" variant="outlined"
                   class="profile-menu-btn" />
               </template>
-              <v-list density="compact" class="profile-menu-list" :class="{ 'profile-menu-list-dark': isDarkTheme }">
+              <v-list density="compact" class="profile-menu-list">
                 <v-list-item :prepend-icon="themeToggleIcon" @click="toggleTheme">
                   <v-list-item-title>{{ themeToggleLabel }}</v-list-item-title>
                 </v-list-item>
@@ -1490,10 +1487,17 @@ onUnmounted(() => {
               <h1 class="auth-title">Mindlytic AI</h1>
             </div>
 
-            <v-btn color="primary" rounded="xl" variant="flat" class="text-none google-auth-btn" :loading="signingIn"
-              :disabled="signingIn" prepend-icon="mdi-google" @click="signInWithGoogle">
-              Sign in with Google
+            <v-btn class="google-auth-btn" :loading="signingIn" :disabled="signingIn"
+              @click="signInWithGoogle">
+              <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              <span class="google-btn-text">Sign in with Google</span>
             </v-btn>
+            <p class="auth-secure-text">🔒 Your data is secure and encrypted</p>
           </div>
         </div>
 
@@ -1569,10 +1573,6 @@ onUnmounted(() => {
                   <p class="ai-runner-title">{{ runnerTitle }}</p>
                 </div>
                 <div class="ai-runner-head-actions">
-                  <v-btn size="x-small" color="primary" variant="tonal" class="text-none runner-mode-btn"
-                    @click="runnerMode = 'web'">Web</v-btn>
-                  <v-btn size="x-small" color="primary" variant="tonal" class="text-none runner-mode-btn"
-                    @click="runnerMode = 'console'">Console</v-btn>
                   <v-btn size="small" variant="text" color="primary" icon="mdi-close" class="runner-close-btn"
                     @click="closeRunnerPanel" />
                 </div>
@@ -1635,7 +1635,7 @@ onUnmounted(() => {
   max-width: 260px;
   height: 100%;
   background-color: #f9f9f9 !important;
-  border-right: none;
+  border-right: 1px solid rgba(15, 23, 42, 0.12);
   display: flex;
   flex-direction: column;
   padding: 12px;
@@ -1646,6 +1646,7 @@ onUnmounted(() => {
 
 .mindlytic-page.theme-dark .chat-sidebar {
   background-color: #171717 !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Sidebar Branding */
@@ -1808,7 +1809,7 @@ onUnmounted(() => {
   padding: 10px 12px;
   background-color: #ececec !important;
   border-radius: 8px;
-  border: 0.1px solid #0d0d0d !important;
+  border: 1px solid #0d0d0d !important;
   margin-top: 12px;
   transition: all 0.2s ease;
 }
@@ -1856,6 +1857,38 @@ onUnmounted(() => {
 
 .mindlytic-page.theme-dark .user-profile .v-avatar {
   background-color: #10a37f !important;
+}
+
+.profile-menu-btn {
+  border-radius: 8px !important;
+}
+
+.profile-menu-list {
+  border-radius: 12px !important;
+  background-color: #f9f9f9 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+}
+
+.profile-menu-list-dark {
+  background-color: #2a2b32 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.32) !important;
+}
+
+.profile-menu-list :deep(.v-list-item) {
+  border-radius: 0;
+  color: #0d0d0d !important;
+}
+
+.profile-menu-list-dark :deep(.v-list-item) {
+  color: #ececec !important;
+}
+
+.profile-menu-list :deep(.v-divider) {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.profile-menu-list-dark :deep(.v-divider) {
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Chat Main Area */
@@ -1963,7 +1996,7 @@ onUnmounted(() => {
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 17px;
   min-width: 380px;
 }
 
@@ -1991,22 +2024,180 @@ onUnmounted(() => {
   color: #ececec !important;
 }
 
+.auth-secure-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #65676b;
+  margin: 12px 0 0;
+  text-align: center;
+  letter-spacing: 0.2px;
+  line-height: 1.4;
+}
+
+.mindlytic-page.theme-dark .auth-secure-text {
+  color: #9aa0a6;
+}
+
 .google-auth-btn {
-  height: 52px !important;
-  font-size: 1rem !important;
+  width: 100%;
+  max-width: 360px;
+  height: 48px !important;
+  padding: 0 28px !important;
+  border-radius: 8px !important;
+  font-size: 0.95rem !important;
   font-weight: 500 !important;
-  border-radius: 4px !important;
-  background-color: #fff !important;
-  color: #0d0d0d !important;
-  border: 1px solid #d9d9e3 !important;
-  box-shadow: none !important;
+  letter-spacing: 0.32px;
   text-transform: none !important;
+  background-color: #fff !important;
+  color: #3c4043 !important;
+  border: 1px solid #dadce0 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.2s ease !important;
+  position: relative;
+  overflow: hidden;
+  margin: 16px auto 0;
+  white-space: nowrap;
+}
+
+.google-auth-btn :deep(.v-btn__content) {
+  display: flex !important;
+  flex-direction: row;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 18px !important;
+  width: 100%;
+}
+
+.google-auth-btn:hover:not(:disabled) {
+  background-color: #f8f9fa !important;
+  border-color: #d2d3d4 !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12) !important;
+}
+
+.google-auth-btn:active:not(:disabled) {
+  background-color: #f1f3f4 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.google-auth-btn:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.google-btn-text {
+  display: inline-block;
+  font-weight: 500;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
 }
 
 .mindlytic-page.theme-dark .google-auth-btn {
-  background-color: #202123 !important;
-  color: #ececec !important;
-  border-color: #565869 !important;
+  background-color: #262626 !important;
+  color: #e8eaed !important;
+  border: 1px solid #3c4043 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.24) !important;
+}
+
+.mindlytic-page.theme-dark .google-auth-btn:hover:not(:disabled) {
+  background-color: #2d2d2d !important;
+  border-color: #5f6368 !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.32) !important;
+}
+
+.mindlytic-page.theme-dark .google-auth-btn:active:not(:disabled) {
+  background-color: #202124 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.24) !important;
+}
+
+/* Responsive Google Button */
+@media (max-width: 600px) {
+  .google-auth-btn {
+    max-width: 100% !important;
+    width: calc(100% - 32px);
+    padding: 0 24px !important;
+    height: 46px !important;
+    font-size: 0.9rem !important;
+  }
+
+  .google-auth-btn :deep(.v-btn__content) {
+    gap: 16px !important;
+  }
+
+  .google-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .google-btn-text {
+    font-size: 0.9rem;
+  }
+
+  .auth-secure-text {
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .google-auth-btn {
+    max-width: 100% !important;
+    width: calc(100% - 24px);
+    padding: 0 20px !important;
+    height: 44px !important;
+    font-size: 0.85rem !important;
+  }
+
+  .google-auth-btn :deep(.v-btn__content) {
+    gap: 14px !important;
+  }
+
+  .google-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .google-btn-text {
+    font-size: 0.85rem;
+  }
+
+  .auth-secure-text {
+    font-size: 0.7rem;
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .google-auth-btn {
+    padding: 0 16px !important;
+    height: 42px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .google-auth-btn :deep(.v-btn__content) {
+    gap: 12px !important;
+  }
+
+  .google-icon {
+    width: 15px;
+    height: 15px;
+  }
+
+  .google-btn-text {
+    font-size: 0.8rem;
+  }
+
+  .auth-secure-text {
+    font-size: 0.68rem;
+    margin-top: 8px;
+  }
 }
 
 /* Message Bubbles */
@@ -2061,6 +2252,7 @@ onUnmounted(() => {
   border-radius: 0;
   padding-left: 0;
   padding-right: 0;
+  width: 100%;
   max-width: 100%;
 }
 
@@ -2160,36 +2352,48 @@ onUnmounted(() => {
 .composer-panel {
   max-width: 768px;
   margin: 0 auto;
-  background-color: #cccccc !important;
-  border: 1px solid black !important;
+  background-color: #f3f4f6 !important;
+  border: 1px solid rgba(15, 23, 42, 0.16) !important;
   border-radius: 10px !important;
-  padding: 10px 10px;
+  padding: 12px 12px 12px 12px;
   box-shadow: none !important;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .composer-panel:focus-within {
-  border-color: transparent !important;
+  border-color: rgba(15, 23, 42, 0.24) !important;
 }
 
 .mindlytic-page.theme-dark .composer-panel {
   background-color: #2f2f2f !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.mindlytic-page.theme-dark .composer-panel:focus-within {
+  border-color: rgba(255, 255, 255, 0.24) !important;
 }
 
 /* Vuetify Element Overrides to kill unwanted backgrounds */
 .composer-input {
   width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .composer-input :deep(.v-input__control) {
   min-height: unset !important;
   background: transparent !important;
+  box-sizing: border-box;
 }
 
 .composer-input :deep(.v-field) {
   background: transparent !important;
+  box-sizing: border-box;
+  padding: 0 !important;
 }
 
 .composer-input :deep(.v-field__overlay),
@@ -2197,26 +2401,50 @@ onUnmounted(() => {
 .composer-input :deep(.v-field__loader) {
   display: none !important;
 }
+
 .composer-input :deep(textarea) {
   color: #0d0d0d !important;
+  box-sizing: border-box;
+  overflow: hidden;
+  resize: none !important;
 }
-.mindlytic-page.theme-dark .composer-input :deep(textarea) { color: #ececec !important; }
-.mindlytic-page.theme-dark .composer-input :deep(textarea::placeholder) { color: #9b9b9b !important; }
 
-.composer-bottom-tools { display: flex; justify-content: space-between; align-items: center; }
+.mindlytic-page.theme-dark .composer-input :deep(textarea) {
+  color: #ececec !important;
+}
 
-.composer-model-select { width: auto; flex: none;}
+.mindlytic-page.theme-dark .composer-input :deep(textarea::placeholder) {
+  color: #9b9b9b !important;
+}
+
+.composer-bottom-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  gap: 8px;
+}
+
+.composer-model-select {
+  width: auto;
+  flex: none;
+  box-sizing: border-box;
+}
+
 .composer-model-select :deep(.v-field) {
   border-radius: 9px !important;
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  box-sizing: border-box;
 }
 
 .composer-model-select :deep(.v-field__input) {
   font-size: 0.875rem;
   font-weight: 500;
   color: #494949 !important;
+  box-sizing: border-box;
 }
 
 .mindlytic-page.theme-dark .composer-model-select :deep(.v-field__input) {
@@ -2229,133 +2457,184 @@ onUnmounted(() => {
   border-radius: 50% !important;
   width: 32px !important;
   height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
   box-shadow: none !important;
-  margin-right: 4px;
+  margin-left: 8px;
   transition: opacity 0.2s;
+  flex-shrink: 0;
 }
 
 .mindlytic-page.theme-dark .composer-send {
   background: #fff !important;
   color: #000 !important;
 }
-.composer-send:disabled { opacity: 0.2; background: #000 !important; color: #fff !important; }
-.mindlytic-page.theme-dark .composer-send:disabled { background: #fff !important; color: #000 !important; }
+
+.composer-send:disabled {
+  opacity: 0.2;
+  background: #000 !important;
+  color: #fff !important;
+}
+
+.mindlytic-page.theme-dark .composer-send:disabled {
+  background: #fff !important;
+  color: #000 !important;
+}
 
 /* Markdown Customizations - Clean */
 .markdown-body {
+  width: 100%;
   font-size: 1rem;
+  line-height: 1.65;
   color: #0d0d0d !important;
   background-color: transparent !important;
+  overflow-wrap: anywhere;
 }
 
 .mindlytic-page.theme-dark .markdown-body {
   color: #ececec !important;
 }
 
-.markdown-body p {
-  margin-bottom: 16px;
+.markdown-body :deep(p) {
+  margin: 0 0 14px;
 }
 
-.message-row-user .markdown-body p {
-  margin-bottom: 0px;
+.message-row-user .markdown-body :deep(p) {
+  margin-bottom: 0;
 }
 
-.markdown-body pre {
-  background-color: #0d0d0d !important;
-  color: #ececec !important;
-  padding: 16px !important;
-  border-radius: 8px;
+.markdown-body :deep(pre) {
+  background-color: #a8b5ce !important;
+  color: #000000 !important;
+  padding: 14px 16px !important;
+  border-radius: 0px;
   overflow-x: auto;
-  margin: 16px 0;
-  border: none !important;
+  overflow-y: hidden;
+  margin: 0;
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
-.mindlytic-page.theme-dark .markdown-body pre {
-  background-color: #000000 !important;
+.mindlytic-page.theme-dark .markdown-body :deep(pre) {
+  background-color: #020817 !important;
+  color: #ececec !important;
 }
 
-.markdown-body code {
+.markdown-body :deep(:not(pre) > code) {
   background-color: rgba(0, 0, 0, 0.05) !important;
-  padding: 2px 4px;
-  border-radius: 4px;
-  font-size: 0.9em;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: #111827 !important;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.88em;
+  font-weight: 500;
+  font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
 }
 
-.mindlytic-page.theme-dark .markdown-body code {
+.mindlytic-page.theme-dark .markdown-body :deep(:not(pre) > code) {
   background-color: rgba(255, 255, 255, 0.1) !important;
   color: #ececec !important;
 }
 
-.markdown-body pre code {
+.markdown-body :deep(pre code.code-block-text) {
+  display: block;
+  min-width: max-content;
   background-color: transparent !important;
-  padding: 0px !important;
+  padding: 0 !important;
   border-radius: 0;
   color: inherit !important;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  letter-spacing: 0.005em;
+  white-space: pre;
+  word-break: normal;
+  tab-size: 2;
+  font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace !important;
 }
 
 /* Inline Code Runner Block */
 .markdown-body :deep(.inline-code-runner) {
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  border-radius: 12px;
   overflow: hidden;
   margin: 16px 0;
   background-color: #fff !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
 }
 
 .mindlytic-page.theme-dark .markdown-body :deep(.inline-code-runner) {
-  border-color: rgba(255, 255, 255, 0.1);
-  background-color: #212121 !important;
+  border-color: rgba(148, 163, 184, 0.22);
+  background-color: #111827 !important;
 }
 
 .markdown-body :deep(.inline-code-runner-head) {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #f9f9f9 !important;
-  padding: 8px 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  background-color: #f8fafc !important;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.12);
 }
 
 .mindlytic-page.theme-dark .markdown-body :deep(.inline-code-runner-head) {
-  background-color: #171717 !important;
-  border-bottom-color: rgba(255, 255, 255, 0.1);
+  background-color: #0f172a !important;
+  border-bottom-color: rgba(148, 163, 184, 0.2);
+}
+
+.markdown-body :deep(.inline-code-actions) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .markdown-body :deep(.inline-code-lang) {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #666 !important;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #4b5563 !important;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
 }
 
 .mindlytic-page.theme-dark .markdown-body :deep(.inline-code-lang) {
-  color: #b4b4b4 !important;
+  color: #cbd5e1 !important;
 }
 
 .markdown-body :deep(.code-runner-inline-btn) {
-  font-size: 0.75rem;
-  padding: 4px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
   background-color: transparent !important;
-  border: 1px solid rgba(0, 0, 0, 0.2) !important;
-  border-radius: 4px;
+  border: 1px solid rgba(15, 23, 42, 0.2) !important;
+  border-radius: 6px;
   color: #0d0d0d !important;
   cursor: pointer;
-  margin-left: 8px;
+  margin-left: 0;
   transition: all 0.2s;
 }
 
 .markdown-body :deep(.code-runner-inline-btn:hover) {
-  background-color: rgba(0, 0, 0, 0.05) !important;
+  background-color: rgba(15, 23, 42, 0.06) !important;
+  border-color: rgba(15, 23, 42, 0.32) !important;
 }
 
 .mindlytic-page.theme-dark .markdown-body :deep(.code-runner-inline-btn) {
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  color: #ececec !important;
+  border-color: rgba(148, 163, 184, 0.32) !important;
+  color: #e5e7eb !important;
 }
 
 .mindlytic-page.theme-dark .markdown-body :deep(.code-runner-inline-btn:hover) {
-  background-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: rgba(148, 163, 184, 0.14) !important;
 }
 
 /* Syntax Highlighting */
@@ -2385,11 +2664,15 @@ onUnmounted(() => {
 
 /* Runner Panel */
 .ai-runner-panel {
-  flex: 0 0 clamp(300px, 35vw, 600px);
+  flex: 0 0 clamp(320px, 35vw, 600px);
+  min-width: 320px;
+  min-height: 0;
+  overflow: hidden;
   background-color: #fff !important;
   border-left: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  position: relative;
   z-index: 25;
 }
 
@@ -2398,12 +2681,21 @@ onUnmounted(() => {
   border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.runner-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background-color: rgba(0, 0, 0, 0.32);
+}
+
 .ai-runner-head {
   padding: 12px 16px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .mindlytic-page.theme-dark .ai-runner-head {
@@ -2413,20 +2705,33 @@ onUnmounted(() => {
 .ai-runner-title {
   font-weight: 500;
   font-size: 0.875rem;
+  line-height: 1.25;
   color: #0d0d0d !important;
+  margin: 0;
+  min-width: 0;
 }
 
 .mindlytic-page.theme-dark .ai-runner-title {
   color: #ececec !important;
 }
 
+.ai-runner-head-main {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
 .ai-runner-head-actions {
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .ai-runner-frame {
   flex: 1;
+  min-height: 0;
   width: 100%;
   border: none;
   background-color: white !important;
@@ -2493,6 +2798,18 @@ onUnmounted(() => {
   .message-row-user .message-bubble {
     padding: 10px 16px;
     max-width: 90%;
+  }
+
+  .markdown-body :deep(.inline-code-runner-head) {
+    padding: 8px 10px;
+  }
+
+  .markdown-body :deep(pre) {
+    padding: 12px !important;
+  }
+
+  .markdown-body :deep(pre code.code-block-text) {
+    font-size: 0.8rem;
   }
 }
 </style>

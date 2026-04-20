@@ -325,7 +325,7 @@ const experiences = [
 ];
 
 const skillGroups = [
-  { title: "Frontend", skills: ["Vue 3", "Vuetify", "Tailwind", "Pinia", "Accessibility", "Responsive UX"] },
+  { title: "Frontend", skills: ["Vue 3", "Vuetify", "Modern CSS", "Pinia", "Accessibility", "Responsive UX"] },
   { title: "Backend", skills: ["Node.js", "Fastify", "MongoDB", "REST APIs", "Auth", "Validation"] },
   { title: "Tooling", skills: ["Vite", "Git", "pnpm", "Postman", "VS Code", "Deployment"] },
   { title: "Workflow", skills: ["Feature Planning", "Code Review", "Refactoring", "Debugging", "Documentation"] },

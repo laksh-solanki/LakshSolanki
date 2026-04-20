@@ -99,7 +99,7 @@ export const getEnv = (overrides = {}) => {
     groqChatModel: source.GROQ_CHAT_MODEL?.trim() || "llama-3.3-70b-versatile",
     openaiApiKey: source.OPENAI_API_KEY?.trim() || source.NVIDIA_API_KEY?.trim() || "",
     openaiBaseUrl: source.OPENAI_BASE_URL?.trim().replace(/\/+$/, "") || "https://integrate.api.nvidia.com/v1",
-    openaiChatModel: source.OPENAI_CHAT_MODEL?.trim() || "microsoft/phi-3.5-mini-instruct",
+    openaiChatModel: source.OPENAI_CHAT_MODEL?.trim() || "meta/llama-3.3-70b-instruct",
     aiDefaultProvider: parseAiProvider(source.AI_DEFAULT_PROVIDER),
     aiSystemPrompt:
       source.AI_SYSTEM_PROMPT?.trim() ||

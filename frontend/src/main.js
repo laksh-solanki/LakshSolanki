@@ -10,6 +10,7 @@ import "@fontsource/manrope/latin-800.css";
 import "@fontsource/jetbrains-mono/latin-400.css";
 import "@fontsource/jetbrains-mono/latin-600.css";
 import "@/assets/main.css";
+import "@/assets/vuetify-spacing-compat.css";
 
 // Components
 import App from "./App.vue";

@@ -17,7 +17,7 @@ const goBack = () => {
 
 <template>
   <v-container class="notfound-shell py-10 py-md-16">
-    <section class="minimal-404 section-shell pa-6 pa-md-10">
+    <section class="minimal-404 section-shell p-6 p-md-10">
       <v-chip color="secondary" variant="flat" class="font-weight-bold mb-5">
         Error 404
       </v-chip>

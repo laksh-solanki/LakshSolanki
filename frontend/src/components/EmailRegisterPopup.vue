@@ -1,5 +1,5 @@
 <template>
-  <v-card class="newsletter-card pa-4 pa-md-5" rounded="xl" elevation="0">
+  <v-card class="newsletter-card p-4 p-md-5" rounded="xl" elevation="0">
     <div class="newsletter-head mb-4">
       <div class="eyebrow-chip">Let's collaborate better</div>
       <div class="d-flex align-start justify-space-between ga-3">

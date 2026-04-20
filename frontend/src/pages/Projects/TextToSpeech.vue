@@ -888,7 +888,7 @@ onUnmounted(() => {
     <v-container class="py-8 py-md-12">
       <v-row class="ga-0" align="start">
         <v-col cols="12" lg="8" class="pr-lg-6 mb-8 mb-lg-0">
-          <v-card class="tool-shell pa-5 pa-md-7" rounded="xl" elevation="0">
+          <v-card class="tool-shell p-5 p-md-7" rounded="xl" elevation="0">
             <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
               <div>
                 <p class="panel-kicker mb-1">Input</p>
@@ -1029,7 +1029,7 @@ onUnmounted(() => {
             </div>
           </v-card>
 
-          <v-card class="tool-shell pa-5 mt-6" rounded="xl" elevation="0">
+          <v-card class="tool-shell p-5 mt-6" rounded="xl" elevation="0">
             <p class="panel-kicker mb-2">Live Preview</p>
             <div class="speech-preview-text">
               <span>{{ highlightedPreview.before }}</span>
@@ -1040,7 +1040,7 @@ onUnmounted(() => {
         </v-col>
 
         <v-col cols="12" lg="4">
-          <v-card class="side-panel pa-5 mb-6" rounded="xl" elevation="0">
+          <v-card class="side-panel p-5 mb-6" rounded="xl" elevation="0">
             <p class="panel-kicker mb-1">Presets</p>
             <h3 class="text-h6 font-weight-bold mb-3">Voice mood styles</h3>
 
@@ -1059,7 +1059,7 @@ onUnmounted(() => {
             </div>
           </v-card>
 
-          <v-card class="side-panel pa-5 mb-6" rounded="xl" elevation="0">
+          <v-card class="side-panel p-5 mb-6" rounded="xl" elevation="0">
             <p class="panel-kicker mb-1">Samples</p>
             <h3 class="text-h6 font-weight-bold mb-3">Quick text templates</h3>
 
@@ -1071,7 +1071,7 @@ onUnmounted(() => {
             </div>
           </v-card>
 
-          <v-card class="side-panel pa-5 mb-6" rounded="xl" elevation="0">
+          <v-card class="side-panel p-5 mb-6" rounded="xl" elevation="0">
             <p class="panel-kicker mb-1">Saved</p>
             <h3 class="text-h6 font-weight-bold mb-3">Your snippets</h3>
 
@@ -1080,7 +1080,7 @@ onUnmounted(() => {
             </div>
 
             <div v-else class="d-flex flex-column ga-2">
-              <v-sheet v-for="snippet in savedSnippets" :key="snippet.id" class="snippet-item pa-3" rounded="lg">
+              <v-sheet v-for="snippet in savedSnippets" :key="snippet.id" class="snippet-item p-3" rounded="lg">
                 <div class="d-flex align-start justify-space-between ga-2">
                   <button class="snippet-title" @click="useSnippet(snippet)">
                     {{ snippet.title }}

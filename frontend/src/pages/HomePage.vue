@@ -60,7 +60,7 @@ const techStack = [
   "MongoDB",
   "Fastify",
   "REST APIs",
-  "Tailwind CSS",
+  "Modern CSS",
   "Web Performance",
 ];
 

@@ -801,7 +801,7 @@ watch(
     <v-container class="py-8 py-md-12">
       <v-row dense class="tool-grid">
         <v-col cols="12" lg="5">
-          <v-card class="tool-shell pa-5 pa-md-7 h-100" rounded="xl" elevation="0">
+          <v-card class="tool-shell p-5 p-md-7 h-100" rounded="xl" elevation="0">
             <p class="panel-kicker mb-1">Input</p>
             <h2 class="text-h5 font-weight-bold mb-1">Select source photo</h2>
             <p class="text-body-2 text-medium-emphasis mb-5">
@@ -908,7 +908,7 @@ watch(
         </v-col>
 
         <v-col cols="12" lg="7">
-          <v-card class="tool-shell pa-5 pa-md-7 h-100" rounded="xl" elevation="0">
+          <v-card class="tool-shell p-5 p-md-7 h-100" rounded="xl" elevation="0">
             <p class="panel-kicker mb-1">Preview</p>
             <h2 class="text-h5 font-weight-bold mb-1">Passport output</h2>
             <p class="text-body-2 text-medium-emphasis mb-5">

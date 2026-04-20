@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { ref } from "vue";
 import { getMediaUrl } from "@/utils/mediaUrl";
 
@@ -109,7 +109,7 @@ const projects = ref([
 
 <template>
   <v-container class="py-8 py-md-12 projects-shell">
-    <section class="section-shell pa-6 pa-md-8 mb-8 header-card">
+    <section class="section-shell p-6 p-md-8 mb-8 header-card">
       <p class="text-overline text-primary font-weight-bold mb-2">Portfolio Projects</p>
       <h1 class="text-h4 text-md-h3 mb-3">Selected developer tools and product builds</h1>
       <p class="muted-copy mb-0 intro-copy">
@@ -122,7 +122,7 @@ const projects = ref([
         <v-card class="section-shell project-card h-100" :to="project.link" flat hover rounded="lg">
           <v-img :src="project.image" cover class="project-media"></v-img>
 
-          <div class="pa-5 d-flex flex-column project-card-body">
+          <div class="p-5 d-flex flex-column project-card-body">
             <p class="text-caption text-primary font-weight-bold text-uppercase mb-2">
               {{ project.category }}
             </p>

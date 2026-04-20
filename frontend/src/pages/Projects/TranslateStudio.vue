@@ -767,7 +767,7 @@ onUnmounted(() => {
     <v-container class="py-6 py-md-8 tool-main-container">
       <v-row class="ga-0" align="start">
         <v-col cols="12">
-          <v-card class="tool-shell pa-4 pa-md-6" rounded="xl" elevation="0">
+          <v-card class="tool-shell p-4 p-md-6" rounded="xl" elevation="0">
 
             <!-- Controls row -->
             <div class="d-flex align-center flex-wrap ga-2 mb-4 controls-row">
@@ -949,7 +949,7 @@ onUnmounted(() => {
 
                 <!-- Find & Replace toolbar -->
                 <Transition name="fr-slide">
-                  <div v-if="showFindReplace" class="find-replace-bar mt-3 pa-3">
+                  <div v-if="showFindReplace" class="find-replace-bar mt-3 p-3">
                     <div class="d-flex align-center flex-wrap ga-2 find-replace-controls">
                       <v-text-field
                         v-model="findText"
@@ -1019,7 +1019,7 @@ onUnmounted(() => {
           <Transition name="compare-reveal">
             <v-card
               v-if="compareMode && (compareResults.google || compareResults.myMemory)"
-              class="compare-card mt-4 pa-4 pa-md-5"
+              class="compare-card mt-4 p-4 p-md-5"
               rounded="xl"
               elevation="0"
             >

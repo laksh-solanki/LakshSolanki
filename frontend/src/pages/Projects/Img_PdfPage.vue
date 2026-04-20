@@ -310,7 +310,7 @@ onUnmounted(() => {
     <v-container class="py-8 py-md-12">
       <v-row dense align="start">
         <v-col cols="12" :lg="images.length > 0 ? 4 : 12">
-          <v-card class="tool-shell pa-5 pa-md-7" rounded="xl" elevation="0">
+          <v-card class="tool-shell p-5 p-md-7" rounded="xl" elevation="0">
             <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
               <div>
                 <p class="panel-kicker mb-1">Upload Images</p>
@@ -347,7 +347,7 @@ onUnmounted(() => {
         <v-col cols="12" lg="8">
           <transition name="slide-up">
             <div v-if="images.length > 0">
-              <v-card class="tool-shell pa-4 pa-md-5" rounded="xl" elevation="0">
+              <v-card class="tool-shell p-4 p-md-5" rounded="xl" elevation="0">
                 <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-5">
                   <h3 class="text-h6 font-weight-bold mb-0">Image Pages ({{ images.length }})</h3>
                   <div class="d-flex align-center ga-2 flex-wrap">
@@ -368,7 +368,7 @@ onUnmounted(() => {
                 <v-row>
                   <v-col v-for="(image, index) in images" :key="image.id" cols="12" sm="6" md="6" lg="4">
                     <v-card class="image-card" rounded="xl" elevation="0">
-                      <v-card-actions class="d-flex justify-end ga-1 pa-2">
+                      <v-card-actions class="d-flex justify-end ga-1 p-2">
                         <v-btn @click="toggleImageOrientation(index)"
                           :icon="(image.orientation || 'p') === 'p' ? 'mdi-crop-portrait' : 'mdi-crop-landscape'"
                           color="primary" variant="tonal" size="small"
@@ -385,7 +385,7 @@ onUnmounted(() => {
                           color="error"></v-btn>
                       </v-card-actions>
 
-                      <div class="pa-2 d-flex justify-center overflow-hidden">
+                      <div class="p-2 d-flex justify-center overflow-hidden">
                         <v-img :src="image.url" :alt="image.name" height="210" contain class="rounded-lg" :style="{
                           transform: `rotate(${image.rotation}deg)`,
                           transition: 'transform 0.3s ease',

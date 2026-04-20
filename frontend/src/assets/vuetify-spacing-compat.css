@@ -1,0 +1,72 @@
+﻿/* Compatibility helpers for p-* and m-* spacing classes using Vuetify 4px scale. */
+.p-0 { padding: 0px !important; }
+.m-0 { margin: 0px !important; }
+.p-1 { padding: 4px !important; }
+.m-1 { margin: 4px !important; }
+.p-2 { padding: 8px !important; }
+.m-2 { margin: 8px !important; }
+.p-3 { padding: 12px !important; }
+.m-3 { margin: 12px !important; }
+.p-4 { padding: 16px !important; }
+.m-4 { margin: 16px !important; }
+.p-5 { padding: 20px !important; }
+.m-5 { margin: 20px !important; }
+.p-6 { padding: 24px !important; }
+.m-6 { margin: 24px !important; }
+.p-7 { padding: 28px !important; }
+.m-7 { margin: 28px !important; }
+.p-8 { padding: 32px !important; }
+.m-8 { margin: 32px !important; }
+.p-9 { padding: 36px !important; }
+.m-9 { margin: 36px !important; }
+.p-10 { padding: 40px !important; }
+.m-10 { margin: 40px !important; }
+.p-11 { padding: 44px !important; }
+.m-11 { margin: 44px !important; }
+.p-12 { padding: 48px !important; }
+.m-12 { margin: 48px !important; }
+.p-13 { padding: 52px !important; }
+.m-13 { margin: 52px !important; }
+.p-14 { padding: 56px !important; }
+.m-14 { margin: 56px !important; }
+.p-15 { padding: 60px !important; }
+.m-15 { margin: 60px !important; }
+.p-16 { padding: 64px !important; }
+.m-16 { margin: 64px !important; }
+
+@media (min-width: 960px) {
+  .p-md-0 { padding: 0px !important; }
+  .m-md-0 { margin: 0px !important; }
+  .p-md-1 { padding: 4px !important; }
+  .m-md-1 { margin: 4px !important; }
+  .p-md-2 { padding: 8px !important; }
+  .m-md-2 { margin: 8px !important; }
+  .p-md-3 { padding: 12px !important; }
+  .m-md-3 { margin: 12px !important; }
+  .p-md-4 { padding: 16px !important; }
+  .m-md-4 { margin: 16px !important; }
+  .p-md-5 { padding: 20px !important; }
+  .m-md-5 { margin: 20px !important; }
+  .p-md-6 { padding: 24px !important; }
+  .m-md-6 { margin: 24px !important; }
+  .p-md-7 { padding: 28px !important; }
+  .m-md-7 { margin: 28px !important; }
+  .p-md-8 { padding: 32px !important; }
+  .m-md-8 { margin: 32px !important; }
+  .p-md-9 { padding: 36px !important; }
+  .m-md-9 { margin: 36px !important; }
+  .p-md-10 { padding: 40px !important; }
+  .m-md-10 { margin: 40px !important; }
+  .p-md-11 { padding: 44px !important; }
+  .m-md-11 { margin: 44px !important; }
+  .p-md-12 { padding: 48px !important; }
+  .m-md-12 { margin: 48px !important; }
+  .p-md-13 { padding: 52px !important; }
+  .m-md-13 { margin: 52px !important; }
+  .p-md-14 { padding: 56px !important; }
+  .m-md-14 { margin: 56px !important; }
+  .p-md-15 { padding: 60px !important; }
+  .m-md-15 { margin: 60px !important; }
+  .p-md-16 { padding: 64px !important; }
+  .m-md-16 { margin: 64px !important; }
+}

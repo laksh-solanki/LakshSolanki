@@ -281,7 +281,7 @@ const generatePdf = async () => {
     <v-container class="py-8 py-md-12">
       <v-row class="ga-0" align="start">
         <v-col cols="12" lg="8" class="pr-lg-6 mb-8 mb-lg-0">
-          <v-card class="form-shell pa-5 pa-md-7" rounded="xl" elevation="0">
+          <v-card class="form-shell p-5 p-md-7" rounded="xl" elevation="0">
             <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
               <div>
                 <p class="form-kicker mb-1">Fill Certificate Details</p>
@@ -382,7 +382,7 @@ const generatePdf = async () => {
         </v-col>
 
         <v-col cols="12" lg="4">
-          <v-card class="side-panel pa-5" rounded="xl" elevation="0">
+          <v-card class="side-panel p-5" rounded="xl" elevation="0">
             <p class="form-kicker mb-1">Quick Guide</p>
             <h3 class="text-h6 font-weight-bold mb-3">3-step process</h3>
 

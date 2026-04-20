@@ -249,7 +249,7 @@ const generatePassword = () => {
     <v-container class="py-8 py-md-12">
       <v-row class="ga-0" align="stretch">
         <v-col cols="12" class="mb-6">
-          <v-card class="tool-shell pa-5 pa-md-7" rounded="xl" elevation="0">
+          <v-card class="tool-shell p-5 p-md-7" rounded="xl" elevation="0">
             <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-4">
               <div>
                 <p class="panel-kicker mb-1">Text Transformer</p>
@@ -296,7 +296,7 @@ const generatePassword = () => {
         </v-col>
 
         <v-col cols="12" class="mb-6">
-          <v-card class="tool-shell pa-5 pa-md-7" rounded="xl" elevation="0">
+          <v-card class="tool-shell p-5 p-md-7" rounded="xl" elevation="0">
             <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-4">
               <div>
                 <p class="panel-kicker mb-1">Encoding Lab</p>
@@ -344,7 +344,7 @@ const generatePassword = () => {
         <v-col cols="12">
           <v-row>
             <v-col cols="12" md="6">
-              <v-card class="tool-shell pa-5 pa-md-6 h-100" rounded="xl" elevation="0">
+              <v-card class="tool-shell p-5 p-md-6 h-100" rounded="xl" elevation="0">
                 <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-4">
                   <div>
                     <p class="panel-kicker mb-1">UUID Generator</p>
@@ -362,7 +362,7 @@ const generatePassword = () => {
             </v-col>
 
             <v-col cols="12" md="6">
-              <v-card class="tool-shell pa-5 pa-md-6 h-100" rounded="xl" elevation="0">
+              <v-card class="tool-shell p-5 p-md-6 h-100" rounded="xl" elevation="0">
                 <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-4">
                   <div>
                     <p class="panel-kicker mb-1">Password Generator</p>

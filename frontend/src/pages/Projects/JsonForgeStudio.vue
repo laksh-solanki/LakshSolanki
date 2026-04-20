@@ -492,7 +492,7 @@ const goBack = () => window.history.back();
     <v-container class="py-8 py-md-12">
       <v-row class="ga-0" align="start">
         <v-col cols="12" lg="8" class="pr-lg-6 mb-8 mb-lg-0">
-          <v-card class="tool-shell pa-5 pa-md-7 mb-6" rounded="xl" elevation="0">
+          <v-card class="tool-shell p-5 p-md-7 mb-6" rounded="xl" elevation="0">
             <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
               <div>
                 <p class="panel-kicker mb-1">Editors</p>
@@ -569,7 +569,7 @@ const goBack = () => window.history.back();
             </div>
           </v-card>
 
-          <v-card class="tool-shell output-shell pa-5 pa-md-6" rounded="xl" elevation="0">
+          <v-card class="tool-shell output-shell p-5 p-md-6" rounded="xl" elevation="0">
             <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-4">
               <div>
                 <p class="panel-kicker mb-1">Output</p>
@@ -590,7 +590,7 @@ const goBack = () => window.history.back();
         </v-col>
 
         <v-col cols="12" lg="4">
-          <v-card class="side-panel pa-5 mb-6" rounded="xl" elevation="0">
+          <v-card class="side-panel p-5 mb-6" rounded="xl" elevation="0">
             <p class="panel-kicker mb-2">Insights</p>
             <div class="status-grid">
               <div class="status-item">
@@ -620,7 +620,7 @@ const goBack = () => window.history.back();
             </div>
           </v-card>
 
-          <v-card class="side-panel pa-5 mb-6" rounded="xl" elevation="0">
+          <v-card class="side-panel p-5 mb-6" rounded="xl" elevation="0">
             <div class="d-flex align-center justify-space-between ga-2 mb-2">
               <p class="panel-kicker mb-0">Key Explorer</p>
               <v-chip size="small" color="primary" variant="tonal">{{ filteredPaths.length }}</v-chip>
@@ -651,7 +651,7 @@ const goBack = () => window.history.back();
             </div>
           </v-card>
 
-          <v-card class="side-panel pa-5" rounded="xl" elevation="0">
+          <v-card class="side-panel p-5" rounded="xl" elevation="0">
             <div class="d-flex align-center justify-space-between ga-2 mb-2">
               <p class="panel-kicker mb-0">Diff Summary</p>
               <v-chip size="small" color="secondary" variant="tonal">{{ diffCount }}</v-chip>

@@ -9,7 +9,7 @@
       :icon="$vuetify.display.smAndDown"
       @click="openPalette"
     >
-      <v-icon icon="mdi-magnify" :start="!$vuetify.display.smAndDown" :class="{ 'ma-0': $vuetify.display.smAndDown }"></v-icon>
+      <v-icon icon="mdi-magnify" :start="!$vuetify.display.smAndDown" :class="{ 'm-0': $vuetify.display.smAndDown }"></v-icon>
       <template v-if="$vuetify.display.mdAndUp">
         <span class="search-trigger__label">Search...</span>
         <kbd class="search-trigger__kbd">Ctrl K</kbd>
@@ -729,4 +729,3 @@ kbd {
   }
 }
 </style>
-
