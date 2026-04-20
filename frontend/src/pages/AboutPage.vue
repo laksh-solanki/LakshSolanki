@@ -454,7 +454,7 @@ const scrollToSubscribe = () => {
   padding-block: 80px 64px;
 }
 
-/* ── Dark hero mesh (matching HomePage hero-v2) ── */
+/*─ Dark hero mesh (matching HomePage hero-v2) ── */
 .ap-hero__mesh {
   position: absolute;
   inset: 0;
@@ -723,7 +723,9 @@ const scrollToSubscribe = () => {
 
 .ap-profile-sidebar {
   position: sticky;
-  top: 88px;
+  top: 24px;
+  align-self: start;
+  z-index: 1;
 }
 
 /* profile card */
@@ -1304,9 +1306,6 @@ const scrollToSubscribe = () => {
   }
   .ap-profile-layout {
     grid-template-columns: 1fr;
-  }
-  .ap-profile-sidebar {
-    position: static;
   }
   .ap-profile-card {
     flex-direction: row;

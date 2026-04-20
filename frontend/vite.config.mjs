@@ -50,7 +50,9 @@ export default defineConfig(async () => {
       }),
     ],
 
-    optimizeDeps: {},
+    optimizeDeps: {
+      include:['vuetify/lib/components', 'vuetify/lib/directives'],
+    },
 
     define: {
       "process.env.NODE_ENV": JSON.stringify(
@@ -68,8 +70,12 @@ export default defineConfig(async () => {
     server: {
       port: 3000,
       host: true,
+      open: true,
+      strictPort: true,
     },
-
+    css:{
+      devSourcemap: true,
+    },
     build: {
       target: "esnext",
       cssCodeSplit: false,
