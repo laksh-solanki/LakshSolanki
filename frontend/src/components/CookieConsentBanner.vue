@@ -88,24 +88,20 @@ onMounted(() => {
     <transition name="cookie-slide">
       <section
         v-if="isVisible"
-        class="cookie-banner"
+        class="cookie-banner-minimal"
         role="dialog"
         aria-live="polite"
-        aria-label="Cookie preferences"
       >
-        <div class="cookie-copy">
-          <p class="cookie-title mb-1">Cookie Preferences</p>
-          <p class="cookie-text mb-0">
-            We use cookies for essential site functionality and optional experience improvements.
-            Choose Accept or Reject.
-          </p>
+        <div class="cookie-info">
+          <v-icon color="primary" size="18" class="mr-2">mdi-cookie-outline</v-icon>
+          <span class="cookie-text">We use cookies to improve your experience.</span>
         </div>
         <div class="cookie-actions">
           <v-btn
-            variant="outlined"
-            color="primary"
-            rounded="lg"
-            class="text-none consent-btn"
+            variant="text"
+            color="muted"
+            size="small"
+            class="text-none px-2 mini-btn"
             @click="rejectCookies"
           >
             Reject
@@ -113,8 +109,9 @@ onMounted(() => {
           <v-btn
             variant="flat"
             color="primary"
-            rounded="lg"
-            class="text-none consent-btn"
+            size="small"
+            rounded="pill"
+            class="text-none px-4 mini-btn"
             @click="acceptCookies"
           >
             Accept
@@ -126,83 +123,90 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.cookie-banner {
+.cookie-banner-minimal {
   position: fixed;
+  bottom: 24px;
   left: 50%;
-  bottom: max(12px, env(safe-area-inset-bottom));
   transform: translateX(-50%);
-  width: min(960px, calc(100vw - 24px));
   z-index: 10050;
+  
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(15, 143, 124, 0.16);
-  background:
-    radial-gradient(circle at 8% 0%, rgba(15, 143, 124, 0.08), transparent 42%),
-    linear-gradient(155deg, rgba(255, 255, 255, 0.98), rgba(241, 247, 245, 0.96));
-  box-shadow: 0 14px 36px rgba(18, 38, 33, 0.1);
+  gap: 16px;
+  
+  padding: 6px 8px 6px 18px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(15, 143, 124, 0.12);
+  border-radius: 100px;
+  box-shadow: 0 10px 30px -5px rgba(18, 38, 33, 0.12);
+  
+  width: auto;
+  max-width: calc(100vw - 32px);
   pointer-events: auto;
 }
 
-.cookie-copy {
-  min-width: 0;
-}
-
-.cookie-title {
-  font-weight: 700;
-  color: var(--portfolio-ink);
+.cookie-info {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .cookie-text {
-  font-size: 0.86rem;
-  line-height: 1.5;
-  color: var(--portfolio-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--portfolio-ink);
+  letter-spacing: -0.01em;
 }
 
 .cookie-actions {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+  gap: 4px;
 }
 
-.consent-btn {
-  min-width: 94px;
-  font-weight: 700;
+.mini-btn {
+  font-weight: 700 !important;
+  letter-spacing: 0.01em;
 }
 
+/* Slide Transition */
 .cookie-slide-enter-active,
 .cookie-slide-leave-active {
-  transition:
-    transform 0.24s ease,
-    opacity 0.24s ease;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .cookie-slide-enter-from,
 .cookie-slide-leave-to {
-  transform: translateX(-50%) translateY(16px);
+  transform: translateX(-50%) translateY(40px);
   opacity: 0;
 }
 
-@media (max-width: 760px) {
-  .cookie-banner {
-    align-items: flex-start;
+/* Responsiveness */
+@media (max-width: 640px) {
+  .cookie-banner-minimal {
+    bottom: 20px;
+    padding: 10px 12px 10px 16px;
+    border-radius: 20px;
     flex-direction: column;
-    padding: 12px;
-    bottom: max(8px, env(safe-area-inset-bottom));
+    align-items: flex-start;
+    gap: 12px;
+    width: calc(100vw - 32px);
+  }
+
+  .cookie-info {
+    white-space: normal;
   }
 
   .cookie-actions {
     width: 100%;
-    justify-content: stretch;
+    justify-content: flex-end;
   }
 
-  .consent-btn {
-    flex: 1 1 0;
-    min-width: 0;
+  .cookie-text {
+    font-size: 0.825rem;
   }
 }
 </style>
