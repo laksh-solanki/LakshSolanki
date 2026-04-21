@@ -1,5 +1,6 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { useDisplay, useTheme } from "vuetify";
 import {
   onAuthStateChanged,
   signInWithPopup,
@@ -90,7 +91,8 @@ const signingIn = ref(false);
 const loadingHistory = ref(false);
 const loadingConversation = ref(false);
 const sending = ref(false);
-const sidebarOpen = ref(false);
+const { mobile } = useDisplay();
+const sidebarOpen = ref(!mobile.value);
 const selectedModel = ref("gemini");
 const avatarImageFailed = ref(false);
 const historyLoadError = ref("");
@@ -265,7 +267,7 @@ const renderAssistantMessage = (text = "") => {
         const languageFromHtml = String(languageFromHtmlMatch?.[1] || "")
           .trim()
           .toLowerCase();
-        
+
         const codeFromHtml = decodeHtmlEntities(
           String(codeBlockHtml || "")
             .replace(/^<pre><code[^>]*>/i, "")
@@ -288,7 +290,7 @@ const renderAssistantMessage = (text = "") => {
 
         const escapedCode = escapeHtml(rawBlockCode);
         const codeHtml = `<pre><code class="code-block-text">${escapedCode}</code></pre>`;
-        
+
         const runButtonHtml = canRunInRunner(blockLanguage)
           ? `<button type="button" class="code-runner-inline-btn" data-code-index="${currentCodeIndex}" data-code-language="${escapeHtml(blockLanguage)}" data-code-action="run" aria-label="Run code">Run</button>`
           : "";
@@ -613,7 +615,7 @@ const authorizedFetchHistory = async (path = "", options = {}) => {
 
       const errorText = await readErrorResponse(response);
       lastError = new Error(`API error (${response.status}): ${errorText}`);
-      
+
       if (index < historyUrls.length - 1 && RETRYABLE_STATUSES.has(response.status)) {
         console.warn(`[History] Retryable status ${response.status}, trying next candidate...`);
         continue;
@@ -693,8 +695,11 @@ const composerMenuProps = computed(() => ({
 }));
 
 const normalizeTheme = (value) => (value === "dark" ? "dark" : "light");
+const theme = useTheme();
 const applyTheme = (value) => {
-  pageTheme.value = normalizeTheme(value);
+  const normalized = normalizeTheme(value);
+  pageTheme.value = normalized;
+  theme.global.name.value = normalized === "dark" ? "portfolioDark" : "portfolioLight";
 };
 const toggleTheme = () => {
   applyTheme(isDarkTheme.value ? "light" : "dark");
@@ -1075,7 +1080,7 @@ const openConversation = async (conversationId, closeSidebar = true) => {
       : [];
     insertOrUpdateConversationSummary(conversation);
 
-    if (closeSidebar) sidebarOpen.value = false;
+    if (closeSidebar && mobile.value) sidebarOpen.value = false;
     await scrollToBottom();
   } catch (error) {
     showAlert(getFriendlyFetchError(error, "conversation"), "error");
@@ -1352,99 +1357,99 @@ onUnmounted(() => {
     </v-dialog>
 
 
-    <div class="mindlytic-layout">
-      <div v-if="hasUser && sidebarOpen" class="sidebar-backdrop" @click="sidebarOpen = false"></div>
+    <v-layout class="mindlytic-layout">
+      <v-navigation-drawer v-model="sidebarOpen" class="chat-sidebar" :permanent="!mobile" v-if="hasUser" border="0"
+        width="260">
+        <v-list class="pa-3">
+          <v-list-item class="pa-0 mb-4">
+            <v-btn class="new-chat-btn w-100 text-none" color="primary" variant="flat" rounded="lg"
+              prepend-icon="mdi-plus" :disabled="!hasUser || sending" @click="startNewChat">
+              New chat
+            </v-btn>
+          </v-list-item>
 
-      <aside class="chat-sidebar" :class="{ 'chat-sidebar-open': sidebarOpen }" v-if="hasUser">
-        <div class="sidebar-brand">
-          <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" class="w-8 brand-logo-mark" />
-          <div class="brand-copy">
-            <p class="brand-name">mindlytic</p>
-            <p class="brand-subtitle">AI Workspace</p>
-          </div>
-          <v-btn class="sidebar-toggle-btn" icon="mdi-close" density="comfortable" size="small" variant="tonal"
-            title="Close sidebar" @click="sidebarOpen = false" />
-        </div>
+          <div class="history-wrap">
+            <p class="history-title px-1 py-2">Recent Chats</p>
 
-        <v-btn class="new-chat-btn text-none" color="primary" variant="flat" rounded="xl" prepend-icon="mdi-plus"
-          :disabled="!hasUser || sending" @click="startNewChat">
-          New chat
-        </v-btn>
-
-        <div class="history-wrap">
-          <p class="history-title my-2">Recent Chats</p>
-
-          <div v-if="loadingHistory" class="history-empty">
-            Loading history...
-          </div>
-          <div v-else-if="!hasUser" class="history-empty">
-            Sign in to see your chats.
-          </div>
-          <div v-else-if="conversations.length === 0" class="history-empty">
-            No saved chats yet.
-          </div>
-          <p v-if="historyLoadError" class="history-error">
-            {{ historyLoadError }}
-          </p>
-
-          <div v-if="conversations.length > 0" class="history-list">
-            <button v-for="item in conversations" :key="item.id" class="history-item" :class="{
-              'history-item-active': item.id === activeConversationId,
-            }" :disabled="loadingConversation || sending" @click="openConversation(item.id)">
-              <div class="history-content">
-                <p class="history-item-title">{{ item.title }}</p>
-              </div>
-              <v-btn icon="mdi-delete" size="x-small" variant="plain" color="error" class="history-delete-btn p  -1"
-                :disabled="sending" @click.stop="deleteConversation(item.id)" />
-            </button>
-          </div>
-        </div>
-
-        <template v-if="hasUser">
-          <div class="user-profile">
-            <v-avatar size="32" class="mr-2" color="primary" variant="tonal">
-              <img v-if="userAvatarSrc" :src="userAvatarSrc" alt="Profile" class="profile-image"
-                referrerpolicy="no-referrer" @error="avatarImageFailed = true" />
-              <span v-else class="avatar-initial">{{ userInitial }}</span>
-            </v-avatar>
-            <div class="user-copy">
-              <p class="user-name">
-                {{ currentUser?.displayName || "Signed in user" }}
-              </p>
+            <div v-if="loadingHistory" class="history-empty text-center py-4">
+              <v-progress-circular indeterminate size="20" width="2" color="primary" class="mr-2" />
+              <span class="text-caption">Loading history...</span>
             </div>
-            <v-menu location="top end" offset="12">
-              <template #activator="{ props }">
-                <v-btn v-bind="props" icon="mdi-dots-horizontal" density="comfortable" variant="outlined"
-                  class="profile-menu-btn" />
-              </template>
-              <v-list density="compact" class="profile-menu-list">
-                <v-list-item :prepend-icon="themeToggleIcon" @click="toggleTheme">
-                  <v-list-item-title>{{ themeToggleLabel }}</v-list-item-title>
-                </v-list-item>
-                <v-divider />
-                <v-list-item prepend-icon="mdi-logout" @click="signOutUser">
-                  <v-list-item-title>Logout</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
+            <div v-else-if="!hasUser" class="history-empty">
+              Sign in to see your chats.
+            </div>
+            <div v-else-if="conversations.length === 0" class="history-empty px-1">
+              No saved chats yet.
+            </div>
+            <p v-if="historyLoadError" class="history-error px-1">
+              {{ historyLoadError }}
+            </p>
+
+            <div v-if="conversations.length > 0" class="history-list">
+              <button v-for="item in conversations" :key="item.id" class="history-item" :class="{
+                'history-item-active': item.id === activeConversationId,
+              }" :disabled="loadingConversation || sending" @click="openConversation(item.id)">
+                <div class="history-content">
+                  <p class="history-item-title">{{ item.title }}</p>
+                </div>
+                <v-btn icon="mdi-delete-outline" size="x-small" variant="text" color="error" class="history-delete-btn"
+                  :disabled="sending" @click.stop="deleteConversation(item.id)" />
+              </button>
+            </div>
+          </div>
+        </v-list>
+
+        <template v-slot:append>
+          <div class="pa-3">
+            <div class="user-profile rounded-lg p-2 d-flex align-center border">
+              <v-avatar size="32" class="mr-2" color="primary" variant="tonal">
+                <img v-if="userAvatarSrc" :src="userAvatarSrc" alt="Profile" class="profile-image"
+                  referrerpolicy="no-referrer" @error="avatarImageFailed = true" />
+                <span v-else class="avatar-initial">{{ userInitial }}</span>
+              </v-avatar>
+              <div class="user-copy flex-grow-1 min-width-0">
+                <p class="user-name text-truncate">
+                  {{ currentUser?.displayName || "User" }}
+                </p>
+              </div>
+              <v-menu location="top center" offset="13">
+                <template #activator="{ props }">
+                  <v-btn v-bind="props" icon="mdi-dots-horizontal" rounded="lg" density="comfortable" variant="text" />
+                </template>
+                <v-list density="compact" class="border" rounded="lg" slim
+                  :class="isDarkTheme ? 'profile-menu-list-dark' : 'profile-menu-list'">
+                  <v-list-item :prepend-icon="themeToggleIcon" @click="toggleTheme">
+                    <v-list-item-title>{{ themeToggleLabel }}</v-list-item-title>
+                  </v-list-item>
+                  <v-divider opacity="0.4" />
+                  <v-list-item prepend-icon="mdi-logout" @click="signOutUser" color="error">
+                    <v-list-item-title>Logout</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </div>
           </div>
         </template>
-        <template v-else>
-          <p class="user-email">Google sign-in is required.</p>
+      </v-navigation-drawer>
+
+      <v-app-bar v-if="hasUser" flat border density="comfortable" color="background">
+        <v-app-bar-nav-icon v-if="mobile" @click="sidebarOpen = !sidebarOpen" />
+        <v-app-bar-title class="text-subtitle-1 font-weight-medium">
+          <template v-if="mobile" class="text-start w-100">
+            {{ activeConversationTitle }}
+          </template>
+          <div v-else class="d-flex align-center">
+            <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" style="width: 24px; height: 24px;" class="mr-2" />
+            <span class="font-weight-bold">Mindlytic AI</span>
+          </div>
+        </v-app-bar-title>
+        <template v-slot:append>
+          <v-btn icon="mdi-plus" variant="text" size="large" class="m-0" :disabled="sending" @click="startNewChat"
+            v-if="mobile" />
         </template>
-      </aside>
+      </v-app-bar>
 
-      <section class="chat-main">
-        <header v-if="hasUser" class="chat-mobile-head">
-          <v-btn icon="mdi-menu" size="small" variant="text" @click="toggleSidebar" />
-          <span class="chat-mobile-title">{{
-            hasUser ? activeConversationTitle : "Mindlytic AI"
-          }}</span>
-
-          <v-btn density="comfortable" variant="text" icon="mdi-plus" :disabled="!hasUser || sending"
-            @click="startNewChat" />
-        </header>
-
+      <v-main class="chat-main">
         <v-progress-linear v-if="!authReady" class="session-top-loader" indeterminate color="primary" height="3" />
 
         <div v-if="!authReady" class="session-loader-spacer"></div>
@@ -1464,13 +1469,20 @@ onUnmounted(() => {
               <h1 class="auth-title">Mindlytic AI</h1>
             </div>
 
-            <v-btn class="google-auth-btn" :loading="signingIn" :disabled="signingIn"
-              @click="signInWithGoogle">
+            <v-btn class="google-auth-btn" :loading="signingIn" :disabled="signingIn" @click="signInWithGoogle">
               <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                <path
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  fill="#4285F4" />
+                <path
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  fill="#34A853" />
+                <path
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  fill="#FBBC05" />
+                <path
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  fill="#EA4335" />
               </svg>
               <span class="google-btn-text">Sign in with Google</span>
             </v-btn>
@@ -1527,17 +1539,15 @@ onUnmounted(() => {
               <div class="composer-shell" :class="{ 'composer-shell-floating': isEmptyConversation }">
                 <div class="composer-panel">
                   <v-textarea v-model="userInput" class="composer-input" placeholder="Message Mindlytic AI" hide-details
-                    rows="1" auto-grow max-rows="6" variant="outlined" :disabled="sending || loadingConversation"
-                    @keydown="handlePromptKeydown" />
+                    rows="1" auto-grow max-rows="2" density="compact" variant="outlined"
+                    :disabled="sending || loadingConversation" @keydown="handlePromptKeydown" />
                   <div class="composer-bottom-tools">
                     <v-select :key="`model-select-${pageTheme}`" v-model="selectedModel" :items="modelOptions"
                       item-title="label" item-value="value" :return-object="false" density="compact" hide-details
                       variant="outlined" :menu-props="composerMenuProps" class="composer-model-select"
                       :disabled="sending || loadingConversation" />
-                    <v-btn icon color="primary" class="composer-send" :disabled="!canSend" :loading="sending"
-                      @click="sendMessage">
-                      <v-icon icon="mdi-arrow-up" />
-                    </v-btn>
+                    <v-btn icon="mdi-arrow-up" density="comfortable" color="primary" class="composer-send"
+                      :disabled="!canSend" :loading="sending" @click="sendMessage" />
                   </div>
                 </div>
               </div>
@@ -1559,8 +1569,8 @@ onUnmounted(() => {
             </aside>
           </div>
         </template>
-      </section>
-    </div>
+      </v-main>
+    </v-layout>
   </div>
 </template>
 
@@ -1571,85 +1581,38 @@ onUnmounted(() => {
 .mindlytic-page {
   height: 100dvh;
   width: 100vw;
-  background-color: #ffffff !important;
-  color: #0d0d0d !important;
+  background-color: rgb(var(--v-theme-surface)) !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
   overflow: hidden;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   transition: background-color 0.2s ease, color 0.2s ease;
   position: relative;
 }
 
-.mindlytic-page.theme-dark {
-  background-color: #212121 !important;
-  color: #ececec !important;
-}
-
-.mindlytic-page * {
-  border-color: inherit;
-}
-
 .mindlytic-layout {
   height: 100%;
-  display: flex;
-  position: relative;
-  z-index: 1;
   background-color: transparent !important;
 }
 
 /* Sidebar */
-.sidebar-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 40;
-  opacity: 1;
-  transition: opacity 0.3s ease;
-}
-
 .chat-sidebar {
-  width: 260px;
-  min-width: 260px;
-  max-width: 260px;
-  height: 100%;
-  background-color: #f9f9f9 !important;
-  border-right: 1px solid rgba(15, 23, 42, 0.12);
+  background-color: rgb(var(--v-theme-surface)) !important;
+  border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity)) !important;
   display: flex;
   flex-direction: column;
-  padding: 12px;
-  position: relative;
-  z-index: 50;
-  transition: transform 0.3s ease;
 }
 
 .mindlytic-page.theme-dark .chat-sidebar {
   background-color: #171717 !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Sidebar Branding */
-.sidebar-brand {
-  display: none;
 }
 
 /* New Chat Button */
 .new-chat-btn {
-  --v-btn-height: 40px;
   font-weight: 500;
-  border-radius: 8px !important;
-  background-color: #ececec !important;
-  color: #0d0d0d !important;
   box-shadow: none !important;
   text-transform: none;
   font-size: 0.875rem;
   transition: all 0.2s ease;
-  border: none !important;
-  padding: 8px 12px !important;
-}
-
-
-.mindlytic-page.theme-dark .new-chat-btn {
-  color: #ececec !important;
-  background-color: #212121 !important;
 }
 
 /* History List */
@@ -1658,32 +1621,14 @@ onUnmounted(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  margin-top: 12px;
 }
 
 .history-title {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #666;
-  padding: 8px 12px;
-  margin-top: 16px;
-}
-
-.mindlytic-page.theme-dark .history-title {
-  color: #b4b4b4 !important;
-}
-
-.history-error {
-  margin: 0 12px 8px;
-  font-size: 0.8rem;
-  color: #ef4444;
-}
-
-.history-empty {
-  margin: 8px 12px;
-  font-size: 0.875rem;
-  color: #666;
-  font-style: italic;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .history-list {
@@ -1691,63 +1636,31 @@ onUnmounted(() => {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-}
-
-.history-list::-webkit-scrollbar,
-.chat-scroll::-webkit-scrollbar {
-  width: 4px;
-}
-
-.history-list::-webkit-scrollbar-track,
-.chat-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.history-list::-webkit-scrollbar-thumb,
-.chat-scroll::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-}
-
-.mindlytic-page.theme-dark .history-list::-webkit-scrollbar-thumb,
-.mindlytic-page.theme-dark .chat-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  gap: 4px;
+  padding-right: 4px;
 }
 
 .history-item {
+  color: rgb(var(--v-theme-on-surface));
   display: flex;
   align-items: center;
   text-align: start;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: 8px;
   background-color: transparent !important;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  width: 100%;
 }
 
 .history-item:hover {
-  background-color: #ececec !important;
-}
-
-.mindlytic-page.theme-dark .history-item:hover {
-  background-color: #2a2b32 !important;
+  background-color: rgba(var(--v-theme-on-surface), 0.05) !important;
 }
 
 .history-item-active {
-  background-color: #ececec !important;
-}
-
-.mindlytic-page.theme-dark .history-item-active {
-  background-color: #343541 !important;
-}
-
-.history-content,
-.history-delete-btn {
-  position: relative;
-  z-index: 1;
+  background-color: rgba(var(--v-theme-on-surface), 0.1) !important;
 }
 
 .history-content {
@@ -1759,146 +1672,49 @@ onUnmounted(() => {
   margin: 0;
   font-size: 0.875rem;
   font-weight: 400;
-  color: #0d0d0d;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.mindlytic-page.theme-dark .history-item-title {
-  color: #ececec !important;
-}
-
 .history-delete-btn {
   opacity: 0;
-  transform: translateX(5px);
+  transition: opacity 0.2s;
 }
 
 .history-item:hover .history-delete-btn {
   opacity: 1;
-  transform: translateX(0);
 }
 
 /* User Profile */
-.user-profile {
-  display: flex;
-  align-items: center;
-  padding: 10px 12px;
-  background-color: #ececec !important;
-  border-radius: 8px;
-  border: 1px solid #0d0d0d !important;
-  margin-top: 12px;
-  transition: all 0.2s ease;
+.profile-menu-list {
+  background-color: rgb(var(--v-theme-surface)) !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
 }
 
-.mindlytic-page.theme-dark .user-profile {
+.profile-menu-list-dark {
   background-color: #2a2b32 !important;
+  color: #ececec !important;
 }
 
-.profile-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-.user-copy {
-  flex: 1;
-  min-width: 0;
-  margin: 0 12px;
+.user-profile {
+  background-color: rgba(var(--v-theme-on-surface), 0.03);
+  transition: all 0.2s ease;
 }
 
 .user-name {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #0d0d0d;
   margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.mindlytic-page.theme-dark .user-name {
-  color: #ececec !important;
-}
-
-.user-email {
-  display: none;
-}
-
-.avatar-initial {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
-}
-
-.mindlytic-page.theme-dark .user-profile .v-avatar {
-  background-color: #10a37f !important;
-}
-
-.profile-menu-btn {
-  border-radius: 8px !important;
-}
-
-.profile-menu-list {
-  border-radius: 12px !important;
-  background-color: #f9f9f9 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
-}
-
-.profile-menu-list-dark {
-  background-color: #2a2b32 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.32) !important;
-}
-
-.profile-menu-list :deep(.v-list-item) {
-  border-radius: 0;
-  color: #0d0d0d !important;
-}
-
-.profile-menu-list-dark :deep(.v-list-item) {
-  color: #ececec !important;
-}
-
-.profile-menu-list :deep(.v-divider) {
-  border-color: rgba(0, 0, 0, 0.1) !important;
-}
-
-.profile-menu-list-dark :deep(.v-divider) {
-  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Chat Main Area */
 .chat-main {
-  flex: 1;
   display: flex;
   flex-direction: column;
   position: relative;
   background-color: transparent !important;
-  min-width: 0;
-}
-
-.chat-mobile-head {
-  display: none;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background-color: rgba(255, 255, 255, 0.9) !important;
-  backdrop-filter: blur(8px);
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.mindlytic-page.theme-dark .chat-mobile-head {
-  background-color: rgba(33, 33, 33, 0.9) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.chat-mobile-title {
-  font-size: 1rem;
-  font-weight: 500;
+  height: 100%;
 }
 
 .workspace-shell {
@@ -1906,7 +1722,6 @@ onUnmounted(() => {
   display: flex;
   overflow: hidden;
   position: relative;
-  background-color: transparent !important;
 }
 
 .chat-workspace {
@@ -1915,15 +1730,13 @@ onUnmounted(() => {
   flex-direction: column;
   position: relative;
   min-width: 0;
-  background-color: transparent !important;
 }
 
 .chat-scroll {
   flex: 1;
-  padding: 48px 24px;
   overflow-y: auto;
   scroll-behavior: smooth;
-  background-color: transparent !important;
+  padding: 32px 24px;
 }
 
 .empty-state {
@@ -1937,25 +1750,16 @@ onUnmounted(() => {
 }
 
 .empty-title {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 600;
-  margin: 0;
-  color: #0d0d0d;
-}
-
-.mindlytic-page.theme-dark .empty-title {
-  color: #ececec !important;
-}
-
-.empty-subtitle {
-  display: none;
+  margin-bottom: 8px;
 }
 
 /* Authentication State */
 .state-card {
-  padding: 24px;
+  padding: 48px;
   text-align: center;
-  color: #ef4444;
+  color: rgb(var(--v-error));
 }
 
 .state-card-auth {
@@ -1964,7 +1768,6 @@ onUnmounted(() => {
   align-items: center;
   height: 100%;
   width: 100%;
-  background: transparent;
 }
 
 .auth-content {
@@ -2261,13 +2064,8 @@ onUnmounted(() => {
   gap: 8px;
   justify-content: flex-start;
   margin-top: 4px;
-  opacity: 0;
-  transition: opacity 0.2s;
 }
 
-.message-row:hover .message-actions {
-  opacity: 1;
-}
 
 /* Thinking Indicator */
 .message-bubble-thinking {
@@ -2321,7 +2119,7 @@ onUnmounted(() => {
 /* Composer / Input Area */
 .composer-shell {
   padding: 0 24px 24px;
-  background-color: transparent !important;
+  background-color: #ffffff00;
   position: relative;
   z-index: 20;
 }
@@ -2331,9 +2129,8 @@ onUnmounted(() => {
   margin: 0 auto;
   background-color: #f3f4f6 !important;
   border: 1px solid rgba(15, 23, 42, 0.16) !important;
-  border-radius: 10px !important;
+  border-radius: 15px !important;
   padding: 12px 12px 12px 12px;
-  box-shadow: none !important;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -2354,15 +2151,12 @@ onUnmounted(() => {
   border-color: rgba(255, 255, 255, 0.24) !important;
 }
 
-/* Vuetify Element Overrides to kill unwanted backgrounds */
 .composer-input {
   width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 .composer-input :deep(.v-input__control) {
-  min-height: unset !important;
   background: transparent !important;
   box-sizing: border-box;
 }
@@ -2370,7 +2164,6 @@ onUnmounted(() => {
 .composer-input :deep(.v-field) {
   background: transparent !important;
   box-sizing: border-box;
-  padding: 0 !important;
 }
 
 .composer-input :deep(.v-field__overlay),
@@ -2381,9 +2174,8 @@ onUnmounted(() => {
 
 .composer-input :deep(textarea) {
   color: #0d0d0d !important;
+  padding: 3px 0 !important;
   box-sizing: border-box;
-  overflow: hidden;
-  resize: none !important;
 }
 
 .mindlytic-page.theme-dark .composer-input :deep(textarea) {
@@ -2428,20 +2220,6 @@ onUnmounted(() => {
   color: #f3f3f3 !important;
 }
 
-.composer-send {
-  background: #000 !important;
-  color: #fff !important;
-  border-radius: 50% !important;
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  min-height: 32px !important;
-  box-shadow: none !important;
-  margin-left: 8px;
-  transition: opacity 0.2s;
-  flex-shrink: 0;
-}
-
 .mindlytic-page.theme-dark .composer-send {
   background: #fff !important;
   color: #000 !important;
@@ -2481,7 +2259,7 @@ onUnmounted(() => {
 }
 
 .markdown-body :deep(pre) {
-  background-color: #a8b5ce !important;
+  background-color: #ebf2ff !important;
   color: #000000 !important;
   padding: 14px 16px !important;
   border-radius: 0px;
@@ -2552,7 +2330,7 @@ onUnmounted(() => {
   align-items: center;
   flex-wrap: wrap;
   gap: 8px 10px;
-  background-color: #f8fafc !important;
+  background-color: #d1e0fd !important;
   padding: 10px 12px;
   border-bottom: 1px solid rgba(15, 23, 42, 0.12);
 }
