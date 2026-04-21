@@ -1,9 +1,6 @@
 <script setup>
 import { computed, ref } from "vue";
-import Prism from "@/utils/prism-languages";
 import Alerts from "@/components/Alerts.vue";
-
-import "prismjs/themes/prism.css";
 
 const sourceInput = ref("");
 const compareInput = ref("");
@@ -197,12 +194,6 @@ const diffCount = computed(() => diffState.value.added.length + diffState.value.
 
 const highlightedOutput = computed(() => {
   if (!outputText.value.trim()) return '<span class="empty-hint">Run an action to generate output preview.</span>';
-
-  if (outputLanguage.value === "json") {
-    const grammar = Prism.languages.json || Prism.languages.javascript;
-    return Prism.highlight(outputText.value, grammar, "json");
-  }
-
   return escapeHtml(outputText.value);
 });
 

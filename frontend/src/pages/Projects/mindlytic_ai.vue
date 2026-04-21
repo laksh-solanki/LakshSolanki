@@ -6,8 +6,6 @@ import {
   signOut as firebaseSignOut,
 } from "firebase/auth";
 import { marked } from "marked";
-import Prism from "@/utils/prism-languages";
-import "prismjs/themes/prism.css";
 import DOMPurify from "dompurify";
 import Alerts from "@/components/Alerts.vue";
 import { getApiBaseUrl } from "@/utils/apiBaseUrl";
@@ -247,24 +245,7 @@ const resolvePrismLanguage = (language = "") => {
     .trim()
     .toLowerCase();
   if (!normalized) return "text";
-  const alias = PRISM_LANGUAGE_ALIASES[normalized] || normalized;
-  return Prism.languages[alias] ? alias : "text";
-};
-
-const highlightCodeForDisplay = (code = "", language = "") => {
-  const source = String(code || "");
-  if (!source) return "";
-  const prismLanguage = resolvePrismLanguage(language);
-  if (prismLanguage === "text") return escapeHtml(source);
-  try {
-    return Prism.highlight(
-      source,
-      Prism.languages[prismLanguage],
-      prismLanguage,
-    );
-  } catch {
-    return escapeHtml(source);
-  }
+  return PRISM_LANGUAGE_ALIASES[normalized] || normalized;
 };
 
 const renderAssistantMessage = (text = "") => {
@@ -274,9 +255,9 @@ const renderAssistantMessage = (text = "") => {
     const parsed = marked.parse(raw);
     const html = typeof parsed === "string" ? parsed : raw;
     const codeBlocks = extractCodeBlocks(raw);
-    const renderedCodeBlocks = [];
     let codeIndex = 0;
-    const withInlineRunnerPlaceholders = html.replace(
+
+    const withInlineRunners = html.replace(
       /<pre><code[\s\S]*?<\/code><\/pre>/gi,
       (codeBlockHtml) => {
         const currentCodeIndex = codeIndex;
@@ -286,11 +267,13 @@ const renderAssistantMessage = (text = "") => {
         const languageFromHtml = String(languageFromHtmlMatch?.[1] || "")
           .trim()
           .toLowerCase();
+        
         const codeFromHtml = decodeHtmlEntities(
           String(codeBlockHtml || "")
             .replace(/^<pre><code[^>]*>/i, "")
             .replace(/<\/code><\/pre>$/i, ""),
         );
+
         const rawBlockLanguage =
           String(
             codeBlocks[currentCodeIndex]?.language || languageFromHtml || "code",
@@ -299,26 +282,19 @@ const renderAssistantMessage = (text = "") => {
         const rawBlockCode = String(
           codeBlocks[currentCodeIndex]?.code || codeFromHtml || "",
         );
+
         const blockLanguage = inferRunnerLanguage(
           rawBlockLanguage,
           rawBlockCode,
         );
-        const shouldUseInferredLanguage = [
-          "code",
-          "text",
-          "plaintext",
-        ].includes(rawBlockLanguage);
-        const prismLanguage = resolvePrismLanguage(
-          shouldUseInferredLanguage ? blockLanguage : rawBlockLanguage,
-        );
-        const highlightedCode = highlightCodeForDisplay(
-          rawBlockCode,
-          prismLanguage,
-        );
-        const codeHtml = `<pre><code class="code-block-text">${highlightedCode}</code></pre>`;
+
+        const escapedCode = escapeHtml(rawBlockCode);
+        const codeHtml = `<pre><code class="code-block-text">${escapedCode}</code></pre>`;
+        
         const runButtonHtml = canRunInRunner(blockLanguage)
           ? `<button type="button" class="code-runner-inline-btn" data-code-index="${currentCodeIndex}" data-code-language="${escapeHtml(blockLanguage)}" data-code-action="run" aria-label="Run code">Run</button>`
           : "";
+
         const headerHtml = `
         <div class="inline-code-runner-head">
           <span class="inline-code-lang">${escapeHtml(blockLanguage)}</span>
@@ -328,18 +304,13 @@ const renderAssistantMessage = (text = "") => {
             ${runButtonHtml}
           </div>
         </div>`;
-        const renderedBlockHtml = `<div class="inline-code-runner">${headerHtml}${codeHtml}</div>`;
-        const placeholder = `__MINDLYTIC_CODE_BLOCK_${currentCodeIndex}__`;
-        renderedCodeBlocks.push({
-          placeholder,
-          html: renderedBlockHtml,
-        });
+
         codeIndex += 1;
-        return placeholder;
+        return `<div class="inline-code-runner">${headerHtml}${codeHtml}</div>`;
       },
     );
 
-    const sanitized = DOMPurify.sanitize(withInlineRunnerPlaceholders, {
+    return DOMPurify.sanitize(withInlineRunners, {
       ADD_TAGS: ["button", "span"],
       ADD_ATTR: [
         "class",
@@ -351,11 +322,6 @@ const renderAssistantMessage = (text = "") => {
         "aria-label",
       ],
     });
-
-    return renderedCodeBlocks.reduce(
-      (output, block) => output.replace(block.placeholder, block.html),
-      sanitized,
-    );
   } catch {
     return `<p>${escapeHtml(raw)}</p>`;
   }

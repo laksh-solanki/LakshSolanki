@@ -51,7 +51,7 @@ const projects = ref([
       "Prompt-driven chat interface with markdown rendering, code highlighting, and clipboard-ready snippets.",
     image: getMediaUrl("project_img/Project-5.png"),
     link: "/projects/mindlytic_ai",
-    tags: ["Gemini API", "Markdown", "Prism"],
+    tags: ["Gemini API", "Markdown"],
   },
   {
     id: 6,

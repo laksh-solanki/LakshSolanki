@@ -34,15 +34,12 @@
     "marked": "^18.0.0",
     "pdfjs-dist": "^5.6.205",
     "pinia": "^3.0.4",
-    "prismjs": "^1.30.0",
     "vue": "^3.5.32",
     "vue-router": "^5.0.4",
     "vuetify": "^4.0.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.6",
-    "autoprefixer": "^10.4.27",
-    "postcss": "^8.5.9",
     "prettier": "^3.8.2",
     "unplugin-fonts": "^2.0.0",
     "unplugin-vue-components": "^32.0.0",

@@ -98,7 +98,6 @@ export default defineConfig(async () => {
                 return "file-tools";
               if (
                 id.includes("marked") ||
-                id.includes("prismjs") ||
                 id.includes("dompurify")
               )
                 return "ai-rendering";
