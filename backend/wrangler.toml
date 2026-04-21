@@ -8,3 +8,4 @@ workers_dev = true
 NODE_ENV = "production"
 MONGODB_DB_NAME = "LakshSolanki"
 MONGODB_DATA_SOURCE = "Cluster0"
+FIREBASE_PROJECT_ID = "mindlytic-2912"
