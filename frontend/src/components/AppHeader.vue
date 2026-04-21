@@ -80,9 +80,9 @@ const closeDrawer = () => {
     </div>
   </v-navigation-drawer>
 
-  <v-app-bar 
-    class="premium-app-bar scrolled-down" 
-    flat 
+  <v-app-bar
+    class="premium-app-bar scrolled-down"
+    flat
     height="80"
   >
     <v-container class="h-100 d-flex align-center justify-space-between px-4 px-md-8 mx-auto w-100" style="max-width: var(--page-max-width, 1400px);">
@@ -111,7 +111,7 @@ const closeDrawer = () => {
 
       <!-- Right Actions (Search + Social) -->
       <div class="header-actions d-flex align-center ga-2 ga-md-4">
-        
+
         <SearchBar class="search-component" />
 
         <v-btn
@@ -170,7 +170,7 @@ const closeDrawer = () => {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1; 
+  z-index: 1;
 }
 
 .nav-segment-control {
@@ -223,7 +223,7 @@ const closeDrawer = () => {
    ACTIONS & BUTTONS
 --------------------------------- */
 .header-actions {
-  z-index: 2; 
+  z-index: 2;
   flex-shrink: 0;
 }
 

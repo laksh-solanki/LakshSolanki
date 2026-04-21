@@ -1,10 +1,9 @@
 <script setup>
 import { computed, ref } from "vue";
-import Prism from "prismjs";
+import Prism from "@/utils/prism-languages";
 import Alerts from "@/components/Alerts.vue";
 
 import "prismjs/themes/prism.css";
-import "prismjs/components/prism-json";
 
 const sourceInput = ref("");
 const compareInput = ref("");
