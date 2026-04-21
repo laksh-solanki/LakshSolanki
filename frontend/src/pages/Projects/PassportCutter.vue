@@ -70,12 +70,6 @@ const showBackgroundTools = computed(() => hasSource.value);
 const sourcePreview = computed(() =>
   inputMode.value === "file" ? sourcePreviewUrl.value : imageUrl.value.trim(),
 );
-const canClipboardWrite = computed(
-  () =>
-    typeof window !== "undefined" &&
-    typeof ClipboardItem !== "undefined" &&
-    Boolean(navigator?.clipboard?.write),
-);
 const solidBackgroundHex = computed({
   get: () => solidBackgroundColor.value.toUpperCase(),
   set: (value) => {

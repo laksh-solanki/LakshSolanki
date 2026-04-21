@@ -41,9 +41,6 @@ const collectUnique = (values = []) => {
 
 const API_BASE_CANDIDATES = collectUnique([
   getApiBaseUrl(),
-  import.meta.env.VITE_API_URL_1,
-  import.meta.env.VITE_API_URL_2,
-  import.meta.env.VITE_API_URL,
 ]);
 const CHAT_API_URLS = collectUnique(
   API_BASE_CANDIDATES.map((base) => toApiUrl(base, "/api/ai/chat")),
@@ -138,7 +135,7 @@ const isLikelyNetworkError = (error) =>
 
 const getFriendlyFetchError = (error, label) => {
   if (isLikelyNetworkError(error)) {
-    return `Failed to fetch ${label}. Check backend status and VITE_API_URL values.`;
+    return `Failed to load ${label}. This may happen if Google sign-in was rejected, site data is blocked, or the backend is offline.`;
   }
   return String(error?.message || `Unable to fetch ${label}.`);
 };
