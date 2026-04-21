@@ -30,6 +30,7 @@ const collectUnique = (values = []) => {
   const seen = new Set();
   const result = [];
   for (const value of values) {
+    if (value === undefined || value === null) continue;
     const normalized = String(value || "").trim();
     if (!normalized || seen.has(normalized)) continue;
     seen.add(normalized);
@@ -584,36 +585,49 @@ const getAuthorizationHeader = async () => {
 
 const authorizedFetchHistory = async (path = "", options = {}) => {
   const historyUrls = getHistoryUrls(path);
-  if (!historyUrls.length)
+  if (!historyUrls.length) {
+    console.error("[History] No API URLs generated. Candidates:", API_BASE_CANDIDATES);
     throw new Error("History API URL is not configured.");
+  }
 
   const authorization = await getAuthorizationHeader();
   let lastError = null;
 
   for (let index = 0; index < historyUrls.length; index += 1) {
+    const url = historyUrls[index];
     try {
-      const response = await fetch(historyUrls[index], {
+      console.log(`[History] Attempting fetch: ${url}`);
+      const response = await fetch(url, {
         ...options,
         headers: { ...(options.headers || {}), Authorization: authorization },
       });
 
+      console.log(`[History] Response from ${url}: ${response.status} ${response.statusText}`);
+
+      if (response.ok) {
+        return response;
+      }
+
       if (response.status === 401) {
+        console.warn("[History] 401 Unauthorized. Signing out.");
         if (auth) await firebaseSignOut(auth).catch(() => { });
         throw new Error("Your session expired. Please sign in again.");
       }
 
-      if (
-        index < historyUrls.length - 1 &&
-        RETRYABLE_STATUSES.has(response.status)
-      ) {
-        lastError = new Error(`History API returned ${response.status}.`);
+      const errorText = await readErrorResponse(response);
+      lastError = new Error(`API error (${response.status}): ${errorText}`);
+      
+      if (index < historyUrls.length - 1 && RETRYABLE_STATUSES.has(response.status)) {
+        console.warn(`[History] Retryable status ${response.status}, trying next candidate...`);
         continue;
       }
-      return response;
+      throw lastError;
     } catch (error) {
+      console.error(`[History] Failed to fetch from ${url}:`, error);
       lastError = error;
-      if (!isLikelyNetworkError(error) || index === historyUrls.length - 1)
+      if (!isLikelyNetworkError(error) || index === historyUrls.length - 1) {
         throw error;
+      }
     }
   }
 
