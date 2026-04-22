@@ -1,5 +1,6 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
 import {
   onAuthStateChanged,
@@ -61,6 +62,7 @@ const getHistoryUrls = (path = "") =>
 const historyLimit = 30;
 const RETRYABLE_STATUSES = new Set([404, 502, 503, 504]);
 const HISTORY_CACHE_STORAGE_KEY = "mindlytic-ai-history-cache-v1";
+const CONVERSATION_QUERY_KEY = "chat";
 
 const GEMINI_API_KEY = (
   import.meta.env.VITE_GEMINI_API_KEY ||
@@ -106,6 +108,8 @@ const avatarImageFailed = ref(false);
 const historyLoadError = ref("");
 const THEME_STORAGE_KEY = "mindlytic-ai-theme";
 const pageTheme = ref("light");
+const router = useRouter();
+const route = useRoute();
 
 const currentUser = ref(null);
 const conversations = ref([]);
@@ -128,6 +132,8 @@ const alertType = ref("success");
 const deleteDialog = ref(false);
 const isDeleting = ref(false);
 const deleteConversationId = ref("");
+const deleteDialogMode = ref("single");
+const syncingRouteConversationId = ref(false);
 
 let removeAuthListener = null;
 
@@ -137,6 +143,9 @@ const generateConversationId = () => {
     return globalThis.crypto.randomUUID();
   return `conversation-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
+const normalizeConversationId = (value = "") => String(value || "").trim();
+const getRouteConversationId = () =>
+  normalizeConversationId(route.query?.[CONVERSATION_QUERY_KEY]);
 
 const isLikelyNetworkError = (error) =>
   /failed to fetch|networkerror|load failed|network request failed|econnrefused|enotfound/i.test(
@@ -788,6 +797,15 @@ const activeConversationTitle = computed(() => {
   );
   return active?.title || "New chat";
 });
+const isDeleteAllMode = computed(() => deleteDialogMode.value === "all");
+const deleteDialogTitle = computed(() =>
+  isDeleteAllMode.value ? "Delete all chats?" : "Delete conversation?",
+);
+const deleteDialogCopy = computed(() =>
+  isDeleteAllMode.value
+    ? "This will permanently remove all your saved chats."
+    : "This will permanently remove it.",
+);
 const userInitial = computed(() => {
   const displayName = String(currentUser.value?.displayName || "").trim();
   if (displayName) return displayName.charAt(0).toUpperCase();
@@ -916,6 +934,54 @@ const copyText = async (value, successMessage = "Copied.") => {
   } catch {
     showAlert("Clipboard permission denied.", "error");
   }
+};
+
+const syncConversationRoute = async (conversationId, replace = true) => {
+  const normalizedId = normalizeConversationId(conversationId);
+  if (getRouteConversationId() === normalizedId) return;
+
+  const nextQuery = { ...route.query };
+  if (normalizedId) {
+    nextQuery[CONVERSATION_QUERY_KEY] = normalizedId;
+  } else {
+    delete nextQuery[CONVERSATION_QUERY_KEY];
+  }
+
+  syncingRouteConversationId.value = true;
+  try {
+    await router[replace ? "replace" : "push"]({ query: nextQuery });
+  } catch {
+    // Route sync should never block chat usage.
+  } finally {
+    syncingRouteConversationId.value = false;
+  }
+};
+
+const copyCurrentConversationLink = async () => {
+  const conversationId = normalizeConversationId(activeConversationId.value);
+  if (!conversationId) {
+    showAlert("No chat link is available yet.", "error");
+    return;
+  }
+
+  await syncConversationRoute(conversationId, true);
+  const fallbackPath = `/projects/mindlytic_ai?${CONVERSATION_QUERY_KEY}=${encodeURIComponent(
+    conversationId,
+  )}`;
+  const resolvedUrl =
+    typeof window !== "undefined"
+      ? window.location.href
+      : `${trimTrailingSlash(getApiBaseUrl())}${fallbackPath}`;
+  await copyText(resolvedUrl, "Chat link copied.");
+};
+
+const copyUserEmail = async () => {
+  const email = String(currentUser.value?.email || "").trim();
+  if (!email) {
+    showAlert("No email is available for this account.", "error");
+    return;
+  }
+  await copyText(email, "Email copied.");
 };
 
 const buildRunnerDoc = ({
@@ -1164,6 +1230,7 @@ const resetToNewConversation = () => {
   activeConversationId.value = generateConversationId();
   messages.value = [];
   userInput.value = "";
+  void syncConversationRoute(activeConversationId.value, true);
 };
 
 const loadConversationList = async () => {
@@ -1227,6 +1294,7 @@ const openConversation = async (conversationId, closeSidebar = true) => {
     });
 
     if (closeSidebar && mobile.value) sidebarOpen.value = false;
+    await syncConversationRoute(activeConversationId.value, true);
     await scrollToBottom();
   } catch (error) {
     const fallbackConversation = shouldUseLocalHistoryFallback(error)
@@ -1244,6 +1312,7 @@ const openConversation = async (conversationId, closeSidebar = true) => {
       historyLoadError.value =
         "History sync is unavailable on this deployment. Showing locally saved chats.";
       if (closeSidebar && mobile.value) sidebarOpen.value = false;
+      await syncConversationRoute(activeConversationId.value, true);
       await scrollToBottom();
       return;
     }
@@ -1322,6 +1391,8 @@ const sendMessage = async () => {
 
   if (!activeConversationId.value)
     activeConversationId.value = generateConversationId();
+  if (activeConversationId.value)
+    await syncConversationRoute(activeConversationId.value, true);
 
   messages.value.push(createMessage("user", prompt));
   userInput.value = "";
@@ -1355,16 +1426,55 @@ const deleteConversation = (conversationId) => {
   const normalizedId = String(conversationId || "").trim();
   if (!normalizedId) return;
 
+  deleteDialogMode.value = "single";
   deleteConversationId.value = normalizedId;
   deleteDialog.value = true;
 };
 
 const closeDeleteDialog = () => {
   deleteDialog.value = false;
+  deleteDialogMode.value = "single";
   deleteConversationId.value = "";
 };
 
+const finalizeDeleteAll = () => {
+  conversations.value = [];
+  writeLocalConversationStore({});
+  resetToNewConversation();
+  historyLoadError.value = "";
+};
+
 const confirmDelete = async () => {
+  if (isDeleteAllMode.value) {
+    if (isDeleting.value) return;
+
+    isDeleting.value = true;
+    try {
+      const ids = conversations.value.map((item) => normalizeConversationId(item.id));
+      for (const id of ids) {
+        if (!id) continue;
+        const response = await authorizedFetchHistory(
+          `/${encodeURIComponent(id)}`,
+          { method: "DELETE" },
+        );
+        if (!response.ok) throw new Error(await readErrorResponse(response));
+      }
+      finalizeDeleteAll();
+    } catch (error) {
+      if (shouldUseLocalHistoryFallback(error)) {
+        finalizeDeleteAll();
+        historyLoadError.value =
+          "History sync is unavailable on this deployment. Cleared local history only.";
+      } else {
+        showAlert(getFriendlyFetchError(error, "chat history"), "error");
+      }
+    } finally {
+      isDeleting.value = false;
+      closeDeleteDialog();
+    }
+    return;
+  }
+
   const normalizedId = deleteConversationId.value;
   if (!normalizedId || isDeleting.value) return;
 
@@ -1413,6 +1523,15 @@ const confirmDelete = async () => {
   }
 };
 
+const deleteActiveConversation = () => {
+  if (!conversations.value.length) {
+    showAlert("No chats available to delete.", "error");
+    return;
+  }
+  deleteDialogMode.value = "all";
+  deleteDialog.value = true;
+};
+
 const startNewChat = () => {
   if (!hasUser.value || sending.value) return;
   resetToNewConversation();
@@ -1439,6 +1558,9 @@ const signInWithGoogle = async () => {
 
   signingIn.value = true;
   try {
+    if (!getRouteConversationId()) {
+      await syncConversationRoute(generateConversationId(), true);
+    }
     await signInWithPopup(auth, googleProvider);
   } catch (error) {
     showAlert(error?.message || "Google sign-in failed.", "error");
@@ -1451,6 +1573,7 @@ const signOutUser = async () => {
   if (!auth) return;
   try {
     await firebaseSignOut(auth);
+    await syncConversationRoute("", true);
   } catch (error) {
     showAlert(error?.message || "Sign out failed.", "error");
   }
@@ -1480,7 +1603,24 @@ const setupAuth = () => {
 
     try {
       await loadConversationList();
-      if (conversations.value.length > 0) {
+      const requestedConversationId = getRouteConversationId();
+      const hasRequestedConversation =
+        requestedConversationId &&
+        (conversations.value.some(
+          (item) => item.id === requestedConversationId,
+        ) ||
+          Boolean(readLocalConversation(requestedConversationId)));
+
+      if (hasRequestedConversation) {
+        await openConversation(requestedConversationId, false);
+      }
+
+      if (
+        hasRequestedConversation &&
+        activeConversationId.value === requestedConversationId
+      ) {
+        // requested conversation was restored from URL
+      } else if (conversations.value.length > 0) {
         await openConversation(conversations.value[0].id, false);
       } else {
         resetToNewConversation();
@@ -1506,6 +1646,26 @@ watch(selectedModel, (value) => {
   const normalized = normalizeSelectedProvider(value);
   if (normalized !== value) selectedModel.value = normalized;
 });
+
+watch(
+  () => route.query?.[CONVERSATION_QUERY_KEY],
+  async (value) => {
+    if (syncingRouteConversationId.value) return;
+
+    const nextConversationId = normalizeConversationId(value);
+    if (!hasUser.value || !nextConversationId) return;
+    if (nextConversationId === normalizeConversationId(activeConversationId.value))
+      return;
+
+    const inConversationList = conversations.value.some(
+      (item) => item.id === nextConversationId,
+    );
+    const inLocalCache = Boolean(readLocalConversation(nextConversationId));
+    if (!inConversationList && !inLocalCache) return;
+
+    await openConversation(nextConversationId, false);
+  },
+);
 
 watch(pageTheme, (value) => {
   if (typeof window === "undefined") return;
@@ -1535,21 +1695,17 @@ onUnmounted(() => {
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
     <v-dialog v-model="deleteDialog" max-width="360">
-      <v-card class="rounded-xl elevation-2 p-5">
-
-        <!-- Title -->
-        <div class="text-subtitle-1 font-weight-medium mb-2">
-          Delete conversation?
+      <v-card class="delete-dialog-card rounded-xl elevation-2 p-5">
+        <div class="delete-dialog-title text-subtitle-1 font-weight-medium mb-2">
+          {{ deleteDialogTitle }}
         </div>
 
-        <!-- Description -->
-        <div class="text-body-2 text-medium-emphasis mb-6">
-          This will permanently remove it.
+        <div class="delete-dialog-copy text-body-2 mb-6">
+          {{ deleteDialogCopy }}
         </div>
 
-        <!-- Actions -->
         <div class="d-flex justify-end ga-2">
-          <v-btn variant="text" class="text-medium-emphasis" @click="closeDeleteDialog">
+          <v-btn variant="text" class="delete-dialog-cancel" @click="closeDeleteDialog">
             Cancel
           </v-btn>
 
@@ -1615,27 +1771,52 @@ onUnmounted(() => {
 
         <template v-slot:append>
           <div class="pa-3">
-            <div class="user-profile rounded-lg p-2 d-flex align-center border">
-              <v-avatar size="32" class="mr-2" color="primary" variant="tonal">
+            <div class="user-profile rounded-lg border">
+              <v-avatar size="36" color="primary" variant="tonal">
                 <img v-if="userAvatarSrc" :src="userAvatarSrc" alt="Profile" class="profile-image"
                   referrerpolicy="no-referrer" @error="avatarImageFailed = true" />
                 <span v-else class="avatar-initial">{{ userInitial }}</span>
               </v-avatar>
-              <div class="user-copy flex-grow-1 min-width-0">
+              <div class="user-copy">
                 <p class="user-name text-truncate">
                   {{ currentUser?.displayName || "User" }}
+                </p>
+                <p class="user-email text-truncate">
+                  {{ currentUser?.email || "Google account connected" }}
                 </p>
               </div>
               <v-menu location="top center" offset="13">
                 <template #activator="{ props }">
-                  <v-btn v-bind="props" icon="mdi-dots-horizontal" rounded="lg" density="comfortable" variant="text" />
+                  <v-btn v-bind="props" class="profile-menu-trigger" icon="mdi-dots-horizontal" rounded="lg"
+                    density="comfortable" variant="text" />
                 </template>
                 <v-list density="compact" class="border" rounded="lg" slim
                   :class="isDarkTheme ? 'profile-menu-list-dark' : 'profile-menu-list'">
+                  <div class="px-3 py-2">
+                    <p class="profile-menu-name text-truncate">
+                      {{ currentUser?.displayName || "User" }}
+                    </p>
+                    <p class="profile-menu-email text-truncate">
+                      {{ currentUser?.email || "Signed in with Google" }}
+                    </p>
+                  </div>
+                  <v-divider opacity="0.4" />
+                  <v-list-item prepend-icon="mdi-plus-circle-outline" @click="startNewChat">
+                    <v-list-item-title>New chat</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item prepend-icon="mdi-content-copy" @click="copyCurrentConversationLink">
+                    <v-list-item-title>Copy chat link</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item prepend-icon="mdi-email-fast-outline" @click="copyUserEmail">
+                    <v-list-item-title>Copy email</v-list-item-title>
+                  </v-list-item>
                   <v-list-item :prepend-icon="themeToggleIcon" @click="toggleTheme">
                     <v-list-item-title>{{ themeToggleLabel }}</v-list-item-title>
                   </v-list-item>
-                  <v-divider opacity="0.4" />
+                  <v-list-item prepend-icon="mdi-delete-outline" color="error" :disabled="!conversations.length"
+                    @click="deleteActiveConversation">
+                    <v-list-item-title>Delete all chats</v-list-item-title>
+                  </v-list-item>
                   <v-list-item prepend-icon="mdi-logout" @click="signOutUser" color="error">
                     <v-list-item-title>Logout</v-list-item-title>
                   </v-list-item>
@@ -1926,15 +2107,65 @@ onUnmounted(() => {
   color: #ececec !important;
 }
 
+.profile-menu-list :deep(.v-list-item),
+.profile-menu-list-dark :deep(.v-list-item) {
+  min-height: 40px;
+}
+
+.profile-menu-name {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: inherit;
+}
+
+.profile-menu-email {
+  margin: 4px 0 0;
+  font-size: 0.76rem;
+  color: rgba(var(--v-theme-on-surface), 0.68);
+}
+
+.profile-menu-list-dark .profile-menu-email {
+  color: rgba(236, 236, 236, 0.72);
+}
+
 .user-profile {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 60px;
+  padding: 10px 12px;
   background-color: rgba(var(--v-theme-on-surface), 0.03);
   transition: all 0.2s ease;
 }
 
+.user-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .user-name {
-  font-size: 0.875rem;
+  font-size: 0.84rem;
   font-weight: 500;
   margin: 0;
+  line-height: 1.25;
+}
+
+.user-email {
+  margin: 2px 0 0;
+  font-size: 0.69rem;
+  line-height: 1.2;
+  color: rgba(var(--v-theme-on-surface), 0.62);
+}
+
+.profile-menu-trigger {
+  align-self: center;
+  flex-shrink: 0;
+  width: 32px !important;
+  height: 32px !important;
 }
 
 .profile-image {
@@ -1983,6 +2214,7 @@ onUnmounted(() => {
 .chat-scroll-empty {
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .workspace-shell-with-runner .chat-workspace {
@@ -1995,14 +2227,18 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   height: 100%;
+  width: min(100%, 720px);
+  margin: 0 auto;
+  padding: 24px 16px;
   text-align: center;
-  opacity: 0.8;
 }
 
 .empty-title {
   font-size: 2rem;
   font-weight: 600;
-  margin-bottom: 8px;
+  line-height: 1.15;
+  margin: 0 0 8px;
+  color: rgb(var(--v-theme-on-surface));
 }
 
 .empty-subtitle {
@@ -2025,6 +2261,23 @@ onUnmounted(() => {
 
 .session-loader-spacer {
   flex: 1;
+}
+
+.delete-dialog-card {
+  background-color: rgb(var(--v-theme-surface)) !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
+}
+
+.delete-dialog-title {
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.delete-dialog-copy {
+  color: rgba(var(--v-theme-on-surface), 0.72);
+}
+
+.delete-dialog-cancel {
+  color: rgba(var(--v-theme-on-surface), 0.72) !important;
 }
 
 .state-card-auth {

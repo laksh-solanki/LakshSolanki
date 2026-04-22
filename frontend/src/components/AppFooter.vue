@@ -21,13 +21,13 @@ const socialLinks = [
   <v-footer class="premium-footer px-4 px-md-0 py-0">
     <v-container class="py-10 py-md-14">
       <v-row class="ga-6 ga-md-0 footer-main-row" align="start">
-        <v-col cols="12" sm="6" md="6" lg="4" class="mb-8 mb-lg-0">
+        <v-col cols="12" sm="12" md="6" lg="4" class="footer-column mb-8 mb-lg-0">
           <div class="brand-section">
             <mainsvgicon :size="44" />
             <p class="footer-description mt-4 mb-5">
               Building premium digital products with strong UX, practical architecture, and reliable delivery.
             </p>
-            <div class="d-flex ga-2 mb-5 flex-wrap">
+            <div class="d-flex ga-2 mb-5 flex-wrap social-links">
               <v-btn
                 v-for="social in socialLinks"
                 :key="social.label"
@@ -47,10 +47,10 @@ const socialLinks = [
           </div>
         </v-col>
 
-        <v-col cols="6" sm="6" md="3" lg="2" class="mb-6 mb-md-8 mb-lg-0">
+        <v-col cols="12" sm="6" md="3" lg="2" class="footer-column mb-6 mb-md-8 mb-lg-0">
           <div class="link-section">
             <p class="footer-title">Navigation</p>
-            <div class="d-flex flex-column ga-2">
+            <div class="d-flex flex-column ga-2 footer-link-list">
               <router-link v-for="item in quickLinks" :key="item.path" :to="item.path" class="footer-link">
                 {{ item.title }}
               </router-link>
@@ -58,7 +58,7 @@ const socialLinks = [
           </div>
         </v-col>
 
-        <v-col cols="6" sm="6" md="3" lg="3" class="mb-6 mb-md-8 mb-lg-0">
+        <v-col cols="12" sm="6" md="3" lg="3" class="footer-column mb-6 mb-md-8 mb-lg-0">
           <div class="link-section">
             <p class="footer-title">Services</p>
             <ul class="service-list">
@@ -67,7 +67,7 @@ const socialLinks = [
           </div>
         </v-col>
 
-        <v-col cols="12" sm="6" md="6" lg="3" class="subscribe-anchor">
+        <v-col cols="12" sm="12" md="6" lg="3" class="footer-column subscribe-anchor">
           <div class="subscribe-section">
             <p class="footer-title">Get Updates</p>
             <EmailRegisterPopup />
@@ -106,7 +106,11 @@ const socialLinks = [
 }
 
 .footer-main-row {
-  row-gap: 14px;
+  row-gap: clamp(16px, 2.2vw, 28px);
+}
+
+.footer-column {
+  min-width: 0;
 }
 
 .brand-section,
@@ -129,6 +133,7 @@ const socialLinks = [
   color: var(--portfolio-muted);
   line-height: 1.6;
   font-size: 0.9rem;
+  max-width: 44ch;
 }
 
 .footer-link {
@@ -155,6 +160,10 @@ const socialLinks = [
   font-size: 0.9rem;
 }
 
+.service-list li {
+  line-height: 1.45;
+}
+
 .meta-chip-wrap {
   display: flex;
   flex-wrap: wrap;
@@ -168,6 +177,7 @@ const socialLinks = [
 
 .subscribe-anchor :deep(.newsletter-card) {
   height: 100%;
+  width: 100%;
 }
 
 .footer-bottom {
@@ -238,6 +248,11 @@ const socialLinks = [
 
   .footer-description {
     font-size: 0.85rem;
+    max-width: none;
+  }
+
+  .subscribe-section {
+    max-width: 560px;
   }
 }
 
@@ -256,6 +271,31 @@ const socialLinks = [
     margin-bottom: 8px;
   }
 
+  .brand-section,
+  .link-section,
+  .subscribe-section {
+    text-align: center;
+    align-items: center;
+  }
+
+  .footer-link-list {
+    align-items: center;
+  }
+
+  .social-links {
+    justify-content: center;
+  }
+
+  .service-list {
+    align-items: center;
+    width: 100%;
+  }
+
+  .subscribe-section {
+    width: 100%;
+    max-width: none;
+  }
+
   .footer-bottom-meta {
     justify-content: center;
     text-align: center;
@@ -270,7 +310,7 @@ const socialLinks = [
   }
 
   .meta-chip-wrap {
-    justify-content: flex-start;
+    justify-content: center;
   }
 }
 

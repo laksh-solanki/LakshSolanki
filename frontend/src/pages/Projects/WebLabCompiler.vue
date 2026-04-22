@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import Alerts from "@/components/Alerts.vue";
 
@@ -22,6 +22,7 @@ const srcdoc = ref("");
 const running = ref(false);
 const runCount = ref(0);
 const lastRunMs = ref(0);
+const previewMode = ref("desktop");
 const editorLayoutRef = ref(null);
 const isDesktopLayout = ref(typeof window !== "undefined" ? window.matchMedia("(min-width: 960px)").matches : true);
 const panePercents = ref([33.34, 33.33, 33.33]);
@@ -32,8 +33,11 @@ const alertType = ref("success");
 const router = useRouter();
 
 let prettierRuntimePromise = null;
+const AUTO_COMPILE_DELAY_MS = 240;
 const MIN_PANE_PERCENT = 15;
 const MIN_PANE_HEIGHT_PX = 180;
+const DESKTOP_DIVIDER_SIZE_PX = 14;
+const DESKTOP_DIVIDER_COUNT = 2;
 let activeDividerIndex = -1;
 let resizeIsDesktop = false;
 let resizeStartPoint = 0;
@@ -71,25 +75,31 @@ const buildPreviewDoc = () => `<!doctype html>
 <script>(()=>{try{${safeScript(jsCode.value)}}catch(e){console.error(e)}})();<\/script>
 </body></html>`;
 
-const compilePreview = (silent = false) => {
+const compilePreview = async (silent = false) => {
   const started = performance.now();
-  running.value = true;
+  if (!silent) running.value = true;
   srcdoc.value = buildPreviewDoc();
   runCount.value += 1;
   if (!silent) showAlert("Compiled preview.");
-  setTimeout(() => {
+
+  await nextTick();
+  requestAnimationFrame(() => {
     lastRunMs.value = Math.max(1, Math.round(performance.now() - started));
-    running.value = false;
-  }, 200);
+    if (!silent) running.value = false;
+  });
 };
 
 const isDesktopEditorLayout = () => isDesktopLayout.value;
+const totalDesktopDividerWidth = DESKTOP_DIVIDER_SIZE_PX * DESKTOP_DIVIDER_COUNT;
+
+const previewCanvasClass = computed(() => `preview-canvas--${previewMode.value}`);
 
 const paneStyle = (index) => {
   if (isDesktopEditorLayout()) {
+    const paneWidth = `calc((100% - ${totalDesktopDividerWidth}px) * ${(panePercents.value[index] / 100).toFixed(6)})`;
     return {
-      flex: `0 0 ${panePercents.value[index]}%`,
-      maxWidth: `${panePercents.value[index]}%`,
+      flex: `0 0 ${paneWidth}`,
+      maxWidth: paneWidth,
     };
   }
 
@@ -133,9 +143,10 @@ const onPaneResizeMove = (event) => {
   if (resizeIsDesktop) {
     const layout = editorLayoutRef.value;
     const width = layout?.getBoundingClientRect().width || 0;
-    if (!width) return;
+    const paneTrackWidth = width - totalDesktopDividerWidth;
+    if (paneTrackWidth <= 0) return;
 
-    const deltaPercent = (delta / width) * 100;
+    const deltaPercent = (delta / paneTrackWidth) * 100;
     const nextLeft = clamp(resizeLeftStart + deltaPercent, MIN_PANE_PERCENT, pairTotal - MIN_PANE_PERCENT);
     const nextRight = pairTotal - nextLeft;
 
@@ -279,7 +290,7 @@ watch([htmlCode, cssCode, jsCode, autoRun, freezeNetwork], () => {
   persist();
   if (!autoRun.value) return;
   clearTimeout(timer);
-  timer = setTimeout(() => compilePreview(true), 600);
+  timer = setTimeout(() => compilePreview(true), AUTO_COMPILE_DELAY_MS);
 });
 
 const goBack = () => {
@@ -377,10 +388,19 @@ onUnmounted(() => {
           <v-card class="tool-shell p-4 preview-bottom-card" rounded="xl" elevation="0">
             <div class="d-flex align-center justify-space-between mb-3 flex-wrap ga-2">
               <h3 class="text-h6 font-weight-bold mb-0">Live Preview</h3>
-              <v-chip size="small" variant="tonal" color="secondary">{{ runCount }} runs &middot; {{ lastRunMs }} ms</v-chip>
+              <div class="d-flex align-center flex-wrap ga-2">
+                <v-btn-toggle v-model="previewMode" mandatory rounded="lg" density="comfortable" color="primary" variant="tonal" class="preview-toggle">
+                  <v-btn value="desktop" prepend-icon="mdi-monitor">Desktop</v-btn>
+                  <v-btn value="mobile" prepend-icon="mdi-cellphone">Mobile</v-btn>
+                </v-btn-toggle>
+                <v-chip size="small" variant="tonal" color="secondary">{{ runCount }} runs &middot; {{ lastRunMs }} ms</v-chip>
+              </div>
             </div>
             <div class="preview-stage">
-              <iframe :srcdoc="srcdoc" class="preview-frame" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
+              <div class="preview-canvas" :class="previewCanvasClass">
+                <iframe :srcdoc="srcdoc" :class="['preview-frame', { 'preview-frame--mobile': previewMode === 'mobile' }]" sandbox="allow-scripts"
+                  referrerpolicy="no-referrer"></iframe>
+              </div>
             </div>
           </v-card>
         </v-col>
@@ -444,6 +464,9 @@ onUnmounted(() => {
   display: grid;
   gap: 14px;
   grid-template-columns: 1fr;
+  padding: 2px;
+  border-radius: 14px;
+  overflow: hidden;
 }
 
 .editor-pane {
@@ -504,6 +527,20 @@ onUnmounted(() => {
   overflow: auto;
 }
 
+.preview-canvas {
+  width: 100%;
+  margin: 0 auto;
+  transition: max-width 0.2s ease;
+}
+
+.preview-canvas--desktop {
+  max-width: 100%;
+}
+
+.preview-canvas--mobile {
+  max-width: min(100%, 390px);
+}
+
 .preview-frame {
   width: 100%;
   height: 680px;
@@ -511,6 +548,16 @@ onUnmounted(() => {
   border-radius: 12px;
   background: #ffffff;
   display: block;
+}
+
+.preview-frame--mobile {
+  height: 720px;
+  border-radius: 24px;
+}
+
+.preview-toggle :deep(.v-btn) {
+  min-width: 0;
+  text-transform: none;
 }
 
 .preview-bottom-card {
@@ -530,6 +577,10 @@ onUnmounted(() => {
 
   .preview-frame {
     height: 420px;
+  }
+
+  .preview-frame--mobile {
+    height: 620px;
   }
 }
 
