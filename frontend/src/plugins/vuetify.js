@@ -1,17 +1,61 @@
 // Styles
-import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/styles";
 
 // Composables
+import { h } from "vue";
 import { createVuetify } from "vuetify";
-import { aliases, mdi } from "vuetify/iconsets/mdi";
+import * as mdiIcons from "@mdi/js";
+import { aliases as mdiAliases, mdi } from "vuetify/iconsets/mdi-svg";
+
+const toMdiJsExportName = (iconName) => {
+  if (typeof iconName !== "string" || !iconName.startsWith("mdi-")) {
+    return null;
+  }
+
+  const token = iconName
+    .slice(4)
+    .split("-")
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join("");
+
+  return `mdi${token}`;
+};
+
+const resolveMdiSvgIcon = (icon) => {
+  if (typeof icon !== "string") {
+    return icon;
+  }
+
+  if (icon.startsWith("svg:")) {
+    return icon.slice(4);
+  }
+
+  const exportName = toMdiJsExportName(icon);
+  if (!exportName) {
+    return icon;
+  }
+
+  return mdiIcons[exportName] ?? mdiIcons.mdiHelpCircleOutline;
+};
+
+const mdiSvgCompat = {
+  component: (props) => {
+    const { icon, ...rest } = props;
+
+    return h(mdi.component, {
+      ...rest,
+      icon: resolveMdiSvgIcon(icon),
+    });
+  },
+};
 
 export default createVuetify({
   icons: {
-    defaultSet: "mdi",
-    aliases,
+    defaultSet: "mdiSvgCompat",
+    aliases: mdiAliases,
     sets: {
-      mdi,
+      mdiSvgCompat,
     },
   },
   theme: {

@@ -139,6 +139,7 @@ const isDeleting = ref(false);
 const deleteConversationId = ref("");
 const deleteDialogMode = ref("single");
 const syncingRouteConversationId = ref(false);
+const profiledialog = ref(false);
 
 let removeAuthListener = null;
 
@@ -1791,6 +1792,76 @@ onUnmounted(() => {
 
         </v-card>
       </v-dialog>
+      <v-dialog
+        v-model="profiledialog"
+        transition="dialog-bottom-transition"
+        max-width="420"
+        :theme="pageVuetifyTheme"
+      >
+        <v-card class="profile-dialog-card rounded-xl" :theme="pageVuetifyTheme">
+          <v-card-title class="profile-dialog-title">
+            <span class="profile-dialog-heading">Profile Details</span>
+            <v-spacer></v-spacer>
+            <v-btn
+              icon="mdi-close"
+              variant="text"
+              size="small"
+              class="profile-dialog-close"
+              @click="profiledialog = false"
+            ></v-btn>
+          </v-card-title>
+
+          <v-card-text class="profile-dialog-body">
+            <div class="profile-dialog-identity">
+              <v-avatar size="100" color="primary" variant="tonal" class="elevation-2">
+                <img
+                  v-if="userAvatarSrc"
+                  :src="userAvatarSrc"
+                  alt="Profile"
+                  class="profile-image"
+                  referrerpolicy="no-referrer"
+                  @error="avatarImageFailed = true"
+                />
+                <span v-else class="text-h3">{{ userInitial }}</span>
+              </v-avatar>
+              <div class="profile-dialog-name">{{ currentUser?.displayName || "User" }}</div>
+              <div class="profile-dialog-email">{{ currentUser?.email }}</div>
+            </div>
+
+            <v-divider class="profile-dialog-divider"></v-divider>
+
+            <v-list density="comfortable" class="profile-dialog-list bg-transparent" slim>
+              <v-list-item class="profile-dialog-item" prepend-icon="mdi-account-outline" title="Account Status">
+                <template #subtitle>
+                  <v-chip size="x-small" color="success" variant="flat" class="mt-1">Verified</v-chip>
+                </template>
+              </v-list-item>
+              <v-list-item
+                v-if="currentUser?.metadata?.creationTime"
+                class="profile-dialog-item"
+                prepend-icon="mdi-calendar-range"
+                title="Joined On"
+                :subtitle="formatDateLabel(currentUser.metadata.creationTime)"
+              ></v-list-item>
+            </v-list>
+          </v-card-text>
+
+          <v-card-actions class="profile-dialog-actions">
+            <v-btn
+              variant="text"
+              color="error"
+              prepend-icon="mdi-logout"
+              class="profile-dialog-logout"
+              @click="signOutUser(); profiledialog = false"
+            >
+              Logout
+            </v-btn>
+            <v-btn variant="flat" color="primary" class="profile-dialog-done" @click="profiledialog = false">
+              Done
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
 
       <v-layout class="mindlytic-layout">
@@ -1850,9 +1921,9 @@ onUnmounted(() => {
                   </button>
 
                   <div v-else class="history-item history-item-editing">
-                    <v-text-field v-model="editingTitle" class="history-rename-input" density="compact" variant="outlined"
-                      hide-details @keydown.enter="renameConversation(item)" @keydown.esc="cancelRenaming"
-                      @blur="renameConversation(item)" autofocus />
+                    <v-text-field v-model="editingTitle" class="history-rename-input" density="compact"
+                      variant="outlined" hide-details @keydown.enter="renameConversation(item)"
+                      @keydown.esc="cancelRenaming" @blur="renameConversation(item)" autofocus />
                   </div>
                 </div>
               </div>
@@ -1861,7 +1932,7 @@ onUnmounted(() => {
 
           <template v-slot:append>
             <div class="pa-3">
-              <div class="user-profile rounded-lg border">
+              <div class="user-profile pa-2 rounded-lg border">
                 <v-avatar size="36" color="primary" variant="tonal">
                   <img v-if="userAvatarSrc" :src="userAvatarSrc" alt="Profile" class="profile-image"
                     referrerpolicy="no-referrer" @error="avatarImageFailed = true" />
@@ -1875,22 +1946,16 @@ onUnmounted(() => {
                     {{ currentUser?.email || "Google account connected" }}
                   </p>
                 </div>
-                <v-menu location="top center" offset="13">
+                <v-menu location="top end" offset="13">
                   <template #activator="{ props }">
                     <v-btn v-bind="props" class="profile-menu-trigger" icon="mdi-dots-horizontal" rounded="lg"
                       density="comfortable" variant="text" />
                   </template>
                   <v-list density="compact" class="border p-1" rounded="lg" slim
                     :class="isDarkTheme ? 'profile-menu-list-dark' : 'profile-menu-list'">
-                    <div class="px-3 py-2">
-                      <p class="profile-menu-name text-truncate">
-                        {{ currentUser?.displayName || "User" }}
-                      </p>
-                      <p class="profile-menu-email text-truncate">
-                        {{ currentUser?.email || "Signed in with Google" }}
-                      </p>
-                    </div>
-                    <v-divider opacity="0.4" />
+                    <v-list-item prepend-icon="mdi-account-circle" @click="profiledialog = true">
+                      <v-list-item-title>Profile</v-list-item-title>
+                    </v-list-item>
                     <v-list-item prepend-icon="mdi-plus-circle-outline" @click="startNewChat">
                       <v-list-item-title>New chat</v-list-item-title>
                     </v-list-item>
@@ -2033,8 +2098,8 @@ onUnmounted(() => {
                 </div>
 
                 <v-fade-transition>
-                  <v-btn v-if="showScrollButton" icon="mdi-arrow-down" variant="tonal" class="scroll-bottom-btn border" color="primary"
-                    density="comfortable" elevation="4" @click="scrollToBottom" />
+                  <v-btn v-if="showScrollButton" icon="mdi-arrow-down" variant="tonal" class="scroll-bottom-btn border"
+                    color="primary" density="comfortable" elevation="4" @click="scrollToBottom" />
                 </v-fade-transition>
 
                 <div class="composer-shell" :class="{ 'composer-shell-floating': isEmptyConversation }">
@@ -2240,23 +2305,12 @@ onUnmounted(() => {
   color: inherit;
 }
 
-.profile-menu-email {
-  margin: 4px 0 0;
-  font-size: 0.76rem;
-  color: rgba(var(--v-theme-on-surface), 0.68);
-}
-
-.profile-menu-list-dark .profile-menu-email {
-  color: rgba(236, 236, 236, 0.72);
-}
-
 .user-profile {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
-  min-height: 60px;
-  padding: 10px 12px;
+  min-height: 50px;
   background-color: rgba(var(--v-theme-on-surface), 0.03);
   transition: all 0.2s ease;
 }
@@ -2299,12 +2353,6 @@ onUnmounted(() => {
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.01em;
-}
-
-/* Chat Main Area */
-.bg-gradient {
-  border-radius: 7px;
-  background: linear-gradient(135deg, #f8fafc, #eef2ff);
 }
 
 .max-width {
@@ -2414,6 +2462,104 @@ onUnmounted(() => {
 .delete-dialog-card {
   background-color: rgb(var(--v-theme-surface)) !important;
   color: rgb(var(--v-theme-on-surface)) !important;
+}
+
+.profile-dialog-card {
+  background-color: rgb(var(--v-theme-surface)) !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
+  border: 1px solid rgba(var(--v-border-color), 0.42);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.14) !important;
+}
+
+.profile-dialog-title {
+  padding: 16px 16px 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-dialog-heading {
+  font-size: 1.06rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.profile-dialog-close {
+  color: rgba(var(--v-theme-on-surface), 0.74) !important;
+}
+
+.profile-dialog-body {
+  padding: 8px 16px 12px !important;
+}
+
+.profile-dialog-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.profile-dialog-name {
+  margin: 4px 0 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.profile-dialog-email {
+  margin: 0 0 2px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: 0.83rem;
+  line-height: 1.38;
+  color: rgba(var(--v-theme-on-surface), 0.7);
+}
+
+.profile-dialog-divider {
+  margin: 14px 0 8px !important;
+}
+
+.profile-dialog-list {
+  padding: 0 !important;
+}
+
+.profile-dialog-item {
+  min-height: 44px;
+  border-radius: 10px;
+  margin: 2px 0;
+}
+
+.profile-dialog-item :deep(.v-list-item__prepend) {
+  align-self: center;
+  margin-inline-end: 12px;
+}
+
+.profile-dialog-item :deep(.v-list-item-subtitle) {
+  color: rgba(var(--v-theme-on-surface), 0.68) !important;
+}
+
+.profile-dialog-actions {
+  padding: 8px 16px 16px !important;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.profile-dialog-actions :deep(.v-btn) {
+  text-transform: none;
+}
+
+.profile-dialog-logout {
+  margin-inline-end: auto;
+}
+
+.profile-dialog-done {
+  min-width: 108px;
 }
 
 .delete-dialog-title {
@@ -3196,6 +3342,39 @@ onUnmounted(() => {
 
 .mindlytic-page.theme-dark .ai-runner-frame {
   background-color: #ffffff !important;
+}
+
+@media (max-width: 600px) {
+  .profile-dialog-card {
+    border-radius: 16px !important;
+  }
+
+  .profile-dialog-title {
+    padding: 14px 14px 6px;
+  }
+
+  .profile-dialog-body {
+    padding: 8px 14px 10px !important;
+  }
+
+  .profile-dialog-name {
+    font-size: 1.1rem;
+  }
+
+  .profile-dialog-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    padding: 8px 14px 14px !important;
+  }
+
+  .profile-dialog-actions :deep(.v-btn) {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .profile-dialog-logout {
+    margin-inline-end: 0;
+  }
 }
 
 /* Responsive Overrides */
