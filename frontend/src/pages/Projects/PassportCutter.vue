@@ -66,10 +66,17 @@ const hasSource = computed(() =>
 );
 const isBusy = computed(() => isProcessing.value || isApplyingColor.value);
 const canProcess = computed(() => hasApiKey.value && hasSource.value && !isBusy.value);
-const showBackgroundTools = computed(() => hasSource.value);
+const hasGeneratedOutput = computed(() => Boolean(resultPreviewUrl.value));
+const showBackgroundTools = computed(() => hasGeneratedOutput.value);
 const sourcePreview = computed(() =>
   inputMode.value === "file" ? sourcePreviewUrl.value : imageUrl.value.trim(),
 );
+const selectedFileDetails = computed(() => {
+  const file = selectedFile.value;
+  if (!file) return "";
+  const typeLabel = String(file.type || "image").split("/").pop() || "image";
+  return `${formatFileSize(file.size)} | ${typeLabel.toUpperCase()}`;
+});
 const solidBackgroundHex = computed({
   get: () => solidBackgroundColor.value.toUpperCase(),
   set: (value) => {
@@ -95,6 +102,12 @@ const resultMetaLabel = computed(() => {
   const kb = Math.max(1, Math.round(resultMeta.value.sizeBytes / 1024));
   return `${resultMeta.value.width}x${resultMeta.value.height} | ${resultMeta.value.format} | ${PASSPORT_PRINT_DPI} DPI | ${kb} KB`;
 });
+const canClipboardWrite = computed(
+  () =>
+    typeof navigator !== "undefined" &&
+    typeof navigator.clipboard?.write === "function" &&
+    typeof ClipboardItem !== "undefined",
+);
 
 const goBack = () => window.history.back();
 
@@ -346,6 +359,7 @@ const setSelectedFile = (file) => {
   }
 
   clearSource();
+  resetResult();
   selectedFile.value = file;
   selectedFileName.value = file.name;
   sourcePreviewUrl.value = URL.createObjectURL(file);
@@ -840,13 +854,24 @@ watch(
                 <p class="text-caption text-medium-emphasis mt-1 mb-0">Tip: Press Ctrl + V to paste an image</p>
               </div>
 
-              <div v-if="selectedFileName" class="selected-file d-flex align-center justify-space-between mt-4">
-                <div class="pr-2">
-                  <p class="mb-0 text-caption text-medium-emphasis">Selected File</p>
-                  <p class="mb-0 font-weight-medium text-truncate">{{ selectedFileName }}</p>
+              <div v-if="selectedFileName" class="selected-file mt-4">
+                <div class="selected-file-icon" aria-hidden="true">
+                  <v-icon size="18">mdi-file-image-outline</v-icon>
                 </div>
-                <v-btn size="small" variant="text" color="error" class="text-none" @click="clearSource">
-                  Remove
+                <div class="selected-file-body">
+                  <p class="mb-1 text-caption text-medium-emphasis">Selected File</p>
+                  <p class="selected-file-name mb-1">{{ selectedFileName }}</p>
+                  <p class="selected-file-meta mb-0">{{ selectedFileDetails }}</p>
+                </div>
+                <v-btn
+                  icon
+                  variant="text"
+                  color="error"
+                  class="selected-file-remove"
+                  aria-label="Remove selected file"
+                  @click="clearSource"
+                >
+                  <v-icon size="18">mdi-close</v-icon>
                 </v-btn>
               </div>
             </div>
@@ -910,101 +935,108 @@ watch(
               ({{ PASSPORT_WIDTH_PX }}x{{ PASSPORT_HEIGHT_PX }} px @ {{ PASSPORT_PRINT_DPI }} DPI) with an automatic border.
             </p>
 
-            <div v-if="showBackgroundTools" class="output-controls mb-5">
-              <div class="border-tools">
-                <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-2">
-                  <span class="text-caption text-medium-emphasis">Border thickness</span>
-                  <span class="border-thickness-pill">{{ borderThicknessLabel }}</span>
+            <div v-if="!showBackgroundTools" class="tools-unlock-note mb-5">
+              <v-icon size="18" class="tools-unlock-icon">mdi-tune-vertical</v-icon>
+              <span>Generate a passport photo to unlock border, background, and export tools.</span>
+            </div>
+
+            <v-expand-transition>
+              <div v-if="showBackgroundTools" class="output-controls mb-5">
+                <div class="border-tools">
+                  <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-2">
+                    <span class="text-caption text-medium-emphasis">Border thickness</span>
+                    <span class="border-thickness-pill">{{ borderThicknessLabel }}</span>
+                  </div>
+                  <div class="d-flex align-center ga-3 border-tools-row">
+                    <v-slider
+                      v-model="borderThickness"
+                      :min="PASSPORT_BORDER_MIN"
+                      :max="PASSPORT_BORDER_MAX"
+                      :step="1"
+                      hide-details
+                      density="compact"
+                      class="border-slider d-none d-md-block"
+                      :disabled="isBusy || !transparentResultBlob"
+                    />
+                    <v-text-field
+                      v-model="borderThicknessInput"
+                      type="number"
+                      label="px"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      class="border-input"
+                      :min="PASSPORT_BORDER_MIN"
+                      :max="PASSPORT_BORDER_MAX"
+                      :disabled="isBusy || !transparentResultBlob"
+                    />
+                  </div>
                 </div>
-                <div class="d-flex align-center ga-3 border-tools-row">
-                  <v-slider
-                    v-model="borderThickness"
-                    :min="PASSPORT_BORDER_MIN"
-                    :max="PASSPORT_BORDER_MAX"
-                    :step="1"
-                    hide-details
-                    density="compact"
-                    class="border-slider"
-                    :disabled="isBusy || !transparentResultBlob"
-                  />
+
+                <div class="d-flex align-center flex-wrap ga-3 output-controls-row">
+                  <label class="color-control">
+                    <span class="text-caption text-medium-emphasis">Photo Bg</span>
+                    <input v-model="solidBackgroundColor" type="color" :disabled="isBusy || !transparentResultBlob" />
+                  </label>
+
                   <v-text-field
-                    v-model="borderThicknessInput"
-                    type="number"
-                    label="px"
+                    v-model="solidBackgroundHex"
+                    label="Hex"
                     variant="outlined"
                     density="compact"
                     hide-details
-                    class="border-input"
-                    :min="PASSPORT_BORDER_MIN"
-                    :max="PASSPORT_BORDER_MAX"
+                    class="hex-input"
                     :disabled="isBusy || !transparentResultBlob"
                   />
+
+                  <v-btn
+                    color="primary"
+                    variant="tonal"
+                    class="text-none"
+                    rounded="xl"
+                    :loading="isApplyingColor"
+                    :disabled="isBusy || !transparentResultBlob"
+                    @click="applySolidBackground"
+                  >
+                    Apply Passport Frame
+                  </v-btn>
+
+                  <v-btn
+                    variant="tonal"
+                    rounded="xl"
+                    class="text-none"
+                    :disabled="isBusy || !transparentResultBlob"
+                    @click="useTransparentOutput"
+                  >
+                    Use Transparent
+                  </v-btn>
+                </div>
+
+                <div class="preset-colors mt-3">
+                  <span class="text-caption text-medium-emphasis">Quick colors:</span>
+                  <v-tooltip
+                    v-for="preset in solidColorPresets"
+                    :key="preset.hex"
+                    location="bottom"
+                    content-class="quick-color-tooltip"
+                  >
+                    <template #activator="{ props }">
+                      <button
+                        v-bind="props"
+                        type="button"
+                        class="preset-chip"
+                        :style="{ backgroundColor: preset.hex }"
+                        :title="preset.name"
+                        :aria-label="`Use ${preset.name} background color`"
+                        :disabled="isBusy || !transparentResultBlob"
+                        @click="applyPresetColor(preset.hex)"
+                      ></button>
+                    </template>
+                    <span class="quick-color-tooltip-text">{{ preset.name }} ({{ preset.hex.toUpperCase() }})</span>
+                  </v-tooltip>
                 </div>
               </div>
-
-              <div class="d-flex align-center flex-wrap ga-3 output-controls-row">
-                <label class="color-control">
-                  <span class="text-caption text-medium-emphasis">Photo Bg</span>
-                  <input v-model="solidBackgroundColor" type="color" :disabled="isBusy || !transparentResultBlob" />
-                </label>
-
-                <v-text-field
-                  v-model="solidBackgroundHex"
-                  label="Hex"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  class="hex-input"
-                  :disabled="isBusy || !transparentResultBlob"
-                />
-
-                <v-btn
-                  color="primary"
-                  variant="tonal"
-                  class="text-none"
-                  rounded="xl"
-                  :loading="isApplyingColor"
-                  :disabled="isBusy || !transparentResultBlob"
-                  @click="applySolidBackground"
-                >
-                  Apply Passport Frame
-                </v-btn>
-
-                <v-btn
-                  variant="tonal"
-                  rounded="xl"
-                  class="text-none"
-                  :disabled="isBusy || !transparentResultBlob"
-                  @click="useTransparentOutput"
-                >
-                  Use Transparent
-                </v-btn>
-              </div>
-
-              <div class="preset-colors mt-3">
-                <span class="text-caption text-medium-emphasis">Quick colors:</span>
-                <v-tooltip
-                  v-for="preset in solidColorPresets"
-                  :key="preset.hex"
-                  location="bottom"
-                  content-class="quick-color-tooltip"
-                >
-                  <template #activator="{ props }">
-                    <button
-                      v-bind="props"
-                      type="button"
-                      class="preset-chip"
-                      :style="{ backgroundColor: preset.hex }"
-                      :title="preset.name"
-                      :aria-label="`Use ${preset.name} background color`"
-                      :disabled="isBusy || !transparentResultBlob"
-                      @click="applyPresetColor(preset.hex)"
-                    ></button>
-                  </template>
-                  <span class="quick-color-tooltip-text">{{ preset.name }} ({{ preset.hex.toUpperCase() }})</span>
-                </v-tooltip>
-              </div>
-            </div>
+            </v-expand-transition>
 
             <v-row dense>
               <v-col cols="12">
@@ -1181,11 +1213,66 @@ watch(
 }
 
 .selected-file {
-  border: 1px solid rgba(19, 111, 99, 0.14);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.82);
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 10px 12px;
+  border: 1px solid rgba(19, 111, 99, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 6px 14px rgba(11, 39, 34, 0.04);
+}
+
+.selected-file-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: rgba(15, 143, 124, 0.1);
+  color: #136f63;
+}
+
+.selected-file-body {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.selected-file-name {
+  margin: 0;
+  font-weight: 700;
+  color: #10312b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.selected-file-meta {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #5f716d;
+}
+
+.selected-file-remove {
+  flex: 0 0 auto;
+}
+
+.tools-unlock-note {
+  display: flex;
+  align-items: center;
   gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(15, 143, 124, 0.08);
+  border: 1px solid rgba(15, 143, 124, 0.16);
+  color: #3e5e58;
+  line-height: 1.4;
+}
+
+.tools-unlock-icon {
+  color: #136f63;
 }
 
 .input-preview-shell {
@@ -1425,6 +1512,11 @@ watch(
   .preview-frame {
     width: min(100%, 320px);
   }
+
+  .tool-shell {
+    padding-inline: 20px !important;
+    padding-block: 20px !important;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1438,12 +1530,13 @@ watch(
   }
 
   .selected-file {
-    align-items: flex-start !important;
-    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
   }
 
-  .selected-file :deep(.v-btn) {
-    align-self: flex-end;
+  .selected-file-icon {
+    width: 32px;
+    height: 32px;
   }
 
   .output-controls {
@@ -1482,12 +1575,21 @@ watch(
     min-width: 0;
   }
 
+  .tools-unlock-note {
+    align-items: flex-start;
+    font-size: 0.92rem;
+  }
+
   .input-preview-frame {
     min-height: 170px;
   }
 
   .preview-frame {
     width: min(100%, 280px);
+  }
+
+  .border-tools {
+    padding: 10px;
   }
 }
 
