@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
-import { useDisplay, useTheme } from "vuetify";
+import { useDisplay } from "vuetify";
 import {
   onAuthStateChanged,
   signInWithPopup,
@@ -24,7 +24,9 @@ const trimTrailingSlash = (value = "") =>
 const toApiUrl = (base = "", path = "") => {
   const normalizedBase = trimTrailingSlash(base);
   const normalizedPath = String(path || "").trim();
-  if (!normalizedBase || !normalizedPath) return "";
+  if (!normalizedPath) return "";
+  if (!normalizedBase)
+    return normalizedPath.startsWith("/") ? normalizedPath : `/${normalizedPath}`;
   return `${normalizedBase}${normalizedPath.startsWith("/") ? normalizedPath : `/${normalizedPath}`}`;
 };
 const collectUnique = (values = []) => {
@@ -42,6 +44,11 @@ const collectUnique = (values = []) => {
 
 const API_BASE_CANDIDATES = collectUnique([
   getApiBaseUrl(),
+  import.meta.env.VITE_API_URL,
+  import.meta.env.VITE_API_URL_1,
+  import.meta.env.VITE_API_URL_2,
+  typeof window !== "undefined" ? window.location.origin : "",
+  "",
 ]);
 const CHAT_API_URLS = collectUnique(
   API_BASE_CANDIDATES.map((base) => toApiUrl(base, "/api/ai/chat")),
@@ -53,6 +60,7 @@ const getHistoryUrls = (path = "") =>
 
 const historyLimit = 30;
 const RETRYABLE_STATUSES = new Set([404, 502, 503, 504]);
+const HISTORY_CACHE_STORAGE_KEY = "mindlytic-ai-history-cache-v1";
 
 const GEMINI_API_KEY = (
   import.meta.env.VITE_GEMINI_API_KEY ||
@@ -175,6 +183,122 @@ const createMessage = (role, text, error = false) =>
     error,
     createdAt: nowIso(),
   });
+
+const normalizeConversationRecord = (item = {}) => {
+  const normalizedMessages = Array.isArray(item?.messages)
+    ? item.messages.map(normalizeMessage)
+    : [];
+  return {
+    id: String(item?.id || "").trim(),
+    title:
+      String(item?.title || "New chat")
+        .trim()
+        .slice(0, 120) || "New chat",
+    updatedAt:
+      typeof item?.updatedAt === "string" && item.updatedAt.trim()
+        ? item.updatedAt
+        : nowIso(),
+    messages: normalizedMessages,
+  };
+};
+
+const getHistoryCacheOwnerKey = () => {
+  const uid = String(currentUser.value?.uid || "").trim();
+  if (uid) return `uid:${uid}`;
+  const email = String(currentUser.value?.email || "")
+    .trim()
+    .toLowerCase();
+  if (email) return `email:${email}`;
+  return "anonymous";
+};
+
+const readHistoryCacheRoot = () => {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(HISTORY_CACHE_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+};
+
+const writeHistoryCacheRoot = (root = {}) => {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(HISTORY_CACHE_STORAGE_KEY, JSON.stringify(root));
+  } catch {
+    // storage may be unavailable or full
+  }
+};
+
+const readLocalConversationStore = () => {
+  const root = readHistoryCacheRoot();
+  const ownerKey = getHistoryCacheOwnerKey();
+  const ownerStore = root?.[ownerKey];
+  return ownerStore && typeof ownerStore === "object" ? ownerStore : {};
+};
+
+const writeLocalConversationStore = (store = {}) => {
+  const root = readHistoryCacheRoot();
+  const ownerKey = getHistoryCacheOwnerKey();
+  root[ownerKey] = store;
+  writeHistoryCacheRoot(root);
+};
+
+const listLocalConversationSummaries = (limit = historyLimit) => {
+  const store = readLocalConversationStore();
+  return Object.values(store)
+    .map((item) => normalizeConversationRecord(item))
+    .sort((a, b) =>
+      String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")),
+    )
+    .slice(0, limit)
+    .map((item) =>
+      normalizeSummary({
+        id: item.id,
+        title: item.title,
+        updatedAt: item.updatedAt,
+        messageCount: item.messages.length,
+      }),
+    );
+};
+
+const readLocalConversation = (conversationId = "") => {
+  const normalizedId = String(conversationId || "").trim();
+  if (!normalizedId) return null;
+  const store = readLocalConversationStore();
+  const item = store[normalizedId];
+  if (!item) return null;
+  const normalized = normalizeConversationRecord(item);
+  return normalized.id ? normalized : null;
+};
+
+const upsertLocalConversation = (conversation = {}) => {
+  const normalized = normalizeConversationRecord(conversation);
+  if (!normalized.id) return null;
+  const store = readLocalConversationStore();
+  store[normalized.id] = normalized;
+  writeLocalConversationStore(store);
+  return normalized;
+};
+
+const removeLocalConversation = (conversationId = "") => {
+  const normalizedId = String(conversationId || "").trim();
+  if (!normalizedId) return false;
+  const store = readLocalConversationStore();
+  if (!store[normalizedId]) return false;
+  delete store[normalizedId];
+  writeLocalConversationStore(store);
+  return true;
+};
+
+const shouldUseLocalHistoryFallback = (error) => {
+  const message = String(error?.message || "").toLowerCase();
+  if (!message) return true;
+  if (message.includes("please sign in first")) return false;
+  return true;
+};
 
 const sortConversations = () => {
   conversations.value.sort((a, b) =>
@@ -575,9 +699,9 @@ const requestAssistantReply = async () => {
   throw new Error(failures.join(" | "));
 };
 
-const getAuthorizationHeader = async () => {
+const getAuthorizationHeader = async (forceRefresh = false) => {
   if (!auth?.currentUser) throw new Error("Please sign in first.");
-  const idToken = await auth.currentUser.getIdToken();
+  const idToken = await auth.currentUser.getIdToken(Boolean(forceRefresh));
   if (!idToken) throw new Error("Unable to retrieve auth token.");
   return `Bearer ${idToken}`;
 };
@@ -585,46 +709,54 @@ const getAuthorizationHeader = async () => {
 const authorizedFetchHistory = async (path = "", options = {}) => {
   const historyUrls = getHistoryUrls(path);
   if (!historyUrls.length) {
-    console.error("[History] No API URLs generated. Candidates:", API_BASE_CANDIDATES);
     throw new Error("History API URL is not configured.");
   }
 
-  const authorization = await getAuthorizationHeader();
+  let authorization = await getAuthorizationHeader();
   let lastError = null;
 
   for (let index = 0; index < historyUrls.length; index += 1) {
     const url = historyUrls[index];
     try {
-      console.log(`[History] Attempting fetch: ${url}`);
-      const response = await fetch(url, {
-        ...options,
-        headers: { ...(options.headers || {}), Authorization: authorization },
-      });
+      let refreshedToken = false;
+      while (true) {
+        const response = await fetch(url, {
+          ...options,
+          headers: { ...(options.headers || {}), Authorization: authorization },
+        });
 
-      console.log(`[History] Response from ${url}: ${response.status} ${response.statusText}`);
+        if (response.ok) {
+          return response;
+        }
 
-      if (response.ok) {
-        return response;
+        if (response.status === 401 && !refreshedToken) {
+          authorization = await getAuthorizationHeader(true);
+          refreshedToken = true;
+          continue;
+        }
+
+        const errorText = await readErrorResponse(response);
+        lastError =
+          response.status === 401
+            ? new Error(
+                "History service rejected your sign-in token for this deployment.",
+              )
+            : new Error(`API error (${response.status}): ${errorText}`);
+
+        if (
+          index < historyUrls.length - 1 &&
+          (RETRYABLE_STATUSES.has(response.status) || response.status === 401)
+        ) {
+          break;
+        }
+        throw lastError;
       }
-
-      if (response.status === 401) {
-        console.warn("[History] 401 Unauthorized. Signing out.");
-        if (auth) await firebaseSignOut(auth).catch(() => { });
-        throw new Error("Your session expired. Please sign in again.");
-      }
-
-      const errorText = await readErrorResponse(response);
-      lastError = new Error(`API error (${response.status}): ${errorText}`);
-
-      if (index < historyUrls.length - 1 && RETRYABLE_STATUSES.has(response.status)) {
-        console.warn(`[History] Retryable status ${response.status}, trying next candidate...`);
+    } catch (error) {
+      lastError = error;
+      if (isLikelyNetworkError(error) && index < historyUrls.length - 1) {
         continue;
       }
-      throw lastError;
-    } catch (error) {
-      console.error(`[History] Failed to fetch from ${url}:`, error);
-      lastError = error;
-      if (!isLikelyNetworkError(error) || index === historyUrls.length - 1) {
+      if (index === historyUrls.length - 1) {
         throw error;
       }
     }
@@ -695,11 +827,11 @@ const composerMenuProps = computed(() => ({
 }));
 
 const normalizeTheme = (value) => (value === "dark" ? "dark" : "light");
-const theme = useTheme();
+const pageVuetifyTheme = computed(() =>
+  isDarkTheme.value ? "portfolioDark" : "portfolioLight",
+);
 const applyTheme = (value) => {
-  const normalized = normalizeTheme(value);
-  pageTheme.value = normalized;
-  theme.global.name.value = normalized === "dark" ? "portfolioDark" : "portfolioLight";
+  pageTheme.value = normalizeTheme(value);
 };
 const toggleTheme = () => {
   applyTheme(isDarkTheme.value ? "light" : "dark");
@@ -1052,6 +1184,14 @@ const loadConversationList = async () => {
       : [];
     sortConversations();
   } catch (error) {
+    if (shouldUseLocalHistoryFallback(error)) {
+      conversations.value = listLocalConversationSummaries(historyLimit);
+      sortConversations();
+      historyLoadError.value = conversations.value.length
+        ? "History sync is unavailable on this deployment. Showing locally saved chats."
+        : getFriendlyFetchError(error, "chat history");
+      return;
+    }
     historyLoadError.value = getFriendlyFetchError(error, "chat history");
     throw error;
   } finally {
@@ -1079,10 +1219,34 @@ const openConversation = async (conversationId, closeSidebar = true) => {
       ? conversation.messages.map(normalizeMessage)
       : [];
     insertOrUpdateConversationSummary(conversation);
+    upsertLocalConversation({
+      id: conversation.id,
+      title: conversation.title,
+      updatedAt: conversation.updatedAt || nowIso(),
+      messages: conversation.messages || [],
+    });
 
     if (closeSidebar && mobile.value) sidebarOpen.value = false;
     await scrollToBottom();
   } catch (error) {
+    const fallbackConversation = shouldUseLocalHistoryFallback(error)
+      ? readLocalConversation(normalizedId)
+      : null;
+    if (fallbackConversation) {
+      activeConversationId.value = fallbackConversation.id;
+      messages.value = fallbackConversation.messages.map(normalizeMessage);
+      insertOrUpdateConversationSummary({
+        id: fallbackConversation.id,
+        title: fallbackConversation.title,
+        updatedAt: fallbackConversation.updatedAt,
+        messages: fallbackConversation.messages,
+      });
+      historyLoadError.value =
+        "History sync is unavailable on this deployment. Showing locally saved chats.";
+      if (closeSidebar && mobile.value) sidebarOpen.value = false;
+      await scrollToBottom();
+      return;
+    }
     showAlert(getFriendlyFetchError(error, "conversation"), "error");
   } finally {
     loadingConversation.value = false;
@@ -1102,17 +1266,42 @@ const saveConversationHistory = async () => {
     })),
   };
 
-  const response = await authorizedFetchHistory(
-    `/${encodeURIComponent(activeConversationId.value)}`,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    },
-  );
-  if (!response.ok) throw new Error(await readErrorResponse(response));
-  const body = await response.json().catch(() => null);
-  if (body?.data) insertOrUpdateConversationSummary(body.data);
+  const localSavedConversation = upsertLocalConversation({
+    id: activeConversationId.value,
+    title: payload.title,
+    updatedAt: nowIso(),
+    messages: payload.messages,
+  });
+  if (localSavedConversation) {
+    insertOrUpdateConversationSummary({
+      id: localSavedConversation.id,
+      title: localSavedConversation.title,
+      updatedAt: localSavedConversation.updatedAt,
+      messages: localSavedConversation.messages,
+    });
+  }
+
+  try {
+    const response = await authorizedFetchHistory(
+      `/${encodeURIComponent(activeConversationId.value)}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      },
+    );
+    if (!response.ok) throw new Error(await readErrorResponse(response));
+    const body = await response.json().catch(() => null);
+    if (body?.data) insertOrUpdateConversationSummary(body.data);
+    historyLoadError.value = "";
+  } catch (error) {
+    if (shouldUseLocalHistoryFallback(error)) {
+      historyLoadError.value =
+        "History sync is unavailable on this deployment. Chat saved locally.";
+      return;
+    }
+    throw error;
+  }
 };
 
 const saveConversationHistorySafe = async () => {
@@ -1197,7 +1386,26 @@ const confirmDelete = async () => {
         resetToNewConversation();
       }
     }
+    removeLocalConversation(normalizedId);
   } catch (error) {
+    if (shouldUseLocalHistoryFallback(error)) {
+      const removed = removeLocalConversation(normalizedId);
+      if (removed) {
+        conversations.value = conversations.value.filter(
+          (item) => item.id !== normalizedId,
+        );
+        if (activeConversationId.value === normalizedId) {
+          if (conversations.value.length > 0) {
+            await openConversation(conversations.value[0].id, false);
+          } else {
+            resetToNewConversation();
+          }
+        }
+        historyLoadError.value =
+          "History sync is unavailable on this deployment. Updated local history only.";
+      }
+      return;
+    }
     showAlert(getFriendlyFetchError(error, "conversation"), "error");
   } finally {
     isDeleting.value = false;
@@ -1208,7 +1416,7 @@ const confirmDelete = async () => {
 const startNewChat = () => {
   if (!hasUser.value || sending.value) return;
   resetToNewConversation();
-  sidebarOpen.value = false;
+  if (mobile.value) sidebarOpen.value = false;
 };
 
 const handlePromptKeydown = (event) => {
@@ -1246,10 +1454,6 @@ const signOutUser = async () => {
   } catch (error) {
     showAlert(error?.message || "Sign out failed.", "error");
   }
-};
-
-const toggleSidebar = () => {
-  sidebarOpen.value = !sidebarOpen.value;
 };
 
 const setupAuth = () => {
@@ -1326,7 +1530,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="mindlytic-page" :class="{ 'theme-dark': isDarkTheme }">
+  <v-theme-provider :theme="pageVuetifyTheme" with-background>
+    <div class="mindlytic-page" :class="{ 'theme-dark': isDarkTheme }">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
     <v-dialog v-model="deleteDialog" max-width="360">
@@ -1358,8 +1563,17 @@ onUnmounted(() => {
 
 
     <v-layout class="mindlytic-layout">
-      <v-navigation-drawer v-model="sidebarOpen" class="chat-sidebar" :permanent="!mobile" v-if="hasUser" border="0"
-        width="260">
+      <v-navigation-drawer
+        v-model="sidebarOpen"
+        class="chat-sidebar"
+        :permanent="!mobile"
+        :temporary="mobile"
+        :scrim="mobile"
+        location="left"
+        v-if="hasUser"
+        border="0"
+        width="260"
+      >
         <v-list class="pa-3">
           <v-list-item class="pa-0 mb-4">
             <v-btn class="new-chat-btn w-100 text-none" color="primary" variant="flat" rounded="lg"
@@ -1486,7 +1700,7 @@ onUnmounted(() => {
               </svg>
               <span class="google-btn-text">Sign in with Google</span>
             </v-btn>
-            <p class="auth-secure-text">🔒 Your data is secure and encrypted</p>
+            <p class="auth-secure-text">Secure sign-in and encrypted history storage</p>
           </div>
         </div>
 
@@ -1571,7 +1785,8 @@ onUnmounted(() => {
         </template>
       </v-main>
     </v-layout>
-  </div>
+    </div>
+  </v-theme-provider>
 </template>
 
 <style scoped>
@@ -1579,8 +1794,10 @@ onUnmounted(() => {
 
 /* ChatGPT Aesthetic Base */
 .mindlytic-page {
+  min-height: 100dvh;
   height: 100dvh;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   background-color: rgb(var(--v-theme-surface)) !important;
   color: rgb(var(--v-theme-on-surface)) !important;
   overflow: hidden;
@@ -1629,6 +1846,18 @@ onUnmounted(() => {
   color: rgba(var(--v-theme-on-surface), 0.6);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.history-empty {
+  color: rgba(var(--v-theme-on-surface), 0.64);
+  font-size: 0.82rem;
+}
+
+.history-error {
+  margin: 6px 0 10px;
+  color: rgb(var(--v-theme-warning));
+  font-size: 0.76rem;
+  line-height: 1.35;
 }
 
 .history-list {
@@ -1708,6 +1937,18 @@ onUnmounted(() => {
   margin: 0;
 }
 
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-initial {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
 /* Chat Main Area */
 .chat-main {
   display: flex;
@@ -1739,6 +1980,15 @@ onUnmounted(() => {
   padding: 32px 24px;
 }
 
+.chat-scroll-empty {
+  display: flex;
+  align-items: center;
+}
+
+.workspace-shell-with-runner .chat-workspace {
+  min-width: 0;
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -1755,11 +2005,26 @@ onUnmounted(() => {
   margin-bottom: 8px;
 }
 
+.empty-subtitle {
+  margin: 0;
+  color: rgba(var(--v-theme-on-surface), 0.72);
+}
+
 /* Authentication State */
 .state-card {
   padding: 48px;
   text-align: center;
   color: rgb(var(--v-error));
+}
+
+.session-top-loader {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.session-loader-spacer {
+  flex: 1;
 }
 
 .state-card-auth {
@@ -1777,7 +2042,8 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 17px;
-  min-width: 380px;
+  width: min(100%, 420px);
+  min-width: 0;
 }
 
 .auth-header {
@@ -1900,6 +2166,15 @@ onUnmounted(() => {
 
 /* Responsive Google Button */
 @media (max-width: 600px) {
+  .auth-content {
+    padding: 24px 16px;
+    gap: 14px;
+  }
+
+  .auth-title {
+    font-size: 1.7rem;
+  }
+
   .google-auth-btn {
     max-width: 100% !important;
     width: calc(100% - 32px);
@@ -1927,6 +2202,10 @@ onUnmounted(() => {
 }
 
 @media (max-width: 480px) {
+  .auth-content {
+    padding: 20px 12px;
+  }
+
   .google-auth-btn {
     max-width: 100% !important;
     width: calc(100% - 24px);
@@ -2118,10 +2397,14 @@ onUnmounted(() => {
 
 /* Composer / Input Area */
 .composer-shell {
-  padding: 0 24px 24px;
+  padding: 0 24px calc(24px + env(safe-area-inset-bottom));
   background-color: #ffffff00;
   position: relative;
   z-index: 20;
+}
+
+.composer-shell-floating {
+  padding-top: 8px;
 }
 
 .composer-panel {
@@ -2193,6 +2476,10 @@ onUnmounted(() => {
   box-sizing: border-box;
   width: 100%;
   gap: 8px;
+}
+
+.composer-send {
+  flex-shrink: 0;
 }
 
 .composer-model-select {
@@ -2516,21 +2803,8 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .chat-sidebar {
-    position: absolute;
-    left: -260px;
+    max-width: min(86vw, 320px);
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-  }
-
-  .mindlytic-page.theme-dark .chat-sidebar {
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-  }
-
-  .chat-sidebar-open {
-    left: 0;
-  }
-
-  .chat-mobile-head {
-    display: flex;
   }
 
   .chat-scroll {
@@ -2538,7 +2812,7 @@ onUnmounted(() => {
   }
 
   .composer-shell {
-    padding: 0 12px 12px;
+    padding: 0 12px calc(12px + env(safe-area-inset-bottom));
   }
 
   .composer-panel {
@@ -2552,7 +2826,18 @@ onUnmounted(() => {
 
   .message-row-user .message-bubble {
     padding: 10px 16px;
-    max-width: 90%;
+    max-width: min(92%, 640px);
+  }
+
+  .composer-bottom-tools {
+    flex-wrap: wrap;
+    align-items: center;
+    row-gap: 10px;
+  }
+
+  .composer-model-select {
+    flex: 1 1 190px;
+    min-width: 160px;
   }
 
   .markdown-body :deep(.inline-code-runner-head) {
@@ -2606,3 +2891,4 @@ onUnmounted(() => {
   color: #ececec !important;
 }
 </style>
+
