@@ -118,6 +118,8 @@ const messages = ref([]);
 const userInput = ref("");
 const chatScrollRef = ref(null);
 
+const showScrollButton = ref(false);
+
 const editingConversationId = ref("");
 const editingTitle = ref("");
 
@@ -982,7 +984,15 @@ const scrollToBottom = async () => {
   await nextTick();
   if (chatScrollRef.value) {
     chatScrollRef.value.scrollTop = chatScrollRef.value.scrollHeight;
+    showScrollButton.value = false;
   }
+};
+
+const handleChatScroll = () => {
+  if (!chatScrollRef.value) return;
+  const { scrollTop, scrollHeight, clientHeight } = chatScrollRef.value;
+  // Show button if we are more than 250px from the bottom
+  showScrollButton.value = scrollHeight - scrollTop - clientHeight > 250;
 };
 
 const copyText = async (value, successMessage = "Copied.") => {
@@ -1968,7 +1978,8 @@ onUnmounted(() => {
           <template v-else>
             <div class="workspace-shell" :class="{ 'workspace-shell-with-runner': runnerPanelOpen }">
               <div class="chat-workspace" :class="{ 'chat-workspace-empty': isEmptyConversation }">
-                <div ref="chatScrollRef" class="chat-scroll" :class="{ 'chat-scroll-empty': isEmptyConversation }">
+                <div ref="chatScrollRef" class="chat-scroll" :class="{ 'chat-scroll-empty': isEmptyConversation }"
+                  @scroll="handleChatScroll">
                   <div v-if="isEmptyConversation" class="empty-state">
                     <v-container fluid class="fill-height d-flex align-center justify-center bg-gradient">
                       <div class="text-center max-width">
@@ -2020,6 +2031,11 @@ onUnmounted(() => {
                     </div>
                   </div>
                 </div>
+
+                <v-fade-transition>
+                  <v-btn v-if="showScrollButton" icon="mdi-arrow-down" class="scroll-bottom-btn" color="primary"
+                    density="comfortable" elevation="4" @click="scrollToBottom" />
+                </v-fade-transition>
 
                 <div class="composer-shell" :class="{ 'composer-shell-floating': isEmptyConversation }">
                   <div class="composer-panel">
@@ -2790,6 +2806,20 @@ onUnmounted(() => {
 
 .composer-shell-floating {
   padding-top: 8px;
+}
+
+.scroll-bottom-btn {
+  position: absolute !important;
+  bottom: calc(33px + 90px) !important; /* Above the composer */
+  right: 20px !important;
+  z-index: 30 !important;
+}
+
+@media (max-width: 768px) {
+  .scroll-bottom-btn {
+    bottom: calc(12px + 100px);
+    right: 12px;
+  }
 }
 
 .composer-panel {
