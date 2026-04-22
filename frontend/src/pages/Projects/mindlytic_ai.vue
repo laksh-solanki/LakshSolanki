@@ -2033,7 +2033,7 @@ onUnmounted(() => {
                 </div>
 
                 <v-fade-transition>
-                  <v-btn v-if="showScrollButton" icon="mdi-arrow-down" class="scroll-bottom-btn" color="primary"
+                  <v-btn v-if="showScrollButton" icon="mdi-arrow-down" variant="tonal" class="scroll-bottom-btn border" color="primary"
                     density="comfortable" elevation="4" @click="scrollToBottom" />
                 </v-fade-transition>
 
@@ -2810,7 +2810,7 @@ onUnmounted(() => {
 
 .scroll-bottom-btn {
   position: absolute !important;
-  bottom: calc(33px + 90px) !important; /* Above the composer */
+  bottom: calc(33px + 90px) !important;
   right: 20px !important;
   z-index: 30 !important;
 }
