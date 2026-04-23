@@ -60,7 +60,11 @@ const getHistoryUrls = (path = "") =>
   );
 
 const historyLimit = 30;
-const RETRYABLE_STATUSES = new Set([404, 502, 503, 504]);
+const HISTORY_MAX_MESSAGES = 80;
+const HISTORY_MAX_MESSAGE_CHARS = 12000;
+const HISTORY_MAX_TITLE_CHARS = 120;
+const CHAT_CONTEXT_MESSAGE_LIMIT = HISTORY_MAX_MESSAGES;
+const RETRYABLE_STATUSES = new Set([404, 429, 500, 502, 503, 504]);
 const HISTORY_CACHE_STORAGE_KEY = "mindlytic-ai-history-cache-v1";
 const CONVERSATION_QUERY_KEY = "chat";
 
@@ -153,21 +157,93 @@ const cancelRenaming = () => {
   editingTitle.value = "";
 };
 
+const sanitizeConversationTitle = (value = "", fallback = "New chat") => {
+  const normalized = String(value || "").trim().replace(/\s+/g, " ");
+  const compact = normalized.slice(0, HISTORY_MAX_TITLE_CHARS);
+  return compact || fallback;
+};
+
+const sanitizeMessagesForStorage = (
+  source = [],
+  {
+    limit = HISTORY_MAX_MESSAGES,
+    excludeErrored = false,
+  } = {},
+) => {
+  const safeLimit = Number.isInteger(limit)
+    ? Math.max(1, Math.min(HISTORY_MAX_MESSAGES, limit))
+    : HISTORY_MAX_MESSAGES;
+  if (!Array.isArray(source)) return [];
+  return source
+    .map((item) => {
+      if (excludeErrored && Boolean(item?.error)) return null;
+      const text = String(item?.text || "")
+        .trim()
+        .slice(0, HISTORY_MAX_MESSAGE_CHARS);
+      if (!text) return null;
+      return {
+        role: item?.role === "assistant" ? "assistant" : "user",
+        text,
+        createdAt:
+          typeof item?.createdAt === "string" && item.createdAt.trim()
+            ? item.createdAt
+            : nowIso(),
+      };
+    })
+    .filter(Boolean)
+    .slice(-safeLimit);
+};
+
+const applyConversationTitleLocally = (conversationId, title) => {
+  const normalizedId = normalizeConversationId(conversationId);
+  const normalizedTitle = sanitizeConversationTitle(title);
+  if (!normalizedId || !normalizedTitle) return false;
+
+  const existingIndex = conversations.value.findIndex(
+    (item) => normalizeConversationId(item.id) === normalizedId,
+  );
+  if (existingIndex >= 0) {
+    conversations.value[existingIndex].title = normalizedTitle;
+    conversations.value[existingIndex].updatedAt = nowIso();
+  }
+
+  const localConv = readLocalConversation(normalizedId);
+  if (localConv) {
+    localConv.title = normalizedTitle;
+    localConv.updatedAt = nowIso();
+    upsertLocalConversation(localConv);
+  }
+
+  sortConversations();
+  return existingIndex >= 0 || Boolean(localConv);
+};
+
 const renameConversation = async (item) => {
-  const newTitle = editingTitle.value.trim();
-  if (!newTitle || newTitle === item.title) {
+  const rawNewTitle = String(editingTitle.value || "").trim();
+  if (!rawNewTitle || rawNewTitle === item.title) {
     cancelRenaming();
     return;
   }
+  const newTitle = sanitizeConversationTitle(rawNewTitle);
 
   try {
-    const response = await authorizedFetchHistory(
-      `/${encodeURIComponent(item.id)}`,
+    let conversationMessages = sanitizeMessagesForStorage(
+      readLocalConversation(item.id)?.messages || [],
     );
-    if (!response.ok) throw new Error(await readErrorResponse(response));
-    const payload = await response.json();
-    const conversation = payload?.data;
-    if (!conversation) throw new Error("Conversation not found.");
+    if (!conversationMessages.length) {
+      const response = await authorizedFetchHistory(
+        `/${encodeURIComponent(item.id)}`,
+      );
+      if (!response.ok) throw new Error(await readErrorResponse(response));
+      const payload = await response.json().catch(() => null);
+      const conversation = payload?.data;
+      if (!conversation)
+        throw new Error("Conversation data is invalid or missing.");
+      conversationMessages = sanitizeMessagesForStorage(conversation.messages);
+    }
+    if (!conversationMessages.length) {
+      throw new Error("Cannot rename an empty conversation.");
+    }
 
     const updateResponse = await authorizedFetchHistory(
       `/${encodeURIComponent(item.id)}`,
@@ -176,26 +252,27 @@ const renameConversation = async (item) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: newTitle,
-          messages: conversation.messages,
+          messages: conversationMessages,
         }),
       },
     );
     if (!updateResponse.ok) throw new Error(await readErrorResponse(updateResponse));
 
-    const existingIndex = conversations.value.findIndex((c) => c.id === item.id);
-    if (existingIndex !== -1) {
-      conversations.value[existingIndex].title = newTitle;
-    }
-
-    const localConv = readLocalConversation(item.id);
-    if (localConv) {
-      localConv.title = newTitle;
-      upsertLocalConversation(localConv);
-    }
+    applyConversationTitleLocally(item.id, newTitle);
 
     cancelRenaming();
     showAlert("Chat renamed.", "success");
   } catch (error) {
+    if (shouldUseLocalHistoryFallback(error)) {
+      const renamedLocally = applyConversationTitleLocally(item.id, newTitle);
+      if (renamedLocally) {
+        historyLoadError.value =
+          "History sync is unavailable on this deployment. Updated local history only.";
+        cancelRenaming();
+        showAlert("Chat renamed locally.", "success");
+        return;
+      }
+    }
     showAlert(getFriendlyFetchError(error, "rename chat"), "error");
   }
 };
@@ -206,7 +283,10 @@ const generateConversationId = () => {
     return globalThis.crypto.randomUUID();
   return `conversation-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
-const normalizeConversationId = (value = "") => String(value || "").trim();
+const normalizeConversationId = (value = "") => {
+  const source = Array.isArray(value) ? value[0] : value;
+  return String(source || "").trim();
+};
 const getRouteConversationId = () =>
   normalizeConversationId(route.query?.[CONVERSATION_QUERY_KEY]);
 
@@ -230,7 +310,7 @@ const showAlert = (message, type = "success") => {
 
 const normalizeSummary = (item = {}) => ({
   id: String(item.id || ""),
-  title: String(item.title || "New chat").trim() || "New chat",
+  title: sanitizeConversationTitle(item.title || "New chat"),
   messageCount: Number.isFinite(item.messageCount) ? item.messageCount : 0,
   updatedAt:
     typeof item.updatedAt === "string" && item.updatedAt.trim()
@@ -257,15 +337,12 @@ const createMessage = (role, text, error = false) =>
   });
 
 const normalizeConversationRecord = (item = {}) => {
-  const normalizedMessages = Array.isArray(item?.messages)
-    ? item.messages.map(normalizeMessage)
-    : [];
+  const normalizedMessages = sanitizeMessagesForStorage(item?.messages || []).map(
+    (message) => normalizeMessage(message),
+  );
   return {
     id: String(item?.id || "").trim(),
-    title:
-      String(item?.title || "New chat")
-        .trim()
-        .slice(0, 120) || "New chat",
+    title: sanitizeConversationTitle(item?.title || "New chat"),
     updatedAt:
       typeof item?.updatedAt === "string" && item.updatedAt.trim()
         ? item.updatedAt
@@ -370,6 +447,47 @@ const shouldUseLocalHistoryFallback = (error) => {
   if (!message) return true;
   if (message.includes("please sign in first")) return false;
   return true;
+};
+
+const getIsoWeight = (value = "") => {
+  const parsed = Date.parse(String(value || ""));
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const mergeConversationSummaries = (remoteItems = [], localItems = []) => {
+  const map = new Map();
+  const combined = [...localItems, ...remoteItems].map((item) =>
+    normalizeSummary(item),
+  );
+
+  for (const item of combined) {
+    if (!item.id) continue;
+    const existing = map.get(item.id);
+    if (!existing) {
+      map.set(item.id, item);
+      continue;
+    }
+
+    const existingWeight = getIsoWeight(existing.updatedAt);
+    const candidateWeight = getIsoWeight(item.updatedAt);
+    if (candidateWeight > existingWeight) {
+      map.set(item.id, item);
+      continue;
+    }
+
+    if (
+      candidateWeight === existingWeight &&
+      item.messageCount > existing.messageCount
+    ) {
+      map.set(item.id, item);
+    }
+  }
+
+  return Array.from(map.values())
+    .sort((a, b) =>
+      String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")),
+    )
+    .slice(0, historyLimit);
 };
 
 const sortConversations = () => {
@@ -553,9 +671,12 @@ const messageHasRunnableCode = (message = {}) => {
 };
 
 const buildChatMessages = () =>
-  messages.value.map((message) => ({
-    role: message.role === "assistant" ? "assistant" : "user",
-    text: String(message.text || ""),
+  sanitizeMessagesForStorage(messages.value, {
+    limit: CHAT_CONTEXT_MESSAGE_LIMIT,
+    excludeErrored: true,
+  }).map((message) => ({
+    role: message.role,
+    text: message.text,
   }));
 
 const buildOpenAiMessages = () => [
@@ -792,13 +913,23 @@ const authorizedFetchHistory = async (path = "", options = {}) => {
     try {
       let refreshedToken = false;
       while (true) {
+        const headers = new Headers(options.headers || {});
+        headers.set("Authorization", authorization);
+
         const response = await fetch(url, {
           ...options,
-          headers: { ...(options.headers || {}), Authorization: authorization },
+          headers,
         });
 
         if (response.ok) {
-          return response;
+          const contentType = response.headers.get("content-type") || "";
+          if (contentType.toLowerCase().includes("application/json")) {
+            return response;
+          }
+          lastError = new Error(
+            "Backend returned a non-JSON response (likely HTML).",
+          );
+          break;
         }
 
         if (response.status === 401 && !refreshedToken) {
@@ -951,7 +1082,8 @@ const getConversationTitleFromMessages = (conversationMessages = []) => {
     .trim()
     .replace(/\s+/g, " ");
   if (!normalized) return "New chat";
-  return normalized.length > 80 ? `${normalized.slice(0, 77)}...` : normalized;
+  const compact = normalized.slice(0, HISTORY_MAX_TITLE_CHARS);
+  return compact.length > 80 ? `${compact.slice(0, 77)}...` : compact;
 };
 
 const insertOrUpdateConversationSummary = (conversation = {}) => {
@@ -1317,9 +1449,14 @@ const loadConversationList = async () => {
     const response = await authorizedFetchHistory(`?limit=${historyLimit}`);
     if (!response.ok) throw new Error(await readErrorResponse(response));
     const payload = await response.json().catch(() => ({ data: [] }));
-    conversations.value = Array.isArray(payload?.data)
-      ? payload.data.map(normalizeSummary)
+    const remoteSummaries = Array.isArray(payload?.data)
+      ? payload.data.map(normalizeSummary).filter((item) => item.id)
       : [];
+    const localSummaries = listLocalConversationSummaries(historyLimit);
+    conversations.value = mergeConversationSummaries(
+      remoteSummaries,
+      localSummaries,
+    );
     sortConversations();
   } catch (error) {
     if (shouldUseLocalHistoryFallback(error)) {
@@ -1397,18 +1534,19 @@ const saveConversationHistory = async () => {
   if (!hasUser.value || !activeConversationId.value || !messages.value.length)
     return;
 
+  const persistedMessages = sanitizeMessagesForStorage(messages.value);
+  if (!persistedMessages.length) return;
+
   const activeConv = conversations.value.find(
     (item) => item.id === activeConversationId.value,
   );
   const currentTitle = activeConv?.title;
 
   const payload = {
-    title: currentTitle || getConversationTitleFromMessages(messages.value),
-    messages: messages.value.map((message) => ({
-      role: message.role === "assistant" ? "assistant" : "user",
-      text: String(message.text || ""),
-      createdAt: message.createdAt,
-    })),
+    title: sanitizeConversationTitle(
+      currentTitle || getConversationTitleFromMessages(messages.value),
+    ),
+    messages: persistedMessages,
   };
 
   const localSavedConversation = upsertLocalConversation({
@@ -1458,7 +1596,9 @@ const saveConversationHistorySafe = async () => {
 };
 
 const sendMessage = async () => {
-  const prompt = userInput.value.trim();
+  const prompt = String(userInput.value || "")
+    .trim()
+    .slice(0, HISTORY_MAX_MESSAGE_CHARS);
   if (!prompt || sending.value) return;
   if (!hasUser.value) {
     showAlert("Please sign in with Google first.", "error");
