@@ -18,8 +18,8 @@ const socialLinks = [
 </script>
 
 <template>
-  <v-footer class="premium-footer px-4 px-md-0 py-0">
-    <v-container class="py-10 py-md-14">
+  <v-footer class="premium-footer px-md-0 py-0">
+    <v-container class="py-6 py-md-14">
       <v-row class="ga-6 ga-md-0 footer-main-row" align="start">
         <v-col cols="12" sm="12" md="6" lg="4" class="footer-column mb-8 mb-lg-0">
           <div class="brand-section">
@@ -28,17 +28,8 @@ const socialLinks = [
               Building premium digital products with strong UX, practical architecture, and reliable delivery.
             </p>
             <div class="d-flex ga-2 mb-5 flex-wrap social-links">
-              <v-btn
-                v-for="social in socialLinks"
-                :key="social.label"
-                :icon="social.icon"
-                :href="social.href"
-                target="_blank"
-                variant="tonal"
-                color="primary"
-                size="small"
-                :aria-label="social.label"
-              ></v-btn>
+              <v-btn v-for="social in socialLinks" :key="social.label" :icon="social.icon" :href="social.href"
+                target="_blank" variant="tonal" color="primary" size="small" :aria-label="social.label"></v-btn>
             </div>
             <div class="meta-chip-wrap">
               <v-chip color="primary" variant="tonal" size="small">Response Time: &lt; 24h</v-chip>
@@ -75,14 +66,17 @@ const socialLinks = [
         </v-col>
       </v-row>
 
-      <v-row class="footer-bottom mt-8 pt-5 mx-n2" align="center" justify="space-between">
-        <v-col cols="12" md="auto" class="px-2 mb-3 mb-md-0">
-          <p class="mb-0 text-caption footer-meta">
-            © {{ new Date().getFullYear() }} Laksh Solanki
-          </p>
+      <v-row class="footer-bottom mt-8 mx-n2" align="center" justify="space-between">
+        <v-col cols="12" md="12">
+          <div class="d-inline-flex justify-center justify-md-start align-center">
+            <p class="mb-0 text-caption footer-meta">
+              © {{ new Date().getFullYear() }} Laksh Solanki
+            </p>
+          </div>
         </v-col>
-        <v-col cols="12" md="auto" class="px-2">
-          <div class="d-flex align-center ga-4 text-caption footer-meta footer-bottom-meta flex-wrap justify-center justify-md-end">
+        <v-col cols="12" md="12" class="px-2">
+          <div
+            class="d-flex align-center ga-4 text-caption footer-meta footer-bottom-meta flex-wrap justify-center justify-md-end">
             <span>All rights reserved</span>
             <span class="d-none d-sm-inline">•</span>
             <span>Version 2.0</span>
@@ -219,10 +213,12 @@ const socialLinks = [
     transform: translateY(0);
     filter: brightness(1);
   }
+
   40% {
     transform: translateY(-4px);
     filter: brightness(1.07);
   }
+
   100% {
     transform: translateY(0);
     filter: brightness(1);
@@ -305,7 +301,7 @@ const socialLinks = [
     display: block;
   }
 
-  .footer-bottom-meta span:not(:last-child) {
+  .footer-bottom-meta span{
     margin-bottom: 4px;
   }
 

@@ -386,7 +386,7 @@ onUnmounted(() => {
                       </v-card-actions>
 
                       <div class="p-2 d-flex justify-center overflow-hidden">
-                        <v-img :src="image.url" :alt="image.name" height="210" contain class="rounded-lg" :style="{
+                        <v-img :src="image.url" :alt="image.name" contain height="210" class="rounded-lg" :style="{
                           transform: `rotate(${image.rotation}deg)`,
                           transition: 'transform 0.3s ease',
                         }"></v-img>

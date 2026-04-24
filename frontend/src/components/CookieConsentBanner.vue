@@ -86,36 +86,16 @@ onMounted(() => {
 <template>
   <teleport to="body">
     <transition name="cookie-slide">
-      <section
-        v-if="isVisible"
-        class="cookie-banner-minimal"
-        role="dialog"
-        aria-live="polite"
-      >
+      <section v-if="isVisible" class="cookie-banner-minimal" role="dialog" aria-live="polite">
         <div class="cookie-info">
           <v-icon color="primary" size="18" class="mr-2">mdi-cookie-outline</v-icon>
           <span class="cookie-text">We use cookies to improve your experience.</span>
         </div>
         <div class="cookie-actions">
-          <v-btn
-            variant="text"
-            color="muted"
-            size="small"
-            class="text-none px-2 mini-btn"
-            @click="rejectCookies"
-          >
-            Reject
-          </v-btn>
-          <v-btn
-            variant="flat"
-            color="primary"
-            size="small"
-            rounded="pill"
-            class="text-none px-4 mini-btn"
-            @click="acceptCookies"
-          >
-            Accept
-          </v-btn>
+          <v-btn variant="outlined" color="red" size="small" rounded="pill" class="" @click="rejectCookies"
+            text="Reject" />
+          <v-btn variant="outlined" color="primary" size="small" rounded="pill" class=""
+            @click="acceptCookies" text="Accept" />
         </div>
       </section>
     </transition>
@@ -129,11 +109,11 @@ onMounted(() => {
   left: 50%;
   transform: translateX(-50%);
   z-index: 10050;
-  
+
   display: flex;
   align-items: center;
   gap: 16px;
-  
+
   padding: 6px 8px 6px 18px;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
@@ -141,7 +121,7 @@ onMounted(() => {
   border: 1px solid rgba(15, 143, 124, 0.12);
   border-radius: 100px;
   box-shadow: 0 10px 30px -5px rgba(18, 38, 33, 0.12);
-  
+
   width: auto;
   max-width: calc(100vw - 32px);
   pointer-events: auto;

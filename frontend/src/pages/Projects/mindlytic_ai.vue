@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
@@ -10,7 +10,7 @@ import {
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 import Alerts from "@/components/Alerts.vue";
-import { getApiBaseUrl } from "@/utils/apiBaseUrl";
+import { getApiBaseUrl, getRemoteApiBaseUrl, isLocalEnv } from "@/utils/apiBaseUrl";
 import { auth, googleProvider, hasRequiredFirebaseConfig } from "@/firebase";
 
 marked.setOptions({
@@ -43,14 +43,22 @@ const collectUnique = (values = []) => {
   return result;
 };
 
-const API_BASE_CANDIDATES = collectUnique([
-  getApiBaseUrl(),
-  import.meta.env.VITE_API_URL,
-  import.meta.env.VITE_API_URL_1,
-  import.meta.env.VITE_API_URL_2,
-  typeof window !== "undefined" ? window.location.origin : "",
-  "",
-]);
+// On localhost: tries local backend first, then deployed backend as fallback.
+// On deployed site: only uses the configured remote backend URL.
+const API_BASE_CANDIDATES = isLocalEnv()
+  ? collectUnique([
+      getApiBaseUrl(),
+      import.meta.env.VITE_API_URL,
+      import.meta.env.VITE_API_URL_1,
+      getRemoteApiBaseUrl(),
+      import.meta.env.VITE_API_URL_2,
+    ])
+  : collectUnique([
+      getApiBaseUrl(),
+      import.meta.env.VITE_API_URL,
+      import.meta.env.VITE_API_URL_2,
+      getRemoteApiBaseUrl(),
+    ]);
 const CHAT_API_URLS = collectUnique(
   API_BASE_CANDIDATES.map((base) => toApiUrl(base, "/api/ai/chat")),
 );
@@ -64,7 +72,7 @@ const HISTORY_MAX_MESSAGES = 80;
 const HISTORY_MAX_MESSAGE_CHARS = 12000;
 const HISTORY_MAX_TITLE_CHARS = 120;
 const CHAT_CONTEXT_MESSAGE_LIMIT = HISTORY_MAX_MESSAGES;
-const RETRYABLE_STATUSES = new Set([404, 429, 500, 502, 503, 504]);
+const RETRYABLE_STATUSES = new Set([429, 500, 502, 503, 504]);
 const HISTORY_CACHE_STORAGE_KEY = "mindlytic-ai-history-cache-v1";
 const CONVERSATION_QUERY_KEY = "chat";
 
@@ -981,7 +989,7 @@ const canSend = computed(
 );
 const isEmptyConversation = computed(() => messages.value.length === 0);
 const modelOptions = computed(() => [
-  { label: "Gemini (Recommanded)", value: "gemini" },
+  { label: "Gemini (Recommended)", value: "gemini" },
   { label: "Llama (normal coding)", value: "groq" },
   { label: "Open Ai (higher coding)", value: "openai" },
 ]);
@@ -1278,7 +1286,7 @@ function isWebRunnerLanguage(language = "") {
 }
 
 function canRunInRunner(language = "") {
-  return ["html", "htm", "markup"].includes(
+  return ["html", "htm", "markup", "javascript", "js", "css"].includes(
     String(language || "").toLowerCase(),
   );
 }
@@ -1413,7 +1421,7 @@ const handleAssistantMessageClick = (event, message, index) => {
   }
   if (!canRunInRunner(blockLanguage)) {
     showAlert(
-      "Run is disabled for CSS snippets. Use Copy or Download.",
+      "Run is disabled for this code type. Use Copy or Download.",
       "error",
     );
     return;
@@ -1935,68 +1943,72 @@ onUnmounted(() => {
       <v-dialog
         v-model="profiledialog"
         transition="dialog-bottom-transition"
-        max-width="420"
+        max-width="440"
         :theme="pageVuetifyTheme"
       >
-        <v-card class="profile-dialog-card rounded-xl" :theme="pageVuetifyTheme">
-          <v-card-title class="profile-dialog-title">
-            <span class="profile-dialog-heading">Profile Details</span>
-            <v-spacer></v-spacer>
+        <v-card class="profile-dialog-card rounded-xl overflow-hidden" :class="{ 'theme-dark': isDarkTheme }" :theme="pageVuetifyTheme" elevation="10">
+          <div class="profile-header-bg">
             <v-btn
               icon="mdi-close"
               variant="text"
-              size="small"
-              class="profile-dialog-close"
+              class="profile-dialog-close-btn"
               @click="profiledialog = false"
+              size="small"
+              aria-label="Close Profile"
             ></v-btn>
-          </v-card-title>
+          </div>
+          
+          <div class="profile-avatar-container">
+            <v-avatar size="110" class="profile-avatar elevation-4" color="surface">
+              <img
+                v-if="userAvatarSrc"
+                :src="userAvatarSrc"
+                alt="Profile"
+                class="profile-image"
+                referrerpolicy="no-referrer"
+                @error="avatarImageFailed = true"
+              />
+              <div v-else class="profile-avatar-initial">{{ userInitial }}</div>
+            </v-avatar>
+          </div>
 
-          <v-card-text class="profile-dialog-body">
-            <div class="profile-dialog-identity">
-              <v-avatar size="100" color="primary" variant="tonal" class="elevation-2">
-                <img
-                  v-if="userAvatarSrc"
-                  :src="userAvatarSrc"
-                  alt="Profile"
-                  class="profile-image"
-                  referrerpolicy="no-referrer"
-                  @error="avatarImageFailed = true"
-                />
-                <span v-else class="text-h3">{{ userInitial }}</span>
-              </v-avatar>
-              <div class="profile-dialog-name">{{ currentUser?.displayName || "User" }}</div>
-              <div class="profile-dialog-email">{{ currentUser?.email }}</div>
+          <v-card-text class="profile-details-content text-center pt-2 pb-2">
+            <h2 class="profile-name text-h5 font-weight-bold mb-1">{{ currentUser?.displayName || "User" }}</h2>
+            <p class="profile-email text-body-2 mb-5">{{ currentUser?.email }}</p>
+
+            <div class="profile-stats-grid mb-2">
+              <div class="profile-stat-box">
+                <v-icon icon="mdi-shield-check-outline" color="success" size="28" class="mb-2"></v-icon>
+                <div class="stat-label">Status</div>
+                <div class="stat-value text-success font-weight-bold">Verified</div>
+              </div>
+              <div class="profile-stat-box" v-if="currentUser?.metadata?.creationTime">
+                <v-icon icon="mdi-calendar-star" color="primary" size="28" class="mb-2"></v-icon>
+                <div class="stat-label">Member Since</div>
+                <div class="stat-value">{{ formatDateLabel(currentUser.metadata.creationTime) }}</div>
+              </div>
             </div>
-
-            <v-divider class="profile-dialog-divider"></v-divider>
-
-            <v-list density="comfortable" class="profile-dialog-list bg-transparent" slim>
-              <v-list-item class="profile-dialog-item" prepend-icon="mdi-account-outline" title="Account Status">
-                <template #subtitle>
-                  <v-chip size="x-small" color="success" variant="flat" class="mt-1">Verified</v-chip>
-                </template>
-              </v-list-item>
-              <v-list-item
-                v-if="currentUser?.metadata?.creationTime"
-                class="profile-dialog-item"
-                prepend-icon="mdi-calendar-range"
-                title="Joined On"
-                :subtitle="formatDateLabel(currentUser.metadata.creationTime)"
-              ></v-list-item>
-            </v-list>
           </v-card-text>
 
-          <v-card-actions class="profile-dialog-actions">
+          <v-divider class="mx-6 opacity-20 my-2"></v-divider>
+
+          <v-card-actions class="profile-actions px-6 py-4">
             <v-btn
-              variant="text"
+              variant="tonal"
               color="error"
               prepend-icon="mdi-logout"
-              class="profile-dialog-logout"
+              class="profile-btn-logout rounded-lg text-none px-5 font-weight-medium"
               @click="signOutUser(); profiledialog = false"
             >
               Logout
             </v-btn>
-            <v-btn variant="flat" color="primary" class="profile-dialog-done" @click="profiledialog = false">
+            <v-spacer></v-spacer>
+            <v-btn 
+              variant="flat" 
+              color="primary" 
+              class="profile-btn-done rounded-lg text-none px-7 font-weight-medium" 
+              @click="profiledialog = false"
+            >
               Done
             </v-btn>
           </v-card-actions>
@@ -2186,7 +2198,7 @@ onUnmounted(() => {
                 <div ref="chatScrollRef" class="chat-scroll" :class="{ 'chat-scroll-empty': isEmptyConversation }"
                   @scroll="handleChatScroll">
                   <div v-if="isEmptyConversation" class="empty-state">
-                    <v-container fluid class="fill-height d-flex align-center justify-center bg-gradient">
+                    <v-container fluid class="fill-height d-flex align-center justify-center">
                       <div class="text-center max-width">
 
                         <!-- Headline -->
@@ -2238,8 +2250,8 @@ onUnmounted(() => {
                 </div>
 
                 <v-fade-transition>
-                  <v-btn v-if="showScrollButton" icon="mdi-arrow-down" variant="tonal" class="scroll-bottom-btn border"
-                    color="primary" density="comfortable" elevation="4" @click="scrollToBottom" />
+                  <v-btn v-if="showScrollButton" icon="mdi-arrow-down" variant="outlined" class="scroll-bottom-btn border"
+                    color="primary" density="comfortable" @click="scrollToBottom" />
                 </v-fade-transition>
 
                 <div class="composer-shell" :class="{ 'composer-shell-floating': isEmptyConversation }">
@@ -2512,6 +2524,14 @@ onUnmounted(() => {
   color: #64748b;
 }
 
+.mindlytic-page.theme-dark .headline-text {
+  color: #ececec;
+}
+
+.mindlytic-page.theme-dark .sub-text {
+  color: #9aa0a6;
+}
+
 .input-box {
   background: white;
   border-radius: 16px;
@@ -2604,102 +2624,144 @@ onUnmounted(() => {
   color: rgb(var(--v-theme-on-surface)) !important;
 }
 
+/* --- Profile Dialog Redesign --- */
 .profile-dialog-card {
   background-color: rgb(var(--v-theme-surface)) !important;
   color: rgb(var(--v-theme-on-surface)) !important;
-  border: 1px solid rgba(var(--v-border-color), 0.42);
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.14) !important;
+  border: 1px solid rgba(var(--v-border-color), 0.4);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15) !important;
+  position: relative;
 }
 
-.profile-dialog-title {
-  padding: 16px 16px 8px;
+.profile-header-bg {
+  height: 120px;
+  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.8), rgba(var(--v-theme-secondary), 0.6));
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 12px;
+  justify-content: flex-end;
+  padding: 12px;
 }
 
-.profile-dialog-heading {
-  font-size: 1.06rem;
+.profile-dialog-close-btn {
+  color: #ffffff !important;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+  transition: background 0.2s;
+}
+
+.profile-dialog-close-btn:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.profile-avatar-container {
+  display: flex;
+  justify-content: center;
+  margin-top: -55px;
+  position: relative;
+  z-index: 2;
+}
+
+.profile-avatar {
+  border: 4px solid rgb(var(--v-theme-surface));
+  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.1), rgba(var(--v-theme-surface), 1));
+}
+
+.profile-avatar-initial {
+  font-size: 2.5rem;
   font-weight: 700;
-  line-height: 1.2;
+  color: rgb(var(--v-theme-primary));
+}
+
+.profile-name {
   color: rgb(var(--v-theme-on-surface));
+  letter-spacing: -0.5px;
+  line-height: 1.2;
 }
 
-.profile-dialog-close {
-  color: rgba(var(--v-theme-on-surface), 0.74) !important;
+.profile-email {
+  color: rgba(var(--v-theme-on-surface), 0.6);
 }
 
-.profile-dialog-body {
-  padding: 8px 16px 12px !important;
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 0 8px;
 }
 
-.profile-dialog-identity {
+.profile-stat-box {
+  background: rgba(var(--v-theme-on-surface), 0.03);
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.06);
+  border-radius: 16px;
+  padding: 16px 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  gap: 8px;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
-.profile-dialog-name {
-  margin: 4px 0 0;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  font-size: 1.2rem;
-  font-weight: 700;
-  line-height: 1.25;
+.profile-stat-box:hover {
+  transform: translateY(-2px);
+  background: rgba(var(--v-theme-on-surface), 0.05);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(var(--v-theme-on-surface), 0.5);
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 0.95rem;
   color: rgb(var(--v-theme-on-surface));
 }
 
-.profile-dialog-email {
-  margin: 0 0 2px;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  font-size: 0.83rem;
-  line-height: 1.38;
-  color: rgba(var(--v-theme-on-surface), 0.7);
-}
-
-.profile-dialog-divider {
-  margin: 14px 0 8px !important;
-}
-
-.profile-dialog-list {
-  padding: 0 !important;
-}
-
-.profile-dialog-item {
-  min-height: 44px;
-  border-radius: 10px;
-  margin: 2px 0;
-}
-
-.profile-dialog-item :deep(.v-list-item__prepend) {
-  align-self: center;
-  margin-inline-end: 12px;
-}
-
-.profile-dialog-item :deep(.v-list-item-subtitle) {
-  color: rgba(var(--v-theme-on-surface), 0.68) !important;
-}
-
-.profile-dialog-actions {
-  padding: 8px 16px 16px !important;
-  gap: 8px;
-  justify-content: flex-end;
+.profile-actions {
+  display: flex;
   align-items: center;
 }
 
-.profile-dialog-actions :deep(.v-btn) {
-  text-transform: none;
+.profile-dialog-card.theme-dark {
+  background-color: #2a2b32 !important;
+  color: #ececec !important;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-.profile-dialog-logout {
-  margin-inline-end: auto;
+.profile-dialog-card.theme-dark .profile-header-bg {
+  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.5), rgba(0, 0, 0, 0.4));
 }
 
-.profile-dialog-done {
-  min-width: 108px;
+.profile-dialog-card.theme-dark .profile-avatar {
+  border-color: #2a2b32 !important;
+}
+
+.profile-dialog-card.theme-dark .profile-name,
+.profile-dialog-card.theme-dark .stat-value {
+  color: #ececec !important;
+}
+
+.profile-dialog-card.theme-dark .profile-email,
+.profile-dialog-card.theme-dark .stat-label {
+  color: #9aa0a6 !important;
+}
+
+.profile-dialog-card.theme-dark .profile-stat-box {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.profile-dialog-card.theme-dark .profile-stat-box:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.profile-dialog-card.theme-dark .text-success {
+  color: #81c995 !important;
+}
+
+.profile-dialog-card.theme-dark .v-divider {
+  opacity: 0.3;
 }
 
 .delete-dialog-title {
@@ -3485,35 +3547,48 @@ onUnmounted(() => {
 }
 
 @media (max-width: 600px) {
-  .profile-dialog-card {
-    border-radius: 16px !important;
+    .profile-dialog-card {
+    border-radius: 20px !important;
   }
 
-  .profile-dialog-title {
-    padding: 14px 14px 6px;
+  .profile-header-bg {
+    height: 100px;
   }
 
-  .profile-dialog-body {
-    padding: 8px 14px 10px !important;
+  .profile-avatar-container {
+    margin-top: -45px;
   }
 
-  .profile-dialog-name {
-    font-size: 1.1rem;
+  .profile-avatar {
+    width: 90px !important;
+    height: 90px !important;
   }
 
-  .profile-dialog-actions {
+  .profile-stats-grid {
+    gap: 10px;
+    padding: 0 4px;
+  }
+
+  .profile-stat-box {
+    padding: 12px 8px;
+    border-radius: 12px;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+  }
+
+  .profile-actions {
     flex-direction: column-reverse;
     align-items: stretch;
-    padding: 8px 14px 14px !important;
+    padding: 8px 16px 16px !important;
+    gap: 12px;
   }
 
-  .profile-dialog-actions :deep(.v-btn) {
+  .profile-btn-logout, .profile-btn-done {
     width: 100%;
     justify-content: center;
-  }
-
-  .profile-dialog-logout {
-    margin-inline-end: 0;
+    margin: 0 !important;
   }
 }
 
@@ -3632,3 +3707,10 @@ onUnmounted(() => {
   color: #ececec !important;
 }
 </style>
+
+
+
+
+
+
+

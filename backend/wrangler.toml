@@ -9,3 +9,16 @@ NODE_ENV = "production"
 MONGODB_DB_NAME = "LakshSolanki"
 MONGODB_DATA_SOURCE = "Cluster0"
 FIREBASE_PROJECT_ID = "mindlytic-2912"
+GEMINI_CHAT_MODEL = "gemini-2.5-flash"
+GROQ_CHAT_MODEL = "llama-3.3-70b-versatile"
+OPENAI_CHAT_MODEL = "meta/llama-3.3-70b-instruct"
+GROQ_API_BASE = "https://api.groq.com/openai/v1"
+AI_DEFAULT_PROVIDER = "auto"
+ENABLE_COMPRESSION = "false"
+
+# Secrets (set via `wrangler secret put`):
+# GEMINI_API_KEY
+# GROQ_API_KEY
+# OPENAI_API_KEY
+# OPENAI_BASE_URL
+# MONGODB_URI

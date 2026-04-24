@@ -4,15 +4,14 @@
       <div class="eyebrow-chip">Let's collaborate better</div>
       <div class="d-flex align-start justify-space-between ga-3">
         <div>
-          <h3 class="text-h6 font-weight-bold mb-1"></h3>
-          <p class="text-body-2 copy-muted mb-0">
+          <p class="text-body-2 copy-muted my-1 mx-1">
             Fill your email below to receive monthly updates and a direct collaboration reply.
           </p>
         </div>
       </div>
     </div>
 
-    <div class="d-flex flex-wrap ga-2 mb-4 benefit-chips">
+    <div class="d-flex flex-wrap align-center justify-center ga-2 mb-4 benefit-chips">
       <v-chip size="x-small" color="primary" variant="tonal" rounded="lg">No spam</v-chip>
       <v-chip size="x-small" color="primary" variant="tonal" rounded="lg">1 mail / month</v-chip>
       <v-chip size="x-small" color="primary" variant="tonal" rounded="lg">Unsubscribe anytime</v-chip>
@@ -28,7 +27,6 @@
       <v-text-field
         v-model.trim="email"
         label="Email address"
-        placeholder="you@company.com"
         type="email"
         variant="solo-filled"
         prepend-inner-icon="mdi-email-outline"
@@ -185,10 +183,10 @@ const handleSubscribe = async () => {
 }
 
 .newsletter-input :deep(.v-field) {
-  border: 1px solid rgba(15, 143, 124, 0.16);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(15, 143, 124, 0.16) !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
 }
 
 .newsletter-input :deep(.v-label),
