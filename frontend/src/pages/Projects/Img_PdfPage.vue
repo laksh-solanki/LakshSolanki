@@ -270,43 +270,6 @@ onUnmounted(() => {
   <div class="tool-page">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
-    <section class="hero-shell">
-      <v-container class="py-10 py-md-12">
-        <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-6">
-          <v-btn @click="goBack" variant="tonal" color="primary" prepend-icon="mdi-arrow-left" rounded="xl"
-            class="text-none">
-            Back
-          </v-btn>
-          <div class="hero-chip">Project Tool</div>
-        </div>
-
-        <v-row align="center" class="ga-0">
-          <v-col cols="12" md="8" lg="7" class="pr-md-8">
-            <h1 class="hero-title mb-3">Image to PDF Converter</h1>
-            <p class="hero-subtitle mb-0">
-              Upload multiple images, reorder and rotate pages, then export a polished PDF in portrait or landscape.
-            </p>
-          </v-col>
-          <v-col cols="12" md="4" lg="5" class="hero-stats-col mt-6 mt-md-0">
-            <div class="hero-stats">
-              <div class="stat-item">
-                <span class="stat-value">{{ totalImages }}</span>
-                <span class="stat-label">Images Added</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">{{ layoutMode }}</span>
-                <span class="stat-label">Layout Mode</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">{{ totalSize }}</span>
-                <span class="stat-label">Total Size</span>
-              </div>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
     <v-container class="py-8 py-md-12">
       <v-row dense align="start">
         <v-col cols="12" :lg="images.length > 0 ? 4 : 12">

@@ -435,50 +435,6 @@ const goBack = () => window.history.back();
 <template>
   <div class="forge-page">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
-
-    <section class="hero-shell">
-      <v-container class="py-10 py-md-12">
-        <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-6">
-          <v-btn
-            @click="goBack"
-            variant="tonal"
-            color="primary"
-            prepend-icon="mdi-arrow-left"
-            rounded="xl"
-            class="text-none"
-          >
-            Back
-          </v-btn>
-          <div class="hero-chip">Premium Project</div>
-        </div>
-
-        <v-row align="center" class="ga-0">
-          <v-col cols="12" md="8" lg="7" class="pr-md-8">
-            <h1 class="hero-title mb-3">JSON Forge Studio</h1>
-            <p class="hero-subtitle mb-0">
-              Validate, format, minify, sort, compare, import, export, and inspect JSON in one polished engineering workspace.
-            </p>
-          </v-col>
-          <v-col cols="12" md="4" lg="5" class="hero-stats-col mt-6 mt-md-0">
-            <div class="hero-stats">
-              <div class="stat-item">
-                <span class="stat-value">{{ sourceStats.keys }}</span>
-                <span class="stat-label">Detected Keys</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">{{ sourceStats.depth }}</span>
-                <span class="stat-label">Max Depth</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">{{ diffCount }}</span>
-                <span class="stat-label">Diff Entries</span>
-              </div>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
     <v-container class="py-8 py-md-12">
       <v-row class="ga-0" align="start">
         <v-col cols="12" lg="8" class="pr-lg-6 mb-8 mb-lg-0">

@@ -16,15 +16,10 @@ const routes = [
   },
   {
     path: "/projects",
-    component: () => import("@/pages/Projects/page.vue"),
-    meta: { title: "LakshSolanki | Projects", hideHeaderFooter: true },
+    name: "Projects",
+    component: () => import("@/pages/ProjectsPage.vue"),
+    meta: { title: "LakshSolanki | Projects" },
     children: [
-      {
-        path: "",
-        name: "Projects",
-        component: () => import("@/pages/ProjectsPage.vue"),
-        meta: { title: "LakshSolanki | Projects", hideHeaderFooter: false },
-      },
       {
         path: "certificate-gen",
         name: "CertificateGen",

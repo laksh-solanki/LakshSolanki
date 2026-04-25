@@ -1,27 +1,25 @@
 <template>
   <v-app>
     <TopLoader ref="loaderRef" />
-    <AppHeader v-if="!hideHeaderFooter" />
+    <AppHeader />
     <v-main>
       <RouterView />
     </v-main>
-    <AppFooter v-if="!hideHeaderFooter" />
+    <AppFooter />
     <CookieConsentBanner />
   </v-app>
 </template>
 
 <script setup>
-import { computed, defineAsyncComponent, onMounted, ref } from "vue";
-import { RouterView, useRoute } from "vue-router";
+import { defineAsyncComponent, onMounted, ref } from "vue";
+import { RouterView } from "vue-router";
 import AppHeader from "@/components/AppHeader.vue";
 import CookieConsentBanner from "@/components/CookieConsentBanner.vue";
 import TopLoader from "./components/TopLoader.vue";
 import { isGlobalLoading } from "@/router/index.js";
 
 const loaderRef = ref(null);
-const route = useRoute();
 const AppFooter = defineAsyncComponent(() => import("@/components/AppFooter.vue"));
-const hideHeaderFooter = computed(() => Boolean(route.meta.hideHeaderFooter));
 
 onMounted(() => {
   isGlobalLoading.value = loaderRef.value;

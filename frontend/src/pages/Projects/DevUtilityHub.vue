@@ -217,35 +217,6 @@ const generatePassword = () => {
 <template>
   <div class="hub-page">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
-
-    <section class="hero-shell">
-      <v-container class="py-10 py-md-12">
-        <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-6">
-          <v-btn @click="goBack" variant="tonal" color="primary" prepend-icon="mdi-arrow-left" rounded="xl" class="text-none">
-            Back
-          </v-btn>
-          <div class="hero-chip">Developer + User Utility</div>
-        </div>
-
-        <v-row align="center">
-          <v-col cols="12" md="8" lg="7">
-            <h1 class="hero-title mb-3">Dev Utility Hub</h1>
-            <p class="hero-subtitle mb-0">
-              One workspace for fast text transforms, URL and Base64 conversions, plus secure UUID and password
-              generation.
-            </p>
-          </v-col>
-          <v-col cols="12" md="4" lg="5" class="hero-stats-col">
-            <div class="hero-stats">
-              <div class="stat-item"><span class="stat-value">3</span><span class="stat-label">Tool Groups</span></div>
-              <div class="stat-item"><span class="stat-value">Client-Only</span><span class="stat-label">Privacy</span></div>
-              <div class="stat-item"><span class="stat-value">Instant</span><span class="stat-label">Results</span></div>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
     <v-container class="py-8 py-md-12">
       <v-row class="ga-0" align="stretch">
         <v-col cols="12" class="mb-6">

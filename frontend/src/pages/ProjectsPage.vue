@@ -1,6 +1,11 @@
 <script setup>
 import { ref } from "vue";
+import { RouterView, useRoute } from "vue-router";
+import { useDisplay } from "vuetify";
 import { getMediaUrl } from "@/utils/mediaUrl";
+
+const route = useRoute();
+const { mobile } = useDisplay();
 
 const projects = ref([
   {
@@ -10,6 +15,7 @@ const projects = ref([
     description:
       "Form-based certificate creation with live preview and one-click PDF export for course completion workflows.",
     image: getMediaUrl("project_img/Project-1.png"),
+    icon: "mdi-certificate-outline",
     link: "/projects/certificate-gen",
     tags: ["Vue", "Vuetify", "HTML2PDF"],
   },
@@ -20,6 +26,7 @@ const projects = ref([
     description:
       "Batch image import, ordering, and conversion to downloadable PDFs with a clean browser-first UX.",
     image: getMediaUrl("project_img/Project-2.png"),
+    icon: "mdi-file-pdf-box",
     link: "/projects/img-pdf",
     tags: ["Vue", "File Processing", "UX"],
   },
@@ -30,6 +37,7 @@ const projects = ref([
     description:
       "Extract and export high-quality page images from PDFs with performant rendering and easy downloads.",
     image: getMediaUrl("Picture/Project-3.jpg"),
+    icon: "mdi-image-multiple-outline",
     link: "/projects/pdf-img",
     tags: ["PDF.js", "Performance", "Vue"],
   },
@@ -40,6 +48,7 @@ const projects = ref([
     description:
       "Natural text-to-speech controls powered by browser speech APIs with voice, pitch, and speed tuning.",
     image: getMediaUrl("project_img/Project-4.svg"),
+    icon: "mdi-account-voice",
     link: "/projects/text-to-speech",
     tags: ["Web Speech API", "Accessibility", "UI"],
   },
@@ -50,6 +59,7 @@ const projects = ref([
     description:
       "Prompt-driven chat interface with markdown rendering, code highlighting, and clipboard-ready snippets.",
     image: getMediaUrl("project_img/Project-5.png"),
+    icon: "mdi-robot-outline",
     link: "/projects/mindlytic_ai",
     tags: ["Gemini API", "Markdown"],
   },
@@ -60,6 +70,7 @@ const projects = ref([
     description:
       "Premium JSON workspace with validation, format/minify, key sorting, deep compare, key explorer, import/export, and syntax-highlighted output.",
     image: getMediaUrl("project_img/Project-6.svg"),
+    icon: "mdi-code-json",
     link: "/projects/json-forge",
     tags: ["JSON", "Diff Engine", "Syntax UI"],
   },
@@ -70,6 +81,7 @@ const projects = ref([
     description:
       "Advanced HTML/CSS/JS compiler with live preview, runtime console telemetry, freeze-network mode, analytics scan, and time-capsule snapshots.",
     image: getMediaUrl("project_img/Project-7.svg"),
+    icon: "mdi-console",
     link: "/projects/web-lab-compiler",
     tags: ["HTML/CSS/JS", "Runtime Metrics", "Snapshots"],
   },
@@ -80,6 +92,7 @@ const projects = ref([
     description:
       "Unified toolbox with text case conversion, URL/Base64 encode-decode, secure password generation, and UUID creation.",
     image: getMediaUrl("project_img/Project-8.svg"),
+    icon: "mdi-toolbox-outline",
     link: "/projects/dev-utility-hub",
     tags: ["Text Tools", "Encoding", "Generators"],
   },
@@ -90,6 +103,7 @@ const projects = ref([
     description:
       "Minimal translator with auto language detection, quick swap, voice playback, local history, and downloadable output.",
     image: getMediaUrl("project_img/Project-9.svg"),
+    icon: "mdi-translate",
     link: "/projects/translate-studio",
     tags: ["Translation", "Speech", "Productivity"],
   },
@@ -100,6 +114,7 @@ const projects = ref([
     description:
       "Remove background, auto-fit to passport-size canvas, add border, and export print-ready PNG/JPG output.",
     image: getMediaUrl("project_img/Project-10.svg"),
+    icon: "mdi-account-box-outline",
     link: "/projects/passport-cutter",
     tags: ["remove.bg API", "Passport Photo", "Vue"],
   },
@@ -108,44 +123,83 @@ const projects = ref([
 </script>
 
 <template>
-  <v-container class="py-8 py-md-12 projects-shell">
-    <section class="section-shell p-6 p-md-8 mb-8 header-card">
-      <p class="text-overline text-primary font-weight-bold mb-2">Portfolio Projects</p>
-      <h1 class="text-h4 text-md-h3 mb-3">Selected developer tools and product builds</h1>
-      <p class="muted-copy mb-0 intro-copy">
-        Each project focuses on practical product value: performance, clean interfaces, and maintainable code.
-      </p>
-    </section>
+  <v-layout class="projects-page-layout h-100">
+    <v-navigation-drawer expand-on-hover rail class="border-e projects-sidebar">
+      <v-list density="compact" nav>
+        <v-list-item
+          to="/projects"
+          prepend-icon="mdi-chart-tree"
+          title="All Projects"
+          class="mb-2 text-primary"
+          rounded="lg"
+        ></v-list-item>
 
-    <v-row>
-      <v-col v-for="project in projects" :key="project.id" cols="12" md="6" lg="4" class="d-flex">
-        <v-card class="section-shell project-card h-100" :to="project.link" flat hover rounded="lg">
-          <v-img :src="project.image" cover class="project-media"></v-img>
+        <v-divider class="mb-2 opacity-20"></v-divider>
 
-          <div class="p-5 d-flex flex-column project-card-body">
-            <p class="text-caption text-primary font-weight-bold text-uppercase mb-2">
-              {{ project.category }}
+        <v-list-item
+          v-for="project in projects"
+          :key="project.id"
+          :to="project.link"
+          :title="project.title"
+          :subtitle="project.category"
+          :prepend-icon="project.icon"
+          active-color="primary"
+          rounded="lg"
+          class="mb-1"
+        ></v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-main class="projects-main">
+      <template v-if="route.name === 'Projects'">
+        <v-container class="py-8 py-md-12 projects-shell">
+          <section class="section-shell p-6 p-md-8 mb-8 header-card">
+            <p class="text-overline text-primary font-weight-bold mb-2">Portfolio Projects</p>
+            <h1 class="text-h4 text-md-h3 mb-3">Selected developer tools and product builds</h1>
+            <p class="muted-copy mb-0 intro-copy">
+              Each project focuses on practical product value: performance, clean interfaces, and maintainable code.
             </p>
-            <h2 class="text-h6 mb-2">{{ project.title }}</h2>
-            <p class="muted-copy mb-1 project-description">{{ project.description }}</p>
+          </section>
 
-            <div class="d-flex flex-wrap ga-2 mt-3 mb-2 project-tag-row">
-              <v-chip
-                v-for="tag in project.tags"
-                :key="tag"
-                flat
-                class="project-tag"
-                :text="tag"
-              >
-                {{ tag }}
-              </v-chip>
-            </div>
-            <span class="text-primary font-weight-bold project-link">Open project -></span>
-          </div>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+          <v-row>
+            <v-col v-for="project in projects" :key="project.id" cols="12" md="6" lg="4" class="d-flex">
+              <v-card class="section-shell project-card h-100" :to="project.link" flat hover rounded="lg">
+                <v-img :src="project.image" cover class="project-media"></v-img>
+
+                <div class="p-5 d-flex flex-column project-card-body">
+                  <p class="text-caption text-primary font-weight-bold text-uppercase mb-2">
+                    {{ project.category }}
+                  </p>
+                  <h2 class="text-h6 mb-2">{{ project.title }}</h2>
+                  <p class="muted-copy mb-1 project-description">{{ project.description }}</p>
+
+                  <div class="d-flex flex-wrap ga-2 mt-3 mb-2 project-tag-row">
+                    <v-chip v-for="tag in project.tags" :key="tag" flat class="project-tag" :text="tag">
+                      {{ tag }}
+                    </v-chip>
+                  </div>
+                  <span class="text-primary font-weight-bold project-link">Open project -></span>
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </template>
+      <template v-else>
+        <div v-if="mobile" class="px-4 pt-4 pb-1 d-flex align-center">
+          <v-btn
+            variant="text"
+            prepend-icon="mdi-arrow-left"
+            to="/projects"
+            color="primary"
+            rounded="xl"
+            text="Back"    
+            />
+        </div>
+        <RouterView />
+      </template>
+    </v-main>
+  </v-layout>
 </template>
 
 <style scoped>

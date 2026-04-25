@@ -14,8 +14,16 @@ const coursesLoading = ref(false);
 const savingCourse = ref(false);
 const loading = ref(false);
 const dialog = ref(false);
+const templateDialog = ref(false);
+const selectedTemplate = ref("premium");
 const pdfSection = ref(null);
 const showAddCourse = ref(false);
+
+const certificateTemplates = [
+  { id: "premium", name: "Premium Classic", icon: "mdi-certificate", color: "amber-darken-3" },
+  { id: "modern", name: "Modern Dark", icon: "mdi-moon-waning-crescent", color: "blue-grey-darken-3" },
+  { id: "minimal", name: "Clean Minimal", icon: "mdi-shape-square-plus", color: "blue-accent-3" },
+];
 
 const form = reactive({
   fname: "",
@@ -184,11 +192,17 @@ const previewCertificate = async () => {
     return;
   }
 
+  templateDialog.value = true;
+};
+
+const openPreview = (templateId) => {
+  selectedTemplate.value = templateId;
+  templateDialog.value = false;
   loading.value = true;
   setTimeout(() => {
     loading.value = false;
     dialog.value = true;
-  }, 800);
+  }, 400);
 };
 
 const generatePdf = async () => {
@@ -240,43 +254,6 @@ const generatePdf = async () => {
 <template>
   <div class="certificate-page">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
-
-    <section class="hero-shell">
-      <v-container class="py-10 py-md-12">
-        <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-6">
-          <v-btn @click="goBack" variant="tonal" color="primary" prepend-icon="mdi-arrow-left" rounded="xl"
-            class="text-none">
-            Back
-          </v-btn>
-          <div class="hero-chip">Certificate Tool</div>
-        </div>
-
-        <v-row align="center" class="ga-0">
-          <v-col cols="12" md="8" lg="7" class="pr-md-8">
-            <h1 class="hero-title mb-3">Premium Certificate Generator</h1>
-            <p class="hero-subtitle mb-0">
-              Enter your details, preview a custom premium certificate, and download a polished PDF in one flow.
-            </p>
-          </v-col>
-          <v-col cols="12" md="4" lg="5" class="hero-stats-col mt-6 mt-md-0">
-            <div class="hero-stats">
-              <div class="stat-item">
-                <span class="stat-value">{{ courseCount }}</span>
-                <span class="stat-label">Available Courses</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">PDF</span>
-                <span class="stat-label">Output Format</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">1 min</span>
-                <span class="stat-label">Average Time</span>
-              </div>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
 
     <v-container class="py-8 py-md-12">
       <v-row class="ga-0" align="start">
@@ -426,13 +403,39 @@ const generatePdf = async () => {
       </template>
 
       <div class="certificate-sheet certificate-sheet--preview">
-        <Certificate :form="form" />
+        <Certificate :form="form" :variant="selectedTemplate" />
       </div>
     </PhotoZoomDialog>
 
+    <v-dialog v-model="templateDialog" max-width="800">
+      <v-card rounded="xl" class="p-6">
+        <h2 class="text-h5 font-weight-bold mb-2">Which template to use?</h2>
+        <p class="text-body-2 mb-6 text-medium-emphasis">Select a design for your certificate. You can edit the highlighted text directly in the preview.</p>
+        
+        <v-row>
+          <v-col cols="12" sm="4" v-for="t in certificateTemplates" :key="t.id">
+            <v-card 
+              @click="openPreview(t.id)" 
+              class="border text-center pa-6 h-100 d-flex flex-column align-center justify-center"
+              rounded="lg"
+              hover
+              flat
+            >
+               <v-icon :icon="t.icon" :color="t.color" size="64" class="mb-4"></v-icon>
+               <h3 class="text-subtitle-1 font-weight-bold">{{ t.name }}</h3>
+            </v-card>
+          </v-col>
+        </v-row>
+        
+        <div class="d-flex justify-end mt-6">
+           <v-btn variant="text" @click="templateDialog = false" rounded="lg">Cancel</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
+
     <div class="certificate-export-root" aria-hidden="true">
       <div ref="pdfSection" class="certificate-sheet certificate-sheet--export">
-        <Certificate :form="form" />
+        <Certificate :form="form" :variant="selectedTemplate" />
       </div>
     </div>
   </div>

@@ -845,46 +845,6 @@ onUnmounted(() => {
 <template>
   <div class="tool-page">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
-
-    <section class="hero-shell">
-      <v-container class="py-10 py-md-12">
-        <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-6">
-          <v-btn @click="goBack" variant="tonal" color="primary" prepend-icon="mdi-arrow-left" rounded="xl"
-            class="text-none">
-            Back
-          </v-btn>
-          <div class="hero-chip">Voice Studio</div>
-        </div>
-
-        <v-row align="center" class="ga-0">
-          <v-col cols="12" md="8" lg="7" class="pr-md-8">
-            <h1 class="hero-title mb-3">Text to Speech Studio</h1>
-            <p class="hero-subtitle mb-0">
-              Premium text-to-speech with voice presets, sentence mode, live highlighting, keyboard shortcuts, and
-              downloadable audio.
-            </p>
-          </v-col>
-
-          <v-col cols="12" md="4" lg="5" class="hero-stats-col mt-6 mt-md-0">
-            <div class="hero-stats">
-              <div class="stat-item">
-                <span class="stat-value">{{ voices.length }}</span>
-                <span class="stat-label">Voices</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">{{ wordsCount }}</span>
-                <span class="stat-label">Words</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">{{ estimatedDuration }}</span>
-                <span class="stat-label">Est. Duration</span>
-              </div>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
     <v-container class="py-8 py-md-12">
       <v-row class="ga-0" align="start">
         <v-col cols="12" lg="8" class="pr-lg-6 mb-8 mb-lg-0">

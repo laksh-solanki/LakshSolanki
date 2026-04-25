@@ -704,66 +704,6 @@ onUnmounted(() => {
 <template>
   <div class="tool-page translate-page">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
-
-    <!-- ── Hero ─────────────────────────────────────────────────────────── -->
-    <section class="hero-shell">
-      <v-container class="py-8 py-md-10">
-        <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-5 hero-top-row">
-          <v-btn
-            @click="goBack"
-            variant="tonal"
-            color="primary"
-            prepend-icon="mdi-arrow-left"
-            rounded="xl"
-            class="text-none hero-back-btn"
-          >
-            Back
-          </v-btn>
-          <v-chip color="primary" variant="tonal" rounded="lg" size="small">
-            Translator Studio
-          </v-chip>
-        </div>
-
-        <v-row align="center" class="ga-0">
-          <v-col cols="12" md="7" class="pr-md-8">
-            <h1 class="hero-title mb-2">Translate Studio</h1>
-            <p class="hero-subtitle mb-0">
-              Clean translation workspace with smart language detection, dual-provider comparison, and quick export.
-            </p>
-          </v-col>
-          <v-col cols="12" md="5" class="hero-stats-col mt-5 mt-md-0">
-            <div class="hero-stats">
-              <div class="stat-card">
-                <span class="stat-value">{{ sourceWords }}</span>
-                <span class="stat-label">Words</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-value">{{ sourceSentences }}</span>
-                <span class="stat-label">Sentences</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-value">{{ readingTimeMinutes }}</span>
-                <span class="stat-label">Min Read</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-value">{{ translatedCharacters }}</span>
-                <span class="stat-label">Output Chars</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-value">{{ autoTranslate ? "On" : "Off" }}</span>
-                <span class="stat-label">Auto Translate</span>
-              </div>
-              <div class="stat-card">
-                <span class="stat-value">{{ compareMode ? "On" : "Off" }}</span>
-                <span class="stat-label">Compare Mode</span>
-              </div>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
-    <!-- ── Main tool card ────────────────────────────────────────────────── -->
     <v-container class="py-6 py-md-8 tool-main-container">
       <v-row class="ga-0" align="start">
         <v-col cols="12">

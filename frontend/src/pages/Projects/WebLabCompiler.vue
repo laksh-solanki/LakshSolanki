@@ -331,18 +331,6 @@ onUnmounted(() => {
 <template>
   <div class="lab-page">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
-
-    <section class="hero-shell">
-      <v-container class="py-10 py-md-12">
-        <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-6">
-          <v-btn @click="goBack" variant="tonal" color="primary" prepend-icon="mdi-arrow-left" rounded="xl" class="text-none">Back</v-btn>
-          <div class="hero-chip">New Premium Project</div>
-        </div>
-        <h1 class="hero-title mb-2">HTML/CSS/JS Web Lab Compiler</h1>
-        <p class="hero-subtitle mb-0">Unique stack: live compile + freeze mode + direct HTML/CSS/JS export.</p>
-      </v-container>
-    </section>
-
     <v-container class="py-8 py-md-12">
       <v-row class="ga-0">
         <v-col cols="12">

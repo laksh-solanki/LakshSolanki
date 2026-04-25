@@ -769,43 +769,6 @@ watch(
 <template>
   <div class="tool-page">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
-
-    <section class="hero-shell">
-      <v-container class="py-10 py-md-12">
-        <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-6">
-          <v-btn @click="goBack" variant="tonal" color="primary" prepend-icon="mdi-arrow-left" rounded="xl" class="text-none">
-            Back
-          </v-btn>
-          <div class="hero-chip">Passport Tool</div>
-        </div>
-
-        <v-row align="center" class="ga-0">
-          <v-col cols="12" md="8" lg="7" class="pr-md-8">
-            <h1 class="hero-title mb-3">Passport Size Photo Cutter</h1>
-            <p class="hero-subtitle mb-0">
-              Remove background from file or URL, then auto-generate a passport-size photo (35 mm x 45 mm) with border.
-            </p>
-          </v-col>
-          <v-col cols="12" md="4" lg="5" class="hero-stats-col mt-6 mt-md-0">
-            <div class="hero-stats">
-              <div class="stat-item">
-                <span class="stat-value">{{ inputMode === "file" ? "File" : "URL" }}</span>
-                <span class="stat-label">Input Mode</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">{{ hasApiKey ? "Ready" : "Missing" }}</span>
-                <span class="stat-label">API Key</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">{{ resultPreviewUrl ? "Ready" : "Waiting" }}</span>
-                <span class="stat-label">Output</span>
-              </div>
-            </div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </section>
-
     <v-container class="py-8 py-md-12">
       <v-row dense class="tool-grid">
         <v-col cols="12" lg="5">
