@@ -118,6 +118,17 @@ const projects = ref([
     link: "/projects/passport-cutter",
     tags: ["remove.bg API", "Passport Photo", "Vue"],
   },
+  {
+    id: 11,
+    title: "PPT Editor",
+    category: "Document Tooling",
+    description:
+      "Locally edit PowerPoint (.pptx) files directly in your browser. Unzip, extract slide text, modify, and export back to a perfectly formatted .pptx archive.",
+    image: getMediaUrl("project_img/Project-2.png"),
+    icon: "mdi-presentation",
+    link: "/projects/ppt-editor",
+    tags: ["PPTX", "JSZip", "Local Processing"],
+  },
 ]);
 
 </script>
@@ -286,7 +297,7 @@ const projects = ref([
 .project-description {
   flex: 1 1 auto;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -331,7 +342,7 @@ const projects = ref([
   }
 
   .project-description {
-    -webkit-line-clamp: 5;
+    line-clamp: 5;
   }
 }
 </style>

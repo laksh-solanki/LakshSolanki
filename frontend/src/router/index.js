@@ -88,6 +88,12 @@ const routes = [
         path: "remove-background",
         redirect: "/projects/passport-cutter",
       },
+      {
+        path: "ppt-editor",
+        name: "PptEditor",
+        component: () => import("@/pages/Projects/PptEditor.vue"),
+        meta: { title: "LakshSolanki | PPT Editor" },
+      },
     ],
   },
   {
