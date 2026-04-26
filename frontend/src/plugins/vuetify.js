@@ -69,7 +69,7 @@ export default createVuetify({
           "surface-bright": "#fcfeff",
           "surface-light": "#eef5f2",
           "surface-variant": "#e4eee9",
-          primary: "#0f8f7c",
+          primary: "#4F46E5",
           "on-primary": "#f7fffd",
           secondary: "#d18a1f",
           "on-secondary": "#231603",

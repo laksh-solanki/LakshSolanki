@@ -1109,6 +1109,15 @@ watch(
   gap: 10px;
 }
 
+.panel-kicker {
+  color: #4F46E5 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-size: 0.89rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
 .stat-item {
   border: 1px solid rgba(19, 111, 99, 0.15);
   border-radius: 12px;
@@ -1194,8 +1203,8 @@ watch(
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  background: rgba(15, 143, 124, 0.1);
-  color: #136f63;
+  background: #4c47e32b !important;
+  color: #4F46E5 !important;
 }
 
 .selected-file-body {
@@ -1215,7 +1224,7 @@ watch(
 .selected-file-meta {
   margin: 0;
   font-size: 0.78rem;
-  color: #5f716d;
+  color: #5252d6 !important;
 }
 
 .selected-file-remove {
@@ -1228,14 +1237,14 @@ watch(
   gap: 10px;
   padding: 12px 14px;
   border-radius: 14px;
-  background: rgba(15, 143, 124, 0.08);
+  background: #4c47e32b;
   border: 1px solid rgba(15, 143, 124, 0.16);
-  color: #3e5e58;
+  color: #4F46E5 !important;
   line-height: 1.4;
 }
 
 .tools-unlock-icon {
-  color: #136f63;
+  color: #4F46E5;
 }
 
 .input-preview-shell {

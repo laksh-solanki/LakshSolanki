@@ -331,7 +331,7 @@ onUnmounted(() => {
                 required />
 
               <div class="d-flex flex-column align-center ga-4 justify-center text-center">
-                <v-icon size="72" color="primary">mdi-cloud-upload-outline</v-icon>
+                <v-icon size="72" color="primary" :icon="images.length>0 ? 'mdi-plus-circle-outline' : 'mdi-cloud-upload-outline' " />
                 <div class="text-h6 font-weight-bold">Drag and drop PDF file</div>
                 <div class="text-body-1 text-medium-emphasis">or click to browse from your device</div>
                 <p class="text-caption text-medium-emphasis mb-0">Supported format: PDF</p>
@@ -359,7 +359,7 @@ onUnmounted(() => {
             <div v-if="images.length > 0">
               <v-card class="tool-shell p-4 p-md-5" rounded="xl" elevation="0">
                 <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-5">
-                  <h3 class="text-h6 font-weight-bold mb-0">Converted Images ({{ images.length }})</h3>
+                  <h3 class="text-h6 font-weight-bold my-0">Converted Images ({{ images.length }})</h3>
                   <div class="d-flex align-center ga-2 flex-wrap">
                     <v-btn variant="flat" color="primary" rounded="lg" @click="downloadAll" class="text-none">
                       Download ZIP
@@ -378,7 +378,7 @@ onUnmounted(() => {
                 </div>
 
                 <div class="d-flex align-center justify-space-between flex-wrap ga-2 mb-4">
-                  <p class="text-caption text-medium-emphasis mb-0">
+                  <p class="text-caption text-medium-emphasis my-0">
                     Showing {{ filteredSortedImages.length }} of {{ images.length }} | Selected {{ selectedCount }}
                   </p>
                   <div class="d-flex align-center ga-2 flex-wrap">
@@ -521,8 +521,8 @@ onUnmounted(() => {
 }
 
 .upload-zone {
-  border: 2px dashed rgba(19, 111, 99, 0.45) !important;
-  background: rgba(19, 111, 99, 0.04);
+  border: 3px dashed #4e46e546 !important;
+  background: #4e46e526 !important;
   padding: 36px 22px;
   cursor: pointer;
   transition:
@@ -533,8 +533,8 @@ onUnmounted(() => {
 
 .upload-zone:hover {
   transform: translateY(-2px);
-  border-color: rgba(19, 111, 99, 0.75) !important;
-  background: rgba(19, 111, 99, 0.08);
+ border-color: #0d00ff!important;
+  background: #4e46e52f !important;
 }
 
 .upload-zone.drag-over {

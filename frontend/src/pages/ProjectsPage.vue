@@ -136,7 +136,7 @@ const projects = ref([
 <template>
   <v-layout class="projects-page-layout h-100">
     <v-navigation-drawer expand-on-hover rail class="border-e projects-sidebar">
-      <v-list density="compact" nav>
+      <v-list density="compact" color="primary" nav>
         <v-list-item
           to="/projects"
           prepend-icon="mdi-chart-tree"
@@ -154,8 +154,7 @@ const projects = ref([
           :title="project.title"
           :subtitle="project.category"
           :prepend-icon="project.icon"
-          color="primary"
-          rounded="lg"
+          rounded="lg"  
           class="mb-1"
         ></v-list-item>
       </v-list>

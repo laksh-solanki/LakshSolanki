@@ -709,7 +709,7 @@ const goBack = () => window.history.back();
 }
 
 .panel-kicker {
-  color: #0f6a5e;
+  color: #4F46E5 !important;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-size: 0.71rem;

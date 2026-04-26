@@ -325,13 +325,6 @@ const generatePdf = async () => {
                       :loading="savingCourse" @click="addCourse">
                       Save Course
                     </v-btn>
-
-                    <v-btn variant="text" color="primary" class="text-none" :disabled="savingCourse" @click="
-                      showAddCourse = false;
-                    resetNewCourseForm();
-                    ">
-                      Cancel
-                    </v-btn>
                   </div>
                 </div>
               </v-expand-transition>
@@ -511,11 +504,11 @@ const generatePdf = async () => {
 }
 
 .form-kicker {
-  color: #157568;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-size: 0.72rem;
   font-weight: 700;
+  color: #4F46E5 !important;
 }
 
 .form-input :deep(.v-field) {

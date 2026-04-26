@@ -289,7 +289,7 @@ onUnmounted(() => {
                 required />
 
               <div class="d-flex flex-column align-center ga-4 justify-center text-center">
-                <v-icon size="72" color="primary">mdi-cloud-upload-outline</v-icon>
+                <v-icon size="72" :icon="images.length>0 ? 'mdi-plus-circle-outline' : 'mdi-cloud-upload-outline'" color="primary"/>
                 <div class="text-h6 font-weight-bold">Drag and drop image files</div>
                 <div class="text-body-1 text-medium-emphasis">or click to browse from your device</div>
                 <p class="text-caption text-medium-emphasis mb-0">Supported: JPG, PNG, GIF, WebP</p>
@@ -443,7 +443,7 @@ onUnmounted(() => {
 }
 
 .panel-kicker {
-  color: #157568;
+  color: #4F46E5  !important;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-size: 0.72rem;
@@ -451,8 +451,8 @@ onUnmounted(() => {
 }
 
 .upload-zone {
-  border: 2px dashed rgba(19, 111, 99, 0.45) !important;
-  background: rgba(19, 111, 99, 0.04);
+  border: 3px dashed #4e46e546 !important;
+  background: #4e46e526 !important;
   padding: 36px 22px;
   cursor: pointer;
   transition:
@@ -463,8 +463,8 @@ onUnmounted(() => {
 
 .upload-zone:hover {
   transform: translateY(-2px);
-  border-color: rgba(19, 111, 99, 0.75) !important;
-  background: rgba(19, 111, 99, 0.08);
+  border-color: #0d00ff!important;
+  background: #4e46e52f !important;
 }
 
 .upload-zone.drag-over {

@@ -455,7 +455,7 @@ const generatePassword = () => {
 }
 
 .panel-kicker {
-  color: #215d95;
+  color: #4F46E5 !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.71rem;

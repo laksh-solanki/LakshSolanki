@@ -1,52 +1,17 @@
 <template>
   <v-card class="newsletter-card p-4 p-md-5" rounded="xl" elevation="0">
     <div class="newsletter-head mb-4">
-      <div class="eyebrow-chip">Let's collaborate better</div>
-      <div class="d-flex align-start justify-space-between ga-3">
-        <div>
-          <p class="text-body-2 copy-muted my-1 mx-1">
-            Fill your email below to receive monthly updates and a direct collaboration reply.
-          </p>
-        </div>
-      </div>
+      <v-chip size="small" variant="outlined" color="primary">Let's collaborate better</v-chip>
     </div>
-
-    <div class="d-flex flex-wrap align-center justify-center ga-2 mb-4 benefit-chips">
-      <v-chip size="x-small" color="primary" variant="tonal" rounded="lg">No spam</v-chip>
-      <v-chip size="x-small" color="primary" variant="tonal" rounded="lg">1 mail / month</v-chip>
-      <v-chip size="x-small" color="primary" variant="tonal" rounded="lg">Unsubscribe anytime</v-chip>
-    </div>
-
     <v-form ref="formRef" v-model="isValid" @submit.prevent="handleSubscribe">
-      <Alerts
-        v-model="showAlert"
-        :message="feedbackMessage"
-        :type="feedbackType"
-      />
+      <Alerts v-model="showAlert" :message="feedbackMessage" :type="feedbackType" />
 
-      <v-text-field
-        v-model.trim="email"
-        label="Email address"
-        type="email"
-        variant="solo-filled"
-        prepend-inner-icon="mdi-email-outline"
-        :rules="emailRules"
-        :disabled="isLoading || isSubscribed"
-        required
-        density="comfortable"
-        flat
-        class="newsletter-input mb-3"
-      ></v-text-field>
+      <v-text-field v-model.trim="email" label="Email address" type="email" variant="solo-filled"
+        prepend-inner-icon="mdi-email-outline" :rules="emailRules" hide-details :disabled="isLoading || isSubscribed"
+        density="comfortable" flat class="newsletter-input mb-3"></v-text-field>
 
-      <v-btn
-        block
-        type="submit"
-        rounded="xl"
-        :loading="isLoading"
-        :disabled="!isValid || isSubscribed"
-        class="text-none subscribe-btn"
-        elevation="0"
-      >
+      <v-btn block type="submit" color="primary" :loading="isLoading" :disabled="!isValid || isSubscribed"
+        rounded="xl" elevation="0">
         <v-icon start icon="mdi-bell-ring-outline"></v-icon>
         {{ isSubscribed ? "Already subscribed" : "Join the newsletter" }}
       </v-btn>
@@ -192,14 +157,6 @@ const handleSubscribe = async () => {
 .newsletter-input :deep(.v-label),
 .newsletter-input :deep(input) {
   color: var(--portfolio-ink);
-}
-
-.subscribe-btn {
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  color: #f7fffd;
-  background: linear-gradient(145deg, var(--portfolio-primary), #2ab89f);
-  box-shadow: 0 12px 18px rgba(15, 143, 124, 0.22);
 }
 
 .subscribe-btn:hover {

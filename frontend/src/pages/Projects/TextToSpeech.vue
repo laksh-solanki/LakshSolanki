@@ -1129,7 +1129,7 @@ onUnmounted(() => {
 }
 
 .panel-kicker {
-  color: #157568;
+  color: #4F46E5 !important;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-size: 0.72rem;

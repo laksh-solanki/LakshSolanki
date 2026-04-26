@@ -45,102 +45,269 @@ const loadRels = async (zip, relsPath) => {
   return relMap;
 };
 
-const extractImages = async (xmlDoc, relMap, zip, canvasW, canvasH, emuScaleVal, startingZIndex, isLockedGroup) => {
-  const images = [];
+const extractSlideElements = async (xmlDoc, relMap, zip, canvasW, canvasH, emuScaleVal, startingZIndex, isLockedGroup) => {
+  const elements = [];
   let zIdx = startingZIndex;
 
-  const extractFromNode = async (node, rIdAttribute) => {
-    let rId = node.getAttribute(rIdAttribute);
-    if (!rId) rId = node.getAttribute(rIdAttribute.replace('r:', ''));
-    if (!rId || !relMap[rId]) return null;
+  const spTree = xmlDoc.getElementsByTagName('p:spTree')[0] || xmlDoc.getElementsByTagNameNS('*', 'spTree')[0];
+  if (!spTree) return { elements, nextZIndex: zIdx };
 
-    const targetRaw = relMap[rId];
-    let mediaFilename = targetRaw.split('/').pop();
-    mediaFilename = decodeURIComponent(mediaFilename);
+  const processNode = async (node, parentTransform) => {
+    if (!node || !node.nodeName) return;
+    const nName = node.nodeName.replace(/^.*:/, '');
 
-    const zipKeys = Object.keys(zip.files);
-    let matchedPath = zipKeys.find(k => k.toLowerCase().endsWith('/' + mediaFilename.toLowerCase()));
-    if (!matchedPath) matchedPath = zipKeys.find(k => k.toLowerCase() === mediaFilename.toLowerCase());
+    if (nName === 'grpSp') {
+      let grpSpPr = node.getElementsByTagName('p:grpSpPr')[0] || node.getElementsByTagNameNS('*', 'grpSpPr')[0];
+      let currentTransform = { ...parentTransform };
+      if (grpSpPr) {
+        let xfrm = grpSpPr.getElementsByTagName('a:xfrm')[0] || grpSpPr.getElementsByTagNameNS('*', 'xfrm')[0];
+        if (xfrm) {
+          let chOff = xfrm.getElementsByTagName('a:chOff')[0] || xfrm.getElementsByTagNameNS('*', 'chOff')[0];
+          let chExt = xfrm.getElementsByTagName('a:chExt')[0] || xfrm.getElementsByTagNameNS('*', 'chExt')[0];
+          let off = xfrm.getElementsByTagName('a:off')[0] || xfrm.getElementsByTagNameNS('*', 'off')[0];
+          let ext = xfrm.getElementsByTagName('a:ext')[0] || xfrm.getElementsByTagNameNS('*', 'ext')[0];
 
-    if (!matchedPath || !zip.files[matchedPath]) return null;
+          let ox = off ? parseInt(off.getAttribute('x')||'0',10)/emuScaleVal : 0;
+          let oy = off ? parseInt(off.getAttribute('y')||'0',10)/emuScaleVal : 0;
+          let w = ext ? parseInt(ext.getAttribute('cx')||'0',10)/emuScaleVal : 0;
+          let h = ext ? parseInt(ext.getAttribute('cy')||'0',10)/emuScaleVal : 0;
 
-    try {
-      const base64 = await zip.files[matchedPath].async('base64');
-      const ext = mediaFilename.split('.').pop().toLowerCase();
-      let mime = 'image/jpeg';
-      if (ext === 'png') mime = 'image/png';
-      else if (ext === 'svg') mime = 'image/svg+xml';
-      else if (ext === 'gif') mime = 'image/gif';
+          let chOx = chOff ? parseInt(chOff.getAttribute('x')||'0',10)/emuScaleVal : ox;
+          let chOy = chOff ? parseInt(chOff.getAttribute('y')||'0',10)/emuScaleVal : oy;
+          let chW = chExt ? parseInt(chExt.getAttribute('cx')||'0',10)/emuScaleVal : w;
+          let chH = chExt ? parseInt(chExt.getAttribute('cy')||'0',10)/emuScaleVal : h;
 
-      let pNode = node.parentNode;
-      let xfrm = null;
+          currentTransform = { ox, oy, w, h, chOx, chOy, chW, chH };
+        }
+      }
+      const children = Array.from(node.childNodes);
+      for (const child of children) {
+        await processNode(child, currentTransform);
+      }
+    } else if (nName === 'sp' || nName === 'pic' || nName === 'cxnSp') {
+      let x=0, y=0, w=100, h=50, rotation=0;
+      let spPr = node.getElementsByTagName('p:spPr')[0] || node.getElementsByTagNameNS('*', 'spPr')[0];
+      let xfrm = spPr ? (spPr.getElementsByTagName('a:xfrm')[0] || spPr.getElementsByTagNameNS('*', 'xfrm')[0]) : null;
 
-      while (pNode && pNode.nodeName !== 'p:sp' && pNode.nodeName !== 'p:pic' && pNode.nodeName !== 'p:bg') {
-        pNode = pNode.parentNode;
+      if (xfrm) {
+        let off = xfrm.getElementsByTagName('a:off')[0] || xfrm.getElementsByTagNameNS('*', 'off')[0];
+        let ext = xfrm.getElementsByTagName('a:ext')[0] || xfrm.getElementsByTagNameNS('*', 'ext')[0];
+        let rotAttr = xfrm.getAttribute('rot');
+        if (rotAttr) rotation = parseInt(rotAttr, 10) / 60000;
+
+        if (off) {
+          x = parseInt(off.getAttribute('x')||'0', 10) / emuScaleVal;
+          y = parseInt(off.getAttribute('y')||'0', 10) / emuScaleVal;
+        }
+        if (ext) {
+          w = parseInt(ext.getAttribute('cx')||'0', 10) / emuScaleVal;
+          h = parseInt(ext.getAttribute('cy')||'0', 10) / emuScaleVal;
+        }
       }
 
-      let x = 0, y = 0, w = canvasW, h = canvasH, rotation = 0;
-      let isBg = false;
+      if (parentTransform && parentTransform.chW) {
+        let scaleX = parentTransform.w / parentTransform.chW;
+        let scaleY = parentTransform.h / parentTransform.chH;
+        x = parentTransform.ox + (x - parentTransform.chOx) * scaleX;
+        y = parentTransform.oy + (y - parentTransform.chOy) * scaleY;
+        w = w * scaleX;
+        h = h * scaleY;
+      }
 
-      if (pNode) {
-        if (pNode.nodeName === 'p:bg') {
-          isBg = true;
-        } else {
-          xfrm = pNode.getElementsByTagName('a:xfrm')[0];
-          if (!xfrm) xfrm = pNode.getElementsByTagName('xfrm')[0];
-          if (xfrm) {
-            let off = xfrm.getElementsByTagName('a:off')[0];
-            if (!off) off = xfrm.getElementsByTagName('off')[0];
-            let extNode = xfrm.getElementsByTagName('a:ext')[0];
-            if (!extNode) extNode = xfrm.getElementsByTagName('ext')[0];
-            let rotAttr = xfrm.getAttribute('rot');
-            if (rotAttr) rotation = parseInt(rotAttr, 10) / 60000;
+      let blip = node.getElementsByTagName('a:blip')[0] || node.getElementsByTagNameNS('*', 'blip')[0];
+      if (blip) {
+        let rId = blip.getAttribute('r:embed') || blip.getAttribute('embed');
+        if (!rId) {
+          let embedAttr = Array.from(blip.attributes).find(a => a.name.includes('embed'));
+          if (embedAttr) rId = embedAttr.value;
+        }
+        if (rId && relMap[rId]) {
+          let targetRaw = relMap[rId];
+          let mediaFilename = decodeURIComponent(targetRaw.split('/').pop());
+          const zipKeys = Object.keys(zip.files);
+          let matchedPath = zipKeys.find(k => k.toLowerCase().endsWith('/' + mediaFilename.toLowerCase())) || zipKeys.find(k => k.toLowerCase() === mediaFilename.toLowerCase());
+          if (matchedPath && zip.files[matchedPath]) {
+            try {
+              const base64 = await zip.files[matchedPath].async('base64');
+              const extName = mediaFilename.split('.').pop().toLowerCase();
+              let mime = 'image/jpeg';
+              if (extName === 'png') mime = 'image/png';
+              else if (extName === 'svg') mime = 'image/svg+xml';
+              else if (extName === 'gif') mime = 'image/gif';
 
-            if (off) {
-              x = parseInt(off.getAttribute('x') || '0', 10) / emuScaleVal;
-              y = parseInt(off.getAttribute('y') || '0', 10) / emuScaleVal;
-            }
-            if (extNode) {
-              w = parseInt(extNode.getAttribute('cx') || '0', 10) / emuScaleVal;
-              h = parseInt(extNode.getAttribute('cy') || '0', 10) / emuScaleVal;
-            }
+              elements.push({
+                type: 'image',
+                isBg: isLockedGroup,
+                id: `img_${zIdx}`,
+                dataUrl: `data:${mime};base64,${base64}`,
+                x, y, w, h, rotation,
+                originalShapeNode: isLockedGroup ? null : node,
+                zIndex: zIdx++
+              });
+              return;
+            } catch (e) {}
           }
         }
       }
 
-      return {
-        type: (isBg || isLockedGroup) ? 'bg' : 'image',
-        dataUrl: `data:${mime};base64,${base64}`,
-        x, y, w, h, rotation,
-        originalShapeNode: pNode
-      };
-    } catch (e) {
-      console.error('Extraction failed', e);
-      return null;
+      let hasText = false;
+      let combinedText = '';
+      let txBody = node.getElementsByTagName('p:txBody')[0] || node.getElementsByTagNameNS('*', 'txBody')[0];
+      
+      let nvSpPr = node.getElementsByTagName('p:nvSpPr')[0] || node.getElementsByTagNameNS('*', 'nvSpPr')[0];
+      let isPh = false;
+      if (nvSpPr) {
+        let ph = nvSpPr.getElementsByTagName('p:ph')[0] || nvSpPr.getElementsByTagNameNS('*', 'ph')[0];
+        if (ph) isPh = true;
+      }
+
+      if (txBody && (!isLockedGroup || !isPh)) {
+        const aTags = Array.from(txBody.getElementsByTagName('a:t')).concat(Array.from(txBody.getElementsByTagNameNS('*', 't')));
+        combinedText = aTags.map(t => t.textContent).join('');
+        if (combinedText.trim()) hasText = true;
+      }
+
+      let shapeFill = 'transparent';
+      let borderColor = 'transparent';
+      let borderWidth = 0;
+      let prst = 'rect';
+
+      if (spPr) {
+        const getClr = (parent) => {
+          let srgbClr = parent.getElementsByTagName('a:srgbClr')[0] || parent.getElementsByTagNameNS('*', 'srgbClr')[0];
+          if (srgbClr) return '#' + srgbClr.getAttribute('val');
+          let schemeClr = parent.getElementsByTagName('a:schemeClr')[0] || parent.getElementsByTagNameNS('*', 'schemeClr')[0];
+          if (schemeClr) {
+             let val = schemeClr.getAttribute('val');
+             if (val === 'bg1' || val === 'lt1') return '#ffffff';
+             if (val === 'tx1' || val === 'dk1') return '#000000';
+             if (val === 'bg2' || val === 'lt2') return '#e7e6e6';
+             if (val === 'tx2' || val === 'dk2') return '#44546a';
+             if (val === 'accent1') return '#4472c4';
+             if (val === 'accent2') return '#ed7d31';
+             if (val === 'accent3') return '#a5a5a5';
+             if (val === 'accent4') return '#ffc000';
+             if (val === 'accent5') return '#5b9bd5';
+             if (val === 'accent6') return '#70ad47';
+          }
+          return null;
+        };
+
+        let solidFill = spPr.getElementsByTagName('a:solidFill')[0] || spPr.getElementsByTagNameNS('*', 'solidFill')[0];
+        if (solidFill) {
+          shapeFill = getClr(solidFill) || '#cccccc';
+        }
+
+        let ln = spPr.getElementsByTagName('a:ln')[0] || spPr.getElementsByTagNameNS('*', 'ln')[0];
+        if (ln) {
+          let noFill = ln.getElementsByTagName('a:noFill')[0] || ln.getElementsByTagNameNS('*', 'noFill')[0];
+          if (!noFill) {
+            let wAttr = ln.getAttribute('w');
+            borderWidth = wAttr ? Math.max(1, Math.round(parseInt(wAttr, 10) / 9525)) : 1;
+            let lnFill = ln.getElementsByTagName('a:solidFill')[0] || ln.getElementsByTagNameNS('*', 'solidFill')[0];
+            if (lnFill) {
+              borderColor = getClr(lnFill) || '#000000';
+            } else {
+              borderColor = '#000000';
+            }
+          }
+        }
+
+        let prstGeom = spPr.getElementsByTagName('a:prstGeom')[0] || spPr.getElementsByTagNameNS('*', 'prstGeom')[0];
+        if (prstGeom) {
+          prst = prstGeom.getAttribute('prst') || 'rect';
+        }
+      }
+
+      if (hasText) {
+        let fontSize = 18;
+        let isBold = false, isItalic = false, isUnderline = false;
+        let color = '#000000';
+        let align = 'l';
+
+        let rPr = txBody.getElementsByTagName('a:rPr')[0] || txBody.getElementsByTagNameNS('*', 'rPr')[0];
+        if (rPr) {
+          if (rPr.getAttribute('sz')) fontSize = Math.round(parseInt(rPr.getAttribute('sz'), 10) / 100);
+          if (rPr.getAttribute('b') === '1') isBold = true;
+          if (rPr.getAttribute('i') === '1') isItalic = true;
+          if (rPr.getAttribute('u') === 'sng') isUnderline = true;
+          
+          let srgbClr = rPr.getElementsByTagName('a:srgbClr')[0] || rPr.getElementsByTagNameNS('*', 'srgbClr')[0];
+          if (srgbClr && srgbClr.getAttribute('val')) color = '#' + srgbClr.getAttribute('val');
+        }
+        let pPr = txBody.getElementsByTagName('a:pPr')[0] || txBody.getElementsByTagNameNS('*', 'pPr')[0];
+        if (pPr && pPr.getAttribute('algn')) align = pPr.getAttribute('algn');
+
+        let cNvPr = nvSpPr ? (nvSpPr.getElementsByTagName('p:cNvPr')[0] || nvSpPr.getElementsByTagNameNS('*', 'cNvPr')[0]) : null;
+        const id = cNvPr ? cNvPr.getAttribute('id') : `text_${zIdx}`;
+
+        elements.push({
+          type: 'text',
+          isBg: isLockedGroup,
+          id: isLockedGroup ? `bg_text_${zIdx}` : id,
+          originalShapeNode: isLockedGroup ? null : node,
+          x, y, w, h, rotation,
+          text: combinedText,
+          fontSize, isBold, isItalic, isUnderline, color, align,
+          shapeFill, borderColor, borderWidth, prst,
+          zIndex: zIdx++
+        });
+      } else if (shapeFill !== 'transparent' || borderWidth > 0) {
+        elements.push({
+          type: 'shape',
+          isBg: isLockedGroup,
+          id: `shape_${zIdx}`,
+          originalShapeNode: isLockedGroup ? null : node,
+          x, y, w, h, rotation,
+          shapeFill, borderColor, borderWidth, prst,
+          zIndex: zIdx++
+        });
+      }
     }
   };
 
-  const blips = Array.from(new Set([
-    ...Array.from(xmlDoc.getElementsByTagName('a:blip')),
-    ...Array.from(xmlDoc.getElementsByTagName('blip')),
-    ...Array.from(xmlDoc.getElementsByTagNameNS('*', 'blip'))
-  ]));
-  for (let i = 0; i < blips.length; i++) {
-    const imgData = await extractFromNode(blips[i], 'r:embed');
-    if (imgData) images.push({ ...imgData, id: `img_${zIdx}`, zIndex: zIdx++ });
+  const children = Array.from(spTree.childNodes);
+  for (const child of children) {
+    await processNode(child, null);
   }
 
-  const vImages = Array.from(new Set([
-    ...Array.from(xmlDoc.getElementsByTagName('v:imagedata')),
-    ...Array.from(xmlDoc.getElementsByTagName('imagedata')),
-    ...Array.from(xmlDoc.getElementsByTagNameNS('*', 'imagedata'))
-  ]));
+  const vImages = Array.from(xmlDoc.getElementsByTagName('v:imagedata')).concat(Array.from(xmlDoc.getElementsByTagNameNS('*', 'imagedata')));
   for (let i = 0; i < vImages.length; i++) {
-    const imgData = await extractFromNode(vImages[i], 'r:id');
-    if (imgData) images.push({ ...imgData, id: `img_${zIdx}`, zIndex: zIdx++ });
+    let vNode = vImages[i];
+    let rId = vNode.getAttribute('r:id');
+    if (rId && relMap[rId]) {
+      let targetRaw = relMap[rId];
+      let mediaFilename = decodeURIComponent(targetRaw.split('/').pop());
+      const zipKeys = Object.keys(zip.files);
+      let matchedPath = zipKeys.find(k => k.toLowerCase().endsWith('/' + mediaFilename.toLowerCase())) || zipKeys.find(k => k.toLowerCase() === mediaFilename.toLowerCase());
+      if (matchedPath && zip.files[matchedPath]) {
+        try {
+          const base64 = await zip.files[matchedPath].async('base64');
+          let pNode = vNode.parentNode;
+          let x=0, y=0, w=100, h=100;
+          if (pNode && pNode.getAttribute('style')) {
+            let style = pNode.getAttribute('style');
+            let m;
+            if ((m = style.match(/left:([\d.]+)pt/))) x = parseFloat(m[1]) * 1.333;
+            if ((m = style.match(/top:([\d.]+)pt/))) y = parseFloat(m[1]) * 1.333;
+            if ((m = style.match(/width:([\d.]+)pt/))) w = parseFloat(m[1]) * 1.333;
+            if ((m = style.match(/height:([\d.]+)pt/))) h = parseFloat(m[1]) * 1.333;
+          }
+          elements.push({
+            type: 'image',
+            isBg: isLockedGroup,
+            id: `img_v_${zIdx}`,
+            dataUrl: `data:image/jpeg;base64,${base64}`,
+            x, y, w, h, rotation: 0,
+            originalShapeNode: isLockedGroup ? null : pNode,
+            zIndex: zIdx++
+          });
+        } catch (e) {}
+      }
+    }
   }
 
-  return { images, nextZIndex: zIdx };
+  return { elements, nextZIndex: zIdx };
 };
 
 const extractBgColor = (xmlDoc) => {
@@ -231,14 +398,14 @@ const handleFileUpload = async (event) => {
                const masterColor = extractBgColor(masterDoc);
                if (masterColor) slideBgColor = masterColor;
 
-               const masterExt = await extractImages(masterDoc, masterRelMap, zip, CANVAS_WIDTH, canvasHeight.value, emuScale.value, currentZIndex, true);
-               allItems = allItems.concat(masterExt.images);
+               const masterExt = await extractSlideElements(masterDoc, masterRelMap, zip, CANVAS_WIDTH, canvasHeight.value, emuScale.value, currentZIndex, true);
+               allItems = allItems.concat(masterExt.elements);
                currentZIndex = masterExt.nextZIndex;
             }
           }
 
-          const layoutExt = await extractImages(layoutDoc, layoutRelMap, zip, CANVAS_WIDTH, canvasHeight.value, emuScale.value, currentZIndex, true);
-          allItems = allItems.concat(layoutExt.images);
+          const layoutExt = await extractSlideElements(layoutDoc, layoutRelMap, zip, CANVAS_WIDTH, canvasHeight.value, emuScale.value, currentZIndex, true);
+          allItems = allItems.concat(layoutExt.elements);
           currentZIndex = layoutExt.nextZIndex;
         }
       }
@@ -246,87 +413,9 @@ const handleFileUpload = async (event) => {
       const slideColor = extractBgColor(xmlDoc);
       if (slideColor) slideBgColor = slideColor;
 
-      const slideExt = await extractImages(xmlDoc, slideRelMap, zip, CANVAS_WIDTH, canvasHeight.value, emuScale.value, currentZIndex, false);
-      allItems = allItems.concat(slideExt.images);
+      const slideExt = await extractSlideElements(xmlDoc, slideRelMap, zip, CANVAS_WIDTH, canvasHeight.value, emuScale.value, currentZIndex, false);
+      allItems = allItems.concat(slideExt.elements);
       currentZIndex = slideExt.nextZIndex;
-
-      const shapes = Array.from(new Set([
-        ...Array.from(xmlDoc.getElementsByTagName('p:sp')),
-        ...Array.from(xmlDoc.getElementsByTagNameNS('*', 'sp'))
-      ]));
-      for (let i = 0; i < shapes.length; i++) {
-        const shape = shapes[i];
-        const txBody = shape.getElementsByTagName('p:txBody')[0] || shape.getElementsByTagNameNS('*', 'txBody')[0];
-        if (!txBody) continue;
-
-        const aTags = Array.from(new Set([
-          ...Array.from(txBody.getElementsByTagName('a:t')),
-          ...Array.from(txBody.getElementsByTagNameNS('*', 't'))
-        ]));
-        let combinedText = '';
-        for (let j = 0; j < aTags.length; j++) {
-          combinedText += aTags[j].textContent;
-        }
-        if (!combinedText.trim()) continue;
-
-        let xfrm = shape.getElementsByTagName('a:xfrm')[0];
-        if (!xfrm) xfrm = shape.getElementsByTagName('xfrm')[0];
-
-        let x = 0, y = 0, w = 100, h = 50, rotation = 0;
-        if (xfrm) {
-          let off = xfrm.getElementsByTagName('a:off')[0] || xfrm.getElementsByTagName('off')[0];
-          let ext = xfrm.getElementsByTagName('a:ext')[0] || xfrm.getElementsByTagName('ext')[0];
-          let rotAttr = xfrm.getAttribute('rot');
-          if (rotAttr) rotation = parseInt(rotAttr, 10) / 60000;
-
-          if (off) {
-            x = parseInt(off.getAttribute('x') || '0', 10) / emuScale.value;
-            y = parseInt(off.getAttribute('y') || '0', 10) / emuScale.value;
-          }
-          if (ext) {
-            w = parseInt(ext.getAttribute('cx') || '0', 10) / emuScale.value;
-            h = parseInt(ext.getAttribute('cy') || '0', 10) / emuScale.value;
-          }
-        }
-
-        let fontSize = 18;
-        let isBold = false;
-        let isItalic = false;
-        let isUnderline = false;
-        let color = '#000000';
-        let align = 'l';
-
-        let rPr = txBody.getElementsByTagName('a:rPr')[0] || txBody.getElementsByTagName('rPr')[0];
-        if (rPr) {
-          if (rPr.getAttribute('sz')) fontSize = Math.round(parseInt(rPr.getAttribute('sz'), 10) / 100);
-          if (rPr.getAttribute('b') === '1') isBold = true;
-          if (rPr.getAttribute('i') === '1') isItalic = true;
-          if (rPr.getAttribute('u') === 'sng') isUnderline = true;
-
-          let srgbClr = rPr.getElementsByTagName('a:srgbClr')[0] || rPr.getElementsByTagName('srgbClr')[0];
-          if (srgbClr && srgbClr.getAttribute('val')) {
-            color = '#' + srgbClr.getAttribute('val');
-          }
-        }
-
-        let pPr = txBody.getElementsByTagName('a:pPr')[0] || txBody.getElementsByTagName('pPr')[0];
-        if (pPr && pPr.getAttribute('algn')) {
-          align = pPr.getAttribute('algn');
-        }
-
-        let cNvPr = shape.getElementsByTagName('p:cNvPr')[0] || shape.getElementsByTagName('cNvPr')[0];
-        const id = cNvPr ? cNvPr.getAttribute('id') : `text_${i}_${slideNumber}`;
-
-        allItems.push({
-          type: 'text',
-          id,
-          originalShapeNode: shape,
-          x, y, w, h, rotation,
-          text: combinedText,
-          fontSize, isBold, isItalic, isUnderline, color, align,
-          zIndex: currentZIndex++
-        });
-      }
 
       parsedSlides.push({
         fileName: slideFileName,
@@ -400,7 +489,7 @@ onUnmounted(() => {
 const activeSlide = computed(() => slidesData.value.length ? slidesData.value[activeSlideIndex.value] : null);
 
 const selectElement = (item) => {
-  if (item.type !== 'bg') activeElement.value = item;
+  if (!item.isBg) activeElement.value = item;
 };
 
 const clearSelection = (e) => {
@@ -538,7 +627,7 @@ const downloadEditedPptx = async () => {
       }
 
       for (const el of slide.items) {
-        if (el.type === 'bg') continue; // don't move backgrounds from master
+        if (el.isBg) continue; // don't move backgrounds from master
 
         if (el.isNew) {
            const spTree = xmlDoc.getElementsByTagName('p:spTree')[0] || xmlDoc.getElementsByTagNameNS('*', 'spTree')[0];
@@ -624,7 +713,7 @@ const downloadEditedPptx = async () => {
       if (spTree) {
          const sortedItems = [...slide.items].sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
          for (const item of sortedItems) {
-            if (item.type !== 'bg' && item.originalShapeNode) {
+            if (!item.isBg && item.originalShapeNode) {
                spTree.appendChild(item.originalShapeNode);
             }
          }
@@ -718,35 +807,46 @@ const downloadEditedPptx = async () => {
 
           <div v-for="item in activeSlide.items" :key="item.id" :data-id="item.id"
                class="position-absolute d-flex flex-column"
-               :class="{ 'canvas-element': item.type !== 'bg', 'is-active': activeElement?.id === item.id }"
+               :class="{ 'canvas-element': !item.isBg, 'is-active': activeElement?.id === item.id }"
                :style="{ left: item.x + 'px', top: item.y + 'px', width: item.w + 'px', height: item.h + 'px', zIndex: item.zIndex, transform: `rotate(${item.rotation || 0}deg)` }"
-               @mousedown="item.type !== 'bg' && selectElement(item)">
+               @mousedown="!item.isBg && selectElement(item)">
 
-            <img v-if="item.type === 'bg' || item.type === 'image'" :src="item.dataUrl" class="w-100 h-100" :style="{ objectFit: 'fill', pointerEvents: 'none' }" />
+            <img v-if="item.type === 'image'" :src="item.dataUrl" class="w-100 h-100" :style="{ objectFit: 'fill', pointerEvents: 'none' }" />
 
-            <textarea v-if="item.type === 'text'" v-model="item.text" class="element-textarea w-100 h-100 pa-1" :style="{ fontSize: (item.fontSize * (CANVAS_WIDTH / 960)) + 'px', fontWeight: item.isBold ? 'bold' : 'normal', fontStyle: item.isItalic ? 'italic' : 'normal', textDecoration: item.isUnderline ? 'underline' : 'none', color: item.color, textAlign: item.align === 'ctr' ? 'center' : item.align === 'r' ? 'right' : 'left' }" spellcheck="false"></textarea>
+            <div v-if="item.type === 'shape'" class="w-100 h-100 position-absolute"
+                 :style="{
+                    backgroundColor: item.shapeFill,
+                    border: item.borderWidth > 0 ? (item.borderWidth + 'px solid ' + item.borderColor) : 'none',
+                    borderRadius: item.prst === 'ellipse' ? '50%' : '0',
+                    pointerEvents: 'none'
+                 }">
+            </div>
+
+            <textarea v-if="item.type === 'text'" v-model="item.text" class="element-textarea w-100 h-100 pa-1" :style="{ fontSize: (item.fontSize * (CANVAS_WIDTH / 960)) + 'px', fontWeight: item.isBold ? 'bold' : 'normal', fontStyle: item.isItalic ? 'italic' : 'normal', textDecoration: item.isUnderline ? 'underline' : 'none', color: item.color, textAlign: item.align === 'ctr' ? 'center' : item.align === 'r' ? 'right' : 'left', pointerEvents: item.isBg ? 'none' : 'auto' }" :readonly="item.isBg" spellcheck="false"></textarea>
 
             <!-- Canva style resize handles -->
-            <div v-if="item.type !== 'bg'" class="resize-handle corner-handle top-left"></div>
-            <div v-if="item.type !== 'bg'" class="resize-handle corner-handle top-right"></div>
-            <div v-if="item.type !== 'bg'" class="resize-handle corner-handle bottom-left"></div>
-            <div v-if="item.type !== 'bg'" class="resize-handle corner-handle bottom-right"></div>
+            <template v-if="!item.isBg">
+              <div class="resize-handle corner-handle top-left"></div>
+              <div class="resize-handle corner-handle top-right"></div>
+              <div class="resize-handle corner-handle bottom-left"></div>
+              <div class="resize-handle corner-handle bottom-right"></div>
 
-            <div v-if="item.type !== 'bg'" class="resize-handle edge-handle left-edge"></div>
-            <div v-if="item.type !== 'bg'" class="resize-handle edge-handle right-edge"></div>
+              <div class="resize-handle edge-handle left-edge"></div>
+              <div class="resize-handle edge-handle right-edge"></div>
 
-            <div v-if="item.type !== 'bg'" class="resize-handle edge-handle-h top-edge"></div>
-            <div v-if="item.type !== 'bg'" class="resize-handle edge-handle-h bottom-edge"></div>
+              <div class="resize-handle edge-handle-h top-edge"></div>
+              <div class="resize-handle edge-handle-h bottom-edge"></div>
 
-            <!-- Bottom Action Controls -->
-            <div v-if="item.type !== 'bg'" class="action-controls position-absolute d-flex justify-center ga-2 w-100" style="bottom: -45px; left: 0;">
-              <div class="control-btn" @mousedown="startRotation($event, item)">
-                <v-icon size="16">mdi-sync</v-icon>
+              <!-- Bottom Action Controls -->
+              <div class="action-controls position-absolute d-flex justify-center ga-2 w-100" style="bottom: -45px; left: 0;">
+                <div class="control-btn" @mousedown="startRotation($event, item)">
+                  <v-icon size="16">mdi-sync</v-icon>
+                </div>
+                <div class="control-btn drag-handle">
+                  <v-icon size="16">mdi-cursor-move</v-icon>
+                </div>
               </div>
-              <div class="control-btn drag-handle">
-                <v-icon size="16">mdi-cursor-move</v-icon>
-              </div>
-            </div>
+            </template>
           </div>
         </div>
       </div>
