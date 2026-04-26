@@ -9,7 +9,6 @@
       "scripthost"
     ],
     "module": "esnext",
-    "moduleResolution": "bundler",
     "paths": {
       "@/*": [
         "src/*"
@@ -18,7 +17,7 @@
     "target": "esnext"
   },
   "exclude": [
-    "node_modules",
+    "node_modules", 
     "dist"
   ],
   "include": [

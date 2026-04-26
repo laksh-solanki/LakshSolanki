@@ -770,7 +770,7 @@ watch(
   <div class="tool-page">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
     <v-container class="py-8 py-md-12">
-      <v-row dense class="tool-grid">
+      <v-row density="comfortable" class="tool-grid">
         <v-col cols="12" lg="5">
           <v-card class="tool-shell p-5 p-md-7 h-100" rounded="xl" elevation="0">
             <p class="panel-kicker mb-1">Input</p>
@@ -1001,7 +1001,7 @@ watch(
               </div>
             </v-expand-transition>
 
-            <v-row dense>
+            <v-row density="comfortable">
               <v-col cols="12">
                 <div class="preview-card">
                   <p class="preview-title">Output</p>

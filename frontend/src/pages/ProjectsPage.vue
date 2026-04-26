@@ -154,7 +154,7 @@ const projects = ref([
           :title="project.title"
           :subtitle="project.category"
           :prepend-icon="project.icon"
-          active-color="primary"
+          color="primary"
           rounded="lg"
           class="mb-1"
         ></v-list-item>
@@ -204,7 +204,7 @@ const projects = ref([
             to="/projects"
             color="primary"
             rounded="xl"
-            text="Back"    
+            text="Back"
             />
         </div>
         <RouterView />

@@ -2,7 +2,6 @@
 import { ref, onMounted, onUnmounted } from "vue";
 import { getMediaUrl } from "@/utils/mediaUrl";
 
-const myPhoto = getMediaUrl("Picture/my-pic.jpg");
 const myPhotoBg = getMediaUrl("Picture/my-pic-no-bg.png");
 
 const typedRoles = [
@@ -1699,7 +1698,7 @@ const premiumStackLines = premiumStackLinks
   .hero-v2-scroll-cue { display: none; }
   .hero-v2-badge { font-size: 0.68rem; padding: 0.32rem 0.6rem; }
   .luxe-flow-card { padding: 1.15rem !important; }
-  
+
   /* Premium panels responsive */
   .prem-stat-card {
     padding: 1.5rem 1.2rem;

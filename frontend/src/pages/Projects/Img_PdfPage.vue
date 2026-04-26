@@ -271,7 +271,7 @@ onUnmounted(() => {
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
     <v-container class="py-8 py-md-12">
-      <v-row dense align="start">
+      <v-row density="comfortable" align="start">
         <v-col cols="12" :lg="images.length > 0 ? 4 : 12">
           <v-card class="tool-shell p-5 p-md-7" rounded="xl" elevation="0">
             <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">

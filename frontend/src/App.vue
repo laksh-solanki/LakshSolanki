@@ -15,7 +15,7 @@ import { defineAsyncComponent, onMounted, ref } from "vue";
 import { RouterView } from "vue-router";
 import AppHeader from "@/components/AppHeader.vue";
 import CookieConsentBanner from "@/components/CookieConsentBanner.vue";
-import TopLoader from "./components/TopLoader.vue";
+import TopLoader from "@/components/TopLoader.vue";
 import { isGlobalLoading } from "@/router/index.js";
 
 const loaderRef = ref(null);

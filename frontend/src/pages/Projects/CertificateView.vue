@@ -1,4 +1,4 @@
-<script setup>
+op<script setup>
 import { computed, onMounted, reactive, ref } from "vue";
 import Certificate from "@/components/certificate.vue";
 import Alerts from "@/components/Alerts.vue";
@@ -41,8 +41,6 @@ const BASE_URL = getApiBaseUrl();
 const A4_WIDTH_PX = 794;
 const A4_HEIGHT_PX = 1123;
 const COURSE_LEVELS = ["Beginner", "Intermediate", "Advanced"];
-
-const courseCount = computed(() => courses.value.length);
 
 const normalizeCourseName = (value = "") => value.trim().replace(/\s+/g, " ").toLowerCase();
 const sortCourses = (items) => [...items].sort((a, b) => (a?.name || "").localeCompare(b?.name || ""));
@@ -411,11 +409,11 @@ const generatePdf = async () => {
       <v-card rounded="xl" class="p-6">
         <h2 class="text-h5 font-weight-bold mb-2">Which template to use?</h2>
         <p class="text-body-2 mb-6 text-medium-emphasis">Select a design for your certificate. You can edit the highlighted text directly in the preview.</p>
-        
+
         <v-row>
           <v-col cols="12" sm="4" v-for="t in certificateTemplates" :key="t.id">
-            <v-card 
-              @click="openPreview(t.id)" 
+            <v-card
+              @click="openPreview(t.id)"
               class="border text-center pa-6 h-100 d-flex flex-column align-center justify-center"
               rounded="lg"
               hover
@@ -426,7 +424,7 @@ const generatePdf = async () => {
             </v-card>
           </v-col>
         </v-row>
-        
+
         <div class="d-flex justify-end mt-6">
            <v-btn variant="text" @click="templateDialog = false" rounded="lg">Cancel</v-btn>
         </div>
