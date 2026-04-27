@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import mainsvgicon from "@/assets/mainsvgicon.vue";
 import EmailRegisterPopup from "@/components/EmailRegisterPopup.vue";
 
@@ -18,7 +18,7 @@ const socialLinks = [
 </script>
 
 <template>
-  <v-footer class="app-footer pa-0">
+  <v-footer class="app-footer">
     <v-container class="py-7 px-0">
       <v-row density="comfortable">
         <!-- Brand & Info -->
@@ -34,7 +34,7 @@ const socialLinks = [
             </a>
           </div>
         </v-col>
-        
+
         <!-- Navigation -->
         <v-col cols="6" md="2" class="mb-8 mb-md-0">
           <h4 class="text-caption font-weight-bold mb-6 text-uppercase tracking-wider text-high-emphasis">Navigation</h4>

@@ -160,7 +160,7 @@ const projects = ref([
 
           <v-row>
             <v-col v-for="project in projects" :key="project.id" cols="12" md="6" lg="4" class="d-flex">
-              <v-card class="section-shell project-card h-100" :to="project.link" flat hover rounded="lg">
+              <v-card class="section-shell project-card h-100" color="primary" :to="project.link" flat hover rounded="lg">
                 <v-img :src="project.image" cover class="project-media"></v-img>
 
                 <div class="p-5 d-flex flex-column project-card-body">
@@ -216,9 +216,9 @@ const projects = ref([
   justify-content: center;
   min-height: 28px;
   padding: 0 12px;
-  border: 1px solid rgba(76, 207, 183, 0.24);
+  border: 1px solid #4e46e59e;
   border-radius: 999px;
-  background: rgba(76, 207, 183, 0.08);
+  background: #1104ff2f;
   color: var(--portfolio-primary);
   font: inherit;
   font-size: 0.78rem;
@@ -235,19 +235,21 @@ const projects = ref([
 
 .filter-chip:hover,
 .project-tag:hover {
-  border-color: rgba(76, 207, 183, 0.48);
-  background: rgba(76, 207, 183, 0.14);
+  border-color: #4e46e5;
+  background: #4e46e5;
+  color: white;
 }
 
 .filter-chip.is-active,
 .project-tag.is-active {
   border-color: transparent;
-  background: linear-gradient(135deg, var(--portfolio-primary), #2fb49d);
+  background: linear-gradient(135deg, var(--portfolio-primary));
   color: #04100e;
 }
 
 .project-card {
   display: flex;
+  color: #04100e !important;
   flex-direction: column;
   width: 100%;
   min-height: 100%;
@@ -261,7 +263,7 @@ const projects = ref([
   max-height: 220px;
   background:
     radial-gradient(circle at 82% 16%, rgba(209, 138, 31, 0.18), transparent 36%),
-    linear-gradient(145deg, rgba(241, 247, 245, 0.95), rgba(229, 239, 236, 0.94));
+    linear-gradient(145deg, rgba(241, 247, 245, 0.95), #8a85ed15);
 }
 
 .project-media :deep(.v-img__img) {

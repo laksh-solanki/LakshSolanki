@@ -94,7 +94,6 @@
                 <span class="search-hit__title">{{ item.title }}</span>
                 <span class="search-hit__subtitle">{{ item.description }}</span>
               </span>
-              <span class="search-hit__route">{{ item.path }}</span>
             </button>
           </section>
         </template>
@@ -247,6 +246,15 @@ const searchItems = [
     icon: "mdi-image-filter-center-focus",
     keywords: ["passport", "photo", "background", "remove bg", "border", "image"],
   },
+  {
+    id: "ppt-editor",
+    title: "ppt editor",
+    description: "Technical and career insights",
+    category: "Tools",
+    path: "/projects/ppt-editor",
+    icon: "mdi-file-powerpoint-outline",
+    keywords: ["presentation", "slides", "deck"],
+  }
 ];
 
 const suggestedTerms = [
@@ -683,12 +691,12 @@ kbd {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(15, 143, 124, 0.3);
+  background: #4e46e5a2;
   border-radius: 999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(15, 143, 124, 0.46);
+  background: #4e46e5f3;
 }
 
 @media (max-width: 600px) {
@@ -706,7 +714,7 @@ kbd {
   .palette-close {
     padding: 4px 7px;
   }
-  
+
   .palette-body {
     padding: 12px 12px 10px;
   }

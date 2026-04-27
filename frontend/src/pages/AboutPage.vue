@@ -373,6 +373,7 @@ const scrollToSubscribe = () => {
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  color: #4e46e5;
   padding: 4px 12px;
   border-radius: 999px;
   margin-bottom: 14px;
@@ -821,6 +822,7 @@ const scrollToSubscribe = () => {
 .ap-highlight-cell {
   background: #4e46e51c;
   border: 1px solid #4e46e575;
+  border-radius: var(--ap-radius);
   padding: 18px 16px;
   backdrop-filter: blur(8px);
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
@@ -837,7 +839,7 @@ const scrollToSubscribe = () => {
   font-size: 1.9rem;
   font-weight: 900;
   letter-spacing: -0.04em;
-  background: #4e46e5;
+  background: #4F46E5;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1111,7 +1113,7 @@ const scrollToSubscribe = () => {
   font-family: "Space Grotesk", sans-serif;
   font-size: 1.05rem;
   font-weight: 800;
-  background: linear-gradient(110deg, #0e201d 0%, #0b6f60 60%, #0f8f7c 100%);
+  background: linear-gradient(110deg, #4e46e53d 0%, #4F46E5 60%, #4F46E5 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1145,9 +1147,9 @@ const scrollToSubscribe = () => {
 /* ─── PROCESS ────────────────────────────────────── */
 .ap-process-wrap {
   background:
-    radial-gradient(ellipse at 8% 12%, rgba(15, 143, 124, 0.06) 0%, transparent 48%),
-    radial-gradient(ellipse at 90% 85%, rgba(57, 188, 163, 0.06) 0%, transparent 45%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(244, 249, 247, 0.8) 100%);
+    radial-gradient(ellipse at 8% 12%, #4e46e53d 0%, transparent 48%),
+    radial-gradient(ellipse at 90% 85%, #4e46e544 0%, transparent 45%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, #4e46e515 100%);
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius);
   padding: 40px 36px;
@@ -1174,7 +1176,7 @@ const scrollToSubscribe = () => {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--ap-primary), rgba(15, 143, 124, 0.12));
+  background: linear-gradient(90deg, #4e46e59e, #4e46e5);
   z-index: 0;
 }
 
@@ -1194,12 +1196,12 @@ const scrollToSubscribe = () => {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0f8f7c, #0b6f60);
+  background: linear-gradient(135deg, #4e46e5, #4e46e5e2);
   color: #ffffff;
   font-family: "Space Grotesk", sans-serif;
   font-size: 1rem;
   font-weight: 900;
-  box-shadow: 0 6px 20px rgba(15, 143, 124, 0.38);
+  box-shadow: 0 6px 20px #4e46e58d;
   margin-bottom: 16px;
 }
 

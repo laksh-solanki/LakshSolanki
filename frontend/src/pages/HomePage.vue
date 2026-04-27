@@ -1044,7 +1044,7 @@ const premiumStackLines = premiumStackLinks
   position: relative;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.85);
-  border: 1px solid #4e46e5;
+  border: 1px solid #4e46e561;
   border-radius: 20px;
   padding: 2rem 1.8rem;
   text-align: center;
@@ -1055,15 +1055,15 @@ const premiumStackLines = premiumStackLinks
 
 .prem-stat-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(15, 143, 124, 0.12);
-  border-color: rgba(15, 143, 124, 0.35);
+  box-shadow: 0 16px 40px #4e46e527;
+  border-color: #4e46e5;
 }
 
 .prem-stat-glow {
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  background: radial-gradient(ellipse at 50% 0%, rgba(15, 143, 124, 0.12) 0%, transparent 65%);
+  background: radial-gradient(ellipse at 50% 0%, #4e46e52a 0%, transparent 65%);
   pointer-events: none;
 }
 
