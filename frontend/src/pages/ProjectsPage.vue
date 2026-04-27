@@ -183,7 +183,7 @@ const projects = ref([
         </v-container>
       </template>
       <template v-else>
-        <div v-if="mobile" class="px-4 pt-4 pb-1 d-flex align-center">
+        <div v-if="mobile" class="px-4 pt-4 pb-3 d-flex align-center">
           <v-btn variant="text" prepend-icon="mdi-arrow-left" to="/projects" color="primary" rounded="xl" text="Back" />
         </div>
         <RouterView />

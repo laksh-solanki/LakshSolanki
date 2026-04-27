@@ -406,8 +406,8 @@ const scrollToSubscribe = () => {
 /* Override kicker inside dark hero to match HomePage teal glow style */
 .ap-hero .ap-kicker {
   color: #39bca3;
-  background: rgba(15, 143, 124, 0.1);
-  border-color: rgba(15, 143, 124, 0.26);
+  background: #4e46e543;
+  border-color: #4e46e561;
 }
 
 /* ─── HERO ──────────────────────────────────────────── */
@@ -416,7 +416,7 @@ const scrollToSubscribe = () => {
   overflow: hidden;
   border-bottom: none;
   background:
-    radial-gradient(ellipse 80% 60% at 68% 44%, rgba(15, 143, 124, 0.22) 0%, transparent 58%),
+    radial-gradient(ellipse 80% 60% at 68% 44%, #4e46e543 0%, transparent 58%),
     radial-gradient(ellipse 60% 50% at 12% 82%, rgba(99, 60, 232, 0.15) 0%, transparent 52%),
     linear-gradient(138deg, #061210 0%, #071a14 35%, #080e1c 65%, #060c18 100%);
   padding-block: 80px 64px;
@@ -687,13 +687,13 @@ const scrollToSubscribe = () => {
   width: 280px;
   height: 280px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(15, 143, 124, 0.18), transparent 60%);
+  background: radial-gradient(circle, #4e46e543, transparent 60%);
   pointer-events: none;
 }
 
 :deep(.ap-profile-avatar) {
   border: 3px solid rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 8px 28px rgba(15, 143, 124, 0.26) !important;
+  box-shadow: 0 8px 28px #4e46e543 !important;
   margin-bottom: 14px;
 }
 
@@ -1445,6 +1445,11 @@ const scrollToSubscribe = () => {
 }
 
 @media (max-width: 440px) {
+  .ap-profile-sidebar {
+    position: relative;
+    top: auto;
+  }
+
   .ap-hero__bento {
     grid-template-columns: 1fr;
   }

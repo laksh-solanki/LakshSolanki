@@ -1128,11 +1128,11 @@ const premiumStackLines = premiumStackLinks
   position: relative;
   overflow: hidden;
   border-radius: 24px;
-  border: 1px solid rgba(15, 143, 124, 0.15);
+  border: 1px solid #4e46e5cd;
   background:
-    radial-gradient(ellipse at 8% 12%, rgba(15, 143, 124, 0.05) 0%, transparent 48%),
-    radial-gradient(ellipse at 90% 88%, rgba(57, 188, 163, 0.04) 0%, transparent 44%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(244, 249, 247, 0.85) 55%, rgba(237, 245, 242, 0.85) 100%);
+    radial-gradient(ellipse at 8% 12%, #4e46e50c 0%, transparent 48%),
+    radial-gradient(ellipse at 90% 88%, #4e46e50d 0%, transparent 44%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, #4e46e50a 55%, #4e46e508 100%);
   backdrop-filter: blur(14px);
   padding: 2rem 2rem;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);

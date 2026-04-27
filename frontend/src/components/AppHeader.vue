@@ -43,6 +43,7 @@ const closeDrawer = () => {
           <v-list-item
             v-for="link in navLinks"
             :key="link.path"
+            color="primary"
             :to="link.path"
             class="premium-drawer-item mb-2"
             :class="{ 'is-active-item': isActive(link.path) }"
@@ -294,8 +295,8 @@ const closeDrawer = () => {
 }
 
 .premium-drawer-item:hover {
-  background: rgba(var(--v-theme-on-surface), 0.04) !important;
-  border-color: rgba(var(--v-theme-on-surface), 0.08) !important;
+  background: #4e46e5 !important;
+  border-color: #4e46e5 !important;
   transform: translateX(4px);
   opacity: 1;
 }
@@ -307,21 +308,21 @@ const closeDrawer = () => {
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: rgba(var(--v-theme-on-surface), 0.05);
-  color: rgba(var(--v-theme-on-surface), 0.7);
+  background: #4e46e561;
+  color: #4e46e5;
   margin-right: 18px;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .premium-drawer-item:hover .link-icon-wrapper {
-  background: rgba(var(--v-theme-on-surface), 0.08);
+  background: #4e46e5;
   transform: scale(1.06) rotate(-4deg);
 }
 
 .active-icon-wrapper {
-  background: linear-gradient(135deg, var(--portfolio-primary), #24a992);
+  background: linear-gradient(135deg, #4e46e5, #4e46e5);
   color: #fff !important;
-  box-shadow: 0 8px 20px rgba(15, 143, 124, 0.3);
+  box-shadow: 0 8px 20px #4e46e538;
 }
 
 .link-title {
@@ -349,18 +350,18 @@ const closeDrawer = () => {
 }
 
 .premium-github-btn {
-  background: linear-gradient(135deg, var(--portfolio-primary), #24a992) !important;
+  background: linear-gradient(135deg, #4e46e5ce, #4e46e5) !important;
   color: white !important;
   font-weight: 700;
   letter-spacing: 0.03em;
-  box-shadow: 0 10px 30px rgba(15, 143, 124, 0.35) !important;
+  box-shadow: 0 10px 30px #4e46e578 !important;
   transition: all 0.3s ease !important;
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .premium-github-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 14px 40px rgba(15, 143, 124, 0.45) !important;
+  box-shadow: 0 14px 40px #4e46e578 !important;
   filter: brightness(1.1);
 }
 
