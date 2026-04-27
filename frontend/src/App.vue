@@ -28,21 +28,24 @@ onMounted(() => {
 <style>
 /* Consistent scrollbar styling across portfolio pages */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 7px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(234, 241, 239, 0.96);
+  background: transparent;
+  scroll-behavior: smooth !important;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(15, 143, 124, 0.28);
-  border-radius: 10px;
+  background: #4F46E5;
+  border-radius: 100px;
+  scroll-behavior: smooth !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(15, 143, 124, 0.46);
+  background: #7e78f6;
+  cursor: pointer;
 }
 
 /* Unified minimal background for all project tool pages */
@@ -68,18 +71,18 @@ onMounted(() => {
 }
 
 /* Use fluid project containers with lower side margins */
-.ai-page > .v-container,
-.ai-page .hero-shell > .v-container,
-.tool-page > .v-container,
-.tool-page .hero-shell > .v-container,
-.hub-page > .v-container,
-.hub-page .hero-shell > .v-container,
-.forge-page > .v-container,
-.forge-page .hero-shell > .v-container,
-.lab-page > .v-container,
-.lab-page .hero-shell > .v-container,
-.certificate-page > .v-container,
-.certificate-page .hero-shell > .v-container {
+.ai-page>.v-container,
+.ai-page .hero-shell>.v-container,
+.tool-page>.v-container,
+.tool-page .hero-shell>.v-container,
+.hub-page>.v-container,
+.hub-page .hero-shell>.v-container,
+.forge-page>.v-container,
+.forge-page .hero-shell>.v-container,
+.lab-page>.v-container,
+.lab-page .hero-shell>.v-container,
+.certificate-page>.v-container,
+.certificate-page .hero-shell>.v-container {
   max-width: none !important;
   width: 100% !important;
   padding-left: clamp(10px, 1.6vw, 22px) !important;
@@ -87,11 +90,11 @@ onMounted(() => {
 }
 
 /* Match project main containers with AI chat main container background */
-.tool-page > .v-container,
-.hub-page > .v-container,
-.forge-page > .v-container,
-.lab-page > .v-container,
-.certificate-page > .v-container {
+.tool-page>.v-container,
+.hub-page>.v-container,
+.forge-page>.v-container,
+.lab-page>.v-container,
+.certificate-page>.v-container {
   background: rgb(var(--v-theme-background)) !important;
 }
 
@@ -112,6 +115,7 @@ onMounted(() => {
 
 /* Hide project hero stats cards on mobile screens */
 @media (max-width: 768px) {
+
   .ai-page .hero-stats,
   .tool-page .hero-stats,
   .hub-page .hero-stats,

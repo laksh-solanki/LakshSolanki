@@ -137,26 +137,13 @@ const projects = ref([
   <v-layout class="projects-page-layout h-100">
     <v-navigation-drawer expand-on-hover rail class="border-e projects-sidebar">
       <v-list density="compact" color="primary" nav>
-        <v-list-item
-          to="/projects"
-          prepend-icon="mdi-chart-tree"
-          title="All Projects"
-          class="mb-2 text-primary"
-          rounded="lg"
-        ></v-list-item>
+        <v-list-item to="/projects" prepend-icon="mdi-chart-tree" title="All Projects" class="mb-2 text-primary"
+          rounded="lg"></v-list-item>
 
         <v-divider class="mb-2 opacity-20"></v-divider>
 
-        <v-list-item
-          v-for="project in projects"
-          :key="project.id"
-          :to="project.link"
-          :title="project.title"
-          :subtitle="project.category"
-          :prepend-icon="project.icon"
-          rounded="lg"  
-          class="mb-1"
-        ></v-list-item>
+        <v-list-item v-for="project in projects" :key="project.id" :to="project.link" :title="project.title"
+          :subtitle="project.category" :prepend-icon="project.icon" rounded="lg" class="mb-1"></v-list-item>
       </v-list>
     </v-navigation-drawer>
 
@@ -197,14 +184,7 @@ const projects = ref([
       </template>
       <template v-else>
         <div v-if="mobile" class="px-4 pt-4 pb-1 d-flex align-center">
-          <v-btn
-            variant="text"
-            prepend-icon="mdi-arrow-left"
-            to="/projects"
-            color="primary"
-            rounded="xl"
-            text="Back"
-            />
+          <v-btn variant="text" prepend-icon="mdi-arrow-left" to="/projects" color="primary" rounded="xl" text="Back" />
         </div>
         <RouterView />
       </template>

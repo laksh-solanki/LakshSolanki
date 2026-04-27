@@ -22,7 +22,6 @@ const stripFontPreloads = () => ({
 });
 
 export default defineConfig(async () => {
-  // Only load devtools in development — prevents it from bloating the prod bundle
   const devToolsPlugin = isDev
     ? [(await import("vite-plugin-vue-devtools")).default()]
     : [];

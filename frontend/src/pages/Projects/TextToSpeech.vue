@@ -853,9 +853,6 @@ onUnmounted(() => {
               <div>
                 <p class="panel-kicker mb-1">Input</p>
                 <h2 class="text-h5 font-weight-bold mb-1">Write or paste your script</h2>
-                <p class="text-body-2 text-medium-emphasis mb-0">
-                  Ctrl/Cmd + Enter to play or stop. Alt + arrows for sentence navigation.
-                </p>
               </div>
               <v-chip label color="primary" variant="tonal" class="font-weight-medium">
                 {{ charsCount }} chars
@@ -934,7 +931,7 @@ onUnmounted(() => {
               <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-2">
                 <p class="mb-0 text-body-2">
                   Sentence {{ Math.min(currentSentenceIndex + 1, Math.max(sentenceChunks.length, 1)) }} / {{
-                  sentenceChunks.length
+                    sentenceChunks.length
                   }}
                 </p>
                 <div class="d-flex align-center ga-2">
@@ -1005,15 +1002,10 @@ onUnmounted(() => {
             <h3 class="text-h6 font-weight-bold mb-3">Voice mood styles</h3>
 
             <div class="d-flex flex-wrap ga-2">
-              <v-chip
-                v-for="preset in presets"
-                :key="preset.id"
+              <v-chip v-for="preset in presets" :key="preset.id"
                 :color="selectedPreset === preset.id ? 'primary' : undefined"
-                :variant="selectedPreset === preset.id ? 'flat' : 'outlined'"
-                class="preset-chip"
-                label
-                @click="applyPreset(preset)"
-              >
+                :variant="selectedPreset === preset.id ? 'flat' : 'outlined'" class="preset-chip" label
+                @click="applyPreset(preset)">
                 {{ preset.label }}
               </v-chip>
             </div>

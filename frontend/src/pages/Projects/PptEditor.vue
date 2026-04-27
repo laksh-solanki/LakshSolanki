@@ -67,15 +67,15 @@ const extractSlideElements = async (xmlDoc, relMap, zip, canvasW, canvasH, emuSc
           let off = xfrm.getElementsByTagName('a:off')[0] || xfrm.getElementsByTagNameNS('*', 'off')[0];
           let ext = xfrm.getElementsByTagName('a:ext')[0] || xfrm.getElementsByTagNameNS('*', 'ext')[0];
 
-          let ox = off ? parseInt(off.getAttribute('x')||'0',10)/emuScaleVal : 0;
-          let oy = off ? parseInt(off.getAttribute('y')||'0',10)/emuScaleVal : 0;
-          let w = ext ? parseInt(ext.getAttribute('cx')||'0',10)/emuScaleVal : 0;
-          let h = ext ? parseInt(ext.getAttribute('cy')||'0',10)/emuScaleVal : 0;
+          let ox = off ? parseInt(off.getAttribute('x') || '0', 10) / emuScaleVal : 0;
+          let oy = off ? parseInt(off.getAttribute('y') || '0', 10) / emuScaleVal : 0;
+          let w = ext ? parseInt(ext.getAttribute('cx') || '0', 10) / emuScaleVal : 0;
+          let h = ext ? parseInt(ext.getAttribute('cy') || '0', 10) / emuScaleVal : 0;
 
-          let chOx = chOff ? parseInt(chOff.getAttribute('x')||'0',10)/emuScaleVal : ox;
-          let chOy = chOff ? parseInt(chOff.getAttribute('y')||'0',10)/emuScaleVal : oy;
-          let chW = chExt ? parseInt(chExt.getAttribute('cx')||'0',10)/emuScaleVal : w;
-          let chH = chExt ? parseInt(chExt.getAttribute('cy')||'0',10)/emuScaleVal : h;
+          let chOx = chOff ? parseInt(chOff.getAttribute('x') || '0', 10) / emuScaleVal : ox;
+          let chOy = chOff ? parseInt(chOff.getAttribute('y') || '0', 10) / emuScaleVal : oy;
+          let chW = chExt ? parseInt(chExt.getAttribute('cx') || '0', 10) / emuScaleVal : w;
+          let chH = chExt ? parseInt(chExt.getAttribute('cy') || '0', 10) / emuScaleVal : h;
 
           currentTransform = { ox, oy, w, h, chOx, chOy, chW, chH };
         }
@@ -85,7 +85,7 @@ const extractSlideElements = async (xmlDoc, relMap, zip, canvasW, canvasH, emuSc
         await processNode(child, currentTransform);
       }
     } else if (nName === 'sp' || nName === 'pic' || nName === 'cxnSp') {
-      let x=0, y=0, w=100, h=50, rotation=0;
+      let x = 0, y = 0, w = 100, h = 50, rotation = 0;
       let spPr = node.getElementsByTagName('p:spPr')[0] || node.getElementsByTagNameNS('*', 'spPr')[0];
       let xfrm = spPr ? (spPr.getElementsByTagName('a:xfrm')[0] || spPr.getElementsByTagNameNS('*', 'xfrm')[0]) : null;
 
@@ -96,12 +96,12 @@ const extractSlideElements = async (xmlDoc, relMap, zip, canvasW, canvasH, emuSc
         if (rotAttr) rotation = parseInt(rotAttr, 10) / 60000;
 
         if (off) {
-          x = parseInt(off.getAttribute('x')||'0', 10) / emuScaleVal;
-          y = parseInt(off.getAttribute('y')||'0', 10) / emuScaleVal;
+          x = parseInt(off.getAttribute('x') || '0', 10) / emuScaleVal;
+          y = parseInt(off.getAttribute('y') || '0', 10) / emuScaleVal;
         }
         if (ext) {
-          w = parseInt(ext.getAttribute('cx')||'0', 10) / emuScaleVal;
-          h = parseInt(ext.getAttribute('cy')||'0', 10) / emuScaleVal;
+          w = parseInt(ext.getAttribute('cx') || '0', 10) / emuScaleVal;
+          h = parseInt(ext.getAttribute('cy') || '0', 10) / emuScaleVal;
         }
       }
 
@@ -145,7 +145,7 @@ const extractSlideElements = async (xmlDoc, relMap, zip, canvasW, canvasH, emuSc
                 zIndex: zIdx++
               });
               return;
-            } catch (e) {}
+            } catch (e) { }
           }
         }
       }
@@ -153,7 +153,7 @@ const extractSlideElements = async (xmlDoc, relMap, zip, canvasW, canvasH, emuSc
       let hasText = false;
       let combinedText = '';
       let txBody = node.getElementsByTagName('p:txBody')[0] || node.getElementsByTagNameNS('*', 'txBody')[0];
-      
+
       let nvSpPr = node.getElementsByTagName('p:nvSpPr')[0] || node.getElementsByTagNameNS('*', 'nvSpPr')[0];
       let isPh = false;
       if (nvSpPr) {
@@ -178,17 +178,17 @@ const extractSlideElements = async (xmlDoc, relMap, zip, canvasW, canvasH, emuSc
           if (srgbClr) return '#' + srgbClr.getAttribute('val');
           let schemeClr = parent.getElementsByTagName('a:schemeClr')[0] || parent.getElementsByTagNameNS('*', 'schemeClr')[0];
           if (schemeClr) {
-             let val = schemeClr.getAttribute('val');
-             if (val === 'bg1' || val === 'lt1') return '#ffffff';
-             if (val === 'tx1' || val === 'dk1') return '#000000';
-             if (val === 'bg2' || val === 'lt2') return '#e7e6e6';
-             if (val === 'tx2' || val === 'dk2') return '#44546a';
-             if (val === 'accent1') return '#4472c4';
-             if (val === 'accent2') return '#ed7d31';
-             if (val === 'accent3') return '#a5a5a5';
-             if (val === 'accent4') return '#ffc000';
-             if (val === 'accent5') return '#5b9bd5';
-             if (val === 'accent6') return '#70ad47';
+            let val = schemeClr.getAttribute('val');
+            if (val === 'bg1' || val === 'lt1') return '#ffffff';
+            if (val === 'tx1' || val === 'dk1') return '#000000';
+            if (val === 'bg2' || val === 'lt2') return '#e7e6e6';
+            if (val === 'tx2' || val === 'dk2') return '#44546a';
+            if (val === 'accent1') return '#4472c4';
+            if (val === 'accent2') return '#ed7d31';
+            if (val === 'accent3') return '#a5a5a5';
+            if (val === 'accent4') return '#ffc000';
+            if (val === 'accent5') return '#5b9bd5';
+            if (val === 'accent6') return '#70ad47';
           }
           return null;
         };
@@ -231,7 +231,7 @@ const extractSlideElements = async (xmlDoc, relMap, zip, canvasW, canvasH, emuSc
           if (rPr.getAttribute('b') === '1') isBold = true;
           if (rPr.getAttribute('i') === '1') isItalic = true;
           if (rPr.getAttribute('u') === 'sng') isUnderline = true;
-          
+
           let srgbClr = rPr.getElementsByTagName('a:srgbClr')[0] || rPr.getElementsByTagNameNS('*', 'srgbClr')[0];
           if (srgbClr && srgbClr.getAttribute('val')) color = '#' + srgbClr.getAttribute('val');
         }
@@ -284,7 +284,7 @@ const extractSlideElements = async (xmlDoc, relMap, zip, canvasW, canvasH, emuSc
         try {
           const base64 = await zip.files[matchedPath].async('base64');
           let pNode = vNode.parentNode;
-          let x=0, y=0, w=100, h=100;
+          let x = 0, y = 0, w = 100, h = 100;
           if (pNode && pNode.getAttribute('style')) {
             let style = pNode.getAttribute('style');
             let m;
@@ -302,7 +302,7 @@ const extractSlideElements = async (xmlDoc, relMap, zip, canvasW, canvasH, emuSc
             originalShapeNode: isLockedGroup ? null : pNode,
             zIndex: zIdx++
           });
-        } catch (e) {}
+        } catch (e) { }
       }
     }
   }
@@ -390,17 +390,17 @@ const handleFileUpload = async (event) => {
             const masterFileName = decodeURIComponent(slideMasterTarget.split('/').pop());
             const masterPath = Object.keys(zip.files).find(k => k.toLowerCase().endsWith(masterFileName.toLowerCase()));
             if (masterPath) {
-               const masterContent = await zip.file(masterPath).async('string');
-               const masterDoc = parser.parseFromString(masterContent, 'text/xml');
-               const masterRelsPath = masterPath.replace('slideMasters/', 'slideMasters/_rels/') + '.rels';
-               const masterRelMap = await loadRels(zip, masterRelsPath);
+              const masterContent = await zip.file(masterPath).async('string');
+              const masterDoc = parser.parseFromString(masterContent, 'text/xml');
+              const masterRelsPath = masterPath.replace('slideMasters/', 'slideMasters/_rels/') + '.rels';
+              const masterRelMap = await loadRels(zip, masterRelsPath);
 
-               const masterColor = extractBgColor(masterDoc);
-               if (masterColor) slideBgColor = masterColor;
+              const masterColor = extractBgColor(masterDoc);
+              if (masterColor) slideBgColor = masterColor;
 
-               const masterExt = await extractSlideElements(masterDoc, masterRelMap, zip, CANVAS_WIDTH, canvasHeight.value, emuScale.value, currentZIndex, true);
-               allItems = allItems.concat(masterExt.elements);
-               currentZIndex = masterExt.nextZIndex;
+              const masterExt = await extractSlideElements(masterDoc, masterRelMap, zip, CANVAS_WIDTH, canvasHeight.value, emuScale.value, currentZIndex, true);
+              allItems = allItems.concat(masterExt.elements);
+              currentZIndex = masterExt.nextZIndex;
             }
           }
 
@@ -443,14 +443,14 @@ const handleFileUpload = async (event) => {
 
 const initInteract = () => {
   interact('.canvas-element').draggable({
-    modifiers: [ interact.modifiers.restrictRect({ restriction: 'parent', endOnly: true }) ],
+    modifiers: [interact.modifiers.restrictRect({ restriction: 'parent', endOnly: true })],
     listeners: {
       move(event) {
         const id = event.target.getAttribute('data-id');
         const item = activeSlide.value.items.find(e => e.id === id);
         if (item) {
-            item.x += event.dx / canvasScale.value;
-            item.y += event.dy / canvasScale.value;
+          item.x += event.dx / canvasScale.value;
+          item.y += event.dy / canvasScale.value;
         }
       }
     }
@@ -461,7 +461,7 @@ const initInteract = () => {
       bottom: '.bottom-edge, .bottom-left, .bottom-right',
       top: '.top-edge, .top-left, .top-right'
     },
-    modifiers: [ interact.modifiers.restrictEdges({ outer: 'parent' }), interact.modifiers.restrictSize({ min: { width: 30, height: 20 } }) ],
+    modifiers: [interact.modifiers.restrictEdges({ outer: 'parent' }), interact.modifiers.restrictSize({ min: { width: 30, height: 20 } })],
     listeners: {
       move(event) {
         const id = event.target.getAttribute('data-id');
@@ -518,8 +518,8 @@ const addTextBox = () => {
 const deleteActiveElement = () => {
   if (!activeElement.value || !activeSlide.value) return;
   if (!activeElement.value.isNew && activeElement.value.originalShapeNode) {
-     const node = activeElement.value.originalShapeNode;
-     if (node.parentNode) node.parentNode.removeChild(node);
+    const node = activeElement.value.originalShapeNode;
+    if (node.parentNode) node.parentNode.removeChild(node);
   }
   const index = activeSlide.value.items.findIndex(i => i.id === activeElement.value.id);
   if (index > -1) activeSlide.value.items.splice(index, 1);
@@ -572,7 +572,7 @@ const startRotation = (e, item) => {
 
     // Snap to 45 degree increments if shift is pressed
     if (moveEvent.shiftKey) {
-        degrees = Math.round(degrees / 45) * 45;
+      degrees = Math.round(degrees / 45) * 45;
     }
 
     item.rotation = Math.round(degrees);
@@ -598,50 +598,50 @@ const downloadEditedPptx = async () => {
 
       // Save slide background color
       if (slide.bgColor && slide.bgColor !== '#ffffff') {
-         let bgNode = xmlDoc.getElementsByTagName('p:bg')[0] || xmlDoc.getElementsByTagNameNS('*', 'bg')[0];
-         if (!bgNode) {
-             const cSld = xmlDoc.getElementsByTagName('p:cSld')[0] || xmlDoc.getElementsByTagNameNS('*', 'cSld')[0];
-             if (cSld) {
-                 const bgXml = `<p:bg xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><p:bgPr><a:solidFill><a:srgbClr val="${slide.bgColor.replace('#', '')}"/></a:solidFill><a:effectLst/></p:bgPr></p:bg>`;
-                 const parser = new DOMParser();
-                 const doc = parser.parseFromString(bgXml, 'text/xml');
-                 cSld.insertBefore(xmlDoc.importNode(doc.documentElement, true), cSld.firstChild);
-             }
-         } else {
-             let solidFill = bgNode.getElementsByTagName('a:solidFill')[0] || bgNode.getElementsByTagNameNS('*', 'solidFill')[0];
-             if (!solidFill) {
-                 let bgPr = bgNode.getElementsByTagName('p:bgPr')[0] || bgNode.getElementsByTagNameNS('*', 'bgPr')[0];
-                 if (bgPr) {
-                     const sf = xmlDoc.createElement('a:solidFill');
-                     const clr = xmlDoc.createElement('a:srgbClr');
-                     clr.setAttribute('val', slide.bgColor.replace('#', ''));
-                     sf.appendChild(clr);
-                     Array.from(bgPr.childNodes).filter(n => n.nodeName.includes('Fill')).forEach(n => bgPr.removeChild(n));
-                     bgPr.appendChild(sf);
-                 }
-             } else {
-                 let srgbClr = solidFill.getElementsByTagName('a:srgbClr')[0] || solidFill.getElementsByTagNameNS('*', 'srgbClr')[0];
-                 if (srgbClr) srgbClr.setAttribute('val', slide.bgColor.replace('#', ''));
-             }
-         }
+        let bgNode = xmlDoc.getElementsByTagName('p:bg')[0] || xmlDoc.getElementsByTagNameNS('*', 'bg')[0];
+        if (!bgNode) {
+          const cSld = xmlDoc.getElementsByTagName('p:cSld')[0] || xmlDoc.getElementsByTagNameNS('*', 'cSld')[0];
+          if (cSld) {
+            const bgXml = `<p:bg xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><p:bgPr><a:solidFill><a:srgbClr val="${slide.bgColor.replace('#', '')}"/></a:solidFill><a:effectLst/></p:bgPr></p:bg>`;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(bgXml, 'text/xml');
+            cSld.insertBefore(xmlDoc.importNode(doc.documentElement, true), cSld.firstChild);
+          }
+        } else {
+          let solidFill = bgNode.getElementsByTagName('a:solidFill')[0] || bgNode.getElementsByTagNameNS('*', 'solidFill')[0];
+          if (!solidFill) {
+            let bgPr = bgNode.getElementsByTagName('p:bgPr')[0] || bgNode.getElementsByTagNameNS('*', 'bgPr')[0];
+            if (bgPr) {
+              const sf = xmlDoc.createElement('a:solidFill');
+              const clr = xmlDoc.createElement('a:srgbClr');
+              clr.setAttribute('val', slide.bgColor.replace('#', ''));
+              sf.appendChild(clr);
+              Array.from(bgPr.childNodes).filter(n => n.nodeName.includes('Fill')).forEach(n => bgPr.removeChild(n));
+              bgPr.appendChild(sf);
+            }
+          } else {
+            let srgbClr = solidFill.getElementsByTagName('a:srgbClr')[0] || solidFill.getElementsByTagNameNS('*', 'srgbClr')[0];
+            if (srgbClr) srgbClr.setAttribute('val', slide.bgColor.replace('#', ''));
+          }
+        }
       }
 
       for (const el of slide.items) {
         if (el.isBg) continue; // don't move backgrounds from master
 
         if (el.isNew) {
-           const spTree = xmlDoc.getElementsByTagName('p:spTree')[0] || xmlDoc.getElementsByTagNameNS('*', 'spTree')[0];
-           if (spTree) {
-              const cNvPrs = Array.from(new Set([
-                ...Array.from(spTree.getElementsByTagName('p:cNvPr')),
-                ...Array.from(spTree.getElementsByTagNameNS('*', 'cNvPr'))
-              ]));
-              const maxId = cNvPrs.length > 0 ? Math.max(...cNvPrs.map(n => parseInt(n.getAttribute('id') || '0', 10))) : 0;
-              const newShape = createNewTextShapeXml(xmlDoc, el, maxId + 1);
-              spTree.appendChild(newShape);
-              el.originalShapeNode = newShape;
-              el.isNew = false;
-           }
+          const spTree = xmlDoc.getElementsByTagName('p:spTree')[0] || xmlDoc.getElementsByTagNameNS('*', 'spTree')[0];
+          if (spTree) {
+            const cNvPrs = Array.from(new Set([
+              ...Array.from(spTree.getElementsByTagName('p:cNvPr')),
+              ...Array.from(spTree.getElementsByTagNameNS('*', 'cNvPr'))
+            ]));
+            const maxId = cNvPrs.length > 0 ? Math.max(...cNvPrs.map(n => parseInt(n.getAttribute('id') || '0', 10))) : 0;
+            const newShape = createNewTextShapeXml(xmlDoc, el, maxId + 1);
+            spTree.appendChild(newShape);
+            el.originalShapeNode = newShape;
+            el.isNew = false;
+          }
         }
 
         const shape = el.originalShapeNode;
@@ -650,9 +650,9 @@ const downloadEditedPptx = async () => {
         let xfrm = shape.getElementsByTagName('a:xfrm')[0] || shape.getElementsByTagName('xfrm')[0];
         if (xfrm) {
           if (el.rotation) {
-             xfrm.setAttribute('rot', Math.round(el.rotation * 60000).toString());
+            xfrm.setAttribute('rot', Math.round(el.rotation * 60000).toString());
           } else {
-             xfrm.removeAttribute('rot');
+            xfrm.removeAttribute('rot');
           }
 
           let off = xfrm.getElementsByTagName('a:off')[0] || xfrm.getElementsByTagName('off')[0];
@@ -711,12 +711,12 @@ const downloadEditedPptx = async () => {
 
       const spTree = xmlDoc.getElementsByTagName('p:spTree')[0] || xmlDoc.getElementsByTagNameNS('*', 'spTree')[0];
       if (spTree) {
-         const sortedItems = [...slide.items].sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
-         for (const item of sortedItems) {
-            if (!item.isBg && item.originalShapeNode) {
-               spTree.appendChild(item.originalShapeNode);
-            }
-         }
+        const sortedItems = [...slide.items].sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
+        for (const item of sortedItems) {
+          if (!item.isBg && item.originalShapeNode) {
+            spTree.appendChild(item.originalShapeNode);
+          }
+        }
       }
 
       const serializer = new XMLSerializer();
@@ -734,29 +734,24 @@ const downloadEditedPptx = async () => {
 </script>
 
 <template>
-  <v-container class="py-8 px-4 h-100 max-w-xl mx-auto ppt-container">
-    <div class="mb-6 d-flex align-center justify-space-between flex-wrap gap-4">
-      <div>
-        <h1 class="text-h3 font-weight-bold mb-1">Visual PPTX Editor</h1>
-        <p class="text-subtitle-1 text-grey mb-0">Full certificate & presentation visual editor.</p>
-      </div>
-      <v-btn v-if="slidesData.length > 0" color="primary" size="large" prepend-icon="mdi-download" @click="downloadEditedPptx" :loading="isProcessing" rounded="pill" elevation="3">
-        Export Presentation
-      </v-btn>
-    </div>
-
-    <v-card v-if="slidesData.length === 0" class="pa-8 text-center upload-card" rounded="xl" elevation="2">
-      <v-icon size="64" color="primary" class="mb-4">mdi-file-powerpoint</v-icon>
-      <h3 class="text-h5 font-weight-medium mb-2">Open a PowerPoint File</h3>
-      <p class="text-body-1 text-grey mb-6">Select a .pptx file (like a Certificate) to begin editing visually.</p>
-      <v-file-input label="Choose .pptx File" accept=".pptx" variant="solo-filled" color="primary" hide-details @change="handleFileUpload" :loading="isProcessing" prepend-inner-icon="mdi-upload" prepend-icon="" class="mx-auto max-w-sm"></v-file-input>
-    </v-card>
+  <div class="h-100 max-w-xl mx-auto ppt-container">
+    <v-container v-if="slidesData.length === 0">
+      <v-card class="pa-8 text-center upload-card" rounded="xl" elevation="0">
+        <v-icon size="64" color="primary" class="mb-4">mdi-file-powerpoint</v-icon>
+        <h3 class="text-h5 font-weight-medium mb-2">Open a PowerPoint File</h3>
+        <p class="text-body-1 text-grey mb-6">Select a .pptx file (like a Certificate) to begin editing visually.</p>
+        <v-file-input label="Choose .pptx File" accept=".pptx" variant="solo-filled" color="primary" hide-details
+          @change="handleFileUpload" :loading="isProcessing" prepend-inner-icon="mdi-upload" prepend-icon=""
+          class="mx-auto max-w-sm"></v-file-input>
+      </v-card>
+    </v-container>
 
     <div v-else class="editor-layout d-flex flex-column">
       <!-- Toolbar -->
-      <v-toolbar class="editor-toolbar mb-4 rounded-lg px-2 overflow-x-auto" elevation="2" density="compact">
+      <v-toolbar class="editor-toolbar mb-0 px-0 pl-2 overflow-x-auto" elevation="0" density="compact">
         <!-- Global Actions -->
-        <v-btn prepend-icon="mdi-format-text" variant="tonal" size="small" color="primary" class="mr-2" @click="addTextBox">Add Text</v-btn>
+        <v-btn prepend-icon="mdi-format-text" variant="tonal" size="small" color="primary" class="mr-2"
+          @click="addTextBox">Add Text</v-btn>
 
         <v-divider vertical class="mx-3"></v-divider>
 
@@ -768,61 +763,82 @@ const downloadEditedPptx = async () => {
         </template>
 
         <div v-else-if="activeElement?.type === 'text'" class="d-flex align-center ga-1">
-            <v-btn icon="mdi-format-font-size-decrease" size="small" variant="text" @click="activeElement.fontSize -= 2"></v-btn>
-            <span class="font-weight-bold px-1" style="min-width: 32px; text-align: center;">{{ activeElement.fontSize }}</span>
-            <v-btn icon="mdi-format-font-size-increase" size="small" variant="text" @click="activeElement.fontSize += 2"></v-btn>
-            <v-divider vertical class="mx-2 my-2"></v-divider>
+          <v-btn icon="mdi-format-font-size-decrease" size="small" variant="text"
+            @click="activeElement.fontSize -= 2"></v-btn>
+          <span class="font-weight-bold px-1" style="min-width: 32px; text-align: center;">{{ activeElement.fontSize
+          }}</span>
+          <v-btn icon="mdi-format-font-size-increase" size="small" variant="text"
+            @click="activeElement.fontSize += 2"></v-btn>
+          <v-divider vertical class="mx-2 my-2"></v-divider>
 
-            <v-btn :color="activeElement.isBold ? 'primary' : 'default'" icon="mdi-format-bold" size="small" variant="text" @click="activeElement.isBold = !activeElement.isBold"></v-btn>
-            <v-btn :color="activeElement.isItalic ? 'primary' : 'default'" icon="mdi-format-italic" size="small" variant="text" @click="activeElement.isItalic = !activeElement.isItalic"></v-btn>
-            <v-btn :color="activeElement.isUnderline ? 'primary' : 'default'" icon="mdi-format-underline" size="small" variant="text" @click="activeElement.isUnderline = !activeElement.isUnderline"></v-btn>
-            <v-divider vertical class="mx-2 my-2"></v-divider>
+          <v-btn :color="activeElement.isBold ? 'primary' : 'default'" icon="mdi-format-bold" size="small"
+            variant="text" @click="activeElement.isBold = !activeElement.isBold"></v-btn>
+          <v-btn :color="activeElement.isItalic ? 'primary' : 'default'" icon="mdi-format-italic" size="small"
+            variant="text" @click="activeElement.isItalic = !activeElement.isItalic"></v-btn>
+          <v-btn :color="activeElement.isUnderline ? 'primary' : 'default'" icon="mdi-format-underline" size="small"
+            variant="text" @click="activeElement.isUnderline = !activeElement.isUnderline"></v-btn>
+          <v-divider vertical class="mx-2 my-2"></v-divider>
 
-            <v-btn :color="activeElement.align === 'l' ? 'primary' : 'default'" icon="mdi-format-align-left" size="small" variant="text" @click="activeElement.align = 'l'"></v-btn>
-            <v-btn :color="activeElement.align === 'ctr' ? 'primary' : 'default'" icon="mdi-format-align-center" size="small" variant="text" @click="activeElement.align = 'ctr'"></v-btn>
-            <v-btn :color="activeElement.align === 'r' ? 'primary' : 'default'" icon="mdi-format-align-right" size="small" variant="text" @click="activeElement.align = 'r'"></v-btn>
-            <v-divider vertical class="mx-2 my-2"></v-divider>
+          <v-btn :color="activeElement.align === 'l' ? 'primary' : 'default'" icon="mdi-format-align-left" size="small"
+            variant="text" @click="activeElement.align = 'l'"></v-btn>
+          <v-btn :color="activeElement.align === 'ctr' ? 'primary' : 'default'" icon="mdi-format-align-center"
+            size="small" variant="text" @click="activeElement.align = 'ctr'"></v-btn>
+          <v-btn :color="activeElement.align === 'r' ? 'primary' : 'default'" icon="mdi-format-align-right" size="small"
+            variant="text" @click="activeElement.align = 'r'"></v-btn>
+          <v-divider vertical class="mx-2 my-2"></v-divider>
 
-            <input type="color" v-model="activeElement.color" class="color-picker-input ml-2 border rounded" />
+          <input type="color" v-model="activeElement.color" class="color-picker-input ml-2 border rounded" />
         </div>
 
         <div v-else class="d-flex align-center">
-            <span class="text-caption text-grey ml-2">Select an item or the slide background to edit.</span>
+          <span class="text-caption text-grey ml-2">Select an item or the slide background to edit.</span>
         </div>
 
         <v-spacer></v-spacer>
 
         <!-- Element Operations (Hidden if slide bg) -->
         <div v-if="activeElement && activeElement.type !== 'slide'" class="d-flex align-center ga-1">
-             <v-btn icon="mdi-arrange-bring-forward" size="small" variant="text" @click="activeElement.zIndex += 1" title="Bring Forward"></v-btn>
-             <v-btn icon="mdi-arrange-send-backward" size="small" variant="text" @click="activeElement.zIndex -= 1" title="Send Backward"></v-btn>
-             <v-divider vertical class="mx-2 my-2"></v-divider>
-             <v-btn icon="mdi-delete" size="small" color="error" variant="text" @click="deleteActiveElement" title="Delete Element"></v-btn>
+          <v-btn icon="mdi-arrange-bring-forward" size="small" variant="text" @click="activeElement.zIndex += 1"
+            title="Bring Forward"></v-btn>
+          <v-btn icon="mdi-arrange-send-backward" size="small" variant="text" @click="activeElement.zIndex -= 1"
+            title="Send Backward"></v-btn>
+          <v-divider vertical class="mx-2 my-2"></v-divider>
+          <v-btn icon="mdi-delete" color="error" rounded="0" variant="flat" @click="deleteActiveElement"
+            title="Delete Element"></v-btn>
         </div>
+        <v-btn v-if="slidesData.length > 0"  color="primary" rounded="0" icon="mdi-download"
+          @click="downloadEditedPptx" :loading="isProcessing" variant="flat" elevation="0">
+        </v-btn>
       </v-toolbar>
 
-      <div class="canvas-wrapper bg-grey-lighten-3 rounded-lg overflow-hidden d-flex justify-center position-relative w-100" :style="{ height: (canvasHeight * canvasScale + 64) + 'px' }">
-        <div class="slide-canvas bg-white position-relative mt-8" :style="{ width: CANVAS_WIDTH + 'px', height: canvasHeight + 'px', backgroundColor: activeSlide.bgColor + ' !important', transform: `scale(${canvasScale})`, transformOrigin: 'top center', outline: activeElement?.type === 'slide' ? '3px solid #8b3dff' : 'none' }" @mousedown="clearSelection">
+      <div
+        class="canvas-wrapper bg-grey-lighten-2 overflow-hidden d-flex justify-center align-center position-relative w-100 elevation-1"
+        :style="{ height: (canvasHeight * canvasScale + 64) + 'px' }">
+        <div class="slide-canvas bg-white position-relative mt-8"
+          :style="{ width: CANVAS_WIDTH + 'px', height: canvasHeight + 'px', backgroundColor: activeSlide.bgColor + ' !important', transform: `scale(${canvasScale})`, transformOrigin: 'top center', outline: activeElement?.type === 'slide' ? '3px solid #8b3dff' : 'none' }"
+          @mousedown="clearSelection">
           <div class="canvas-watermark" v-if="!activeSlide.bgColor || activeSlide.bgColor === '#ffffff'"></div>
 
           <div v-for="item in activeSlide.items" :key="item.id" :data-id="item.id"
-               class="position-absolute d-flex flex-column"
-               :class="{ 'canvas-element': !item.isBg, 'is-active': activeElement?.id === item.id }"
-               :style="{ left: item.x + 'px', top: item.y + 'px', width: item.w + 'px', height: item.h + 'px', zIndex: item.zIndex, transform: `rotate(${item.rotation || 0}deg)` }"
-               @mousedown="!item.isBg && selectElement(item)">
+            class="position-absolute d-flex flex-column"
+            :class="{ 'canvas-element': !item.isBg, 'is-active': activeElement?.id === item.id }"
+            :style="{ left: item.x + 'px', top: item.y + 'px', width: item.w + 'px', height: item.h + 'px', zIndex: item.zIndex, transform: `rotate(${item.rotation || 0}deg)` }"
+            @mousedown="!item.isBg && selectElement(item)">
 
-            <img v-if="item.type === 'image'" :src="item.dataUrl" class="w-100 h-100" :style="{ objectFit: 'fill', pointerEvents: 'none' }" />
+            <img v-if="item.type === 'image'" :src="item.dataUrl" class="w-100 h-100"
+              :style="{ objectFit: 'fill', pointerEvents: 'none' }" />
 
-            <div v-if="item.type === 'shape'" class="w-100 h-100 position-absolute"
-                 :style="{
-                    backgroundColor: item.shapeFill,
-                    border: item.borderWidth > 0 ? (item.borderWidth + 'px solid ' + item.borderColor) : 'none',
-                    borderRadius: item.prst === 'ellipse' ? '50%' : '0',
-                    pointerEvents: 'none'
-                 }">
+            <div v-if="item.type === 'shape'" class="w-100 h-100 position-absolute" :style="{
+              backgroundColor: item.shapeFill,
+              border: item.borderWidth > 0 ? (item.borderWidth + 'px solid ' + item.borderColor) : 'none',
+              borderRadius: item.prst === 'ellipse' ? '50%' : '0',
+              pointerEvents: 'none'
+            }">
             </div>
 
-            <textarea v-if="item.type === 'text'" v-model="item.text" class="element-textarea w-100 h-100 pa-1" :style="{ fontSize: (item.fontSize * (CANVAS_WIDTH / 960)) + 'px', fontWeight: item.isBold ? 'bold' : 'normal', fontStyle: item.isItalic ? 'italic' : 'normal', textDecoration: item.isUnderline ? 'underline' : 'none', color: item.color, textAlign: item.align === 'ctr' ? 'center' : item.align === 'r' ? 'right' : 'left', pointerEvents: item.isBg ? 'none' : 'auto' }" :readonly="item.isBg" spellcheck="false"></textarea>
+            <textarea v-if="item.type === 'text'" v-model="item.text" class="element-textarea w-100 h-100 pa-1"
+              :style="{ fontSize: (item.fontSize * (CANVAS_WIDTH / 960)) + 'px', fontWeight: item.isBold ? 'bold' : 'normal', fontStyle: item.isItalic ? 'italic' : 'normal', textDecoration: item.isUnderline ? 'underline' : 'none', color: item.color, textAlign: item.align === 'ctr' ? 'center' : item.align === 'r' ? 'right' : 'left', pointerEvents: item.isBg ? 'none' : 'auto' }"
+              :readonly="item.isBg" spellcheck="false"></textarea>
 
             <!-- Canva style resize handles -->
             <template v-if="!item.isBg">
@@ -838,7 +854,8 @@ const downloadEditedPptx = async () => {
               <div class="resize-handle edge-handle-h bottom-edge"></div>
 
               <!-- Bottom Action Controls -->
-              <div class="action-controls position-absolute d-flex justify-center ga-2 w-100" style="bottom: -45px; left: 0;">
+              <div class="action-controls position-absolute d-flex justify-center ga-2 w-100"
+                style="bottom: -45px; left: 0;">
                 <div class="control-btn" @mousedown="startRotation($event, item)">
                   <v-icon size="16">mdi-sync</v-icon>
                 </div>
@@ -852,52 +869,191 @@ const downloadEditedPptx = async () => {
       </div>
 
       <!-- Bottom Slide Navigation -->
-      <div class="d-flex align-center justify-center mt-6 bg-white rounded-lg elevation-2 py-2 px-6 mx-auto w-100 max-w-sm">
-        <v-btn icon="mdi-chevron-left" variant="text" size="small" @click="activeSlideIndex--" :disabled="activeSlideIndex === 0"></v-btn>
-        <span class="font-weight-bold px-6 text-subtitle-1">Slide {{ activeSlide?.slideNumber || 1 }} / {{ slidesData.length }}</span>
-        <v-btn icon="mdi-chevron-right" variant="text" size="small" @click="activeSlideIndex++" :disabled="activeSlideIndex === slidesData.length - 1"></v-btn>
+      <div class="d-flex align-center justify-center bg-white rounded-0 py-2 px-6 mx-auto w-100 max-w-sm">
+        <v-btn icon="mdi-chevron-left" variant="text" size="small" @click="activeSlideIndex--"
+          :disabled="activeSlideIndex === 0"></v-btn>
+        <span class="font-weight-bold px-6 text-subtitle-1">Slide {{ activeSlide?.slideNumber || 1 }} / {{
+          slidesData.length
+        }}</span>
+        <v-btn icon="mdi-chevron-right" variant="text" size="small" @click="activeSlideIndex++"
+          :disabled="activeSlideIndex === slidesData.length - 1"></v-btn>
       </div>
     </div>
-  </v-container>
+  </div>
 </template>
 
 <style scoped>
-.ppt-container { max-width: 1100px; }
-.upload-card { border: 2px dashed rgba(var(--v-theme-primary), 0.3); transition: border-color 0.3s; }
-.upload-card:hover { border-color: rgba(var(--v-theme-primary), 0.8); }
-.editor-toolbar { background: white; }
-.color-picker-input { width: 32px; height: 32px; border: none; border-radius: 4px; cursor: pointer; padding: 0; background: none; }
-.canvas-wrapper { border: 1px solid rgba(0,0,0,0.1); padding: 32px; overflow: auto; }
-.slide-canvas { box-shadow: 0 4px 12px rgba(0,0,0,0.15); user-select: none; }
-.canvas-element { transition: outline-color 0.1s; }
-.canvas-element:hover { outline: 1px dashed rgba(0,0,0,0.3); cursor: pointer; }
-.canvas-element.is-active { outline: 1px solid #8b3dff; z-index: 101 !important; }
-.element-textarea { background: transparent; border: none; outline: none; resize: none; font-family: inherit; line-height: 1.2; overflow: hidden; cursor: text; }
+.ppt-container {
+  max-width: 100%;
+}
 
-.resize-handle { display: none; position: absolute; background: white; border: 1px solid #8b3dff; }
-.canvas-element.is-active .resize-handle { display: block; }
+.upload-card {
+  border: 2px dashed rgba(var(--v-theme-primary), 0.3);
+  transition: border-color 0.3s;
+}
+
+.upload-card:hover {
+  border-color: rgba(var(--v-theme-primary), 0.8);
+}
+
+.editor-toolbar {
+  background: white;
+}
+
+.color-picker-input {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+}
+
+.canvas-wrapper {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0px;
+  overflow: auto;
+}
+
+.slide-canvas {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  user-select: none;
+}
+
+.canvas-element {
+  transition: outline-color 0.1s;
+}
+
+.canvas-element:hover {
+  outline: 1px dashed rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+.canvas-element.is-active {
+  outline: 1px solid #8b3dff;
+  z-index: 101 !important;
+}
+
+.element-textarea {
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  line-height: 1.2;
+  overflow: hidden;
+  cursor: text;
+}
+
+.resize-handle {
+  display: none;
+  position: absolute;
+  background: white;
+  border: 1px solid #8b3dff;
+}
+
+.canvas-element.is-active .resize-handle {
+  display: block;
+}
 
 /* Corner Circles */
-.corner-handle { width: 12px; height: 12px; border-radius: 50%; }
-.top-left { top: -6px; left: -6px; cursor: nwse-resize; }
-.top-right { top: -6px; right: -6px; cursor: nesw-resize; }
-.bottom-left { bottom: -6px; left: -6px; cursor: nesw-resize; }
-.bottom-right { bottom: -6px; right: -6px; cursor: nwse-resize; }
+.corner-handle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.top-left {
+  top: -6px;
+  left: -6px;
+  cursor: nwse-resize;
+}
+
+.top-right {
+  top: -6px;
+  right: -6px;
+  cursor: nesw-resize;
+}
+
+.bottom-left {
+  bottom: -6px;
+  left: -6px;
+  cursor: nesw-resize;
+}
+
+.bottom-right {
+  bottom: -6px;
+  right: -6px;
+  cursor: nwse-resize;
+}
 
 /* Edge Pills */
-.edge-handle { width: 6px; height: 16px; border-radius: 4px; }
-.left-edge { top: calc(50% - 8px); left: -3px; cursor: ew-resize; }
-.right-edge { top: calc(50% - 8px); right: -3px; cursor: ew-resize; }
+.edge-handle {
+  width: 6px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.left-edge {
+  top: calc(50% - 8px);
+  left: -3px;
+  cursor: ew-resize;
+}
+
+.right-edge {
+  top: calc(50% - 8px);
+  right: -3px;
+  cursor: ew-resize;
+}
 
 /* Horizontal Edge Pills */
-.edge-handle-h { width: 16px; height: 6px; border-radius: 4px; }
-.top-edge { left: calc(50% - 8px); top: -3px; cursor: ns-resize; }
-.bottom-edge { left: calc(50% - 8px); bottom: -3px; cursor: ns-resize; }
+.edge-handle-h {
+  width: 16px;
+  height: 6px;
+  border-radius: 4px;
+}
+
+.top-edge {
+  left: calc(50% - 8px);
+  top: -3px;
+  cursor: ns-resize;
+}
+
+.bottom-edge {
+  left: calc(50% - 8px);
+  bottom: -3px;
+  cursor: ns-resize;
+}
 
 /* Action Controls */
-.action-controls { display: none; }
-.canvas-element.is-active .action-controls { display: flex; }
-.control-btn { width: 30px; height: 30px; background: white; border: 1px solid #dcdcdc; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); pointer-events: auto; }
-.control-btn:hover { background: #f5f5f5; }
-.drag-handle { cursor: move; }
+.action-controls {
+  display: none;
+}
+
+.canvas-element.is-active .action-controls {
+  display: flex;
+}
+
+.control-btn {
+  width: 30px;
+  height: 30px;
+  background: white;
+  border: 1px solid #dcdcdc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  pointer-events: auto;
+}
+
+.control-btn:hover {
+  background: #f5f5f5;
+}
+
+.drag-handle {
+  cursor: move;
+}
 </style>

@@ -31,39 +31,19 @@ const goBack = () => {
       </p>
 
       <div class="action-row d-flex flex-wrap ga-3 mb-5">
-        <v-btn
-          color="primary"
-          size="large"
-          rounded="xl"
-          class="text-none px-6"
-          prepend-icon="mdi-arrow-left"
-          @click="goBack"
-        >
+        <v-btn color="primary" size="large" rounded="xl" class="text-none px-6" prepend-icon="mdi-arrow-left"
+          @click="goBack">
           Go Back
         </v-btn>
-        <v-btn
-          variant="outlined"
-          color="primary"
-          size="large"
-          rounded="xl"
-          class="text-none px-6"
-          to="/"
-          prepend-icon="mdi-home-variant-outline"
-        >
+        <v-btn variant="outlined" color="primary" size="large" rounded="xl" class="text-none px-6" to="/"
+          prepend-icon="mdi-home-variant-outline">
           Go Home
         </v-btn>
       </div>
 
       <div class="quick-links d-flex flex-wrap justify-center ga-2">
-        <v-chip
-          v-for="link in quickLinks"
-          :key="link.label"
-          :to="link.to"
-          color="primary"
-          variant="tonal"
-          class="text-none"
-          :prepend-icon="link.icon"
-        >
+        <v-chip v-for="link in quickLinks" :key="link.label" :to="link.to" color="primary" variant="tonal"
+          class="text-none" :prepend-icon="link.icon">
           {{ link.label }}
         </v-chip>
       </div>

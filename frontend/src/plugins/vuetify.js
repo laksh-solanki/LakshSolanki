@@ -90,7 +90,7 @@ export default createVuetify({
           "surface-bright": "#21262d",
           "surface-light": "#30363d",
           "surface-variant": "#30363d",
-          primary: "#10a37f",
+          primary: "#4F46E5",
           "on-primary": "#ffffff",
           secondary: "#d18a1f",
           "on-secondary": "#ffffff",

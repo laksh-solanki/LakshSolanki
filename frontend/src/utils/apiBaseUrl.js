@@ -1,8 +1,3 @@
-// API base URL resolver.
-// - On localhost: uses VITE_API_URL_1 (local backend) or http://localhost:5001
-// - On deployed site: uses VITE_API_URL_2 (Cloudflare Worker) or hardcoded fallback
-// VITE_API_URL can override both environments if set.
-
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
 const DEFAULT_REMOTE_API = "https://backend.audit29122006.workers.dev";
 const DEFAULT_LOCAL_API = "http://localhost:5001";

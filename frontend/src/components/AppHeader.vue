@@ -188,7 +188,6 @@ const closeDrawer = () => {
   position: relative;
   border-radius: 100px;
   padding: 8px 22px;
-  color: rgba(var(--v-theme-on-surface), 0.75);
   font-weight: 600;
   font-size: 0.95rem;
   letter-spacing: 0.01em;
@@ -210,8 +209,8 @@ const closeDrawer = () => {
 
 .seg-active {
   color: #ffffff !important;
-  background: var(--portfolio-primary, #0f8f7c);
-  box-shadow: 0 4px 16px rgba(15, 143, 124, 0.3);
+  background: #4F46E5 !important;
+  box-shadow: 0 4px 16px #4e46e54c;
 }
 
 .seg-active:hover {
@@ -228,7 +227,7 @@ const closeDrawer = () => {
 }
 
 .github-action-btn {
-  background: linear-gradient(135deg, var(--portfolio-primary, #0f8f7c), #24a992) !important;
+  background: #4F46E5 !important;
   color: white !important;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 6px 16px rgba(15, 143, 124, 0.25) !important;
@@ -237,7 +236,7 @@ const closeDrawer = () => {
 
 .github-action-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(15, 143, 124, 0.35) !important;
+  box-shadow: 0 10px 24px #4e46e54e !important;
   filter: brightness(1.08);
 }
 

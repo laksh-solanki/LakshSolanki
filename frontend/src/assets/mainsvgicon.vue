@@ -24,12 +24,7 @@ const logoSrc = getMediaUrl("Picture/LS.svg");
 
 <template>
   <div class="logo-wrap" :class="`variant-${variant}`">
-    <img
-      :src="logoSrc"
-      alt="Laksh Solanki Logo"
-      class="logo-glyph"
-      :style="{ width: markSize, height: markSize }"
-    />
+    <img :src="logoSrc" alt="Laksh Solanki Logo" class="logo-glyph" :style="{ width: markSize, height: markSize }" />
     <span v-if="showWordmark" class="brand-name" :style="{ fontSize: wordSize }">
       Laksh <span class="accent">Solanki</span>
     </span>
@@ -57,8 +52,7 @@ const logoSrc = getMediaUrl("Picture/LS.svg");
   font-family: "Space Grotesk", "Segoe UI", sans-serif;
 }
 
-.accent {
-  color: var(--portfolio-primary) !important;
+.brand-name .accent {
+  color: #4F46E5 !important;
 }
-
 </style>

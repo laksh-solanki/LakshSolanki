@@ -320,7 +320,6 @@ onUnmounted(() => {
               <div>
                 <p class="panel-kicker mb-1">Upload PDF</p>
                 <h2 class="text-h5 font-weight-bold mb-1">Drop your file here</h2>
-                <p class="text-body-2 text-medium-emphasis mb-0">Supports a single PDF per conversion run.</p>
               </div>
             </div>
 
@@ -513,7 +512,7 @@ onUnmounted(() => {
 }
 
 .panel-kicker {
-  color: #157568;
+  color: #4F46E5 !important;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-size: 0.72rem;

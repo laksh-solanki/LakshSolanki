@@ -191,7 +191,7 @@ const premiumStackLinks = [
   ["html", "css"],
   ["css", "javascript"],
   ["javascript", "node"],
-   ["node", "vue"],
+  ["node", "vue"],
   ["vue", "vuetify"],
   ["vuetify", "fastify"],
   ["fastify", "mongodb"],
@@ -265,25 +265,10 @@ const premiumStackLines = premiumStackLinks
 
           <!-- CTAs -->
           <div class="hero-v2-ctas startup-item" style="--delay:0.46s">
-            <v-btn
-              color="primary"
-              size="large"
-              rounded="xl"
-              class="hero-v2-btn-primary text-none px-7"
-              to="/projects"
-              elevation="0"
-            >
-              <v-icon start>mdi-rocket-launch-outline</v-icon>
-              Explore Projects
-            </v-btn>
-            <v-btn
-              variant="outlined"
-              size="large"
-              rounded="xl"
-              class="hero-v2-btn-outline text-none px-7"
-              to="/about"
-              elevation="0"
-            >
+            <v-btn color="primary" size="large" rounded="xl" class="hero-v2-btn-primary text-none px-7" to="/projects"
+              prepend-icon="mdi-rocket-launch-outline" text="Explore Projects" elevation="0" />
+            <v-btn variant="outlined" size="large" color="primary" rounded="xl"
+              class="hero-v2-btn-outline text-none px-7" to="/about" elevation="0">
               <v-icon start>mdi-account-outline</v-icon>
               About Me
             </v-btn>
@@ -291,12 +276,8 @@ const premiumStackLines = premiumStackLinks
 
           <!-- Tech chips -->
           <div class="hero-v2-chips">
-            <span
-              v-for="(skill, i) in techStack"
-              :key="skill"
-              class="hero-v2-chip startup-chip"
-              :style="{ '--delay': `${0.52 + i * 0.045}s` }"
-            >{{ skill }}</span>
+            <span v-for="(skill, i) in techStack" :key="skill" class="hero-v2-chip startup-chip"
+              :style="{ '--delay': `${0.52 + i * 0.045}s` }">{{ skill }}</span>
           </div>
         </div>
 
@@ -314,12 +295,7 @@ const premiumStackLines = premiumStackLinks
           <div class="hero-v2-platform" aria-hidden="true"></div>
 
           <!-- The actual photo -->
-          <img
-            :src="myPhotoBg"
-            alt="Laksh Solanki"
-            class="hero-v2-photo"
-            draggable="false"
-          />
+          <img :src="myPhotoBg" alt="Laksh Solanki" class="hero-v2-photo" draggable="false" />
 
           <!-- Floating badges -->
           <div class="hero-v2-badge hero-v2-badge-vue">
@@ -351,16 +327,8 @@ const premiumStackLines = premiumStackLinks
     <!-- ═══ STATS SECTION ═══ -->
     <section class="mb-12 home-section">
       <v-row>
-        <v-col
-          v-for="(stat, index) in impactStats"
-          :key="stat.label"
-          cols="12"
-          sm="4"
-        >
-          <div
-            class="prem-stat-card startup-stat"
-            :style="{ '--delay': `${0.08 + index * 0.09}s` }"
-          >
+        <v-col v-for="(stat, index) in impactStats" :key="stat.label" cols="12" sm="4">
+          <div class="prem-stat-card startup-stat" :style="{ '--delay': `${0.08 + index * 0.09}s` }">
             <div class="prem-stat-glow"></div>
             <span class="prem-stat-value">{{ stat.value }}</span>
             <span class="prem-stat-label">{{ stat.label }}</span>
@@ -376,15 +344,8 @@ const premiumStackLines = premiumStackLinks
           <p class="prem-kicker">PREMIUM STACK</p>
           <h2 class="prem-section-title">What I Build</h2>
         </div>
-        <v-btn
-          to="/projects"
-          variant="outlined"
-          rounded="xl"
-          class="prem-ghost-btn text-none"
-        >
-          <v-icon start size="16">mdi-arrow-right</v-icon>
-          See all projects
-        </v-btn>
+        <v-btn to="/projects" variant="outlined" rounded="xl" color="primary" text="See All Projects"
+          append-icon="mdi-arrow-right" />
       </div>
 
       <div class="prem-panel startup-flow-card">
@@ -392,41 +353,22 @@ const premiumStackLines = premiumStackLinks
         <div class="prem-panel-glow prem-panel-glow-br"></div>
 
         <div class="prem-panel-header">
-          <v-chip size="small" class="prem-year-chip">2026 Stack</v-chip>
+          <v-chip size="small" class="prem-year-chip" color="primary" variant="outlined">2026 Stack</v-chip>
         </div>
 
         <div class="premium-stack-map" aria-label="Premium stack graph">
-          <svg
-            class="premium-stack-lines"
-            viewBox="0 0 980 500"
-            preserveAspectRatio="xMidYMid meet"
-            aria-hidden="true"
-          >
-            <line
-              v-for="(line, index) in premiumStackLines"
-              :key="line.key"
-              :x1="line.x1"
-              :y1="line.y1"
-              :x2="line.x2"
-              :y2="line.y2"
-              class="premium-connector"
-              :style="{ '--d': `${0.08 + index * 0.04}s` }"
-            />
+          <svg class="premium-stack-lines" viewBox="0 0 980 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <line v-for="(line, index) in premiumStackLines" :key="line.key" :x1="line.x1" :y1="line.y1" :x2="line.x2"
+              :y2="line.y2" class="premium-connector" :style="{ '--d': `${0.08 + index * 0.04}s` }" />
           </svg>
 
-          <div
-            v-for="(node, index) in premiumStackNodes"
-            :key="node.id"
-            class="premium-node"
-            tabindex="0"
-            :aria-label="node.label"
-            :style="{
+          <div v-for="(node, index) in premiumStackNodes" :key="node.id" class="premium-node" tabindex="0"
+            :aria-label="node.label" :style="{
               left: `${(node.x / 980) * 100}%`,
               top: `${(node.y / 500) * 100}%`,
               '--ring': node.ring,
               '--d': `${0.2 + index * 0.04}s`,
-            }"
-          >
+            }">
             <v-icon v-if="node.icon" class="premium-node-core" :icon="node.icon" />
             <span v-else class="premium-node-core">{{ node.short }}</span>
             <span class="premium-node-check">✓</span>
@@ -435,12 +377,8 @@ const premiumStackLines = premiumStackLinks
         </div>
 
         <div class="premium-stack-mobile" aria-label="Premium stack list">
-          <div
-            v-for="(node, index) in premiumStackNodes"
-            :key="`${node.id}-mobile`"
-            class="premium-mobile-item"
-            :style="{ '--d': `${0.12 + index * 0.03}s` }"
-          >
+          <div v-for="(node, index) in premiumStackNodes" :key="`${node.id}-mobile`" class="premium-mobile-item"
+            :style="{ '--d': `${0.12 + index * 0.03}s` }">
             <span class="premium-mobile-dot" :style="{ '--ring': node.ring }"></span>
             <v-icon v-if="node.icon" class="premium-mobile-icon" :icon="node.icon" size="16" />
             <span class="premium-mobile-label">{{ node.label }}</span>
@@ -470,25 +408,17 @@ const premiumStackLines = premiumStackLinks
               focused on real outcomes.
             </p>
             <div class="d-flex flex-wrap ga-2">
-              <span
-                v-for="(item, index) in deliveryFocus"
-                :key="item"
-                class="delivery-chip"
-                :style="{ '--delay': `${0.2 + index * 0.05}s` }"
-              >
-                <v-icon size="12" class="mr-1">mdi-check-circle-outline</v-icon>
+              <span v-for="(item, index) in deliveryFocus" :key="item" class="delivery-chip"
+                :style="{ '--delay': `${0.2 + index * 0.05}s` }">
+                <v-icon size="12" class="mr-1" color="primary">mdi-check-circle-outline</v-icon>
                 {{ item }}
               </span>
             </div>
           </v-col>
           <v-col cols="12" md="7" class="mt-8 mt-md-0">
             <div class="collab-list">
-              <article
-                v-for="(item, index) in collaborationSteps"
-                :key="item.step"
-                class="collab-item"
-                :style="{ '--delay': `${0.24 + index * 0.07}s` }"
-              >
+              <article v-for="(item, index) in collaborationSteps" :key="item.step" class="collab-item"
+                :style="{ '--delay': `${0.24 + index * 0.07}s` }">
                 <span class="collab-step">{{ item.step }}</span>
                 <div>
                   <h4 class="collab-title mb-1">{{ item.title }}</h4>
@@ -511,16 +441,8 @@ const premiumStackLines = premiumStackLinks
       </div>
 
       <v-row class="mb-6">
-        <v-col
-          v-for="(pillar, index) in valuePillars"
-          :key="pillar.title"
-          cols="12"
-          md="4"
-        >
-          <div
-            class="prem-pillar-card startup-project"
-            :style="{ '--delay': `${0.14 + index * 0.09}s` }"
-          >
+        <v-col v-for="(pillar, index) in valuePillars" :key="pillar.title" cols="12" md="4">
+          <div class="prem-pillar-card startup-project" :style="{ '--delay': `${0.14 + index * 0.09}s` }">
             <div class="prem-pillar-icon-wrap">
               <v-icon :icon="pillar.icon" size="22" class="prem-pillar-icon"></v-icon>
             </div>
@@ -538,24 +460,12 @@ const premiumStackLines = premiumStackLinks
           <p class="prem-cta-sub">Explore projects or review my profile to see how I build and deliver.</p>
         </div>
         <div class="prem-cta-actions">
-          <v-btn
-            to="/projects"
-            rounded="xl"
-            size="large"
-            class="prem-cta-btn-primary text-none px-7"
-            elevation="0"
-          >
+          <v-btn to="/projects" rounded="xl" size="large" class="prem-cta-btn-primary text-none px-7" elevation="0">
             <v-icon start>mdi-rocket-launch-outline</v-icon>
             Browse Projects
           </v-btn>
-          <v-btn
-            to="/about"
-            variant="outlined"
-            rounded="xl"
-            size="large"
-            class="prem-cta-btn-outline text-none px-7"
-            elevation="0"
-          >
+          <v-btn to="/about" variant="outlined" color="primary" rounded="xl" size="large" class="prem-cta-btn-outline "
+            elevation="0">
             <v-icon start>mdi-account-outline</v-icon>
             About Me
           </v-btn>
@@ -602,8 +512,8 @@ const premiumStackLines = premiumStackLinks
   position: absolute;
   inset: 0;
   background-image:
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.022) 0px, rgba(255,255,255,0.022) 1px, transparent 1px, transparent 64px),
-    repeating-linear-gradient(90deg, rgba(255,255,255,0.022) 0px, rgba(255,255,255,0.022) 1px, transparent 1px, transparent 64px);
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.022) 0px, rgba(255, 255, 255, 0.022) 1px, transparent 1px, transparent 64px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.022) 0px, rgba(255, 255, 255, 0.022) 1px, transparent 1px, transparent 64px);
   pointer-events: none;
 }
 
@@ -621,21 +531,30 @@ const premiumStackLines = premiumStackLinks
   pointer-events: none;
   animation: hero2-blob-drift 12s ease-in-out infinite alternate;
 }
+
 .hero-v2-blob-1 {
-  width: 520px; height: 520px;
-  top: -140px; left: -100px;
+  width: 520px;
+  height: 520px;
+  top: -140px;
+  left: -100px;
   background: radial-gradient(circle, rgba(122, 65, 255, 0.28) 0%, transparent 70%);
   animation-delay: 0s;
 }
+
 .hero-v2-blob-2 {
-  width: 420px; height: 420px;
-  bottom: -120px; right: 5%;
+  width: 420px;
+  height: 420px;
+  bottom: -120px;
+  right: 5%;
   background: radial-gradient(circle, rgba(22, 200, 170, 0.22) 0%, transparent 70%);
   animation-delay: -4s;
 }
+
 .hero-v2-blob-3 {
-  width: 340px; height: 340px;
-  top: 30%; right: 28%;
+  width: 340px;
+  height: 340px;
+  top: 30%;
+  right: 28%;
   background: radial-gradient(circle, rgba(247, 99, 132, 0.14) 0%, transparent 70%);
   animation-delay: -8s;
 }
@@ -672,8 +591,10 @@ const premiumStackLines = premiumStackLinks
   color: #39bca3;
   margin-bottom: 1.4rem;
 }
+
 .hero-v2-eyebrow-dot {
-  width: 8px; height: 8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #39bca3;
   box-shadow: 0 0 8px 2px rgba(57, 188, 163, 0.7);
@@ -689,27 +610,37 @@ const premiumStackLines = premiumStackLinks
   color: #ffffff;
   margin: 0 0 0.6rem;
 }
+
 .hero-v2-name-grad {
   background: linear-gradient(92deg, #39bca3 0%, #0f8f7c 48%, #60a5fa 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
 .hero-v2-title-line2 {
-  color: rgba(255,255,255,0.88);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .hero-v2-role {
   font-size: clamp(1.05rem, 1.6vw, 1.3rem);
   font-weight: 600;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 1.5rem;
   min-height: 2rem;
   display: flex;
   align-items: center;
 }
-.hero-v2-role-prefix { color: #39bca3; margin-right: 0.25rem; }
-.hero-v2-typed { color: #e2e8f0; }
+
+.hero-v2-role-prefix {
+  color: #39bca3;
+  margin-right: 0.25rem;
+}
+
+.hero-v2-typed {
+  color: #e2e8f0;
+}
+
 .hero-v2-cursor {
   color: #39bca3;
   font-weight: 300;
@@ -719,7 +650,7 @@ const premiumStackLines = premiumStackLinks
 .hero-v2-desc {
   font-size: 1.05rem;
   line-height: 1.72;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255, 255, 255, 0.55);
   max-width: 46ch;
   margin-bottom: 2rem;
 }
@@ -731,37 +662,41 @@ const premiumStackLines = premiumStackLinks
   gap: 0.9rem;
   margin-bottom: 2rem;
 }
+
 .hero-v2-stat-pill {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 0.55rem 1.1rem;
   border-radius: 14px;
-  background: rgba(255,255,255,0.055);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
   min-width: 80px;
   transition: background 0.22s, border-color 0.22s;
 }
+
 .hero-v2-stat-pill:hover {
-  background: rgba(15,143,124,0.12);
-  border-color: rgba(15,143,124,0.35);
+  background: #4e46e521 !important;
+  border-color: #4e46e5c0 !important;
 }
+
 .hero-v2-stat-value {
   font-size: 1.45rem;
   font-weight: 800;
   color: #ffffff;
   line-height: 1;
-  background: linear-gradient(135deg, #39bca3, #0f8f7c);
+  background: #4F46E5;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
 .hero-v2-stat-label {
   font-size: 0.67rem;
   font-weight: 600;
   letter-spacing: 0.06em;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.45);
   text-transform: uppercase;
   margin-top: 2px;
   text-align: center;
@@ -774,22 +709,23 @@ const premiumStackLines = premiumStackLinks
   gap: 0.9rem;
   margin-bottom: 2rem;
 }
+
 .hero-v2-btn-primary {
-  background: linear-gradient(108deg, #0b6f60, #0f8f7c) !important;
-  color: #fff !important;
-  box-shadow: 0 8px 28px rgba(15,143,124,0.48) !important;
   transition: box-shadow 0.22s, transform 0.18s !important;
 }
+
 .hero-v2-btn-primary:hover {
-  box-shadow: 0 12px 36px rgba(15,143,124,0.65) !important;
+  box-shadow: 0 12px 36px #4e46e561 !important;
   transform: translateY(-2px);
 }
+
 .hero-v2-btn-outline {
-  border-color: rgba(15,143,124,0.5) !important;
-  color: #39bca3 !important;
+  border: 1px solid #4e46e5 !important;
+  color: #fff !important;
 }
+
 .hero-v2-btn-outline:hover {
-  background: rgba(15,143,124,0.1) !important;
+  background: #4e46e574 !important;
 }
 
 /* Tech chips */
@@ -798,21 +734,23 @@ const premiumStackLines = premiumStackLinks
   flex-wrap: wrap;
   gap: 0.45rem;
 }
+
 .hero-v2-chip {
   font-size: 0.72rem;
   font-weight: 700;
   padding: 0.3rem 0.72rem;
   border-radius: 999px;
-  background: rgba(15,143,124,0.1);
-  border: 1px solid rgba(15,143,124,0.24);
+  background: rgba(15, 143, 124, 0.1);
+  border: 1px solid rgba(15, 143, 124, 0.24);
   color: #39bca3;
   letter-spacing: 0.03em;
   cursor: default;
   transition: background 0.18s, border-color 0.18s;
 }
+
 .hero-v2-chip:hover {
-  background: rgba(15,143,124,0.2);
-  border-color: rgba(15,143,124,0.48);
+  background: rgba(15, 143, 124, 0.2);
+  border-color: rgba(15, 143, 124, 0.48);
 }
 
 /* ── Photo side ── */
@@ -827,15 +765,33 @@ const premiumStackLines = premiumStackLinks
 .hero-v2-ring {
   position: absolute;
   border-radius: 50%;
-  border: 1px solid rgba(15,143,124,0.14);
-  top: 50%; left: 50%;
+  border: 1px solid rgba(15, 143, 124, 0.14);
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -48%);
   pointer-events: none;
   animation: ring-spin 24s linear infinite;
 }
-.hero-v2-ring-1 { width: 420px; height: 420px; }
-.hero-v2-ring-2 { width: 540px; height: 540px; border-color: rgba(15,143,124,0.08); animation-duration: 36s; animation-direction: reverse; }
-.hero-v2-ring-3 { width: 660px; height: 660px; border-color: rgba(57,188,163,0.06); animation-duration: 52s; }
+
+.hero-v2-ring-1 {
+  width: 420px;
+  height: 420px;
+}
+
+.hero-v2-ring-2 {
+  width: 540px;
+  height: 540px;
+  border-color: rgba(15, 143, 124, 0.08);
+  animation-duration: 36s;
+  animation-direction: reverse;
+}
+
+.hero-v2-ring-3 {
+  width: 660px;
+  height: 660px;
+  border-color: rgba(57, 188, 163, 0.06);
+  animation-duration: 52s;
+}
 
 .hero-v2-photo-glow {
   position: absolute;
@@ -845,7 +801,7 @@ const premiumStackLines = premiumStackLinks
   width: 340px;
   height: 340px;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 100%, rgba(15,143,124,0.55) 0%, rgba(11,111,96,0.25) 38%, transparent 68%);
+  background: radial-gradient(circle at 50% 100%, #4F46E5 0%, #4e46e549 38%, transparent 68%);
   filter: blur(28px);
   pointer-events: none;
 }
@@ -858,7 +814,7 @@ const premiumStackLines = premiumStackLinks
   width: 240px;
   height: 24px;
   border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(15,143,124,0.6) 0%, transparent 72%);
+  background: radial-gradient(ellipse, #4F46E5 0%, transparent 72%);
   filter: blur(10px);
   pointer-events: none;
 }
@@ -870,7 +826,7 @@ const premiumStackLines = premiumStackLinks
   max-height: 92%;
   object-fit: contain;
   object-position: bottom;
-  filter: drop-shadow(0 24px 64px rgba(15,143,124,0.42)) drop-shadow(0 4px 16px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 60px 80px #4F46E5) drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
   animation: photo-float 6s ease-in-out infinite;
   user-select: none;
 }
@@ -887,16 +843,36 @@ const premiumStackLines = premiumStackLinks
   font-size: 0.78rem;
   font-weight: 700;
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.14);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(15, 10, 40, 0.72);
   color: #e2e8f0;
   white-space: nowrap;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
 }
-.hero-v2-badge-vue   { top: 18%; left: -2%; animation: badge-float 5s ease-in-out infinite; }
-.hero-v2-badge-node  { top: 38%; right: -4%; animation: badge-float 5.8s ease-in-out -1.5s infinite; }
-.hero-v2-badge-exp   { bottom: 30%; left: 2%; animation: badge-float 4.6s ease-in-out -2.8s infinite; }
-.hero-v2-badge-location { top: 8%; right: 6%; animation: badge-float 6.2s ease-in-out -0.8s infinite; }
+
+.hero-v2-badge-vue {
+  top: 18%;
+  left: -2%;
+  animation: badge-float 5s ease-in-out infinite;
+}
+
+.hero-v2-badge-node {
+  top: 38%;
+  right: -4%;
+  animation: badge-float 5.8s ease-in-out -1.5s infinite;
+}
+
+.hero-v2-badge-exp {
+  bottom: 30%;
+  left: 2%;
+  animation: badge-float 4.6s ease-in-out -2.8s infinite;
+}
+
+.hero-v2-badge-location {
+  top: 8%;
+  right: 6%;
+  animation: badge-float 6.2s ease-in-out -0.8s infinite;
+}
 
 /* Scroll cue */
 .hero-v2-scroll-cue {
@@ -911,18 +887,20 @@ const premiumStackLines = premiumStackLinks
   z-index: 2;
   animation: fade-up-cue 1s ease 1.6s both;
 }
+
 .hero-v2-scroll-line {
   width: 1.5px;
   height: 36px;
-  background: linear-gradient(to bottom, rgba(15,143,124,0.7), transparent);
+  background: linear-gradient(to bottom, rgba(15, 143, 124, 0.7), transparent);
   animation: scroll-line-pulse 2.4s ease-in-out infinite;
 }
+
 .hero-v2-scroll-label {
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(15,143,124,0.6);
+  color: rgba(15, 143, 124, 0.6);
 }
 
 .profile-fact,
@@ -930,7 +908,6 @@ const premiumStackLines = premiumStackLinks
 .startup-heading,
 .startup-stat,
 .startup-project,
-.startup-flow-card,
 .startup-chip {
   opacity: 0;
   animation-fill-mode: both;
@@ -962,36 +939,98 @@ const premiumStackLines = premiumStackLinks
 
 /* Hero V2 animations (new photo hero) */
 @keyframes hero2-blob-drift {
-  from { transform: translate(0,0) scale(1); }
-  to   { transform: translate(24px, 18px) scale(1.06); }
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+
+  to {
+    transform: translate(24px, 18px) scale(1.06);
+  }
 }
+
 @keyframes blink-cursor {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
 }
+
 @keyframes pulse-dot {
-  0%,100% { box-shadow: 0 0 8px 2px rgba(57,188,163,0.7); }
-  50%     { box-shadow: 0 0 14px 5px rgba(57,188,163,0.35); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 8px 2px rgba(57, 188, 163, 0.7);
+  }
+
+  50% {
+    box-shadow: 0 0 14px 5px rgba(57, 188, 163, 0.35);
+  }
 }
+
 @keyframes ring-spin {
-  from { transform: translate(-50%, -48%) rotate(0deg); }
-  to   { transform: translate(-50%, -48%) rotate(360deg); }
+  from {
+    transform: translate(-50%, -48%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -48%) rotate(360deg);
+  }
 }
+
 @keyframes photo-float {
-  0%,100% { transform: translateY(0); }
-  50%     { transform: translateY(-14px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-14px);
+  }
 }
+
 @keyframes badge-float {
-  0%,100% { transform: translateY(0); }
-  50%     { transform: translateY(-7px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-7px);
+  }
 }
+
 @keyframes fade-up-cue {
-  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
+
 @keyframes scroll-line-pulse {
-  0%,100% { opacity: 0.5; transform: scaleY(1); transform-origin: top; }
-  50%     { opacity: 1;   transform: scaleY(1.18); }
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleY(1.18);
+  }
 }
 
 .startup-flow-card {
@@ -1004,39 +1043,43 @@ const premiumStackLines = premiumStackLinks
 .prem-stat-card {
   position: relative;
   overflow: hidden;
-  background: rgba(255,255,255,0.85);
-  border: 1px solid rgba(15,143,124,0.18);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid #4e46e5;
   border-radius: 20px;
   padding: 2rem 1.8rem;
   text-align: center;
   backdrop-filter: blur(14px);
   transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
-  box-shadow: 0 10px 30px rgba(15,143,124,0.06);
+  box-shadow: 0 10px 30px rgba(15, 143, 124, 0.06);
 }
+
 .prem-stat-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(15,143,124,0.12);
-  border-color: rgba(15,143,124,0.35);
+  box-shadow: 0 16px 40px rgba(15, 143, 124, 0.12);
+  border-color: rgba(15, 143, 124, 0.35);
 }
+
 .prem-stat-glow {
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  background: radial-gradient(ellipse at 50% 0%, rgba(15,143,124,0.12) 0%, transparent 65%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(15, 143, 124, 0.12) 0%, transparent 65%);
   pointer-events: none;
 }
+
 .prem-stat-value {
   display: block;
   font-size: clamp(2.4rem, 4vw, 3.2rem);
   font-weight: 900;
   letter-spacing: -0.03em;
-  background: linear-gradient(135deg, #0b6f60 0%, #0f8f7c 50%, #39bca3 100%);
+  background: #4F46E5;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   line-height: 1;
   margin-bottom: 0.5rem;
 }
+
 .prem-stat-label {
   display: block;
   font-size: 0.82rem;
@@ -1057,32 +1100,25 @@ const premiumStackLines = premiumStackLinks
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
+
 .prem-kicker {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #39bca3;
+  color: #4F46E5;
   margin-bottom: 0.35rem;
 }
+
 .prem-section-title {
   font-size: clamp(1.6rem, 2.8vw, 2.2rem);
   font-weight: 800;
   letter-spacing: -0.03em;
-  background: linear-gradient(110deg, #0e201d 0%, #0b6f60 55%, #0f8f7c 100%);
+  background: linear-gradient(110deg, #4e46e583 0%, #4e46e5c5 55%, #4F46E5 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin: 0;
-}
-.prem-ghost-btn {
-  border-color: rgba(15,143,124,0.28) !important;
-  color: #0f8f7c !important;
-  transition: background 0.2s, border-color 0.2s !important;
-}
-.prem-ghost-btn:hover {
-  background: rgba(15,143,124,0.06) !important;
-  border-color: rgba(15,143,124,0.5) !important;
 }
 
 /* ═══════════════════════════════════════════════
@@ -1092,20 +1128,22 @@ const premiumStackLines = premiumStackLinks
   position: relative;
   overflow: hidden;
   border-radius: 24px;
-  border: 1px solid rgba(15,143,124,0.15);
+  border: 1px solid rgba(15, 143, 124, 0.15);
   background:
-    radial-gradient(ellipse at 8% 12%, rgba(15,143,124,0.05) 0%, transparent 48%),
-    radial-gradient(ellipse at 90% 88%, rgba(57,188,163,0.04) 0%, transparent 44%),
-    linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(244,249,247,0.85) 55%, rgba(237,245,242,0.85) 100%);
+    radial-gradient(ellipse at 8% 12%, rgba(15, 143, 124, 0.05) 0%, transparent 48%),
+    radial-gradient(ellipse at 90% 88%, rgba(57, 188, 163, 0.04) 0%, transparent 44%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(244, 249, 247, 0.85) 55%, rgba(237, 245, 242, 0.85) 100%);
   backdrop-filter: blur(14px);
   padding: 2rem 2rem;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.06);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
+
 .prem-panel:hover {
-  box-shadow: 0 24px 56px rgba(0,0,0,0.09), 0 0 0 1px rgba(15,143,124,0.22);
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.09), 0 0 0 1px rgba(15, 143, 124, 0.22);
   transform: translateY(-2px);
 }
+
 .prem-panel-glow {
   position: absolute;
   width: 300px;
@@ -1115,35 +1153,37 @@ const premiumStackLines = premiumStackLinks
   filter: blur(70px);
   opacity: 0.6;
 }
+
 .prem-panel-glow-tl {
   top: -120px;
   left: -80px;
-  background: radial-gradient(circle, rgba(15,143,124,0.25) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(15, 143, 124, 0.25) 0%, transparent 70%);
 }
+
 .prem-panel-glow-br {
   bottom: -100px;
   right: -60px;
-  background: radial-gradient(circle, rgba(57,188,163,0.25) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(57, 188, 163, 0.25) 0%, transparent 70%);
 }
+
 .prem-panel-header {
   margin-bottom: 1.2rem;
 }
+
 .prem-year-chip {
   font-size: 0.7rem !important;
   font-weight: 700 !important;
   letter-spacing: 0.06em !important;
-  background: rgba(15,143,124,0.08) !important;
-  border: 1px solid rgba(15,143,124,0.22) !important;
-  color: #0f8f7c !important;
   backdrop-filter: blur(8px);
 }
 
 /* Deliver panel extras */
 .prem-deliver-panel .prem-panel-glow-tl {
-  background: radial-gradient(circle, rgba(15,143,124,0.2) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(15, 143, 124, 0.2) 0%, transparent 70%);
 }
+
 .prem-deliver-panel .prem-panel-glow-br {
-  background: radial-gradient(circle, rgba(96,165,250,0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.15) 0%, transparent 70%);
 }
 
 /* ─── Sub-title & muted ─── */
@@ -1155,6 +1195,7 @@ const premiumStackLines = premiumStackLinks
   max-width: 26ch;
   line-height: 1.4;
 }
+
 .prem-muted {
   font-size: 0.95rem;
   line-height: 1.7;
@@ -1169,17 +1210,13 @@ const premiumStackLines = premiumStackLinks
   border-radius: 999px;
   font-size: 0.78rem;
   font-weight: 600;
-  background: rgba(15,143,124,0.06);
-  border: 1px solid rgba(15,143,124,0.18);
-  color: #0f8f7c;
+  background: #4e46e531;
+  border: 1px solid #4e46e5c4;
+  color: #4F46E5;
   opacity: 0;
   animation: chip-in 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--delay, 0s);
   transition: background 0.2s, border-color 0.2s;
-}
-.delivery-chip:hover {
-  background: rgba(15,143,124,0.12);
-  border-color: rgba(15,143,124,0.3);
 }
 
 /* ─── Collab steps ─── */
@@ -1187,6 +1224,7 @@ const premiumStackLines = premiumStackLinks
   display: grid;
   gap: 0.9rem;
 }
+
 .collab-item {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -1194,18 +1232,20 @@ const premiumStackLines = premiumStackLinks
   gap: 1rem;
   padding: 1rem 1.2rem;
   border-radius: 16px;
-  border: 1px solid rgba(15,143,124,0.12);
-  background: rgba(255,255,255,0.6);
+  border: 1px solid #4e46e569;
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(8px);
   opacity: 0;
   animation: startup-scale 0.62s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--delay, 0s);
   transition: border-color 0.22s, background 0.22s;
 }
+
 .collab-item:hover {
-  border-color: rgba(15,143,124,0.28);
-  background: rgba(15,143,124,0.04);
+  border-color: #4F46E5;
+  background: #4e46e530;
 }
+
 .collab-step {
   min-width: 2.2rem;
   height: 2.2rem;
@@ -1216,9 +1256,10 @@ const premiumStackLines = premiumStackLinks
   font-size: 0.72rem;
   font-weight: 800;
   color: #ffffff;
-  background: linear-gradient(135deg, #0f8f7c, #0b6f60);
+  background: #4F46E5;
   flex-shrink: 0;
 }
+
 .collab-title {
   font-size: 0.98rem;
   font-weight: 700;
@@ -1232,41 +1273,42 @@ const premiumStackLines = premiumStackLinks
   position: relative;
   overflow: hidden;
   border-radius: 20px;
-  border: 1px solid rgba(15,143,124,0.2);
-  background:
-    radial-gradient(ellipse at 10% 0%, rgba(15,143,124,0.14) 0%, transparent 55%),
-    linear-gradient(150deg, #071812 0%, #080e18 100%);
+  border: 1px solid #4e46e54b;
   padding: 1.8rem 1.6rem;
   height: 100%;
   transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
 }
+
 .prem-pillar-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 22px 54px rgba(15,143,124,0.2);
-  border-color: rgba(15,143,124,0.42);
+  box-shadow: 0 22px 54px #4e46e51d;
+  border-color: #4F46E5;
 }
+
 .prem-pillar-icon-wrap {
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: rgba(15,143,124,0.12);
-  border: 1px solid rgba(15,143,124,0.26);
+  background: #4e46e54e;
+  border: 1px solid rgba(15, 143, 124, 0.26);
   display: grid;
   place-items: center;
   margin-bottom: 1.2rem;
   transition: background 0.22s, border-color 0.22s;
 }
-.prem-pillar-card:hover .prem-pillar-icon-wrap {
-  background: rgba(15,143,124,0.22);
-  border-color: rgba(15,143,124,0.5);
+
+.prem-pillar-card:hover {
+  background: #4e46e53e;
+  border-color: #4F46E5;
 }
+
 .prem-pillar-icon {
-  color: #39bca3 !important;
+  color: #4F46E5 !important;
 }
+
 .prem-pillar-title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #ffffff;
   margin-bottom: 0.6rem;
   letter-spacing: -0.01em;
 }
@@ -1278,19 +1320,16 @@ const premiumStackLines = premiumStackLinks
   position: relative;
   overflow: hidden;
   border-radius: 24px;
-  border: 1px solid rgba(15,143,124,0.22);
-  background:
-    radial-gradient(ellipse at 0% 50%, rgba(15,143,124,0.1) 0%, transparent 52%),
-    radial-gradient(ellipse at 100% 50%, rgba(57,188,163,0.08) 0%, transparent 52%),
-    linear-gradient(120deg, #ffffff 0%, #f4f9f7 60%, #edf5f2 100%);
+  border: 1px solid #4e46e5bc;
   padding: 2.2rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1.8rem;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.06);
+  box-shadow: 0 16px 40px #4e46e513;
 }
+
 .prem-cta-glow {
   position: absolute;
   top: -80px;
@@ -1298,14 +1337,16 @@ const premiumStackLines = premiumStackLinks
   width: 340px;
   height: 340px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(15,143,124,0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, #4e46e522 0%, transparent 70%);
   filter: blur(64px);
   pointer-events: none;
 }
+
 .prem-cta-content {
   flex: 1;
   min-width: 240px;
 }
+
 .prem-cta-title {
   font-size: clamp(1.25rem, 2.5vw, 1.7rem);
   font-weight: 800;
@@ -1313,12 +1354,14 @@ const premiumStackLines = premiumStackLinks
   letter-spacing: -0.03em;
   margin-bottom: 0.5rem;
 }
+
 .prem-cta-sub {
   font-size: 0.95rem;
   color: #5e706a;
   line-height: 1.65;
   margin: 0;
 }
+
 .prem-cta-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1326,23 +1369,26 @@ const premiumStackLines = premiumStackLinks
   align-items: center;
   flex-shrink: 0;
 }
+
 .prem-cta-btn-primary {
-  background: linear-gradient(108deg, #0b6f60, #0f8f7c) !important;
+  background: #4F46E5 !important;
   color: #fff !important;
-  box-shadow: 0 8px 28px rgba(15,143,124,0.45) !important;
+  box-shadow: 0 8px 28px #4F46E541 !important;
   transition: box-shadow 0.22s, transform 0.18s !important;
 }
+
 .prem-cta-btn-primary:hover {
-  box-shadow: 0 12px 36px rgba(15,143,124,0.62) !important;
+  box-shadow: 0 12px 36px #4e46e579 !important;
   transform: translateY(-2px);
 }
+
 .prem-cta-btn-outline {
-  border-color: rgba(15,143,124,0.48) !important;
-  color: #39bca3 !important;
+  border-color: #4F46E5 !important;
   transition: background 0.2s !important;
 }
+
 .prem-cta-btn-outline:hover {
-  background: rgba(15,143,124,0.1) !important;
+  background: #4e46e526 !important;
 }
 
 .premium-stack-map {
@@ -1494,8 +1540,15 @@ const premiumStackLines = premiumStackLinks
 }
 
 @keyframes rise-in {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes startup-rise {
@@ -1588,24 +1641,65 @@ const premiumStackLines = premiumStackLinks
 
 /* Hero blob/orbit animations no longer used but kept for compatibility */
 @keyframes hero-blob-enter {
-  from { opacity: 0; transform: translate3d(-24px,-18px,0) scale(0.9); }
-  to   { opacity: 1; transform: translate3d(0,0,0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translate3d(-24px, -18px, 0) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
 }
+
 @keyframes orbit-settle-one {
-  from { opacity: 0; transform: scale(0.82) rotate(-18deg); }
-  to   { opacity: 1; transform: scale(1) rotate(0deg); }
+  from {
+    opacity: 0;
+    transform: scale(0.82) rotate(-18deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
 }
+
 @keyframes orbit-settle-two {
-  from { opacity: 0; transform: scale(0.84) rotate(20deg); }
-  to   { opacity: 1; transform: scale(1) rotate(0deg); }
+  from {
+    opacity: 0;
+    transform: scale(0.84) rotate(20deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
 }
+
 @keyframes dot-enter {
-  from { opacity: 0; box-shadow: 0 0 0 0 rgba(19,111,99,0); transform: scale(0.5); }
-  to   { opacity: 1; box-shadow: 0 0 0 6px rgba(19,111,99,0.13); transform: scale(1); }
+  from {
+    opacity: 0;
+    box-shadow: 0 0 0 0 rgba(19, 111, 99, 0);
+    transform: scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    box-shadow: 0 0 0 6px rgba(19, 111, 99, 0.13);
+    transform: scale(1);
+  }
 }
+
 @keyframes halo-enter {
-  from { opacity: 0; transform: scale(0.82); }
-  to   { opacity: 0.92; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+
+  to {
+    opacity: 0.92;
+    transform: scale(1);
+  }
 }
 
 @keyframes premium-node-in {
@@ -1643,6 +1737,7 @@ const premiumStackLines = premiumStackLinks
 }
 
 @keyframes luxe-orb-float {
+
   0%,
   100% {
     transform: translate3d(0, 0, 0);
@@ -1672,61 +1767,123 @@ const premiumStackLines = premiumStackLinks
     gap: 2rem;
     text-align: center;
   }
+
   .hero-v2-copy {
     align-items: center;
   }
-  .hero-v2-desc { max-width: none; }
-  .hero-v2-eyebrow { justify-content: center; }
-  .hero-v2-ctas { justify-content: center; }
-  .hero-v2-chips { justify-content: center; }
-  .hero-v2-stats { justify-content: center; }
+
+  .hero-v2-desc {
+    max-width: none;
+  }
+
+  .hero-v2-eyebrow {
+    justify-content: center;
+  }
+
+  .hero-v2-ctas {
+    justify-content: center;
+  }
+
+  .hero-v2-chips {
+    justify-content: center;
+  }
+
+  .hero-v2-stats {
+    justify-content: center;
+  }
+
   .hero-v2-photo-wrap {
     min-height: 340px;
     order: -1;
   }
-  .hero-v2-photo { width: clamp(200px, 60vw, 320px); }
-  .hero-v2-ring-2, .hero-v2-ring-3 { display: none; }
-  .hero-v2-ring-1 { width: 300px; height: 300px; }
-  .hero-v2-badge-vue   { top: 10%; left: 4%; }
-  .hero-v2-badge-node  { top: 10%; right: 4%; }
-  .hero-v2-badge-exp   { bottom: 16%; left: 2%; }
-  .hero-v2-badge-location { display: none; }
+
+  .hero-v2-photo {
+    width: clamp(200px, 60vw, 320px);
+  }
+
+  .hero-v2-ring-2,
+  .hero-v2-ring-3 {
+    display: none;
+  }
+
+  .hero-v2-ring-1 {
+    width: 300px;
+    height: 300px;
+  }
+
+  .hero-v2-badge-vue {
+    top: 10%;
+    left: 4%;
+  }
+
+  .hero-v2-badge-node {
+    top: 10%;
+    right: 4%;
+  }
+
+  .hero-v2-badge-exp {
+    bottom: 16%;
+    left: 2%;
+  }
+
+  .hero-v2-badge-location {
+    display: none;
+  }
 }
 
 @media (max-width: 600px) {
-  .hero-v2 { min-height: auto; }
-  .hero-v2-scroll-cue { display: none; }
-  .hero-v2-badge { font-size: 0.68rem; padding: 0.32rem 0.6rem; }
-  .luxe-flow-card { padding: 1.15rem !important; }
+  .hero-v2 {
+    min-height: auto;
+  }
+
+  .hero-v2-scroll-cue {
+    display: none;
+  }
+
+  .hero-v2-badge {
+    font-size: 0.68rem;
+    padding: 0.32rem 0.6rem;
+  }
+
+  .luxe-flow-card {
+    padding: 1.15rem !important;
+  }
 
   /* Premium panels responsive */
   .prem-stat-card {
     padding: 1.5rem 1.2rem;
   }
+
   .prem-panel {
     padding: 1.5rem 1.25rem;
   }
+
   .collab-item {
     gap: 0.75rem;
     padding: 0.8rem 1rem;
   }
+
   .prem-cta-banner {
     padding: 1.5rem 1.25rem;
     flex-direction: column;
     text-align: center;
     gap: 1.25rem;
   }
+
   .prem-cta-actions {
     justify-content: center;
     width: 100%;
   }
-  .prem-cta-btn-primary, .prem-cta-btn-outline {
+
+  .prem-cta-btn-primary,
+  .prem-cta-btn-outline {
     width: 100%;
     margin-bottom: 0.5rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .hero-v2-blob,
   .hero-v2-photo,
   .hero-v2-ring,
@@ -1748,6 +1905,11 @@ const premiumStackLines = premiumStackLinks
     animation: none;
     opacity: 1;
   }
-  .luxe-flow-card, .premium-node, .stat-card { transition: none; }
+
+  .luxe-flow-card,
+  .premium-node,
+  .stat-card {
+    transition: none;
+  }
 }
 </style>

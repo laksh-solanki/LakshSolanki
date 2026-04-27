@@ -43,16 +43,13 @@ defineExpose({ start, finish });
   top: 0;
   left: 0;
   width: 100%;
-  height: 3px;
+  height: 2px;
   z-index: 9999;
 }
 
 .loader-bar {
   height: 100%;
-  background: linear-gradient(90deg, #0f8f7c, #31bca4);
+  background: linear-gradient(90deg, #4F46E5, #4e46e590);
   transition: width 0.3s ease;
-  box-shadow:
-    0 0 10px rgba(15, 143, 124, 0.35),
-    0 0 20px rgba(15, 143, 124, 0.22);
 }
 </style>

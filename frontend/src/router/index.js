@@ -51,10 +51,6 @@ const routes = [
         meta: { title: "LakshSolanki | mindlytic AI" },
       },
       {
-        path: "mindly_ai",
-        redirect: "/projects/mindlytic_ai",
-      },
-      {
         path: "json-forge",
         name: "JsonForgeStudio",
         component: () => import("@/pages/Projects/JsonForgeStudio.vue"),
@@ -83,10 +79,6 @@ const routes = [
         name: "PassportCutter",
         component: () => import("@/pages/Projects/PassportCutter.vue"),
         meta: { title: "LakshSolanki | Passport Cutter" },
-      },
-      {
-        path: "remove-background",
-        redirect: "/projects/passport-cutter",
       },
       {
         path: "ppt-editor",
@@ -120,8 +112,6 @@ const wrapLegacyGuard = (guard) => {
   if (typeof guard !== "function" || guard.length < 3) {
     return guard;
   }
-
-  // Compatibility bridge for legacy next()-style guards.
   return (to, from) =>
     new Promise((resolve, reject) => {
       let handled = false;

@@ -9,14 +9,14 @@ const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.V
 const GEMINI_TRANSLATE_MODEL = (import.meta.env.VITE_GEMINI_TRANSLATE_MODEL || "gemini-2.5-flash").trim();
 
 const STOPWORDS = new Set([
-  "the","a","an","and","or","but","is","are","was","were","be","been","being",
-  "have","has","had","do","does","did","will","would","shall","should","may",
-  "might","must","can","could","of","in","to","for","on","at","by","from",
-  "with","about","as","into","through","during","before","after","above",
-  "below","between","out","off","over","under","then","than","so","if","it",
-  "its","this","that","these","those","i","you","he","she","we","they","me",
-  "him","her","us","them","my","your","his","our","their","what","which","who",
-  "not","no","nor","at","up","down",
+  "the", "a", "an", "and", "or", "but", "is", "are", "was", "were", "be", "been", "being",
+  "have", "has", "had", "do", "does", "did", "will", "would", "shall", "should", "may",
+  "might", "must", "can", "could", "of", "in", "to", "for", "on", "at", "by", "from",
+  "with", "about", "as", "into", "through", "during", "before", "after", "above",
+  "below", "between", "out", "off", "over", "under", "then", "than", "so", "if", "it",
+  "its", "this", "that", "these", "those", "i", "you", "he", "she", "we", "they", "me",
+  "him", "her", "us", "them", "my", "your", "his", "our", "their", "what", "which", "who",
+  "not", "no", "nor", "at", "up", "down",
 ]);
 
 const languageOptions = [
@@ -711,40 +711,14 @@ onUnmounted(() => {
 
             <!-- Controls row -->
             <div class="d-flex align-center flex-wrap ga-2 mb-4 controls-row">
-              <v-select
-                v-model="sourceLanguage"
-                :items="languageOptions"
-                item-title="title"
-                item-value="value"
-                label="From"
-                variant="outlined"
-                rounded="lg"
-                density="comfortable"
-                class="lang-select"
-                hide-details
-              />
+              <v-select v-model="sourceLanguage" :items="languageOptions" item-title="title" item-value="value"
+                label="From" variant="outlined" rounded="lg" density="comfortable" class="lang-select" hide-details />
 
-              <v-btn
-                icon="mdi-swap-horizontal"
-                variant="tonal"
-                color="primary"
-                rounded="lg"
-                :disabled="isTranslating || isComparing || !canSwapLanguages"
-                @click="swapLanguages"
-              />
+              <v-btn icon="mdi-swap-horizontal" variant="tonal" color="primary" rounded="lg"
+                :disabled="isTranslating || isComparing || !canSwapLanguages" @click="swapLanguages" />
 
-              <v-select
-                v-model="targetLanguage"
-                :items="targetLanguageOptions"
-                item-title="title"
-                item-value="value"
-                label="To"
-                variant="outlined"
-                rounded="lg"
-                density="comfortable"
-                class="lang-select"
-                hide-details
-              />
+              <v-select v-model="targetLanguage" :items="targetLanguageOptions" item-title="title" item-value="value"
+                label="To" variant="outlined" rounded="lg" density="comfortable" class="lang-select" hide-details />
 
               <v-spacer />
 
@@ -757,52 +731,18 @@ onUnmounted(() => {
                 <div class="panel-header tool-panel-header d-flex align-center ga-1 mb-2">
                   <span class="panel-label">Source</span>
                   <v-spacer />
-                  <v-btn
-                    icon="mdi-close-circle-outline"
-                    size="x-small"
-                    variant="text"
-                    color="error"
-                    title="Clear source text"
-                    :disabled="!sourceText.trim()"
-                    @click="clearSourceText"
-                  />
-                  <v-btn
-                    icon="mdi-clipboard-arrow-down-outline"
-                    size="x-small"
-                    variant="text"
-                    color="primary"
-                    title="Paste from clipboard"
-                    @click="pasteFromClipboard"
-                  />
-                  <v-btn
-                    icon="mdi-content-copy"
-                    size="x-small"
-                    variant="text"
-                    color="primary"
-                    title="Copy source text"
-                    :disabled="!sourceText.trim()"
-                    @click="copySourceText"
-                  />
+                  <v-btn icon="mdi-close-circle-outline" size="x-small" variant="text" color="error"
+                    title="Clear source text" :disabled="!sourceText.trim()" @click="clearSourceText" />
+                  <v-btn icon="mdi-clipboard-arrow-down-outline" size="x-small" variant="text" color="primary"
+                    title="Paste from clipboard" @click="pasteFromClipboard" />
+                  <v-btn icon="mdi-content-copy" size="x-small" variant="text" color="primary" title="Copy source text"
+                    :disabled="!sourceText.trim()" @click="copySourceText" />
                 </div>
-                <v-textarea
-                  v-model="sourceText"
-                  label="Source text"
-                  variant="outlined"
-                  rows="10"
-                  auto-grow
-                  rounded="xl"
-                  class="workspace-textarea"
-                  placeholder="Type or paste text to translate..."
-                  :error="isOverLimit"
-                />
+                <v-textarea v-model="sourceText" label="Source text" variant="outlined" rows="10" auto-grow rounded="xl"
+                  class="workspace-textarea" placeholder="Type or paste text to translate..." :error="isOverLimit" />
                 <!-- Char progress bar -->
-                <v-progress-linear
-                  :model-value="charProgress"
-                  :color="charProgressColor"
-                  rounded
-                  height="4"
-                  class="char-bar mt-1"
-                />
+                <v-progress-linear :model-value="charProgress" :color="charProgressColor" rounded height="4"
+                  class="char-bar mt-1" />
                 <div class="d-flex align-center justify-space-between mt-1 source-meta-row">
                   <p class="meta-copy mb-0">
                     {{ sourceCharacters }}&thinsp;/&thinsp;{{ MAX_CHARS }} chars &bull; {{ sourceWords }} words
@@ -816,14 +756,8 @@ onUnmounted(() => {
                 <!-- Word frequency -->
                 <div v-if="topWords.length" class="freq-row mt-2 d-flex align-center flex-wrap ga-1">
                   <span class="freq-label">Top words:</span>
-                  <v-chip
-                    v-for="item in topWords"
-                    :key="item.word"
-                    size="x-small"
-                    variant="tonal"
-                    color="primary"
-                    class="freq-chip"
-                  >
+                  <v-chip v-for="item in topWords" :key="item.word" size="x-small" variant="tonal" color="primary"
+                    class="freq-chip">
                     {{ item.word }}
                     <span class="freq-count">{{ item.count }}</span>
                   </v-chip>
@@ -835,98 +769,37 @@ onUnmounted(() => {
                 <div class="panel-header tool-panel-header d-flex align-center ga-1 mb-2">
                   <span class="panel-label">Translation</span>
                   <v-spacer />
-                  <v-btn
-                    icon="mdi-arrow-up-left"
-                    size="x-small"
-                    variant="text"
-                    color="primary"
-                    title="Use translation as source"
-                    :disabled="!translatedText.trim()"
-                    @click="useTranslationAsSource"
-                  />
-                  <v-btn
-                    icon="mdi-close-circle-outline"
-                    size="x-small"
-                    variant="text"
-                    color="error"
-                    title="Clear translation"
-                    :disabled="!translatedText.trim()"
-                    @click="clearTranslatedText"
-                  />
-                  <v-btn
-                    icon="mdi-find-replace"
-                    size="x-small"
-                    variant="text"
-                    color="secondary"
-                    title="Find & Replace (Ctrl+H)"
-                    :disabled="!translatedText.trim()"
-                    @click="showFindReplace = !showFindReplace"
-                  />
-                  <v-btn
-                    icon="mdi-content-copy"
-                    size="x-small"
-                    variant="text"
-                    color="primary"
-                    title="Copy translation"
-                    :disabled="!translatedText.trim()"
-                    @click="copyTranslatedText"
-                  />
+                  <v-btn icon="mdi-arrow-up-left" size="x-small" variant="text" color="primary"
+                    title="Use translation as source" :disabled="!translatedText.trim()"
+                    @click="useTranslationAsSource" />
+                  <v-btn icon="mdi-close-circle-outline" size="x-small" variant="text" color="error"
+                    title="Clear translation" :disabled="!translatedText.trim()" @click="clearTranslatedText" />
+                  <v-btn icon="mdi-find-replace" size="x-small" variant="text" color="secondary"
+                    title="Find & Replace (Ctrl+H)" :disabled="!translatedText.trim()"
+                    @click="showFindReplace = !showFindReplace" />
+                  <v-btn icon="mdi-content-copy" size="x-small" variant="text" color="primary" title="Copy translation"
+                    :disabled="!translatedText.trim()" @click="copyTranslatedText" />
                 </div>
-                <v-textarea
-                  v-model="translatedText"
-                  label="Translated text"
-                  variant="outlined"
-                  rows="10"
-                  auto-grow
-                  rounded="xl"
-                  class="workspace-textarea"
-                  readonly
-                  placeholder="Translation appears here..."
-                />
+                <v-textarea v-model="translatedText" label="Translated text" variant="outlined" rows="10" auto-grow
+                  rounded="xl" class="workspace-textarea" readonly placeholder="Translation appears here..." />
                 <p class="meta-copy mt-1 mb-0">
-                  Provider: {{ activeProvider }} &bull; {{ translatedCharacters }} chars &bull; {{ translatedWords }} words
+                  Provider: {{ activeProvider }} &bull; {{ translatedCharacters }} chars &bull; {{ translatedWords }}
+                  words
                 </p>
 
                 <!-- Find & Replace toolbar -->
                 <Transition name="fr-slide">
                   <div v-if="showFindReplace" class="find-replace-bar mt-3 p-3">
                     <div class="d-flex align-center flex-wrap ga-2 find-replace-controls">
-                      <v-text-field
-                        v-model="findText"
-                        label="Find"
-                        density="compact"
-                        variant="outlined"
-                        rounded="lg"
-                        hide-details
-                        class="fr-field"
-                        @keyup.enter="doFindReplace"
-                      />
-                      <v-text-field
-                        v-model="replaceText"
-                        label="Replace with"
-                        density="compact"
-                        variant="outlined"
-                        rounded="lg"
-                        hide-details
-                        class="fr-field"
-                        @keyup.enter="doFindReplace"
-                      />
-                      <v-btn
-                        color="secondary"
-                        rounded="lg"
-                        size="small"
-                        class="text-none"
-                        :disabled="!findText"
-                        @click="doFindReplace"
-                      >
+                      <v-text-field v-model="findText" label="Find" density="compact" variant="outlined" rounded="lg"
+                        hide-details class="fr-field" @keyup.enter="doFindReplace" />
+                      <v-text-field v-model="replaceText" label="Replace with" density="compact" variant="outlined"
+                        rounded="lg" hide-details class="fr-field" @keyup.enter="doFindReplace" />
+                      <v-btn color="secondary" rounded="lg" size="small" class="text-none" :disabled="!findText"
+                        @click="doFindReplace">
                         Replace All
                       </v-btn>
-                      <v-btn
-                        icon="mdi-close"
-                        variant="text"
-                        size="small"
-                        @click="closeFindReplace"
-                      />
+                      <v-btn icon="mdi-close" variant="text" size="small" @click="closeFindReplace" />
                     </div>
                   </div>
                 </Transition>
@@ -935,14 +808,8 @@ onUnmounted(() => {
 
             <!-- ── Action buttons ────────────────────────────────────────── -->
             <div class="d-flex align-center flex-wrap ga-2 mt-4 action-row">
-              <v-btn
-                color="secondary"
-                rounded="lg"
-                class="text-none"
-                :loading="isComparing"
-                :disabled="!sourceText.trim() || isComparing || isOverLimit"
-                @click="runComparison"
-              >
+              <v-btn color="secondary" rounded="lg" class="text-none" :loading="isComparing"
+                :disabled="!sourceText.trim() || isComparing || isOverLimit" @click="runComparison">
                 <v-icon start icon="mdi-compare" />
                 Compare Providers
               </v-btn>
@@ -957,12 +824,8 @@ onUnmounted(() => {
 
           <!-- ── Dual-provider comparison results ────────────────────────── -->
           <Transition name="compare-reveal">
-            <v-card
-              v-if="compareMode && (compareResults.google || compareResults.myMemory)"
-              class="compare-card mt-4 p-4 p-md-5"
-              rounded="xl"
-              elevation="0"
-            >
+            <v-card v-if="compareMode && (compareResults.google || compareResults.myMemory)"
+              class="compare-card mt-4 p-4 p-md-5" rounded="xl" elevation="0">
               <div class="d-flex align-center mb-4 ga-2 compare-card-header">
                 <v-icon color="secondary" size="18">mdi-compare</v-icon>
                 <span class="compare-heading">Provider Comparison</span>
@@ -977,15 +840,9 @@ onUnmounted(() => {
                       <span class="compare-provider-name">Google Translate</span>
                     </div>
                     <div class="compare-result-text">{{ compareResults.google || "—" }}</div>
-                    <v-btn
-                      variant="tonal"
-                      color="primary"
-                      size="small"
-                      rounded="lg"
-                      class="text-none mt-3"
+                    <v-btn variant="tonal" color="primary" size="small" rounded="lg" class="text-none mt-3"
                       :disabled="!compareResults.google || compareResults.google.startsWith('Error')"
-                      @click="useCompareResult('google')"
-                    >
+                      @click="useCompareResult('google')">
                       <v-icon start icon="mdi-check" />
                       Use this
                     </v-btn>
@@ -998,15 +855,9 @@ onUnmounted(() => {
                       <span class="compare-provider-name">MyMemory</span>
                     </div>
                     <div class="compare-result-text">{{ compareResults.myMemory || "—" }}</div>
-                    <v-btn
-                      variant="tonal"
-                      color="secondary"
-                      size="small"
-                      rounded="lg"
-                      class="text-none mt-3"
+                    <v-btn variant="tonal" color="secondary" size="small" rounded="lg" class="text-none mt-3"
                       :disabled="!compareResults.myMemory || compareResults.myMemory.startsWith('Error')"
-                      @click="useCompareResult('myMemory')"
-                    >
+                      @click="useCompareResult('myMemory')">
                       <v-icon start icon="mdi-check" />
                       Use this
                     </v-btn>
@@ -1203,6 +1054,7 @@ onUnmounted(() => {
 .fr-slide-leave-active {
   transition: opacity 0.22s ease, transform 0.22s ease;
 }
+
 .fr-slide-enter-from,
 .fr-slide-leave-to {
   opacity: 0;
@@ -1263,6 +1115,7 @@ onUnmounted(() => {
 .compare-reveal-leave-active {
   transition: opacity 0.28s ease, transform 0.28s ease;
 }
+
 .compare-reveal-enter-from,
 .compare-reveal-leave-to {
   opacity: 0;
@@ -1275,7 +1128,7 @@ onUnmounted(() => {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .controls-row > .v-spacer {
+  .controls-row>.v-spacer {
     display: none;
   }
 
@@ -1352,8 +1205,8 @@ onUnmounted(() => {
     justify-self: center;
   }
 
-  .tool-panel-header > .v-spacer,
-  .action-row > .v-spacer {
+  .tool-panel-header>.v-spacer,
+  .action-row>.v-spacer {
     display: none;
   }
 

@@ -278,7 +278,6 @@ onUnmounted(() => {
               <div>
                 <p class="panel-kicker mb-1">Upload Images</p>
                 <h2 class="text-h5 font-weight-bold mb-1">Build your PDF pages</h2>
-                <p class="text-body-2 text-medium-emphasis mb-0">Supports JPG, PNG, GIF, and WebP formats.</p>
               </div>
             </div>
 
@@ -289,7 +288,8 @@ onUnmounted(() => {
                 required />
 
               <div class="d-flex flex-column align-center ga-4 justify-center text-center">
-                <v-icon size="72" :icon="images.length>0 ? 'mdi-plus-circle-outline' : 'mdi-cloud-upload-outline'" color="primary"/>
+                <v-icon size="72" :icon="images.length > 0 ? 'mdi-plus-circle-outline' : 'mdi-cloud-upload-outline'"
+                  color="primary" />
                 <div class="text-h6 font-weight-bold">Drag and drop image files</div>
                 <div class="text-body-1 text-medium-emphasis">or click to browse from your device</div>
                 <p class="text-caption text-medium-emphasis mb-0">Supported: JPG, PNG, GIF, WebP</p>
@@ -315,8 +315,8 @@ onUnmounted(() => {
                   <h3 class="text-h6 font-weight-bold mb-0">Image Pages ({{ images.length }})</h3>
                   <div class="d-flex align-center ga-2 flex-wrap">
                     <v-btn @click="toggleAllImagesOrientation"
-                      :icon="allImagesOrientation === 'p' ? 'mdi-crop-portrait' : 'mdi-crop-landscape'"
-                      color="primary" variant="tonal" rounded="lg" size="small"
+                      :icon="allImagesOrientation === 'p' ? 'mdi-crop-portrait' : 'mdi-crop-landscape'" color="primary"
+                      variant="tonal" rounded="lg" size="small"
                       :aria-label="`Switch all images to ${allImagesOrientation === 'p' ? 'landscape' : 'portrait'} orientation`"></v-btn>
                     <v-btn variant="tonal" color="error" rounded="lg" @click="clearAll" class="text-none">
                       Clear All
@@ -330,7 +330,7 @@ onUnmounted(() => {
 
                 <v-row>
                   <v-col v-for="(image, index) in images" :key="image.id" cols="12" sm="6" md="6" lg="4">
-                    <v-card class="image-card" rounded="xl" elevation="0">
+                    <v-card class="image-card" rounded="lg" elevation="0">
                       <v-card-actions class="d-flex justify-end ga-1 p-2">
                         <v-btn @click="toggleImageOrientation(index)"
                           :icon="(image.orientation || 'p') === 'p' ? 'mdi-crop-portrait' : 'mdi-crop-landscape'"
@@ -349,7 +349,7 @@ onUnmounted(() => {
                       </v-card-actions>
 
                       <div class="p-2 d-flex justify-center overflow-hidden">
-                        <v-img :src="image.url" :alt="image.name" contain height="210" class="rounded-lg" :style="{
+                        <v-img :src="image.url" :alt="image.name" height="210" class="rounded-lg" :style="{
                           transform: `rotate(${image.rotation}deg)`,
                           transition: 'transform 0.3s ease',
                         }"></v-img>
@@ -443,7 +443,7 @@ onUnmounted(() => {
 }
 
 .panel-kicker {
-  color: #4F46E5  !important;
+  color: #4F46E5 !important;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-size: 0.72rem;
@@ -463,7 +463,7 @@ onUnmounted(() => {
 
 .upload-zone:hover {
   transform: translateY(-2px);
-  border-color: #0d00ff!important;
+  border-color: #0d00ff !important;
   background: #4e46e52f !important;
 }
 

@@ -443,73 +443,58 @@ const goBack = () => window.history.back();
               <div>
                 <p class="panel-kicker mb-1">Editors</p>
                 <h2 class="text-h5 font-weight-bold mb-1">Source and compare JSON</h2>
-                <p class="text-body-2 text-medium-emphasis mb-0">Left is source JSON, right is optional compare JSON.</p>
               </div>
             </div>
 
             <v-row>
               <v-col cols="12" md="6">
-                <v-textarea
-                  v-model="sourceInput"
-                  label="Source JSON"
-                  rows="12"
-                  auto-grow
-                  max-rows="20"
-                  variant="solo-filled"
-                  rounded="lg"
-                  class="editor"
-                  placeholder='{"name":"Mindlytic"}'
-                ></v-textarea>
+                <v-textarea v-model="sourceInput" label="Source JSON" rows="12" auto-grow max-rows="20"
+                  variant="solo" rounded="lg" class="editor" ></v-textarea>
               </v-col>
               <v-col cols="12" md="6">
-                <v-textarea
-                  v-model="compareInput"
-                  label="Compare JSON (optional)"
-                  rows="12"
-                  auto-grow
-                  max-rows="20"
-                  variant="solo-filled"
-                  rounded="lg"
-                  class="editor"
-                  placeholder='{"name":"Mindlytic v2"}'
-                ></v-textarea>
+                <v-textarea v-model="compareInput" label="Compare JSON (optional)" rows="12" auto-grow max-rows="20"
+                  variant="solo" rounded="lg" class="editor"></v-textarea>
               </v-col>
             </v-row>
 
-            <input
-              ref="sourceFileInput"
-              type="file"
-              accept=".json,application/json,text/plain"
-              class="d-none"
-              @change="handleImport"
-            />
+            <input ref="sourceFileInput" type="file" accept=".json,application/json,text/plain" class="d-none"
+              @change="handleImport" />
 
             <div class="d-flex flex-wrap ga-2 mt-2">
-              <v-btn variant="flat" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-check-decagram" @click="runValidate">
+              <v-btn variant="flat" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-check-decagram"
+                @click="runValidate">
                 Validate
               </v-btn>
-              <v-btn variant="tonal" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-format-indent-increase" @click="runFormat">
+              <v-btn variant="tonal" color="primary" rounded="lg" class="text-none"
+                prepend-icon="mdi-format-indent-increase" @click="runFormat">
                 Format
               </v-btn>
-              <v-btn variant="tonal" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-code-json" @click="runMinify">
+              <v-btn variant="tonal" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-code-json"
+                @click="runMinify">
                 Minify
               </v-btn>
-              <v-btn variant="tonal" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-sort-alphabetical-ascending" @click="runSortKeys">
+              <v-btn variant="tonal" color="primary" rounded="lg" class="text-none"
+                prepend-icon="mdi-sort-alphabetical-ascending" @click="runSortKeys">
                 Sort Keys
               </v-btn>
-              <v-btn variant="flat" color="secondary" rounded="lg" class="text-none" prepend-icon="mdi-compare" @click="runCompare">
+              <v-btn variant="flat" color="secondary" rounded="lg" class="text-none" prepend-icon="mdi-compare"
+                @click="runCompare">
                 Compare
               </v-btn>
-              <v-btn variant="text" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-swap-horizontal" @click="swapEditors">
+              <v-btn variant="text" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-swap-horizontal"
+                @click="swapEditors">
                 Swap
               </v-btn>
-              <v-btn variant="text" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-file-import-outline" @click="triggerImport">
+              <v-btn variant="text" color="primary" rounded="lg" class="text-none"
+                prepend-icon="mdi-file-import-outline" @click="triggerImport">
                 Import
               </v-btn>
-              <v-btn variant="text" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-test-tube" @click="loadSample">
+              <v-btn variant="text" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-test-tube"
+                @click="loadSample">
                 Sample
               </v-btn>
-              <v-btn variant="text" color="error" rounded="lg" class="text-none" prepend-icon="mdi-trash-can-outline" @click="clearAll">
+              <v-btn variant="text" color="error" rounded="lg" class="text-none" prepend-icon="mdi-trash-can-outline"
+                @click="clearAll">
                 Clear
               </v-btn>
             </div>
@@ -522,10 +507,12 @@ const goBack = () => window.history.back();
                 <h3 class="text-h6 font-weight-bold mb-0">Live result preview</h3>
               </div>
               <div class="d-flex align-center ga-2 flex-wrap">
-                <v-btn variant="tonal" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-content-copy" @click="copyOutput">
+                <v-btn variant="tonal" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-content-copy"
+                  @click="copyOutput">
                   Copy
                 </v-btn>
-                <v-btn variant="flat" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-download" @click="downloadOutput">
+                <v-btn variant="flat" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-download"
+                  @click="downloadOutput">
                   Download
                 </v-btn>
               </div>
@@ -541,13 +528,15 @@ const goBack = () => window.history.back();
             <div class="status-grid">
               <div class="status-item">
                 <span class="status-label">Source</span>
-                <span :class="['status-value', sourceStatusLabel === 'Valid' ? 'is-good' : sourceStatusLabel === 'Invalid' ? 'is-bad' : '']">
+                <span
+                  :class="['status-value', sourceStatusLabel === 'Valid' ? 'is-good' : sourceStatusLabel === 'Invalid' ? 'is-bad' : '']">
                   {{ sourceStatusLabel }}
                 </span>
               </div>
               <div class="status-item">
                 <span class="status-label">Compare</span>
-                <span :class="['status-value', compareStatusLabel === 'Valid' ? 'is-good' : compareStatusLabel === 'Invalid' ? 'is-bad' : '']">
+                <span
+                  :class="['status-value', compareStatusLabel === 'Valid' ? 'is-good' : compareStatusLabel === 'Invalid' ? 'is-bad' : '']">
                   {{ compareStatusLabel }}
                 </span>
               </div>
@@ -571,16 +560,8 @@ const goBack = () => window.history.back();
               <p class="panel-kicker mb-0">Key Explorer</p>
               <v-chip size="small" color="primary" variant="tonal">{{ filteredPaths.length }}</v-chip>
             </div>
-            <v-text-field
-              v-model.trim="keySearch"
-              density="comfortable"
-              variant="solo-filled"
-              rounded="lg"
-              prepend-inner-icon="mdi-magnify"
-              placeholder="Filter paths..."
-              hide-details
-              class="mb-3"
-            ></v-text-field>
+            <v-text-field v-model.trim="keySearch" density="comfortable" variant="solo-filled" rounded="lg"
+              prepend-inner-icon="mdi-magnify" placeholder="Filter paths..." hide-details class="mb-3"></v-text-field>
 
             <div class="path-list">
               <article v-for="item in filteredPaths" :key="item.path + item.type" class="path-item">

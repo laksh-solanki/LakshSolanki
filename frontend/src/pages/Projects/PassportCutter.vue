@@ -779,12 +779,7 @@ watch(
               Upload one image file or provide a direct image URL to build a passport-size output.
             </p>
 
-            <v-alert
-              v-if="!hasApiKey"
-              type="warning"
-              variant="tonal"
-              class="mb-4"
-            >
+            <v-alert v-if="!hasApiKey" type="warning" variant="tonal" class="mb-4">
               Add <strong>VITE_IMAGE_API_KEY</strong> in <strong>frontend/.env</strong> to use this tool.
             </v-alert>
 
@@ -794,23 +789,11 @@ watch(
             </v-btn-toggle>
 
             <div v-if="inputMode === 'file'">
-              <input
-                ref="fileInput"
-                type="file"
-                accept="image/*"
-                class="d-none"
-                @change="handleFileInput"
-              />
+              <input ref="fileInput" type="file" accept="image/*" class="d-none" @change="handleFileInput" />
 
-              <div
-                class="drop-zone"
-                :class="{ 'drop-zone-active': isDragging }"
-                @click="openFilePicker"
-                @dragenter.prevent="isDragging = true"
-                @dragover.prevent="isDragging = true"
-                @dragleave.prevent="isDragging = false"
-                @drop="handleDrop"
-              >
+              <div class="drop-zone" :class="{ 'drop-zone-active': isDragging }" @click="openFilePicker"
+                @dragenter.prevent="isDragging = true" @dragover.prevent="isDragging = true"
+                @dragleave.prevent="isDragging = false" @drop="handleDrop">
                 <v-icon size="32" class="mb-2">mdi-image-plus</v-icon>
                 <p class="mb-1 font-weight-medium">Drop an image here or click to browse</p>
                 <p class="text-caption text-medium-emphasis mb-0">Supported: JPG, PNG, WebP</p>
@@ -826,48 +809,23 @@ watch(
                   <p class="selected-file-name mb-1">{{ selectedFileName }}</p>
                   <p class="selected-file-meta mb-0">{{ selectedFileDetails }}</p>
                 </div>
-                <v-btn
-                  icon
-                  variant="text"
-                  color="error"
-                  class="selected-file-remove"
-                  aria-label="Remove selected file"
-                  @click="clearSource"
-                >
+                <v-btn icon variant="text" color="error" class="selected-file-remove" aria-label="Remove selected file"
+                  @click="clearSource">
                   <v-icon size="18">mdi-close</v-icon>
                 </v-btn>
               </div>
             </div>
 
             <div v-else>
-              <v-text-field
-                v-model="imageUrl"
-                label="Image URL"
-                placeholder="https://example.com/photo.jpg"
-                variant="outlined"
-                density="comfortable"
-                hide-details="auto"
-              />
+              <v-text-field v-model="imageUrl" label="Image URL" placeholder="https://example.com/photo.jpg"
+                variant="outlined" density="comfortable" hide-details="auto" />
             </div>
 
-            <v-progress-linear
-              v-if="isBusy"
-              indeterminate
-              color="primary"
-              height="5"
-              rounded
-              class="my-5"
-            />
+            <v-progress-linear v-if="isBusy" indeterminate color="primary" height="5" rounded class="my-5" />
 
             <div class="d-flex flex-wrap ga-3 mt-5 action-group">
-              <v-btn
-                color="primary"
-                class="text-none"
-                rounded="xl"
-                :loading="isProcessing"
-                :disabled="!canProcess"
-                @click="removeBackground"
-              >
+              <v-btn color="primary" class="text-none" rounded="xl" :loading="isProcessing" :disabled="!canProcess"
+                @click="removeBackground">
                 Create Passport Photo
               </v-btn>
             </div>
@@ -875,12 +833,7 @@ watch(
             <div class="input-preview-shell mt-5">
               <p class="input-preview-title">Input Photo</p>
               <div class="input-preview-frame">
-                <v-img
-                  v-if="sourcePreview"
-                  :src="sourcePreview"
-                  cover
-                  class="input-preview-image"
-                />
+                <v-img v-if="sourcePreview" :src="sourcePreview" cover class="input-preview-image" />
                 <div v-else class="preview-empty">
                   Selected image will appear here.
                 </div>
@@ -895,7 +848,8 @@ watch(
             <h2 class="text-h5 font-weight-bold mb-1">Passport output</h2>
             <p class="text-body-2 text-medium-emphasis mb-5">
               Output is generated at {{ PASSPORT_WIDTH_MM }} mm x {{ PASSPORT_HEIGHT_MM }} mm
-              ({{ PASSPORT_WIDTH_PX }}x{{ PASSPORT_HEIGHT_PX }} px @ {{ PASSPORT_PRINT_DPI }} DPI) with an automatic border.
+              ({{ PASSPORT_WIDTH_PX }}x{{ PASSPORT_HEIGHT_PX }} px @ {{ PASSPORT_PRINT_DPI }} DPI) with an automatic
+              border.
             </p>
 
             <div v-if="!showBackgroundTools" class="tools-unlock-note mb-5">
@@ -911,28 +865,12 @@ watch(
                     <span class="border-thickness-pill">{{ borderThicknessLabel }}</span>
                   </div>
                   <div class="d-flex align-center ga-3 border-tools-row">
-                    <v-slider
-                      v-model="borderThickness"
-                      :min="PASSPORT_BORDER_MIN"
-                      :max="PASSPORT_BORDER_MAX"
-                      :step="1"
-                      hide-details
-                      density="compact"
-                      class="border-slider d-none d-md-block"
-                      :disabled="isBusy || !transparentResultBlob"
-                    />
-                    <v-text-field
-                      v-model="borderThicknessInput"
-                      type="number"
-                      label="px"
-                      variant="outlined"
-                      density="compact"
-                      hide-details
-                      class="border-input"
-                      :min="PASSPORT_BORDER_MIN"
-                      :max="PASSPORT_BORDER_MAX"
-                      :disabled="isBusy || !transparentResultBlob"
-                    />
+                    <v-slider v-model="borderThickness" :min="PASSPORT_BORDER_MIN" :max="PASSPORT_BORDER_MAX" :step="1"
+                      hide-details density="compact" class="border-slider d-none d-md-block"
+                      :disabled="isBusy || !transparentResultBlob" />
+                    <v-text-field v-model="borderThicknessInput" type="number" label="px" variant="outlined"
+                      density="compact" hide-details class="border-input" :min="PASSPORT_BORDER_MIN"
+                      :max="PASSPORT_BORDER_MAX" :disabled="isBusy || !transparentResultBlob" />
                   </div>
                 </div>
 
@@ -942,58 +880,28 @@ watch(
                     <input v-model="solidBackgroundColor" type="color" :disabled="isBusy || !transparentResultBlob" />
                   </label>
 
-                  <v-text-field
-                    v-model="solidBackgroundHex"
-                    label="Hex"
-                    variant="outlined"
-                    density="compact"
-                    hide-details
-                    class="hex-input"
-                    :disabled="isBusy || !transparentResultBlob"
-                  />
+                  <v-text-field v-model="solidBackgroundHex" label="Hex" variant="outlined" density="compact"
+                    hide-details class="hex-input" :disabled="isBusy || !transparentResultBlob" />
 
-                  <v-btn
-                    color="primary"
-                    variant="tonal"
-                    class="text-none"
-                    rounded="xl"
-                    :loading="isApplyingColor"
-                    :disabled="isBusy || !transparentResultBlob"
-                    @click="applySolidBackground"
-                  >
+                  <v-btn color="primary" variant="tonal" class="text-none" rounded="xl" :loading="isApplyingColor"
+                    :disabled="isBusy || !transparentResultBlob" @click="applySolidBackground">
                     Apply Passport Frame
                   </v-btn>
 
-                  <v-btn
-                    variant="tonal"
-                    rounded="xl"
-                    class="text-none"
-                    :disabled="isBusy || !transparentResultBlob"
-                    @click="useTransparentOutput"
-                  >
+                  <v-btn variant="tonal" rounded="xl" class="text-none" :disabled="isBusy || !transparentResultBlob"
+                    @click="useTransparentOutput">
                     Use Transparent
                   </v-btn>
                 </div>
 
                 <div class="preset-colors mt-3">
                   <span class="text-caption text-medium-emphasis">Quick colors:</span>
-                  <v-tooltip
-                    v-for="preset in solidColorPresets"
-                    :key="preset.hex"
-                    location="bottom"
-                    content-class="quick-color-tooltip"
-                  >
+                  <v-tooltip v-for="preset in solidColorPresets" :key="preset.hex" location="bottom"
+                    content-class="quick-color-tooltip">
                     <template #activator="{ props }">
-                      <button
-                        v-bind="props"
-                        type="button"
-                        class="preset-chip"
-                        :style="{ backgroundColor: preset.hex }"
-                        :title="preset.name"
-                        :aria-label="`Use ${preset.name} background color`"
-                        :disabled="isBusy || !transparentResultBlob"
-                        @click="applyPresetColor(preset.hex)"
-                      ></button>
+                      <button v-bind="props" type="button" class="preset-chip" :style="{ backgroundColor: preset.hex }"
+                        :title="preset.name" :aria-label="`Use ${preset.name} background color`"
+                        :disabled="isBusy || !transparentResultBlob" @click="applyPresetColor(preset.hex)"></button>
                     </template>
                     <span class="quick-color-tooltip-text">{{ preset.name }} ({{ preset.hex.toUpperCase() }})</span>
                   </v-tooltip>
@@ -1006,12 +914,7 @@ watch(
                 <div class="preview-card">
                   <p class="preview-title">Output</p>
                   <div class="preview-frame checker">
-                    <v-img
-                      v-if="resultPreviewUrl"
-                      :src="resultPreviewUrl"
-                      contain
-                      class="preview-image"
-                    />
+                    <v-img v-if="resultPreviewUrl" :src="resultPreviewUrl" contain class="preview-image" />
                     <div v-else class="preview-empty">
                       Passport-size image preview will appear here.
                     </div>
@@ -1021,43 +924,20 @@ watch(
             </v-row>
 
             <div class="d-flex flex-wrap ga-3 mt-6 action-group">
-              <v-btn
-                color="primary"
-                variant="outlined"
-                class="text-none"
-                rounded="xl"
-                :disabled="!resultPreviewUrl || isBusy"
-                @click="downloadResult"
-              >
+              <v-btn color="primary" variant="outlined" class="text-none" rounded="xl"
+                :disabled="!resultPreviewUrl || isBusy" @click="downloadResult">
                 Download PNG
               </v-btn>
-              <v-btn
-                color="primary"
-                variant="tonal"
-                class="text-none"
-                rounded="xl"
-                :disabled="!resultPreviewUrl || isBusy"
-                @click="downloadJpgResult"
-              >
+              <v-btn color="primary" variant="tonal" class="text-none" rounded="xl"
+                :disabled="!resultPreviewUrl || isBusy" @click="downloadJpgResult">
                 Download JPG
               </v-btn>
-              <v-btn
-                variant="outlined"
-                class="text-none"
-                rounded="xl"
-                :disabled="!resultPreviewUrl || isBusy || !canClipboardWrite"
-                @click="copyResultToClipboard"
-              >
+              <v-btn variant="outlined" class="text-none" rounded="xl"
+                :disabled="!resultPreviewUrl || isBusy || !canClipboardWrite" @click="copyResultToClipboard">
                 Copy Image
               </v-btn>
-              <v-btn
-                variant="tonal"
-                rounded="xl"
-                color="red"
-                class="text-none"
-                :disabled="!resultPreviewUrl || isBusy"
-                @click="resetResult"
-              >
+              <v-btn variant="tonal" rounded="xl" color="red" class="text-none" :disabled="!resultPreviewUrl || isBusy"
+                @click="resetResult">
                 Clear Output
               </v-btn>
             </div>

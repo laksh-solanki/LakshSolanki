@@ -47,18 +47,18 @@ const collectUnique = (values = []) => {
 // On deployed site: only uses the configured remote backend URL.
 const API_BASE_CANDIDATES = isLocalEnv()
   ? collectUnique([
-      getApiBaseUrl(),
-      import.meta.env.VITE_API_URL,
-      import.meta.env.VITE_API_URL_1,
-      getRemoteApiBaseUrl(),
-      import.meta.env.VITE_API_URL_2,
-    ])
+    getApiBaseUrl(),
+    import.meta.env.VITE_API_URL,
+    import.meta.env.VITE_API_URL_1,
+    getRemoteApiBaseUrl(),
+    import.meta.env.VITE_API_URL_2,
+  ])
   : collectUnique([
-      getApiBaseUrl(),
-      import.meta.env.VITE_API_URL,
-      import.meta.env.VITE_API_URL_2,
-      getRemoteApiBaseUrl(),
-    ]);
+    getApiBaseUrl(),
+    import.meta.env.VITE_API_URL,
+    import.meta.env.VITE_API_URL_2,
+    getRemoteApiBaseUrl(),
+  ]);
 const CHAT_API_URLS = collectUnique(
   API_BASE_CANDIDATES.map((base) => toApiUrl(base, "/api/ai/chat")),
 );
@@ -1940,34 +1940,18 @@ onUnmounted(() => {
 
         </v-card>
       </v-dialog>
-      <v-dialog
-        v-model="profiledialog"
-        transition="dialog-bottom-transition"
-        max-width="440"
-        :theme="pageVuetifyTheme"
-      >
-        <v-card class="profile-dialog-card rounded-xl overflow-hidden" :class="{ 'theme-dark': isDarkTheme }" :theme="pageVuetifyTheme" elevation="10">
+      <v-dialog v-model="profiledialog" transition="dialog-bottom-transition" max-width="440" :theme="pageVuetifyTheme">
+        <v-card class="profile-dialog-card rounded-xl overflow-hidden" :class="{ 'theme-dark': isDarkTheme }"
+          :theme="pageVuetifyTheme" elevation="10">
           <div class="profile-header-bg">
-            <v-btn
-              icon="mdi-close"
-              variant="text"
-              class="profile-dialog-close-btn"
-              @click="profiledialog = false"
-              size="small"
-              aria-label="Close Profile"
-            ></v-btn>
+            <v-btn icon="mdi-close" variant="text" class="profile-dialog-close-btn" @click="profiledialog = false"
+              size="small" aria-label="Close Profile"></v-btn>
           </div>
-          
+
           <div class="profile-avatar-container">
             <v-avatar size="110" class="profile-avatar elevation-4" color="surface">
-              <img
-                v-if="userAvatarSrc"
-                :src="userAvatarSrc"
-                alt="Profile"
-                class="profile-image"
-                referrerpolicy="no-referrer"
-                @error="avatarImageFailed = true"
-              />
+              <img v-if="userAvatarSrc" :src="userAvatarSrc" alt="Profile" class="profile-image"
+                referrerpolicy="no-referrer" @error="avatarImageFailed = true" />
               <div v-else class="profile-avatar-initial">{{ userInitial }}</div>
             </v-avatar>
           </div>
@@ -1993,22 +1977,14 @@ onUnmounted(() => {
           <v-divider class="mx-6 opacity-20 my-2"></v-divider>
 
           <v-card-actions class="profile-actions px-6 py-4">
-            <v-btn
-              variant="tonal"
-              color="error"
-              prepend-icon="mdi-logout"
+            <v-btn variant="tonal" color="error" prepend-icon="mdi-logout"
               class="profile-btn-logout rounded-lg text-none px-5 font-weight-medium"
-              @click="signOutUser(); profiledialog = false"
-            >
+              @click="signOutUser(); profiledialog = false">
               Logout
             </v-btn>
             <v-spacer></v-spacer>
-            <v-btn 
-              variant="flat" 
-              color="primary" 
-              class="profile-btn-done rounded-lg text-none px-7 font-weight-medium" 
-              @click="profiledialog = false"
-            >
+            <v-btn variant="flat" color="primary" class="profile-btn-done rounded-lg text-none px-7 font-weight-medium"
+              @click="profiledialog = false">
               Done
             </v-btn>
           </v-card-actions>
@@ -2250,8 +2226,8 @@ onUnmounted(() => {
                 </div>
 
                 <v-fade-transition>
-                  <v-btn v-if="showScrollButton" icon="mdi-arrow-down" variant="outlined" class="scroll-bottom-btn border"
-                    color="primary" density="comfortable" @click="scrollToBottom" />
+                  <v-btn v-if="showScrollButton" icon="mdi-arrow-down" variant="outlined"
+                    class="scroll-bottom-btn border" color="primary" density="comfortable" @click="scrollToBottom" />
                 </v-fade-transition>
 
                 <div class="composer-shell" :class="{ 'composer-shell-floating': isEmptyConversation }">
@@ -3547,7 +3523,7 @@ onUnmounted(() => {
 }
 
 @media (max-width: 600px) {
-    .profile-dialog-card {
+  .profile-dialog-card {
     border-radius: 20px !important;
   }
 
@@ -3585,7 +3561,8 @@ onUnmounted(() => {
     gap: 12px;
   }
 
-  .profile-btn-logout, .profile-btn-done {
+  .profile-btn-logout,
+  .profile-btn-done {
     width: 100%;
     justify-content: center;
     margin: 0 !important;
@@ -3707,10 +3684,3 @@ onUnmounted(() => {
   color: #ececec !important;
 }
 </style>
-
-
-
-
-
-
-

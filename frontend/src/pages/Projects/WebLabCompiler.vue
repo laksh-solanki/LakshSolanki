@@ -337,13 +337,18 @@ onUnmounted(() => {
           <v-card class="tool-shell p-5 p-md-6 mb-6" rounded="xl" elevation="0">
             <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-3">
               <div class="d-flex align-center flex-wrap ga-2">
-                <v-btn variant="flat" color="primary" rounded="lg" class="text-none" :loading="running" prepend-icon="mdi-play" @click="compilePreview(false)">Compile</v-btn>
-                <v-btn variant="tonal" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-code-braces" @click="normalizeCode">Format Code</v-btn>
+                <v-btn variant="flat" color="primary" rounded="lg" class="text-none" :loading="running"
+                  prepend-icon="mdi-play" @click="compilePreview(false)">Compile</v-btn>
+                <v-btn variant="tonal" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-code-braces"
+                  @click="normalizeCode">Format Code</v-btn>
               </div>
               <div class="d-flex align-center flex-wrap ga-2">
-                <v-btn variant="tonal" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-file-code-outline" @click="exportHtml">Export HTML</v-btn>
-                <v-btn variant="tonal" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-language-css3" @click="exportCss">Export CSS</v-btn>
-                <v-btn variant="tonal" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-language-javascript" @click="exportJs">Export JS</v-btn>
+                <v-btn variant="tonal" color="primary" rounded="lg" class="text-none"
+                  prepend-icon="mdi-file-code-outline" @click="exportHtml">Export HTML</v-btn>
+                <v-btn variant="tonal" color="primary" rounded="lg" class="text-none" prepend-icon="mdi-language-css3"
+                  @click="exportCss">Export CSS</v-btn>
+                <v-btn variant="tonal" color="primary" rounded="lg" class="text-none"
+                  prepend-icon="mdi-language-javascript" @click="exportJs">Export JS</v-btn>
               </div>
             </div>
 
@@ -354,17 +359,22 @@ onUnmounted(() => {
 
             <div ref="editorLayoutRef" class="editor-layout">
               <div class="editor-pane" :style="paneStyle(0)">
-                <v-textarea v-model="htmlCode" label="HTML" rows="16" variant="solo-filled" rounded="lg" class="editor"></v-textarea>
+                <v-textarea v-model="htmlCode" label="HTML" rows="16" variant="outlined" rounded="lg"
+                  class="editor"></v-textarea>
               </div>
               <div class="editor-divider" role="separator" aria-orientation="vertical" title="Hold and pull to resize"
-                @pointerdown.prevent="startPaneResize(0, $event)" @touchstart.prevent="startPaneResize(0, $event)"></div>
+                @pointerdown.prevent="startPaneResize(0, $event)" @touchstart.prevent="startPaneResize(0, $event)">
+              </div>
               <div class="editor-pane" :style="paneStyle(1)">
-                <v-textarea v-model="cssCode" label="CSS" rows="16" variant="solo-filled" rounded="lg" class="editor"></v-textarea>
+                <v-textarea v-model="cssCode" label="CSS" rows="16" variant="outlined" rounded="lg"
+                  class="editor"></v-textarea>
               </div>
               <div class="editor-divider" role="separator" aria-orientation="vertical" title="Hold and pull to resize"
-                @pointerdown.prevent="startPaneResize(1, $event)" @touchstart.prevent="startPaneResize(1, $event)"></div>
+                @pointerdown.prevent="startPaneResize(1, $event)" @touchstart.prevent="startPaneResize(1, $event)">
+              </div>
               <div class="editor-pane" :style="paneStyle(2)">
-                <v-textarea v-model="jsCode" label="JavaScript" rows="16" variant="solo-filled" rounded="lg" class="editor"></v-textarea>
+                <v-textarea v-model="jsCode" label="JavaScript" rows="16" variant="outlined" rounded="lg"
+                  class="editor"></v-textarea>
               </div>
             </div>
           </v-card>
@@ -377,17 +387,20 @@ onUnmounted(() => {
             <div class="d-flex align-center justify-space-between mb-3 flex-wrap ga-2">
               <h3 class="text-h6 font-weight-bold mb-0">Live Preview</h3>
               <div class="d-flex align-center flex-wrap ga-2">
-                <v-btn-toggle v-model="previewMode" mandatory rounded="lg" density="comfortable" color="primary" variant="tonal" class="preview-toggle">
+                <v-btn-toggle v-model="previewMode" mandatory rounded="lg" density="comfortable" color="primary"
+                  variant="tonal" class="preview-toggle">
                   <v-btn value="desktop" prepend-icon="mdi-monitor">Desktop</v-btn>
                   <v-btn value="mobile" prepend-icon="mdi-cellphone">Mobile</v-btn>
                 </v-btn-toggle>
-                <v-chip size="small" variant="tonal" color="secondary">{{ runCount }} runs &middot; {{ lastRunMs }} ms</v-chip>
+                <v-chip size="small" variant="tonal" color="secondary">{{ runCount }} runs &middot; {{ lastRunMs }}
+                  ms</v-chip>
               </div>
             </div>
             <div class="preview-stage">
               <div class="preview-canvas" :class="previewCanvasClass">
-                <iframe :srcdoc="srcdoc" :class="['preview-frame', { 'preview-frame--mobile': previewMode === 'mobile' }]" sandbox="allow-scripts"
-                  referrerpolicy="no-referrer"></iframe>
+                <iframe :srcdoc="srcdoc"
+                  :class="['preview-frame', { 'preview-frame--mobile': previewMode === 'mobile' }]"
+                  sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
               </div>
             </div>
           </v-card>
@@ -452,7 +465,7 @@ onUnmounted(() => {
   display: grid;
   gap: 14px;
   grid-template-columns: 1fr;
-  padding: 2px;
+  padding: 6px;
   border-radius: 14px;
   overflow: hidden;
 }
@@ -469,7 +482,7 @@ onUnmounted(() => {
   cursor: row-resize;
   touch-action: none;
   user-select: none;
-  background: linear-gradient(90deg, rgba(13, 79, 66, 0.08), rgba(13, 79, 66, 0.04));
+  background: transparent;
 }
 
 .editor-divider::before {
@@ -481,16 +494,16 @@ onUnmounted(() => {
   height: 2px;
   border-radius: 999px;
   transform: translateX(-50%);
-  background: rgba(16, 88, 74, 0.46);
+  background: #4F46E5;
   transition: background 0.2s ease;
 }
 
 .editor-divider:hover::before {
-  background: rgba(16, 88, 74, 0.82);
+  background: #4F46E5;
 }
 
 :global(body.editor-resizing) .editor-divider::before {
-  background: rgba(16, 88, 74, 0.82);
+  background: transparent;
 }
 
 .editor-pane :deep(.v-input),
@@ -586,7 +599,7 @@ onUnmounted(() => {
     width: 14px;
     height: auto;
     cursor: col-resize;
-    background: linear-gradient(180deg, rgba(13, 79, 66, 0.08), rgba(13, 79, 66, 0.04));
+    background: transparent;
   }
 
   .editor-divider::before {

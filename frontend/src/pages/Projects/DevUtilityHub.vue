@@ -230,37 +230,31 @@ const generatePassword = () => {
 
             <v-row>
               <v-col cols="12" md="6">
-                <v-textarea
-                  v-model="textSource"
-                  label="Input text"
-                  variant="outlined"
-                  auto-grow
-                  rows="7"
-                  density="comfortable"
-                />
+                <v-textarea v-model="textSource" label="Input text" variant="outlined" auto-grow rows="7"
+                  density="comfortable" />
               </v-col>
               <v-col cols="12" md="6">
-                <v-textarea
-                  v-model="textResult"
-                  label="Transformed output"
-                  variant="outlined"
-                  auto-grow
-                  rows="7"
-                  density="comfortable"
-                  readonly
-                />
+                <v-textarea v-model="textResult" label="Transformed output" variant="outlined" auto-grow rows="7"
+                  density="comfortable" readonly />
               </v-col>
             </v-row>
 
             <div class="d-flex flex-wrap ga-2 mt-1">
-              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" @click="applyTextTransform('upper')">UPPER</v-btn>
-              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" @click="applyTextTransform('lower')">lower</v-btn>
-              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" @click="applyTextTransform('title')">Title Case</v-btn>
-              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" @click="applyTextTransform('camel')">camelCase</v-btn>
-              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" @click="applyTextTransform('snake')">snake_case</v-btn>
-              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" @click="applyTextTransform('kebab')">kebab-case</v-btn>
+              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg"
+                @click="applyTextTransform('upper')">UPPER</v-btn>
+              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg"
+                @click="applyTextTransform('lower')">lower</v-btn>
+              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg"
+                @click="applyTextTransform('title')">Title Case</v-btn>
+              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg"
+                @click="applyTextTransform('camel')">camelCase</v-btn>
+              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg"
+                @click="applyTextTransform('snake')">snake_case</v-btn>
+              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg"
+                @click="applyTextTransform('kebab')">kebab-case</v-btn>
               <v-spacer></v-spacer>
-              <v-btn class="text-none" color="primary" variant="flat" rounded="lg" prepend-icon="mdi-content-copy" @click="copyToClipboard(textResult, 'Text output')">Copy</v-btn>
+              <v-btn class="text-none" color="primary" variant="flat" rounded="lg" prepend-icon="mdi-content-copy"
+                @click="copyToClipboard(textResult, 'Text output')">Copy</v-btn>
               <v-btn class="text-none" color="error" variant="text" rounded="lg" @click="clearTextTool">Clear</v-btn>
             </div>
           </v-card>
@@ -278,36 +272,29 @@ const generatePassword = () => {
 
             <v-row>
               <v-col cols="12" md="6">
-                <v-textarea
-                  v-model="encodingInput"
-                  label="Input text"
-                  variant="outlined"
-                  auto-grow
-                  rows="6"
-                  density="comfortable"
-                />
+                <v-textarea v-model="encodingInput" label="Input text" variant="outlined" auto-grow rows="6"
+                  density="comfortable" />
               </v-col>
               <v-col cols="12" md="6">
-                <v-textarea
-                  v-model="encodingOutput"
-                  label="Output"
-                  variant="outlined"
-                  auto-grow
-                  rows="6"
-                  density="comfortable"
-                  readonly
-                />
+                <v-textarea v-model="encodingOutput" label="Output" variant="outlined" auto-grow rows="6"
+                  density="comfortable" readonly />
               </v-col>
             </v-row>
 
             <div class="d-flex flex-wrap ga-2 mt-1">
-              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" @click="encodeUrl">URL Encode</v-btn>
-              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" @click="decodeUrl">URL Decode</v-btn>
-              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" @click="encodeBase64">Base64 Encode</v-btn>
-              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" @click="decodeBase64">Base64 Decode</v-btn>
+              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" @click="encodeUrl">URL
+                Encode</v-btn>
+              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" @click="decodeUrl">URL
+                Decode</v-btn>
+              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" @click="encodeBase64">Base64
+                Encode</v-btn>
+              <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" @click="decodeBase64">Base64
+                Decode</v-btn>
               <v-spacer></v-spacer>
-              <v-btn class="text-none" color="primary" variant="flat" rounded="lg" prepend-icon="mdi-content-copy" @click="copyToClipboard(encodingOutput, 'Encoding output')">Copy</v-btn>
-              <v-btn class="text-none" color="error" variant="text" rounded="lg" @click="clearEncodingTool">Clear</v-btn>
+              <v-btn class="text-none" color="primary" variant="flat" rounded="lg" prepend-icon="mdi-content-copy"
+                @click="copyToClipboard(encodingOutput, 'Encoding output')">Copy</v-btn>
+              <v-btn class="text-none" color="error" variant="text" rounded="lg"
+                @click="clearEncodingTool">Clear</v-btn>
             </div>
           </v-card>
         </v-col>
@@ -324,10 +311,13 @@ const generatePassword = () => {
                   <v-icon icon="mdi-fingerprint" color="primary" size="32"></v-icon>
                 </div>
 
-                <v-text-field v-model="uuidValue" label="Generated UUID" variant="outlined" readonly density="comfortable" />
+                <v-text-field v-model="uuidValue" label="Generated UUID" variant="outlined" readonly
+                  density="comfortable" />
                 <div class="d-flex flex-wrap ga-2">
-                  <v-btn class="text-none" color="primary" variant="flat" rounded="lg" @click="generateUuid">Generate UUID</v-btn>
-                  <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" prepend-icon="mdi-content-copy" @click="copyToClipboard(uuidValue, 'UUID')">Copy</v-btn>
+                  <v-btn class="text-none" color="primary" variant="flat" rounded="lg" @click="generateUuid">Generate
+                    UUID</v-btn>
+                  <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" prepend-icon="mdi-content-copy"
+                    @click="copyToClipboard(uuidValue, 'UUID')">Copy</v-btn>
                 </div>
               </v-card>
             </v-col>
@@ -342,15 +332,8 @@ const generatePassword = () => {
                   <v-icon icon="mdi-shield-key-outline" color="primary" size="32"></v-icon>
                 </div>
 
-                <v-text-field
-                  v-model.number="passwordLength"
-                  type="number"
-                  min="4"
-                  max="64"
-                  label="Password length"
-                  variant="outlined"
-                  density="comfortable"
-                />
+                <v-text-field v-model.number="passwordLength" type="number" min="4" max="64" label="Password length"
+                  variant="outlined" density="comfortable" />
 
                 <div class="toggle-grid mb-2">
                   <v-checkbox v-model="includeUpper" label="Uppercase" density="compact" hide-details />
@@ -359,17 +342,14 @@ const generatePassword = () => {
                   <v-checkbox v-model="includeSymbols" label="Symbols" density="compact" hide-details />
                 </div>
 
-                <v-text-field
-                  v-model="passwordValue"
-                  label="Generated password"
-                  variant="outlined"
-                  readonly
-                  density="comfortable"
-                />
+                <v-text-field v-model="passwordValue" label="Generated password" variant="outlined" readonly
+                  density="comfortable" />
 
                 <div class="d-flex flex-wrap ga-2">
-                  <v-btn class="text-none" color="primary" variant="flat" rounded="lg" @click="generatePassword">Generate Password</v-btn>
-                  <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" prepend-icon="mdi-content-copy" @click="copyToClipboard(passwordValue, 'Password')">Copy</v-btn>
+                  <v-btn class="text-none" color="primary" variant="flat" rounded="lg"
+                    @click="generatePassword">Generate Password</v-btn>
+                  <v-btn class="text-none" color="primary" variant="tonal" rounded="lg" prepend-icon="mdi-content-copy"
+                    @click="copyToClipboard(passwordValue, 'Password')">Copy</v-btn>
                 </div>
               </v-card>
             </v-col>

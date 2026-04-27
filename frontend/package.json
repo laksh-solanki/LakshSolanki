@@ -12,8 +12,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "preview:dist": "vite preview --host",
-    "test:deploy": "VITE_BASE_URL=/ npm run build && npx serve dist -s -l 3001"
+    "preview:dist": "vite preview --host"
   },
   "dependencies": {
     "@fontsource/jetbrains-mono": "^5.2.8",
@@ -41,6 +40,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.6",
+    "esbuild": "^0.28.0",
     "prettier": "^3.8.3",
     "unplugin-fonts": "^2.0.0",
     "unplugin-vue-components": "^32.0.0",

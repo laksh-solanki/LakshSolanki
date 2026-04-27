@@ -543,7 +543,7 @@ onUnmounted(() => {
 }
 
 .quick-card {
-  border: 1px solid rgba(15, 143, 124, 0.12);
+  border: 1px solid #4e46e590;
   background: rgba(255, 255, 255, 0.9);
   color: var(--portfolio-ink);
   border-radius: 12px;
@@ -558,9 +558,9 @@ onUnmounted(() => {
 }
 
 .quick-card:hover {
-  border-color: rgba(15, 143, 124, 0.24);
+  border-color: #4e46e572;
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(18, 38, 33, 0.08);
+  box-shadow: 0 8px 20px #4e46e53b;
 }
 
 .suggestion-list {
@@ -570,8 +570,8 @@ onUnmounted(() => {
 }
 
 .suggestion-chip {
-  border: 1px solid rgba(15, 143, 124, 0.14);
-  background: rgba(15, 143, 124, 0.08);
+  border: 1px solid #4e46e5c3;
+  background: #4e46e537;
   color: var(--portfolio-ink-soft);
   border-radius: 999px;
   padding: 6px 11px;
@@ -605,8 +605,7 @@ onUnmounted(() => {
   border-radius: 10px;
   display: grid;
   place-items: center;
-  background: rgba(76, 207, 183, 0.12);
-  color: var(--portfolio-primary);
+  background: #4e46e56e;
 }
 
 .search-hit__content {
@@ -634,7 +633,7 @@ onUnmounted(() => {
 .search-hit:hover,
 .search-hit.is-active {
   border-color: rgba(15, 143, 124, 0.24);
-  background: linear-gradient(128deg, rgba(15, 143, 124, 0.1), rgba(15, 143, 124, 0.04));
+  background: linear-gradient(128deg, #4e46e53b , #4e46e541);
 }
 
 .empty-state {
