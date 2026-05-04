@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, shallowReactive, watch } from "vue";
 import Alerts from "@/components/Alerts.vue";
 
 const REMOVE_BG_ENDPOINT = "https://api.remove.bg/v1.0/removebg";
@@ -21,11 +21,11 @@ const PNG_SIGNATURE = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
 const TEXT_ENCODER = new TextEncoder();
 
 const inputMode = ref("file");
-const fileInput = ref(null);
+const fileUploadModel = ref([]);
+const uploads = shallowReactive(new Map());
 const selectedFile = ref(null);
 const selectedFileName = ref("");
 const imageUrl = ref("");
-const sourcePreviewUrl = ref("");
 const resultPreviewUrl = ref("");
 const resultBlob = ref(null);
 const transparentResultBlob = ref(null);
@@ -68,9 +68,6 @@ const isBusy = computed(() => isProcessing.value || isApplyingColor.value);
 const canProcess = computed(() => hasApiKey.value && hasSource.value && !isBusy.value);
 const hasGeneratedOutput = computed(() => Boolean(resultPreviewUrl.value));
 const showBackgroundTools = computed(() => hasGeneratedOutput.value);
-const sourcePreview = computed(() =>
-  inputMode.value === "file" ? sourcePreviewUrl.value : imageUrl.value.trim(),
-);
 const selectedFileDetails = computed(() => {
   const file = selectedFile.value;
   if (!file) return "";
@@ -117,13 +114,6 @@ const showAlert = (message, type = "success") => {
   alertVisible.value = true;
 };
 
-const revokeSourcePreview = () => {
-  if (sourcePreviewUrl.value) {
-    URL.revokeObjectURL(sourcePreviewUrl.value);
-    sourcePreviewUrl.value = "";
-  }
-};
-
 const revokeResultPreview = () => {
   if (resultPreviewUrl.value) {
     URL.revokeObjectURL(resultPreviewUrl.value);
@@ -149,13 +139,36 @@ const clearSource = () => {
   selectedFile.value = null;
   selectedFileName.value = "";
   imageUrl.value = "";
-  revokeSourcePreview();
-  if (fileInput.value) {
-    fileInput.value.value = "";
+  if (fileUploadModel.value.length) {
+    fileUploadModel.value = [];
   }
+  uploads.clear();
 };
 
-const openFilePicker = () => fileInput.value?.click();
+watch(fileUploadModel, (files) => {
+  const currentFiles = Array.isArray(files) ? files : [];
+  for (const existingFile of Array.from(uploads.keys())) {
+    if (!currentFiles.includes(existingFile)) {
+      uploads.delete(existingFile);
+    }
+  }
+
+  const file = currentFiles.length ? currentFiles[0] : null;
+  if (file) {
+    uploads.set(file, {
+      progress: 100,
+      buffer: 100,
+    });
+  }
+
+  if (!file) {
+    clearSource();
+    return;
+  }
+
+  if (selectedFile.value === file) return;
+  setSelectedFile(file);
+});
 
 const formatFileSize = (bytes = 0) => {
   if (!bytes) return "0 B";
@@ -358,11 +371,9 @@ const setSelectedFile = (file) => {
     return;
   }
 
-  clearSource();
   resetResult();
   selectedFile.value = file;
   selectedFileName.value = file.name;
-  sourcePreviewUrl.value = URL.createObjectURL(file);
   showAlert(`Selected ${file.name} (${formatFileSize(file.size)}).`);
 };
 
@@ -753,7 +764,6 @@ onBeforeUnmount(() => {
     clearTimeout(autoApplyTimer);
   }
   window.removeEventListener("paste", handleWindowPaste);
-  revokeSourcePreview();
   revokeResultPreview();
 });
 
@@ -789,31 +799,29 @@ watch(
             </v-btn-toggle>
 
             <div v-if="inputMode === 'file'">
-              <input ref="fileInput" type="file" accept="image/*" class="d-none" @change="handleFileInput" />
-
-              <div class="drop-zone" :class="{ 'drop-zone-active': isDragging }" @click="openFilePicker"
-                @dragenter.prevent="isDragging = true" @dragover.prevent="isDragging = true"
-                @dragleave.prevent="isDragging = false" @drop="handleDrop">
-                <v-icon size="32" class="mb-2">mdi-image-plus</v-icon>
-                <p class="mb-1 font-weight-medium">Drop an image here or click to browse</p>
-                <p class="text-caption text-medium-emphasis mb-0">Supported: JPG, PNG, WebP</p>
-                <p class="text-caption text-medium-emphasis mt-1 mb-0">Tip: Press Ctrl + V to paste an image</p>
-              </div>
-
-              <div v-if="selectedFileName" class="selected-file mt-4">
-                <div class="selected-file-icon" aria-hidden="true">
-                  <v-icon size="18">mdi-file-image-outline</v-icon>
-                </div>
-                <div class="selected-file-body">
-                  <p class="mb-1 text-caption text-medium-emphasis">Selected File</p>
-                  <p class="selected-file-name mb-1">{{ selectedFileName }}</p>
-                  <p class="selected-file-meta mb-0">{{ selectedFileDetails }}</p>
-                </div>
-                <v-btn icon variant="text" color="error" class="selected-file-remove" aria-label="Remove selected file"
-                  @click="clearSource">
-                  <v-icon size="18">mdi-close</v-icon>
-                </v-btn>
-              </div>
+              <v-file-upload v-model="fileUploadModel" accept="image/*" clearable show-size :max-files="1">
+                <template #default>
+                  <v-file-upload-dropzone density="comfortable" rounded="xl" />
+                  <v-file-upload-list class="upload-list">
+                    <template v-slot:default="{ files, onClickRemove }">
+                      <v-file-upload-item v-for="(file, index) in files"
+                        :key="`${file.name}-${file.size}-${file.lastModified}`" :file="file" clearable show-size>
+                        <template #prepend>
+                          <VAvatar rounded="lg"></VAvatar>
+                          <v-progress-linear v-if="uploads.has(file)" :buffer-value="uploads.get(file).buffer"
+                            :color="uploads.get(file).progress >= 100 ? 'success' : 'primary'"
+                            :model-value="uploads.get(file).progress" location="bottom" absolute></v-progress-linear>
+                        </template>
+                        <template #clear>
+                          <v-btn color="error" icon variant="text" aria-label="Remove file" @click.stop.prevent="onClickRemove(index)">
+                            <v-icon>mdi-trash-can</v-icon>
+                          </v-btn>
+                        </template>
+                      </v-file-upload-item>
+                    </template>
+                  </v-file-upload-list>
+                </template>
+              </v-file-upload>
             </div>
 
             <div v-else>
@@ -823,22 +831,13 @@ watch(
 
             <v-progress-linear v-if="isBusy" indeterminate color="primary" height="5" rounded class="my-5" />
 
-            <div class="d-flex flex-wrap ga-3 mt-5 action-group">
+            <div class="d-flex flex-wrap ga-2 action-group mt-5">
               <v-btn color="primary" class="text-none" rounded="xl" :loading="isProcessing" :disabled="!canProcess"
                 @click="removeBackground">
                 Create Passport Photo
               </v-btn>
             </div>
 
-            <div class="input-preview-shell mt-5">
-              <p class="input-preview-title">Input Photo</p>
-              <div class="input-preview-frame">
-                <v-img v-if="sourcePreview" :src="sourcePreview" cover class="input-preview-image" />
-                <div v-else class="preview-empty">
-                  Selected image will appear here.
-                </div>
-              </div>
-            </div>
           </v-card>
         </v-col>
 
@@ -1064,53 +1063,6 @@ watch(
   background: rgba(15, 143, 124, 0.12);
 }
 
-.selected-file {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border: 1px solid rgba(19, 111, 99, 0.12);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 6px 14px rgba(11, 39, 34, 0.04);
-}
-
-.selected-file-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  background: #4c47e32b !important;
-  color: #4F46E5 !important;
-}
-
-.selected-file-body {
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.selected-file-name {
-  margin: 0;
-  font-weight: 700;
-  color: #10312b;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.selected-file-meta {
-  margin: 0;
-  font-size: 0.78rem;
-  color: #5252d6 !important;
-}
-
-.selected-file-remove {
-  flex: 0 0 auto;
-}
-
 .tools-unlock-note {
   display: flex;
   align-items: center;
@@ -1127,36 +1079,6 @@ watch(
   color: #4F46E5;
 }
 
-.input-preview-shell {
-  border: 1px solid rgba(15, 143, 124, 0.16);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.84);
-  padding: 12px;
-}
-
-.input-preview-title {
-  margin: 0 0 8px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: var(--portfolio-ink-soft);
-}
-
-.input-preview-frame {
-  min-height: 190px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #f3f6f9;
-  border: 1px solid rgba(15, 143, 124, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.input-preview-image {
-  width: 100%;
-  height: 100%;
-}
 
 .output-controls {
   border: 1px solid rgba(15, 143, 124, 0.16);
@@ -1381,16 +1303,6 @@ watch(
     padding: 20px 14px;
   }
 
-  .selected-file {
-    align-items: flex-start;
-    padding: 10px;
-  }
-
-  .selected-file-icon {
-    width: 32px;
-    height: 32px;
-  }
-
   .output-controls {
     padding: 10px;
   }
@@ -1430,10 +1342,6 @@ watch(
   .tools-unlock-note {
     align-items: flex-start;
     font-size: 0.92rem;
-  }
-
-  .input-preview-frame {
-    min-height: 170px;
   }
 
   .preview-frame {

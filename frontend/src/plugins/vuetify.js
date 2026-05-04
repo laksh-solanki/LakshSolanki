@@ -6,6 +6,12 @@ import { h } from "vue";
 import { createVuetify } from "vuetify";
 import * as mdiIcons from "@mdi/js";
 import { aliases as mdiAliases, mdi } from "vuetify/iconsets/mdi-svg";
+import {
+  VFileUpload,
+  VFileUploadDropzone,
+  VFileUploadItem,
+  VFileUploadList,
+} from 'vuetify/labs/VFileUpload'
 
 const toMdiJsExportName = (iconName) => {
   if (typeof iconName !== "string" || !iconName.startsWith("mdi-")) {
@@ -57,6 +63,12 @@ export default createVuetify({
     sets: {
       mdiSvgCompat,
     },
+  },
+  components: {
+    VFileUpload,
+    VFileUploadDropzone,
+    VFileUploadItem,
+    VFileUploadList,
   },
   theme: {
     defaultTheme: "portfolioLight",

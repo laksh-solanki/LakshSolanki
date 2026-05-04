@@ -165,7 +165,7 @@ const projects = ref([
         <v-divider class="mb-2 opacity-20"></v-divider>
 
         <v-list-item v-for="project in projects" :key="project.id" :to="project.link" :title="project.title"
-          :subtitle="project.category" :prepend-icon="project.icon" rounded="lg" class="mb-1"></v-list-item>
+         :prepend-icon="project.icon" rounded="lg" class="mb-1"></v-list-item>
       </v-list>
     </v-navigation-drawer>
 
