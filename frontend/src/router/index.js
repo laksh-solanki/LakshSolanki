@@ -86,6 +86,12 @@ const routes = [
         component: () => import("@/pages/Projects/PptEditor.vue"),
         meta: { title: "LakshSolanki | PPT Editor" },
       },
+      {
+        path: "api-blueprint",
+        name: "ApiBlueprint",
+        component: () => import("@/pages/Projects/ApiBlueprint.vue"),
+        meta: { title: "LakshSolanki | API Blueprint Designer" },
+      },
     ],
   },
   {

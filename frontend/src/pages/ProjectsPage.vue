@@ -129,6 +129,17 @@ const projects = ref([
     link: "/projects/ppt-editor",
     tags: ["PPTX", "JSZip", "Local Processing"],
   },
+  {
+    id: 12,
+    title: "API Blueprint Designer",
+    category: "Developer Tooling",
+    description:
+      "Visual API design studio with OpenAPI/Swagger generation, endpoint modeling, request/response schemas, mock server export, and collaborative documentation templates.",
+    image: getMediaUrl("project_img/Project-6.svg"),
+    icon: "mdi-blueprint",
+    link: "/projects/api-blueprint",
+    tags: ["OpenAPI", "API Design", "Documentation"],
+  },
 ]);
 
 </script>

@@ -162,7 +162,10 @@ const extractSlideElements = async (xmlDoc, relMap, zip, canvasW, canvasH, emuSc
       }
 
       if (txBody && (!isLockedGroup || !isPh)) {
-        const aTags = Array.from(txBody.getElementsByTagName('a:t')).concat(Array.from(txBody.getElementsByTagNameNS('*', 't')));
+        const aTags = Array.from(new Set([
+          ...Array.from(txBody.getElementsByTagName('a:t')),
+          ...Array.from(txBody.getElementsByTagNameNS('*', 't'))
+        ]));
         combinedText = aTags.map(t => t.textContent).join('');
         if (combinedText.trim()) hasText = true;
       }
@@ -271,7 +274,10 @@ const extractSlideElements = async (xmlDoc, relMap, zip, canvasW, canvasH, emuSc
     await processNode(child, null);
   }
 
-  const vImages = Array.from(xmlDoc.getElementsByTagName('v:imagedata')).concat(Array.from(xmlDoc.getElementsByTagNameNS('*', 'imagedata')));
+  const vImages = Array.from(new Set([
+    ...Array.from(xmlDoc.getElementsByTagName('v:imagedata')),
+    ...Array.from(xmlDoc.getElementsByTagNameNS('*', 'imagedata'))
+  ]));
   for (let i = 0; i < vImages.length; i++) {
     let vNode = vImages[i];
     let rId = vNode.getAttribute('r:id');
@@ -515,6 +521,41 @@ const addTextBox = () => {
   activeElement.value = newItem;
 };
 
+// Add shape to slide
+const addShape = (type) => {
+  if (!activeSlide.value) return;
+  const newItem = {
+    type: 'shape',
+    id: `new_shape_${type}_${Date.now()}`,
+    isNew: true,
+    x: CANVAS_WIDTH / 2 - 60,
+    y: canvasHeight.value / 2 - 30,
+    w: 120, h: 60, rotation: 0,
+    shapeFill: '#cccccc', borderColor: '#000000', borderWidth: 2, prst: type,
+    zIndex: Math.max(...activeSlide.value.items.map(i => i.zIndex || 0), 100) + 1
+  };
+  activeSlide.value.items.push(newItem);
+  activeElement.value = newItem;
+};
+
+// Add icon to slide
+const addIcon = (mdiIcon) => {
+  if (!activeSlide.value) return;
+  const newItem = {
+    type: 'icon',
+    id: `new_icon_${Date.now()}`,
+    isNew: true,
+    x: CANVAS_WIDTH / 2 - 30,
+    y: canvasHeight.value / 2 - 30,
+    w: 60, h: 60, rotation: 0,
+    mdiIcon,
+    iconColor: '#000000',
+    zIndex: Math.max(...activeSlide.value.items.map(i => i.zIndex || 0), 100) + 1
+  };
+  activeSlide.value.items.push(newItem);
+  activeElement.value = newItem;
+};
+
 const deleteActiveElement = () => {
   if (!activeElement.value || !activeSlide.value) return;
   if (!activeElement.value.isNew && activeElement.value.originalShapeNode) {
@@ -747,113 +788,235 @@ const downloadEditedPptx = async () => {
     </v-container>
 
     <div v-else class="editor-layout d-flex flex-column">
-      <!-- Toolbar -->
-      <v-toolbar class="editor-toolbar mb-0 px-0 pl-2 overflow-x-auto" elevation="0" density="compact">
-        <!-- Global Actions -->
-        <v-btn prepend-icon="mdi-format-text" variant="tonal" size="small" color="primary" class="mr-2"
-          @click="addTextBox">Add Text</v-btn>
+      <!-- Toolbar Row 1: Insert tools + Slide BG + Save -->
+      <div class="editor-toolbar-row1 d-flex align-center flex-wrap px-2 py-1 ga-1">
+        <v-btn prepend-icon="mdi-format-text" variant="tonal" size="x-small" color="primary"
+          @click="addTextBox">Text</v-btn>
 
-        <v-divider vertical class="mx-3"></v-divider>
+        <v-menu>
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props" variant="tonal" size="x-small" color="primary"
+              prepend-icon="mdi-shape-outline">Shapes</v-btn>
+          </template>
+          <v-list density="compact" nav>
+            <v-list-item @click="addShape('rect')"
+              prepend-icon="mdi-rectangle-outline"><v-list-item-title>Rectangle</v-list-item-title></v-list-item>
+            <v-list-item @click="addShape('ellipse')"
+              prepend-icon="mdi-circle-outline"><v-list-item-title>Circle</v-list-item-title></v-list-item>
+            <v-list-item @click="addShape('triangle')"
+              prepend-icon="mdi-triangle-outline"><v-list-item-title>Triangle</v-list-item-title></v-list-item>
+            <v-list-item @click="addShape('star')"
+              prepend-icon="mdi-star-outline"><v-list-item-title>Star</v-list-item-title></v-list-item>
+            <v-list-item @click="addShape('arrow')"
+              prepend-icon="mdi-arrow-right-thick"><v-list-item-title>Arrow</v-list-item-title></v-list-item>
+            <v-list-item @click="addShape('line')"
+              prepend-icon="mdi-minus"><v-list-item-title>Line</v-list-item-title></v-list-item>
+            <v-list-item @click="addShape('pentagon')"
+              prepend-icon="mdi-shape"><v-list-item-title>Pentagon</v-list-item-title></v-list-item>
+            <v-list-item @click="addShape('hexagon')"
+              prepend-icon="mdi-hexagon-outline"><v-list-item-title>Hexagon</v-list-item-title></v-list-item>
+          </v-list>
+        </v-menu>
 
-        <!-- Contextual Formatting Tools -->
-        <template v-if="activeElement?.type === 'slide'">
-          <v-icon color="grey-darken-1" size="small" class="mr-2">mdi-palette-outline</v-icon>
-          <span class="text-caption font-weight-bold text-grey-darken-2 mr-2">Slide Background:</span>
-          <input type="color" v-model="activeSlide.bgColor" class="color-picker-input border rounded" />
-        </template>
+        <v-menu>
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props" variant="tonal" size="x-small" color="primary"
+              prepend-icon="mdi-emoticon-outline">Icons</v-btn>
+          </template>
+          <v-list density="compact" nav>
+            <v-list-item @click="addIcon('mdi-emoticon-happy-outline')"
+              prepend-icon="mdi-emoticon-happy-outline"><v-list-item-title>Happy</v-list-item-title></v-list-item>
+            <v-list-item @click="addIcon('mdi-emoticon-neutral-outline')"
+              prepend-icon="mdi-emoticon-neutral-outline"><v-list-item-title>Neutral</v-list-item-title></v-list-item>
+            <v-list-item @click="addIcon('mdi-emoticon-sad-outline')"
+              prepend-icon="mdi-emoticon-sad-outline"><v-list-item-title>Sad</v-list-item-title></v-list-item>
+            <v-list-item @click="addIcon('mdi-heart-outline')"
+              prepend-icon="mdi-heart-outline"><v-list-item-title>Heart</v-list-item-title></v-list-item>
+            <v-list-item @click="addIcon('mdi-star-outline')"
+              prepend-icon="mdi-star-outline"><v-list-item-title>Star</v-list-item-title></v-list-item>
+            <v-list-item @click="addIcon('mdi-flag-outline')"
+              prepend-icon="mdi-flag-outline"><v-list-item-title>Flag</v-list-item-title></v-list-item>
+            <v-list-item @click="addIcon('mdi-lightning-bolt-outline')"
+              prepend-icon="mdi-lightning-bolt-outline"><v-list-item-title>Lightning</v-list-item-title></v-list-item>
+            <v-list-item @click="addIcon('mdi-check-circle-outline')"
+              prepend-icon="mdi-check-circle-outline"><v-list-item-title>Check</v-list-item-title></v-list-item>
+          </v-list>
+        </v-menu>
 
-        <div v-else-if="activeElement?.type === 'text'" class="d-flex align-center ga-1">
-          <v-btn icon="mdi-format-font-size-decrease" size="small" variant="text"
-            @click="activeElement.fontSize -= 2"></v-btn>
-          <span class="font-weight-bold px-1" style="min-width: 32px; text-align: center;">{{ activeElement.fontSize
-          }}</span>
-          <v-btn icon="mdi-format-font-size-increase" size="small" variant="text"
-            @click="activeElement.fontSize += 2"></v-btn>
-          <v-divider vertical class="mx-2 my-2"></v-divider>
+        <v-divider vertical class="mx-1" style="height:24px"></v-divider>
 
-          <v-btn :color="activeElement.isBold ? 'primary' : 'default'" icon="mdi-format-bold" size="small"
-            variant="text" @click="activeElement.isBold = !activeElement.isBold"></v-btn>
-          <v-btn :color="activeElement.isItalic ? 'primary' : 'default'" icon="mdi-format-italic" size="small"
-            variant="text" @click="activeElement.isItalic = !activeElement.isItalic"></v-btn>
-          <v-btn :color="activeElement.isUnderline ? 'primary' : 'default'" icon="mdi-format-underline" size="small"
-            variant="text" @click="activeElement.isUnderline = !activeElement.isUnderline"></v-btn>
-          <v-divider vertical class="mx-2 my-2"></v-divider>
-
-          <v-btn :color="activeElement.align === 'l' ? 'primary' : 'default'" icon="mdi-format-align-left" size="small"
-            variant="text" @click="activeElement.align = 'l'"></v-btn>
-          <v-btn :color="activeElement.align === 'ctr' ? 'primary' : 'default'" icon="mdi-format-align-center"
-            size="small" variant="text" @click="activeElement.align = 'ctr'"></v-btn>
-          <v-btn :color="activeElement.align === 'r' ? 'primary' : 'default'" icon="mdi-format-align-right" size="small"
-            variant="text" @click="activeElement.align = 'r'"></v-btn>
-          <v-divider vertical class="mx-2 my-2"></v-divider>
-
-          <input type="color" v-model="activeElement.color" class="color-picker-input ml-2 border rounded" />
-        </div>
-
-        <div v-else class="d-flex align-center">
-          <span class="text-caption text-grey ml-2">Select an item or the slide background to edit.</span>
-        </div>
+        <v-icon color="grey-darken-1" size="x-small">mdi-palette-outline</v-icon>
+        <span class="toolbar-label">BG:</span>
+        <input type="color" :value="activeSlide?.bgColor || '#ffffff'"
+          @input="activeSlide && (activeSlide.bgColor = $event.target.value)"
+          class="color-picker-input border rounded" />
 
         <v-spacer></v-spacer>
 
-        <!-- Element Operations (Hidden if slide bg) -->
-        <div v-if="activeElement && activeElement.type !== 'slide'" class="d-flex align-center ga-1">
-          <v-btn icon="mdi-arrange-bring-forward" size="small" variant="text" @click="activeElement.zIndex += 1"
+        <!-- Element layer controls -->
+        <div class="d-flex align-center ga-1"
+          :class="{ 'opacity-40': !activeElement || activeElement.type === 'slide' }">
+          <v-btn icon="mdi-arrange-bring-forward" size="x-small" variant="text"
+            :disabled="!activeElement || activeElement.type === 'slide'"
+            @click="activeElement && activeElement.type !== 'slide' && (activeElement.zIndex += 1)"
             title="Bring Forward"></v-btn>
-          <v-btn icon="mdi-arrange-send-backward" size="small" variant="text" @click="activeElement.zIndex -= 1"
+          <v-btn icon="mdi-arrange-send-backward" size="x-small" variant="text"
+            :disabled="!activeElement || activeElement.type === 'slide'"
+            @click="activeElement && activeElement.type !== 'slide' && (activeElement.zIndex -= 1)"
             title="Send Backward"></v-btn>
-          <v-divider vertical class="mx-2 my-2"></v-divider>
-          <v-btn icon="mdi-delete" color="error" rounded="0" variant="flat" @click="deleteActiveElement"
-            title="Delete Element"></v-btn>
+          <v-btn icon="mdi-delete" color="error" size="x-small" variant="tonal"
+            :disabled="!activeElement || activeElement.type === 'slide'" @click="deleteActiveElement"
+            title="Delete"></v-btn>
         </div>
-        <v-btn v-if="slidesData.length > 0"  color="primary" rounded="0" icon="mdi-download"
-          @click="downloadEditedPptx" :loading="isProcessing" variant="flat" elevation="0">
+
+        <v-btn color="primary" size="x-small" icon="mdi-download" @click="downloadEditedPptx" :loading="isProcessing"
+          variant="flat">
         </v-btn>
-      </v-toolbar>
+      </div>
+
+      <!-- Toolbar Row 2: Formatting tools (always visible, contextually active) -->
+      <div class="editor-toolbar-row2 d-flex align-center flex-wrap px-2 py-1 ga-1">
+        <!-- Text formatting -->
+        <div class="d-flex align-center ga-1"
+          :class="{ 'opacity-40': !activeElement || activeElement.type !== 'text' }">
+          <span class="toolbar-label">Txt:</span>
+          <v-btn icon="mdi-minus" size="x-small" variant="text"
+            :disabled="!activeElement || activeElement.type !== 'text'"
+            @click="activeElement && activeElement.type === 'text' && (activeElement.fontSize -= 2)"></v-btn>
+          <span class="toolbar-counter">{{ activeElement?.type === 'text' ? activeElement.fontSize : '--' }}</span>
+          <v-btn icon="mdi-plus" size="x-small" variant="text"
+            :disabled="!activeElement || activeElement.type !== 'text'"
+            @click="activeElement && activeElement.type === 'text' && (activeElement.fontSize += 2)"></v-btn>
+
+          <v-divider vertical class="mx-1" style="height:20px"></v-divider>
+
+          <v-btn :color="activeElement?.type === 'text' && activeElement.isBold ? 'primary' : 'default'"
+            icon="mdi-format-bold" size="x-small" variant="text"
+            :disabled="!activeElement || activeElement.type !== 'text'"
+            @click="activeElement && activeElement.type === 'text' && (activeElement.isBold = !activeElement.isBold)"></v-btn>
+          <v-btn :color="activeElement?.type === 'text' && activeElement.isItalic ? 'primary' : 'default'"
+            icon="mdi-format-italic" size="x-small" variant="text"
+            :disabled="!activeElement || activeElement.type !== 'text'"
+            @click="activeElement && activeElement.type === 'text' && (activeElement.isItalic = !activeElement.isItalic)"></v-btn>
+          <v-btn :color="activeElement?.type === 'text' && activeElement.isUnderline ? 'primary' : 'default'"
+            icon="mdi-format-underline" size="x-small" variant="text"
+            :disabled="!activeElement || activeElement.type !== 'text'"
+            @click="activeElement && activeElement.type === 'text' && (activeElement.isUnderline = !activeElement.isUnderline)"></v-btn>
+
+          <v-divider vertical class="mx-1" style="height:20px"></v-divider>
+
+          <v-btn :color="activeElement?.type === 'text' && activeElement.align === 'l' ? 'primary' : 'default'"
+            icon="mdi-format-align-left" size="x-small" variant="text"
+            :disabled="!activeElement || activeElement.type !== 'text'"
+            @click="activeElement && activeElement.type === 'text' && (activeElement.align = 'l')"></v-btn>
+          <v-btn :color="activeElement?.type === 'text' && activeElement.align === 'ctr' ? 'primary' : 'default'"
+            icon="mdi-format-align-center" size="x-small" variant="text"
+            :disabled="!activeElement || activeElement.type !== 'text'"
+            @click="activeElement && activeElement.type === 'text' && (activeElement.align = 'ctr')"></v-btn>
+          <v-btn :color="activeElement?.type === 'text' && activeElement.align === 'r' ? 'primary' : 'default'"
+            icon="mdi-format-align-right" size="x-small" variant="text"
+            :disabled="!activeElement || activeElement.type !== 'text'"
+            @click="activeElement && activeElement.type === 'text' && (activeElement.align = 'r')"></v-btn>
+
+          <v-divider vertical class="mx-1" style="height:20px"></v-divider>
+          <span class="toolbar-label">Color:</span>
+          <input type="color" :value="activeElement?.type === 'text' ? activeElement.color : '#000000'"
+            @input="(e) => { if (activeElement?.type === 'text') activeElement.color = e.target.value; }"
+            class="color-picker-input border rounded" :disabled="!activeElement || activeElement.type !== 'text'" />
+        </div>
+
+        <v-divider vertical class="mx-2" style="height:20px"></v-divider>
+
+        <!-- Shape / Icon color -->
+        <div class="d-flex align-center ga-1"
+          :class="{ 'opacity-40': !activeElement || (activeElement.type !== 'shape' && activeElement.type !== 'icon') }">
+          <span class="toolbar-label">Fill:</span>
+          <input type="color"
+            :value="activeElement?.type === 'shape' ? activeElement.shapeFill : activeElement?.type === 'icon' ? activeElement.iconColor : '#cccccc'"
+            @input="(e) => { if (activeElement?.type === 'shape') activeElement.shapeFill = e.target.value; if (activeElement?.type === 'icon') activeElement.iconColor = e.target.value; }"
+            class="color-picker-input border rounded"
+            :disabled="!activeElement || (activeElement.type !== 'shape' && activeElement.type !== 'icon')" />
+
+          <span class="toolbar-label">Border:</span>
+          <input type="color" :value="activeElement?.type === 'shape' ? activeElement.borderColor : '#000000'"
+            @input="(e) => { if (activeElement?.type === 'shape') activeElement.borderColor = e.target.value; }"
+            class="color-picker-input border rounded" :disabled="!activeElement || activeElement.type !== 'shape'" />
+        </div>
+      </div>
 
       <div
-        class="canvas-wrapper bg-grey-lighten-2 overflow-hidden d-flex justify-center align-center position-relative w-100 elevation-1"
-        :style="{ height: (canvasHeight * canvasScale + 64) + 'px' }">
+        class="canvas-wrapper bg-grey-lighten-2 overflow-hidden d-flex justify-center align-start position-relative w-100 elevation-1"
+        :style="{ height: (canvasHeight * canvasScale + 80) + 'px', paddingTop: '16px' }">
         <div class="slide-canvas bg-white position-relative mt-8"
-          :style="{ width: CANVAS_WIDTH + 'px', height: canvasHeight + 'px', backgroundColor: activeSlide.bgColor + ' !important', transform: `scale(${canvasScale})`, transformOrigin: 'top center', outline: activeElement?.type === 'slide' ? '3px solid #8b3dff' : 'none' }"
+          :style="{ width: CANVAS_WIDTH + 'px', height: canvasHeight + 'px', backgroundColor: activeSlide?.bgColor || '#ffffff', transform: `scale(${canvasScale})`, transformOrigin: 'top center', outline: activeElement?.type === 'slide' ? '3px solid #8b3dff' : 'none' }"
           @mousedown="clearSelection">
-          <div class="canvas-watermark" v-if="!activeSlide.bgColor || activeSlide.bgColor === '#ffffff'"></div>
 
-          <div v-for="item in activeSlide.items" :key="item.id" :data-id="item.id"
-            class="position-absolute d-flex flex-column"
-            :class="{ 'canvas-element': !item.isBg, 'is-active': activeElement?.id === item.id }"
-            :style="{ left: item.x + 'px', top: item.y + 'px', width: item.w + 'px', height: item.h + 'px', zIndex: item.zIndex, transform: `rotate(${item.rotation || 0}deg)` }"
-            @mousedown="!item.isBg && selectElement(item)">
+          <!-- Clipped Layer: Contains background elements and all inactive elements -->
+          <div class="slide-content-clip position-absolute w-100 h-100 overflow-hidden"
+            style="top:0; left:0; clip-path: inset(0);">
+            <div class="canvas-watermark" v-if="!activeSlide.bgColor || activeSlide.bgColor === '#ffffff'"></div>
 
-            <img v-if="item.type === 'image'" :src="item.dataUrl" class="w-100 h-100"
-              :style="{ objectFit: 'fill', pointerEvents: 'none' }" />
+            <template v-for="item in activeSlide.items" :key="'visual_'+item.id">
+              <!-- Render background shapes/images and foreground items that are NOT currently being edited -->
+              <div v-if="item.id !== activeElement?.id" v-show="!(item.isBg && item.type === 'text')"
+                class="position-absolute d-flex flex-column" :class="{ 'canvas-element': !item.isBg }"
+                :style="{ left: item.x + 'px', top: item.y + 'px', width: item.w + 'px', height: item.h + 'px', zIndex: item.zIndex, transform: `rotate(${item.rotation || 0}deg)`, opacity: item.muted ? 0.4 : 1 }"
+                @mousedown="!item.isBg && selectElement(item)">
 
-            <div v-if="item.type === 'shape'" class="w-100 h-100 position-absolute" :style="{
-              backgroundColor: item.shapeFill,
-              border: item.borderWidth > 0 ? (item.borderWidth + 'px solid ' + item.borderColor) : 'none',
-              borderRadius: item.prst === 'ellipse' ? '50%' : '0',
-              pointerEvents: 'none'
-            }">
-            </div>
+                <img v-if="item.type === 'image'" :src="item.dataUrl" class="w-100 h-100"
+                  style="object-fit: fill; pointer-events: none;" />
 
-            <textarea v-if="item.type === 'text'" v-model="item.text" class="element-textarea w-100 h-100 pa-1"
-              :style="{ fontSize: (item.fontSize * (CANVAS_WIDTH / 960)) + 'px', fontWeight: item.isBold ? 'bold' : 'normal', fontStyle: item.isItalic ? 'italic' : 'normal', textDecoration: item.isUnderline ? 'underline' : 'none', color: item.color, textAlign: item.align === 'ctr' ? 'center' : item.align === 'r' ? 'right' : 'left', pointerEvents: item.isBg ? 'none' : 'auto' }"
-              :readonly="item.isBg" spellcheck="false"></textarea>
+                <div v-if="item.type === 'shape'" class="w-100 h-100 position-absolute" :style="{
+                  backgroundColor: item.shapeFill,
+                  border: item.borderWidth > 0 ? (item.borderWidth + 'px solid ' + item.borderColor) : 'none',
+                  borderRadius: item.prst === 'ellipse' ? '50%' : '0',
+                  clipPath: item.prst === 'triangle' ? 'polygon(50% 0%, 0% 100%, 100% 100%)' : item.prst === 'star' ? 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)' : item.prst === 'arrow' ? 'polygon(0% 40%, 70% 40%, 70% 20%, 100% 50%, 70% 80%, 70% 60%, 0% 60%)' : item.prst === 'line' ? 'polygon(0% 50%, 100% 50%, 100% 55%, 0% 55%)' : item.prst === 'pentagon' ? 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)' : item.prst === 'hexagon' ? 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)' : 'none',
+                  pointerEvents: 'none'
+                }"></div>
 
-            <!-- Canva style resize handles -->
-            <template v-if="!item.isBg">
+                <v-icon v-if="item.type === 'icon'" :icon="item.mdiIcon" class="w-100 h-100"
+                  :style="{ color: item.iconColor || '#000000', fontSize: '48px', pointerEvents: 'none', alignSelf: 'center', justifySelf: 'center' }"></v-icon>
+
+                <textarea v-if="item.type === 'text'" v-model="item.text" class="element-textarea w-100 h-100 pa-1"
+                  :style="{ fontSize: (item.fontSize * (CANVAS_WIDTH / 960)) + 'px', fontWeight: item.isBold ? 'bold' : 'normal', fontStyle: item.isItalic ? 'italic' : 'normal', textDecoration: item.isUnderline ? 'underline' : 'none', color: item.color, textAlign: item.align === 'ctr' ? 'center' : item.align === 'r' ? 'right' : 'left', pointerEvents: 'none' }"
+                  readonly spellcheck="false"></textarea>
+              </div>
+            </template>
+          </div>
+
+          <!-- Unclipped Layer: Contains only the active element (so handles stay visible outside slide bounds) -->
+          <template v-for="item in activeSlide.items" :key="'active_'+item.id">
+            <div v-if="item.id === activeElement?.id"
+              class="position-absolute d-flex flex-column canvas-element is-active" :data-id="item.id"
+              :style="{ left: item.x + 'px', top: item.y + 'px', width: item.w + 'px', height: item.h + 'px', zIndex: 1000, transform: `rotate(${item.rotation || 0}deg)`, opacity: 1 }">
+
+              <img v-if="item.type === 'image'" :src="item.dataUrl" class="w-100 h-100"
+                style="object-fit: fill; pointer-events: none;" />
+
+              <div v-if="item.type === 'shape'" class="w-100 h-100 position-absolute" :style="{
+                backgroundColor: item.shapeFill,
+                border: item.borderWidth > 0 ? (item.borderWidth + 'px solid ' + item.borderColor) : 'none',
+                borderRadius: item.prst === 'ellipse' ? '50%' : '0',
+                clipPath: item.prst === 'triangle' ? 'polygon(50% 0%, 0% 100%, 100% 100%)' : item.prst === 'star' ? 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)' : item.prst === 'arrow' ? 'polygon(0% 40%, 70% 40%, 70% 20%, 100% 50%, 70% 80%, 70% 60%, 0% 60%)' : item.prst === 'line' ? 'polygon(0% 50%, 100% 50%, 100% 55%, 0% 55%)' : item.prst === 'pentagon' ? 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)' : item.prst === 'hexagon' ? 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)' : 'none',
+                pointerEvents: 'none'
+              }"></div>
+
+              <v-icon v-if="item.type === 'icon'" :icon="item.mdiIcon" class="w-100 h-100"
+                :style="{ color: item.iconColor || '#000000', fontSize: '48px', pointerEvents: 'none', alignSelf: 'center', justifySelf: 'center' }"></v-icon>
+
+              <textarea v-if="item.type === 'text'" v-model="item.text" class="element-textarea w-100 h-100 pa-1"
+                :style="{ fontSize: (item.fontSize * (CANVAS_WIDTH / 960)) + 'px', fontWeight: item.isBold ? 'bold' : 'normal', fontStyle: item.isItalic ? 'italic' : 'normal', textDecoration: item.isUnderline ? 'underline' : 'none', color: item.color, textAlign: item.align === 'ctr' ? 'center' : item.align === 'r' ? 'right' : 'left', pointerEvents: 'auto' }"
+                spellcheck="false"></textarea>
+
+              <!-- Handles -->
               <div class="resize-handle corner-handle top-left"></div>
               <div class="resize-handle corner-handle top-right"></div>
               <div class="resize-handle corner-handle bottom-left"></div>
               <div class="resize-handle corner-handle bottom-right"></div>
-
               <div class="resize-handle edge-handle left-edge"></div>
               <div class="resize-handle edge-handle right-edge"></div>
-
               <div class="resize-handle edge-handle-h top-edge"></div>
               <div class="resize-handle edge-handle-h bottom-edge"></div>
-
-              <!-- Bottom Action Controls -->
               <div class="action-controls position-absolute d-flex justify-center ga-2 w-100"
                 style="bottom: -45px; left: 0;">
                 <div class="control-btn" @mousedown="startRotation($event, item)">
@@ -863,8 +1026,8 @@ const downloadEditedPptx = async () => {
                   <v-icon size="16">mdi-cursor-move</v-icon>
                 </div>
               </div>
-            </template>
-          </div>
+            </div>
+          </template>
         </div>
       </div>
 
@@ -874,7 +1037,7 @@ const downloadEditedPptx = async () => {
           :disabled="activeSlideIndex === 0"></v-btn>
         <span class="font-weight-bold px-6 text-subtitle-1">Slide {{ activeSlide?.slideNumber || 1 }} / {{
           slidesData.length
-        }}</span>
+          }}</span>
         <v-btn icon="mdi-chevron-right" variant="text" size="small" @click="activeSlideIndex++"
           :disabled="activeSlideIndex === slidesData.length - 1"></v-btn>
       </div>
@@ -896,8 +1059,30 @@ const downloadEditedPptx = async () => {
   border-color: rgba(var(--v-theme-primary), 0.8);
 }
 
-.editor-toolbar {
+.editor-toolbar-row1,
+.editor-toolbar-row2 {
   background: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  min-height: 36px;
+  flex-shrink: 0;
+}
+
+.editor-toolbar-row2 {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.toolbar-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #555;
+  white-space: nowrap;
+}
+
+.toolbar-counter {
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 24px;
+  text-align: center;
 }
 
 .color-picker-input {
