@@ -92,6 +92,12 @@ const routes = [
         component: () => import("@/pages/Projects/ApiBlueprint.vue"),
         meta: { title: "LakshSolanki | API Blueprint Designer" },
       },
+      {
+        path: "lifeflow-planner",
+        name: "LifeFlowPlanner",
+        component: () => import("@/pages/Projects/LifeFlowPlanner.vue"),
+        meta: { title: "LakshSolanki | LifeFlow Planner" },
+      },
     ],
   },
   {

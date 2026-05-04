@@ -9,6 +9,17 @@ const { mobile } = useDisplay();
 
 const projects = ref([
   {
+    id: 13,
+    title: "LifeFlow Planner",
+    category: "Everyday Productivity",
+    description:
+      "Minimal day planner with smart task capture, voice input, local offline persistence, and built-in focus timer blocks.",
+    image: getMediaUrl("project_img/Project-9.svg"),
+    icon: "mdi-calendar-check-outline",
+    link: "/projects/lifeflow-planner",
+    tags: ["Smart Planner", "Voice", "Offline"],
+  },
+  {
     id: 1,
     title: "Certificate Generator",
     category: "Developer Utility",
