@@ -32,14 +32,14 @@ const persistConsent = (status) => {
     window.localStorage.setItem(STORAGE_KEY, status);
   }
   if (typeof document !== "undefined") {
-    document.cookie = `${COOKIE_NAME}=${encodeURIComponent(status)}; Max-Age=${CONSENT_MAX_AGE_SECONDS}; Path=/; SameSite=Lax`;
+    document.cookie = `${COOKIE_NAME}=${encodeURIComponent(status)}; Max-Age=${CONSENT_MAX_AGE_SECONDS}; Path=/; SameSite=Lax; Secure`;
   }
 };
 
 const emitConsentChange = (status) => {
   if (typeof window === "undefined") return;
   window.dispatchEvent(
-    new CustomEvent("cookie-consent-changed", {
+    new CustomEvent("app:cookie-consent:changed", {
       detail: { status },
     }),
   );
