@@ -160,49 +160,49 @@ const generateOpenApiJson = () => {
       tags: endpoint.tags.length ? endpoint.tags : undefined,
       parameters: endpoint.parameters.length
         ? endpoint.parameters.map((param) => ({
-            name: param.name,
-            in: param.in,
-            required: param.in === "path" ? true : param.required,
-            schema: {
-              type: param.type,
-            },
-            description: param.description || undefined,
-          }))
+          name: param.name,
+          in: param.in,
+          required: param.in === "path" ? true : param.required,
+          schema: {
+            type: param.type,
+          },
+          description: param.description || undefined,
+        }))
         : undefined,
       requestBody: endpoint.requestBody
         ? {
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  example: JSON.parse(endpoint.requestBody) || {},
-                },
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                example: JSON.parse(endpoint.requestBody) || {},
               },
             },
-          }
+          },
+        }
         : undefined,
       responses: endpoint.responses.length
         ? endpoint.responses.reduce((acc, res) => {
-            acc[res.status] = {
-              description: res.description,
-              content: res.schema
-                ? {
-                    "application/json": {
-                      schema: {
-                        type: "object",
-                        example: JSON.parse(res.schema) || {},
-                      },
-                    },
-                  }
-                : undefined,
-            };
-            return acc;
-          }, {})
+          acc[res.status] = {
+            description: res.description,
+            content: res.schema
+              ? {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    example: JSON.parse(res.schema) || {},
+                  },
+                },
+              }
+              : undefined,
+          };
+          return acc;
+        }, {})
         : {
-            "200": {
-              description: "Successful response",
-            },
+          "200": {
+            description: "Successful response",
           },
+        },
     };
   });
 
@@ -304,7 +304,8 @@ const exportMarkdown = () => {
                 <p class="panel-kicker mb-1">API Blueprint Designer</p>
                 <h2 class="text-h5 font-weight-bold mb-1">Design and document your REST APIs</h2>
               </div>
-              <v-btn class="text-none" color="primary" variant="text" rounded="lg" prepend-icon="mdi-arrow-left" @click="goBack">Back</v-btn>
+              <v-btn class="text-none" color="primary" variant="text" rounded="lg" prepend-icon="mdi-arrow-left"
+                @click="goBack">Back</v-btn>
             </div>
 
             <v-row>
@@ -413,8 +414,9 @@ const exportMarkdown = () => {
 
                   <v-col cols="12">
                     <p class="text-subtitle-2 font-weight-bold mb-2">Request Body (JSON example)</p>
-                    <v-textarea v-model="currentEndpoint.requestBody" label='e.g., { "name": "John", "email": "john@example.com" }'
-                      variant="outlined" rows="3" density="comfortable" />
+                    <v-textarea v-model="currentEndpoint.requestBody"
+                      label='e.g., { "name": "John", "email": "john@example.com" }' variant="outlined" rows="3"
+                      density="comfortable" />
                   </v-col>
 
                   <v-col cols="12">
@@ -492,9 +494,11 @@ const exportMarkdown = () => {
 
                 <div class="d-flex flex-wrap ga-2 mb-4">
                   <v-btn color="primary" variant="flat" rounded="lg" prepend-icon="mdi-download"
-                    @click="downloadOpenApi">Download OpenAPI JSON</v-btn>
+                    @click="downloadOpenApi">Download
+                    OpenAPI JSON</v-btn>
                   <v-btn color="primary" variant="tonal" rounded="lg" prepend-icon="mdi-content-copy"
-                    @click="copyOpenApi">Copy OpenAPI JSON</v-btn>
+                    @click="copyOpenApi">Copy
+                    OpenAPI JSON</v-btn>
                   <v-btn color="success" variant="tonal" rounded="lg" prepend-icon="mdi-language-markdown"
                     @click="exportMarkdown">Download Markdown Docs</v-btn>
                 </div>

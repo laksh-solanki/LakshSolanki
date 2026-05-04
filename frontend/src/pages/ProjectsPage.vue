@@ -165,7 +165,7 @@ const projects = ref([
         <v-divider class="mb-2 opacity-20"></v-divider>
 
         <v-list-item v-for="project in projects" :key="project.id" :to="project.link" :title="project.title"
-         :prepend-icon="project.icon" rounded="lg" class="mb-1"></v-list-item>
+          :prepend-icon="project.icon" rounded="lg" class="mb-1"></v-list-item>
       </v-list>
     </v-navigation-drawer>
 
@@ -182,7 +182,8 @@ const projects = ref([
 
           <v-row>
             <v-col v-for="project in projects" :key="project.id" cols="12" md="6" lg="4" class="d-flex">
-              <v-card class="section-shell project-card h-100" color="primary" :to="project.link" flat hover rounded="lg">
+              <v-card class="section-shell project-card h-100" color="primary" :to="project.link" flat hover
+                rounded="lg">
                 <v-img :src="project.image" cover class="project-media"></v-img>
 
                 <div class="p-5 d-flex flex-column project-card-body">

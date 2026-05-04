@@ -448,8 +448,8 @@ const goBack = () => window.history.back();
 
             <v-row>
               <v-col cols="12" md="6">
-                <v-textarea v-model="sourceInput" label="Source JSON" rows="12" auto-grow max-rows="20"
-                  variant="solo" rounded="lg" class="editor" ></v-textarea>
+                <v-textarea v-model="sourceInput" label="Source JSON" rows="12" auto-grow max-rows="20" variant="solo"
+                  rounded="lg" class="editor"></v-textarea>
               </v-col>
               <v-col cols="12" md="6">
                 <v-textarea v-model="compareInput" label="Compare JSON (optional)" rows="12" auto-grow max-rows="20"

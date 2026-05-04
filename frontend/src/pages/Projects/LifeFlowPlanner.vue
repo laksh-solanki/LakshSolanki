@@ -314,31 +314,20 @@ onBeforeUnmount(() => {
 
         <v-row>
           <v-col cols="12" md="8">
-            <v-text-field
-              v-model="taskInput"
-              label="Add a task (try: 'urgent report tomorrow 8am')"
-              variant="outlined"
-              density="comfortable"
-              maxlength="180"
-              counter
-              @keyup.enter="addTask"
-            >
+            <v-text-field v-model="taskInput" label="Add a task (try: 'urgent report tomorrow 8am')" variant="outlined"
+              density="comfortable" maxlength="180" counter @keyup.enter="addTask">
               <template #append-inner>
-                <v-btn
-                  icon="mdi-microphone"
-                  size="small"
-                  variant="text"
-                  :color="isListening ? 'error' : 'primary'"
+                <v-btn icon="mdi-microphone" size="small" variant="text" :color="isListening ? 'error' : 'primary'"
                   :disabled="!voiceSupported"
                   :title="voiceSupported ? 'Voice capture' : 'Voice not supported in this browser'"
-                  @click="startVoiceCapture"
-                />
+                  @click="startVoiceCapture" />
               </template>
             </v-text-field>
           </v-col>
           <v-col cols="12" md="4" class="d-flex align-center ga-2">
             <v-btn color="primary" variant="flat" rounded="lg" class="flex-grow-1" @click="addTask">Add</v-btn>
-            <v-btn color="error" variant="tonal" rounded="lg" class="flex-grow-1" @click="clearCompleted">Clear done</v-btn>
+            <v-btn color="error" variant="tonal" rounded="lg" class="flex-grow-1" @click="clearCompleted">Clear
+              done</v-btn>
           </v-col>
         </v-row>
 
@@ -347,22 +336,16 @@ onBeforeUnmount(() => {
         </v-alert>
 
         <div class="d-flex flex-wrap align-center ga-3 mb-4">
-          <v-select
-            v-model="selectedMode"
-            :items="modeOptions"
-            label="View"
-            variant="outlined"
-            density="compact"
-            hide-details
-            class="mode-select"
-          />
+          <v-select v-model="selectedMode" :items="modeOptions" label="View" variant="outlined" density="compact"
+            hide-details class="mode-select" />
           <v-chip size="small" color="primary" variant="tonal">Open: {{ openCount }}</v-chip>
           <v-chip size="small" color="success" variant="tonal">Done: {{ doneCount }}</v-chip>
           <v-chip size="small" color="info" variant="tonal">Deep Work: {{ deepCount }}</v-chip>
         </div>
 
         <v-list class="rounded-lg border task-list" lines="two">
-          <v-list-item v-if="!filteredTasks.length" title="No tasks for this filter." subtitle="Add one to get started." />
+          <v-list-item v-if="!filteredTasks.length" title="No tasks for this filter."
+            subtitle="Add one to get started." />
 
           <v-list-item v-for="task in filteredTasks" :key="task.id" class="task-item">
             <template #prepend>
@@ -378,9 +361,11 @@ onBeforeUnmount(() => {
 
             <template #append>
               <div class="d-flex align-center ga-2 flex-wrap justify-end">
-                <v-chip size="x-small" :color="priorityColor[task.priority]" variant="tonal">{{ task.priority }}</v-chip>
+                <v-chip size="x-small" :color="priorityColor[task.priority]" variant="tonal">{{ task.priority
+                  }}</v-chip>
                 <v-chip size="x-small" :color="energyColor[task.energy]" variant="tonal">{{ task.energy }}</v-chip>
-                <v-btn icon="mdi-delete-outline" size="small" variant="text" color="error" @click="removeTask(task.id)" />
+                <v-btn icon="mdi-delete-outline" size="small" variant="text" color="error"
+                  @click="removeTask(task.id)" />
               </div>
             </template>
           </v-list-item>
@@ -390,18 +375,10 @@ onBeforeUnmount(() => {
 
         <h2 class="text-subtitle-1 font-weight-bold mb-3">Focus Block</h2>
         <div class="d-flex flex-wrap align-center ga-3">
-          <v-text-field
-            v-model.number="focusDurationMinutes"
-            type="number"
-            min="5"
-            max="90"
-            label="Minutes"
-            density="compact"
-            variant="outlined"
-            hide-details
-            class="minutes-input"
-          />
-          <v-chip size="large" color="primary" variant="outlined" class="timer-chip">{{ formatTime(focusSecondsLeft) }}</v-chip>
+          <v-text-field v-model.number="focusDurationMinutes" type="number" min="5" max="90" label="Minutes"
+            density="compact" variant="outlined" hide-details class="minutes-input" />
+          <v-chip size="large" color="primary" variant="outlined" class="timer-chip">{{ formatTime(focusSecondsLeft)
+            }}</v-chip>
           <v-btn :color="focusRunning ? 'warning' : 'primary'" variant="flat" rounded="lg" @click="toggleFocus">
             {{ focusRunning ? "Pause" : "Start" }}
           </v-btn>
@@ -432,7 +409,7 @@ onBeforeUnmount(() => {
   border-color: rgba(15, 23, 42, 0.09) !important;
 }
 
-.task-item + .task-item {
+.task-item+.task-item {
   border-top: 1px solid rgba(15, 23, 42, 0.06);
 }
 

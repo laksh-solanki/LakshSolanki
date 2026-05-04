@@ -813,7 +813,8 @@ watch(
                             :model-value="uploads.get(file).progress" location="bottom" absolute></v-progress-linear>
                         </template>
                         <template #clear>
-                          <v-btn color="error" icon variant="text" aria-label="Remove file" @click.stop.prevent="onClickRemove(index)">
+                          <v-btn color="error" icon variant="text" aria-label="Remove file"
+                            @click.stop.prevent="onClickRemove(index)">
                             <v-icon>mdi-trash-can</v-icon>
                           </v-btn>
                         </template>

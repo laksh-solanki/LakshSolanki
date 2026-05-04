@@ -1,40 +1,23 @@
 <template>
   <div class="search-bar-root" v-bind="$attrs">
-    <v-btn
-      color="primary"
-      rounded="xl"
-      variant="outlined"
-      class="search-trigger text-none"
-      :class="{ 'search-trigger--compact': $vuetify.display.smAndDown }"
-      :icon="$vuetify.display.smAndDown"
-      @click="openPalette"
-    >
-      <v-icon icon="mdi-magnify" :start="!$vuetify.display.smAndDown" :class="{ 'm-0': $vuetify.display.smAndDown }"></v-icon>
+    <v-btn color="primary" rounded="xl" variant="outlined" class="search-trigger text-none"
+      :class="{ 'search-trigger--compact': $vuetify.display.smAndDown }" :icon="$vuetify.display.smAndDown"
+      @click="openPalette">
+      <v-icon icon="mdi-magnify" :start="!$vuetify.display.smAndDown"
+        :class="{ 'm-0': $vuetify.display.smAndDown }"></v-icon>
       <template v-if="$vuetify.display.mdAndUp">
         <span class="search-trigger__label">Search...</span>
         <kbd class="search-trigger__kbd">Ctrl K</kbd>
       </template>
     </v-btn>
   </div>
-  <v-dialog
-    v-model="isOpen"
-    max-width="780"
-    :fullscreen="$vuetify.display.xs"
-    transition="dialog-bottom-transition"
-  >
+  <v-dialog v-model="isOpen" max-width="780" :fullscreen="$vuetify.display.xs" transition="dialog-bottom-transition">
     <div class="palette-shell">
       <header class="palette-head">
         <v-icon icon="mdi-magnify" size="20" class="palette-head__icon"></v-icon>
-        <input
-          ref="searchInput"
-          v-model="query"
-          class="palette-input"
-          type="text"
-          placeholder="Search pages, tools, and topics..."
-          @keydown.down.prevent="moveDown"
-          @keydown.up.prevent="moveUp"
-          @keydown.enter.prevent="selectResult"
-        />
+        <input ref="searchInput" v-model="query" class="palette-input" type="text"
+          placeholder="Search pages, tools, and topics..." @keydown.down.prevent="moveDown" @keydown.up.prevent="moveUp"
+          @keydown.enter.prevent="selectResult" />
         <button class="palette-close" type="button" @click="closePalette">
           <span>Close</span>
           <kbd>Esc</kbd>
@@ -45,13 +28,8 @@
         <section v-if="!normalizedQuery" class="palette-section">
           <p class="palette-label">Quick Access</p>
           <div class="quick-grid">
-            <button
-              v-for="quick in quickActions"
-              :key="quick.id"
-              class="quick-card"
-              type="button"
-              @click="navigateTo(quick.path)"
-            >
+            <button v-for="quick in quickActions" :key="quick.id" class="quick-card" type="button"
+              @click="navigateTo(quick.path)">
               <v-icon :icon="quick.icon" size="18"></v-icon>
               <span>{{ quick.title }}</span>
             </button>
@@ -59,34 +37,19 @@
 
           <p class="palette-label mt-3">Suggestions</p>
           <div class="suggestion-list">
-            <button
-              v-for="term in suggestedTerms"
-              :key="term"
-              class="suggestion-chip"
-              type="button"
-              @click="applySuggestion(term)"
-            >
+            <button v-for="term in suggestedTerms" :key="term" class="suggestion-chip" type="button"
+              @click="applySuggestion(term)">
               # {{ term }}
             </button>
           </div>
         </section>
 
         <template v-else-if="flatResults.length">
-          <section
-            v-for="group in groupedResults"
-            :key="group.category"
-            class="palette-section"
-          >
+          <section v-for="group in groupedResults" :key="group.category" class="palette-section">
             <p class="palette-label">{{ group.category }}</p>
-            <button
-              v-for="item in group.items"
-              :key="item.id"
-              class="search-hit"
-              type="button"
-              :class="{ 'is-active': activeResult?.id === item.id }"
-              @mouseenter="setActiveById(item.id)"
-              @click="navigateTo(item.path)"
-            >
+            <button v-for="item in group.items" :key="item.id" class="search-hit" type="button"
+              :class="{ 'is-active': activeResult?.id === item.id }" @mouseenter="setActiveById(item.id)"
+              @click="navigateTo(item.path)">
               <span class="search-hit__icon">
                 <v-icon :icon="item.icon" size="18"></v-icon>
               </span>
@@ -463,7 +426,8 @@ onUnmounted(() => {
 }
 
 .search-trigger--compact :deep(.v-icon) {
-  margin: 0 !important; /* Force centering for the icon */
+  margin: 0 !important;
+  /* Force centering for the icon */
 }
 
 .palette-shell {
@@ -531,7 +495,7 @@ onUnmounted(() => {
   padding: 14px 16px 12px;
 }
 
-.palette-section + .palette-section {
+.palette-section+.palette-section {
   margin-top: 14px;
 }
 
@@ -603,7 +567,7 @@ onUnmounted(() => {
   transition: background-color 0.18s ease, border-color 0.18s ease;
 }
 
-.search-hit + .search-hit {
+.search-hit+.search-hit {
   margin-top: 6px;
 }
 
@@ -641,7 +605,7 @@ onUnmounted(() => {
 .search-hit:hover,
 .search-hit.is-active {
   border-color: rgba(15, 143, 124, 0.24);
-  background: linear-gradient(128deg, #4e46e53b , #4e46e541);
+  background: linear-gradient(128deg, #4e46e53b, #4e46e541);
 }
 
 .empty-state {
