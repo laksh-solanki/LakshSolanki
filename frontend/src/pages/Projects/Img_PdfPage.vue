@@ -18,11 +18,11 @@ const generatedPdfPath = ref("");
 
 let jsPdfCtorPromise;
 
-const totalImages = computed(() => images.value.length);
-const totalSize = computed(() => {
-  const bytes = images.value.reduce((sum, item) => sum + item.size, 0);
-  return formatFileSize(bytes);
-});
+const getGeneratedPdfPath = (fileName) => {
+  const blob = new Blob([generatedPdfPath.value], { type: "application/pdf" });
+  return URL.createObjectURL(blob);
+};
+  
 const allImagesOrientation = computed(() => {
   if (!images.value.length) return "p";
   return images.value.every((item) => (item.orientation || "p") === "l") ? "l" : "p";

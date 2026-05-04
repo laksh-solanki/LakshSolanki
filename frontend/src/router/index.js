@@ -46,7 +46,7 @@ const routes = [
       },
       {
         path: "mindlytic_ai",
-        name: "mindlytic_ai",
+        name: "mindlyticAi",
         component: () => import("@/pages/Projects/mindlytic_ai.vue"),
         meta: { title: "LakshSolanki | mindlytic AI" },
       },
@@ -120,51 +120,18 @@ const router = createRouter({
   },
 });
 
-const wrapLegacyGuard = (guard) => {
-  if (typeof guard !== "function" || guard.length < 3) {
-    return guard;
-  }
-  return (to, from) =>
-    new Promise((resolve, reject) => {
-      let handled = false;
-      const next = (value) => {
-        if (handled) return;
-        handled = true;
-
-        if (value instanceof Error) {
-          reject(value);
-          return;
-        }
-
-        resolve(value);
-      };
-
-      try {
-        guard(to, from, next);
-      } catch (error) {
-        reject(error);
-      }
-    });
-};
-
-const patchGuardRegistrar = (methodName) => {
-  const originalMethod = router[methodName].bind(router);
-  router[methodName] = (guard) => originalMethod(wrapLegacyGuard(guard));
-};
-
-patchGuardRegistrar("beforeEach");
-patchGuardRegistrar("beforeResolve");
-
-export const isGlobalLoading = ref(null);
-
+export const isGlobalLoading = ref({ start: () => { }, finish: () => { } });
 router.beforeEach((to) => {
   document.title = to.meta.title || "LakshSolanki";
-  if (isGlobalLoading.value) isGlobalLoading.value.start();
+  if (isGlobalLoading.value?.start) {
+    isGlobalLoading.value.start();
+  }
   return true;
 });
-
 router.afterEach(() => {
-  if (isGlobalLoading.value) isGlobalLoading.value.finish();
+  if (isGlobalLoading.value?.finish) {
+    isGlobalLoading.value.finish();
+  }
 });
 
 export default router;

@@ -8,56 +8,26 @@ import Fonts from "unplugin-fonts/vite";
 import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "node:url";
 
-const isDev = process.env.NODE_ENV !== "production";
-
-const stripFontPreloads = () => ({
-  name: "strip-font-preloads",
-  apply: "build",
-  transformIndexHtml: {
-    order: "post",
-    handler(html) {
-      return html.replace(/\s*<link rel="preload" as="font"[^>]*>\s*/g, "");
-    },
-  },
-});
 
 export default defineConfig(async () => {
-  const devToolsPlugin = isDev
-    ? [(await import("vite-plugin-vue-devtools")).default()]
-    : [];
 
   return {
     base: process.env.VITE_BASE_URL || "/",
-
     plugins: [
-      stripFontPreloads(),
       Vue({
         template: { transformAssetUrls },
       }),
       Vuetify({ autoImport: true }),
-      ...devToolsPlugin,
       Components(),
       Fonts({
         fontsource: {
           families: [
             { name: "Roboto", weights: [400, 700] },
             { name: "Manrope", weights: [400, 700] },
-            { name: "Space Grotesk", weights: [400, 700] },
-            { name: "JetBrains Mono", weights: [400, 600] },
           ],
         },
       }),
     ],
-
-    optimizeDeps: {
-      include:['vuetify/lib/components', 'vuetify/lib/directives'],
-    },
-
-    define: {
-      "process.env.NODE_ENV": JSON.stringify(
-        process.env.NODE_ENV || "production"
-      ),
-    },
 
     resolve: {
       alias: {
@@ -72,14 +42,14 @@ export default defineConfig(async () => {
       open: true,
       strictPort: true,
     },
-    css:{
+    css: {
       devSourcemap: true,
     },
     build: {
       target: "esnext",
-      cssCodeSplit: false,
+      cssCodeSplit: true,
 
-      chunkSizeWarningLimit: 1200,
+      chunkSizeWarningLimit: 1300,
       minify: "esbuild",
 
       rollupOptions: {
