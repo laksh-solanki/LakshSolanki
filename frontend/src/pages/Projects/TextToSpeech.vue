@@ -30,6 +30,7 @@ const isLoadingVoices = ref(true);
 const isPlaying = ref(false);
 const isPaused = ref(false);
 const isDownloading = ref(false);
+const snippetsLoading = ref(false);
 
 const savedSnippets = ref([]);
 const snippetOwnerKey = ref("");
@@ -243,6 +244,38 @@ const normalizeSnippet = (snippet) => ({
 });
 
 const getSnippetsApiUrl = (path = "") => `${apiBaseUrl}/api/tts/snippets${path}`;
+
+const loadSavedSnippets = async () => {
+  if (!snippetOwnerKey.value) {
+    return;
+  }
+
+  snippetsLoading.value = true;
+
+  try {
+    const query = new URLSearchParams({
+      ownerKey: snippetOwnerKey.value,
+      limit: "6",
+    });
+    const response = await fetch(`${getSnippetsApiUrl()}?${query.toString()}`);
+    const payload = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(payload?.error || "Unable to load snippets.");
+    }
+
+    const snippets = Array.isArray(payload?.data) ? payload.data : [];
+    savedSnippets.value = snippets
+      .map(normalizeSnippet)
+      .filter((snippet) => snippet.id && snippet.content)
+      .slice(0, 6);
+  } catch (error) {
+    console.error("Unable to load snippets", error);
+    showAlert(error?.message || "Unable to load saved snippets.", "error");
+  } finally {
+    snippetsLoading.value = false;
+  }
+};
 
 const populateVoiceList = () => {
   if (!supportsSpeech || !synth) {
@@ -808,6 +841,7 @@ watch(readMode, () => {
 onMounted(() => {
   snippetOwnerKey.value = getSnippetOwnerKey();
   savedSnippets.value = [];
+  void loadSavedSnippets();
 
   if (!supportsSpeech) {
     isLoadingVoices.value = false;
@@ -1027,7 +1061,11 @@ onUnmounted(() => {
             <p class="panel-kicker mb-1">Saved</p>
             <h3 class="text-h6 font-weight-bold mb-3">Your snippets</h3>
 
-            <div v-if="savedSnippets.length === 0" class="text-body-2 text-medium-emphasis">
+            <div v-if="snippetsLoading" class="text-body-2 text-medium-emphasis">
+              Loading saved snippets...
+            </div>
+
+            <div v-else-if="savedSnippets.length === 0" class="text-body-2 text-medium-emphasis">
               No saved snippets yet.
             </div>
 

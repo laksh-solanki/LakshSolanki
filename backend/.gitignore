@@ -22,9 +22,15 @@ yarn-error.log*
 *.sln
 *.sw?
 
-# Wrangler
-.wrangler/state
+# Local runtime files
 *.local
 
 # Test
 coverage/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+.vercel

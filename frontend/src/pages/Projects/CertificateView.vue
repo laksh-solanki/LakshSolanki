@@ -1,4 +1,3 @@
-op
 <script setup>
 import { computed, onMounted, reactive, ref } from "vue";
 import Certificate from "@/components/certificate.vue";

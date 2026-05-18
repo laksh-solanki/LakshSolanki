@@ -1,5 +1,5 @@
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "0.0.0.0"]);
-const DEFAULT_REMOTE_API = "https://backend.audit29122006.workers.dev";
+const DEFAULT_REMOTE_API = "https://lakshsolanki-backend.vercel.app";
 const DEFAULT_LOCAL_API = "http://localhost:5001";
 
 const trimTrailingSlash = (value = "") =>

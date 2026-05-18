@@ -208,15 +208,6 @@ const searchItems = [
     path: "/projects/passport-cutter",
     icon: "mdi-image-filter-center-focus",
     keywords: ["passport", "photo", "background", "remove bg", "border", "image"],
-  },
-  {
-    id: "ppt-editor",
-    title: "ppt editor",
-    description: "Technical and career insights",
-    category: "Tools",
-    path: "/projects/ppt-editor",
-    icon: "mdi-file-powerpoint-outline",
-    keywords: ["presentation", "slides", "deck"],
   }
 ];
 

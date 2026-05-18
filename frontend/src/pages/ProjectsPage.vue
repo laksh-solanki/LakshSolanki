@@ -130,17 +130,6 @@ const projects = ref([
     tags: ["remove.bg API", "Passport Photo", "Vue"],
   },
   {
-    id: 11,
-    title: "PPT Editor",
-    category: "Document Tooling",
-    description:
-      "Locally edit PowerPoint (.pptx) files directly in your browser. Unzip, extract slide text, modify, and export back to a perfectly formatted .pptx archive.",
-    image: getMediaUrl("project_img/Project-2.png"),
-    icon: "mdi-presentation",
-    link: "/projects/ppt-editor",
-    tags: ["PPTX", "JSZip", "Local Processing"],
-  },
-  {
     id: 12,
     title: "API Blueprint Designer",
     category: "Developer Tooling",
