@@ -14,16 +14,8 @@ const coursesLoading = ref(false);
 const savingCourse = ref(false);
 const loading = ref(false);
 const dialog = ref(false);
-const templateDialog = ref(false);
-const selectedTemplate = ref("premium");
 const pdfSection = ref(null);
 const showAddCourse = ref(false);
-
-const certificateTemplates = [
-  { id: "premium", name: "Premium Classic", icon: "mdi-certificate", color: "amber-darken-3" },
-  { id: "modern", name: "Modern Dark", icon: "mdi-moon-waning-crescent", color: "blue-grey-darken-3" },
-  { id: "minimal", name: "Clean Minimal", icon: "mdi-shape-square-plus", color: "blue-accent-3" },
-];
 
 const form = reactive({
   fname: "",
@@ -190,12 +182,6 @@ const previewCertificate = async () => {
     return;
   }
 
-  templateDialog.value = true;
-};
-
-const openPreview = (templateId) => {
-  selectedTemplate.value = templateId;
-  templateDialog.value = false;
   loading.value = true;
   setTimeout(() => {
     loading.value = false;
@@ -343,7 +329,7 @@ const generatePdf = async () => {
 
           <v-alert class="mt-5 rounded-xl note-alert" color="primary" variant="tonal" border="start"
             icon="mdi-information-outline">
-            Verify your name and selected course before generating. The premium certificate downloads as a PDF and can
+            Verify your name and selected course before generating. The certificate downloads as a PDF and can
             be shared directly.
           </v-alert>
         </v-col>
@@ -383,7 +369,7 @@ const generatePdf = async () => {
       </v-row>
     </v-container>
 
-    <PhotoZoomDialog v-model="dialog" content-mode="custom" hide-trigger dialog-title="Premium Certificate Preview"
+    <PhotoZoomDialog v-model="dialog" content-mode="custom" hide-trigger dialog-title="Certificate Preview"
       :max-width="1280" :content-width="A4_WIDTH_PX" :content-height="A4_HEIGHT_PX">
       <template #toolbar-actions>
         <v-btn @click="generatePdf" prepend-icon="mdi-download" :loading="loading" variant="flat" color="primary"
@@ -393,37 +379,13 @@ const generatePdf = async () => {
       </template>
 
       <div class="certificate-sheet certificate-sheet--preview">
-        <Certificate :form="form" :variant="selectedTemplate" />
+        <Certificate :form="form" />
       </div>
     </PhotoZoomDialog>
 
-    <v-dialog v-model="templateDialog" max-width="800">
-      <v-card rounded="xl" class="p-6">
-        <h2 class="text-h5 font-weight-bold mb-2">Which template to use?</h2>
-        <p class="text-body-2 mb-6 text-medium-emphasis">Select a design for your certificate. You can edit the
-          highlighted
-          text directly in the preview.</p>
-
-        <v-row>
-          <v-col cols="12" sm="4" v-for="t in certificateTemplates" :key="t.id">
-            <v-card @click="openPreview(t.id)"
-              class="border text-center pa-6 h-100 d-flex flex-column align-center justify-center" rounded="lg" hover
-              flat>
-              <v-icon :icon="t.icon" :color="t.color" size="64" class="mb-4"></v-icon>
-              <h3 class="text-subtitle-1 font-weight-bold">{{ t.name }}</h3>
-            </v-card>
-          </v-col>
-        </v-row>
-
-        <div class="d-flex justify-end mt-6">
-          <v-btn variant="text" @click="templateDialog = false" rounded="lg">Cancel</v-btn>
-        </div>
-      </v-card>
-    </v-dialog>
-
     <div class="certificate-export-root" aria-hidden="true">
       <div ref="pdfSection" class="certificate-sheet certificate-sheet--export">
-        <Certificate :form="form" :variant="selectedTemplate" />
+        <Certificate :form="form" />
       </div>
     </div>
   </div>
