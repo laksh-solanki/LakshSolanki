@@ -114,106 +114,48 @@ const valuePillars = [
 
 const premiumStackNodes = [
   {
-    id: "html",
-    label: "HTML",
-    short: "H5",
-    icon: "mdi-language-html5",
-    x: 70,
-    y: 120,
-    ring: "#ff7a1a",
-  },
-  {
-    id: "css",
-    label: "CSS",
-    short: "C3",
-    icon: "mdi-language-css3",
-    x: 370,
-    y: 54,
-    ring: "#1c9cff",
-  },
-  {
-    id: "javascript",
-    label: "JavaScript",
-    short: "JS",
-    icon: "mdi-language-javascript",
-    x: 600,
-    y: 54,
-    ring: "#f7c325",
+    id: "vue",
+    label: "Vue 3 Ecosystem",
+    icon: "mdi-vuejs",
+    ring: "#059669",
+    desc: "Building highly reactive, component-driven user interfaces with the Composition API.",
   },
   {
     id: "node",
-    label: "Node.js",
-    short: "N",
+    label: "Node.js & Fastify",
     icon: "mdi-nodejs",
-    x: 890,
-    y: 120,
-    ring: "#11d46d",
+    ring: "#16a34a",
+    desc: "Developing blazing-fast, scalable backend services and RESTful APIs.",
   },
   {
-    id: "vue",
-    label: "Vue",
-    short: "V",
-    icon: "mdi-vuejs",
-    x: 890,
-    y: 322,
-    ring: "#2ec9ff",
-  },
-  {
-    id: "fastify",
-    label: "Fastify",
-    short: "F",
-    icon: "mdi-server",
-    x: 370,
-    y: 388,
-    ring: "#99a8bf",
+    id: "javascript",
+    label: "Modern JavaScript",
+    icon: "mdi-language-javascript",
+    ring: "#ca8a04",
+    desc: "Leveraging ES6+ for robust, maintainable application logic and rich interactions.",
   },
   {
     id: "mongodb",
     label: "MongoDB",
-    short: "M",
     icon: "mdi-database",
-    x: 73,
-    y: 328,
-    ring: "#11c864",
+    ring: "#15803d",
+    desc: "Designing flexible, high-performance NoSQL database schemas.",
+  },
+  {
+    id: "css",
+    label: "Advanced CSS",
+    icon: "mdi-language-css3",
+    ring: "#2563eb",
+    desc: "Crafting fluid, accessible, and ultra-responsive modern layouts.",
   },
   {
     id: "vuetify",
-    label: "Vuetify",
-    short: "VU",
+    label: "Vuetify & UI Libraries",
     icon: "mdi-view-dashboard",
-    x: 603,
-    y: 383,
-    ring: "#df61ff",
+    ring: "#9333ea",
+    desc: "Accelerating development with polished, accessible Material Design components.",
   },
 ];
-
-const premiumStackLinks = [
-  ["html", "css"],
-  ["css", "javascript"],
-  ["javascript", "node"],
-  ["node", "vue"],
-  ["vue", "vuetify"],
-  ["vuetify", "fastify"],
-  ["fastify", "mongodb"],
-];
-
-const premiumNodeLookup = Object.fromEntries(
-  premiumStackNodes.map((node) => [node.id, node]),
-);
-const premiumStackLines = premiumStackLinks
-  .map(([from, to]) => {
-    const source = premiumNodeLookup[from];
-    const target = premiumNodeLookup[to];
-    if (!source || !target) return null;
-    return {
-      key: `${from}-${to}`,
-      x1: source.x,
-      y1: source.y,
-      x2: target.x,
-      y2: target.y,
-    };
-  })
-  .filter(Boolean);
 </script>
 
 <template>
@@ -339,49 +281,29 @@ const premiumStackLines = premiumStackLinks
 
     <!-- ═══ WHAT I BUILD ═══ -->
     <section class="mb-12 home-section">
-      <div class="prem-section-head startup-heading" style="--delay: 0.08s">
+      <div class="clean-section-head startup-heading" style="--delay: 0.08s">
         <div>
-          <p class="prem-kicker">PREMIUM STACK</p>
-          <h2 class="prem-section-title">What I Build</h2>
+          <span class="clean-kicker">Core Stack</span>
+          <h2 class="clean-section-title">Technologies I build with</h2>
         </div>
         <v-btn to="/projects" variant="outlined" rounded="xl" color="primary" text="See All Projects"
           append-icon="mdi-arrow-right" />
       </div>
 
-      <div class="prem-panel startup-flow-card">
-        <div class="prem-panel-glow prem-panel-glow-tl"></div>
-        <div class="prem-panel-glow prem-panel-glow-br"></div>
+      <div class="clean-stack-panel startup-flow-card">
+        <div class="clean-panel-bg"></div>
 
-        <div class="prem-panel-header">
-          <v-chip size="small" class="prem-year-chip" color="primary" variant="outlined">2026 Stack</v-chip>
-        </div>
-
-        <div class="premium-stack-map" aria-label="Premium stack graph">
-          <svg class="premium-stack-lines" viewBox="0 0 980 500" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-            <line v-for="(line, index) in premiumStackLines" :key="line.key" :x1="line.x1" :y1="line.y1" :x2="line.x2"
-              :y2="line.y2" class="premium-connector" :style="{ '--d': `${0.08 + index * 0.04}s` }" />
-          </svg>
-
-          <div v-for="(node, index) in premiumStackNodes" :key="node.id" class="premium-node" tabindex="0"
-            :aria-label="node.label" :style="{
-              left: `${(node.x / 980) * 100}%`,
-              top: `${(node.y / 500) * 100}%`,
-              '--ring': node.ring,
-              '--d': `${0.2 + index * 0.04}s`,
-            }">
-            <v-icon v-if="node.icon" class="premium-node-core" :icon="node.icon" />
-            <span v-else class="premium-node-core">{{ node.short }}</span>
-            <span class="premium-node-check">✓</span>
-            <span class="premium-node-label">{{ node.label }}</span>
-          </div>
-        </div>
-
-        <div class="premium-stack-mobile" aria-label="Premium stack list">
-          <div v-for="(node, index) in premiumStackNodes" :key="`${node.id}-mobile`" class="premium-mobile-item"
-            :style="{ '--d': `${0.12 + index * 0.03}s` }">
-            <span class="premium-mobile-dot" :style="{ '--ring': node.ring }"></span>
-            <v-icon v-if="node.icon" class="premium-mobile-icon" :icon="node.icon" size="16" />
-            <span class="premium-mobile-label">{{ node.label }}</span>
+        <div class="clean-stack-grid">
+          <div v-for="(node, index) in premiumStackNodes" :key="node.id" class="clean-node-card"
+            :style="{ '--delay': `${0.1 + index * 0.05}s` }">
+            <div class="clean-node-bg" :style="{ background: `radial-gradient(circle at 100% 100%, ${node.ring}0C 0%, transparent 70%)` }"></div>
+            <div class="clean-node-icon-wrap" :style="{ color: node.ring }">
+              <v-icon v-if="node.icon" :icon="node.icon" size="32" />
+            </div>
+            <div class="clean-node-content">
+              <h4 class="clean-node-title">{{ node.label }}</h4>
+              <p class="clean-node-desc">{{ node.desc }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -389,40 +311,40 @@ const premiumStackLines = premiumStackLinks
 
     <!-- ═══ HOW I DELIVER ═══ -->
     <section class="mb-12 home-section">
-      <div class="prem-section-head startup-heading" style="--delay: 0.08s">
+      <div class="clean-section-head startup-heading" style="--delay: 0.08s">
         <div>
-          <p class="prem-kicker">COLLABORATION MODEL</p>
-          <h2 class="prem-section-title">How I Deliver</h2>
+          <span class="clean-kicker">COLLABORATION MODEL</span>
+          <h2 class="clean-section-title">How I Deliver</h2>
         </div>
       </div>
 
-      <div class="prem-panel prem-deliver-panel startup-flow-card">
-        <div class="prem-panel-glow prem-panel-glow-tl"></div>
-        <v-row class="ga-0" align="start">
+      <div class="clean-panel startup-flow-card">
+        <div class="clean-panel-bg"></div>
+        <v-row class="ga-0 position-relative z-2" align="start">
           <v-col cols="12" md="5" class="pr-md-8">
-            <h3 class="prem-sub-title mb-3">
+            <h3 class="clean-sub-title mb-3">
               Minimal process, maximum clarity and execution.
             </h3>
-            <p class="prem-muted mb-6">
+            <p class="clean-muted mb-6">
               I partner closely with teams to keep delivery lean, practical, and
               focused on real outcomes.
             </p>
             <div class="d-flex flex-wrap ga-2">
-              <span v-for="(item, index) in deliveryFocus" :key="item" class="delivery-chip"
+              <span v-for="(item, index) in deliveryFocus" :key="item" class="clean-delivery-chip"
                 :style="{ '--delay': `${0.2 + index * 0.05}s` }">
-                <v-icon size="12" class="mr-1" color="primary">mdi-check-circle-outline</v-icon>
+                <v-icon size="14" class="mr-1" color="#6366f1">mdi-check-circle-outline</v-icon>
                 {{ item }}
               </span>
             </div>
           </v-col>
           <v-col cols="12" md="7" class="mt-8 mt-md-0">
-            <div class="collab-list">
-              <article v-for="(item, index) in collaborationSteps" :key="item.step" class="collab-item"
+            <div class="clean-collab-list">
+              <article v-for="(item, index) in collaborationSteps" :key="item.step" class="clean-collab-item"
                 :style="{ '--delay': `${0.24 + index * 0.07}s` }">
-                <span class="collab-step">{{ item.step }}</span>
+                <span class="clean-collab-step">{{ item.step }}</span>
                 <div>
-                  <h4 class="collab-title mb-1">{{ item.title }}</h4>
-                  <p class="prem-muted mb-0">{{ item.description }}</p>
+                  <h4 class="clean-collab-title mb-1">{{ item.title }}</h4>
+                  <p class="clean-collab-desc mb-0">{{ item.description }}</p>
                 </div>
               </article>
             </div>
@@ -433,38 +355,38 @@ const premiumStackLines = premiumStackLinks
 
     <!-- ═══ WHAT YOU CAN EXPECT + CTA ═══ -->
     <section class="home-section">
-      <div class="prem-section-head startup-heading" style="--delay: 0.1s">
+      <div class="clean-section-head startup-heading" style="--delay: 0.1s">
         <div>
-          <p class="prem-kicker">VALUES</p>
-          <h2 class="prem-section-title">What You Can Expect</h2>
+          <span class="clean-kicker">VALUES</span>
+          <h2 class="clean-section-title">What You Can Expect</h2>
         </div>
       </div>
 
       <v-row class="mb-6">
         <v-col v-for="(pillar, index) in valuePillars" :key="pillar.title" cols="12" md="4">
-          <div class="prem-pillar-card startup-project" :style="{ '--delay': `${0.14 + index * 0.09}s` }">
-            <div class="prem-pillar-icon-wrap">
-              <v-icon :icon="pillar.icon" size="22" class="prem-pillar-icon"></v-icon>
+          <div class="clean-pillar-card startup-project" :style="{ '--delay': `${0.14 + index * 0.09}s` }">
+            <div class="clean-pillar-icon-wrap">
+              <v-icon :icon="pillar.icon" size="24" class="clean-pillar-icon"></v-icon>
             </div>
-            <h3 class="prem-pillar-title">{{ pillar.title }}</h3>
-            <p class="prem-muted mb-0">{{ pillar.description }}</p>
+            <h3 class="clean-pillar-title">{{ pillar.title }}</h3>
+            <p class="clean-pillar-desc mb-0">{{ pillar.description }}</p>
           </div>
         </v-col>
       </v-row>
 
       <!-- CTA Banner -->
-      <div class="prem-cta-banner startup-heading" style="--delay:0.2s">
-        <div class="prem-cta-glow"></div>
-        <div class="prem-cta-content">
-          <h3 class="prem-cta-title">Looking for a focused development partner?</h3>
-          <p class="prem-cta-sub">Explore projects or review my profile to see how I build and deliver.</p>
+      <div class="clean-cta-banner startup-heading" style="--delay:0.2s">
+        <div class="clean-cta-bg"></div>
+        <div class="clean-cta-content">
+          <h3 class="clean-cta-title">Looking for a focused development partner?</h3>
+          <p class="clean-cta-sub">Explore projects or review my profile to see how I build and deliver.</p>
         </div>
-        <div class="prem-cta-actions">
-          <v-btn to="/projects" rounded="xl" size="large" class="prem-cta-btn-primary text-none px-7" elevation="0">
+        <div class="clean-cta-actions">
+          <v-btn to="/projects" rounded="xl" size="large" class="clean-cta-btn-primary text-none px-7" elevation="0">
             <v-icon start>mdi-rocket-launch-outline</v-icon>
             Browse Projects
           </v-btn>
-          <v-btn to="/about" variant="outlined" color="primary" rounded="xl" size="large" class="prem-cta-btn-outline "
+          <v-btn to="/about" variant="outlined" rounded="xl" size="large" class="clean-cta-btn-outline "
             elevation="0">
             <v-icon start>mdi-account-outline</v-icon>
             About Me
@@ -1092,7 +1014,10 @@ const premiumStackLines = premiumStackLinks
 /* ═══════════════════════════════════════════════
    PREMIUM SECTION HEADING
 ═══════════════════════════════════════════════ */
-.prem-section-head {
+/* ═══════════════════════════════════════════════
+   CLEAN SECTION HEADING (formerly prem-section-head)
+═══════════════════════════════════════════════ */
+.clean-section-head {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -1101,442 +1026,389 @@ const premiumStackLines = premiumStackLinks
   margin-bottom: 1.5rem;
 }
 
-.prem-kicker {
-  font-size: 0.72rem;
+.clean-kicker {
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #4F46E5;
+  color: #6366f1;
   margin-bottom: 0.35rem;
+  display: block;
 }
 
-.prem-section-title {
-  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+.clean-section-title {
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
   font-weight: 800;
-  letter-spacing: -0.03em;
-  background: linear-gradient(110deg, #4e46e583 0%, #4e46e5c5 55%, #4F46E5 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #0f172a;
+  letter-spacing: -0.02em;
   margin: 0;
 }
 
 /* ═══════════════════════════════════════════════
-   PREMIUM PANEL (shared glass card)
+   CLEAN PANEL (formerly prem-panel)
 ═══════════════════════════════════════════════ */
-.prem-panel {
+.clean-panel, .clean-stack-panel {
   position: relative;
-  overflow: hidden;
   border-radius: 24px;
-  border: 1px solid #4e46e5cd;
-  background:
-    radial-gradient(ellipse at 8% 12%, #4e46e50c 0%, transparent 48%),
-    radial-gradient(ellipse at 90% 88%, #4e46e50d 0%, transparent 44%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, #4e46e50a 55%, #4e46e508 100%);
-  backdrop-filter: blur(14px);
-  padding: 2rem 2rem;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.04);
+  padding: 3rem;
+  overflow: hidden;
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
-.prem-panel:hover {
-  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.09), 0 0 0 1px rgba(15, 143, 124, 0.22);
+.clean-stack-panel {
+  margin-top: 1rem;
+}
+
+.clean-panel:hover, .clean-stack-panel:hover {
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
   transform: translateY(-2px);
 }
 
-.prem-panel-glow {
+.clean-panel-bg {
   position: absolute;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(180deg, #f8fafc 0%, rgba(248, 250, 252, 0) 100%);
   pointer-events: none;
-  filter: blur(70px);
-  opacity: 0.6;
 }
 
-.prem-panel-glow-tl {
-  top: -120px;
-  left: -80px;
-  background: radial-gradient(circle, rgba(15, 143, 124, 0.25) 0%, transparent 70%);
-}
-
-.prem-panel-glow-br {
-  bottom: -100px;
-  right: -60px;
-  background: radial-gradient(circle, rgba(57, 188, 163, 0.25) 0%, transparent 70%);
-}
-
-.prem-panel-header {
-  margin-bottom: 1.2rem;
-}
-
-.prem-year-chip {
-  font-size: 0.7rem !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.06em !important;
-  backdrop-filter: blur(8px);
-}
-
-/* Deliver panel extras */
-.prem-deliver-panel .prem-panel-glow-tl {
-  background: radial-gradient(circle, rgba(15, 143, 124, 0.2) 0%, transparent 70%);
-}
-
-.prem-deliver-panel .prem-panel-glow-br {
-  background: radial-gradient(circle, rgba(96, 165, 250, 0.15) 0%, transparent 70%);
-}
-
-/* ─── Sub-title & muted ─── */
-.prem-sub-title {
-  font-size: 1.25rem;
+/* Inside clean-panel */
+.clean-sub-title {
+  font-size: 1.35rem;
   font-weight: 700;
-  color: #0e201d;
+  color: #0f172a;
   letter-spacing: -0.02em;
-  max-width: 26ch;
   line-height: 1.4;
 }
 
-.prem-muted {
-  font-size: 0.95rem;
+.clean-muted {
+  font-size: 1rem;
   line-height: 1.7;
-  color: #5e706a;
+  color: #64748b;
 }
 
-/* ─── Delivery chips ─── */
-.delivery-chip {
+/* Delivery chips */
+.clean-delivery-chip {
   display: inline-flex;
   align-items: center;
-  padding: 0.38rem 0.85rem;
+  padding: 0.4rem 0.9rem;
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  background: #4e46e531;
-  border: 1px solid #4e46e5c4;
-  color: #4F46E5;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
   opacity: 0;
   animation: chip-in 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--delay, 0s);
-  transition: background 0.2s, border-color 0.2s;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
 }
 
-/* ─── Collab steps ─── */
-.collab-list {
+.clean-delivery-chip:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(15, 23, 42, 0.05);
+}
+
+/* Collab list */
+.clean-collab-list {
   display: grid;
-  gap: 0.9rem;
+  gap: 1rem;
 }
 
-.collab-item {
+.clean-collab-item {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: start;
-  gap: 1rem;
-  padding: 1rem 1.2rem;
+  gap: 1.2rem;
+  padding: 1.2rem 1.4rem;
   border-radius: 16px;
-  border: 1px solid #4e46e569;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(8px);
+  border: 1px solid transparent;
+  background: #f8fafc;
   opacity: 0;
   animation: startup-scale 0.62s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--delay, 0s);
-  transition: border-color 0.22s, background 0.22s;
+  transition: all 0.25s ease;
 }
 
-.collab-item:hover {
-  border-color: #4F46E5;
-  background: #4e46e530;
+.clean-collab-item:hover {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.04);
+  transform: translateX(4px);
 }
 
-.collab-step {
-  min-width: 2.2rem;
-  height: 2.2rem;
-  border-radius: 999px;
+.clean-collab-step {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   font-weight: 800;
-  color: #ffffff;
-  background: #4F46E5;
+  color: #4f46e5;
+  background: #e0e7ff;
   flex-shrink: 0;
 }
 
-.collab-title {
-  font-size: 0.98rem;
+.clean-collab-title {
+  font-size: 1.05rem;
   font-weight: 700;
-  color: #0e201d;
+  color: #0f172a;
+}
+
+.clean-collab-desc {
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.6;
 }
 
 /* ═══════════════════════════════════════════════
-   PREMIUM PILLAR CARDS
+   CLEAN PILLAR CARDS (formerly prem-pillar-card)
 ═══════════════════════════════════════════════ */
-.prem-pillar-card {
+.clean-pillar-card {
   position: relative;
-  overflow: hidden;
+  background: #ffffff;
   border-radius: 20px;
-  border: 1px solid #4e46e54b;
-  padding: 1.8rem 1.6rem;
+  border: 1px solid #e2e8f0;
+  padding: 2.2rem 1.8rem;
   height: 100%;
-  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
 }
 
-.prem-pillar-card:hover {
+.clean-pillar-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 22px 54px #4e46e51d;
-  border-color: #4F46E5;
+  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.08);
+  border-color: #cbd5e1;
 }
 
-.prem-pillar-icon-wrap {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: #4e46e54e;
-  border: 1px solid rgba(15, 143, 124, 0.26);
+.clean-pillar-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: #f1f5f9;
   display: grid;
   place-items: center;
-  margin-bottom: 1.2rem;
-  transition: background 0.22s, border-color 0.22s;
+  margin-bottom: 1.4rem;
+  transition: all 0.3s ease;
 }
 
-.prem-pillar-card:hover {
-  background: #4e46e53e;
-  border-color: #4F46E5;
+.clean-pillar-card:hover .clean-pillar-icon-wrap {
+  background: #4f46e5;
+  color: #ffffff;
+  transform: scale(1.05) rotate(-5deg);
+  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
 }
 
-.prem-pillar-icon {
-  color: #4F46E5 !important;
+.clean-pillar-icon {
+  color: #4f46e5;
+  transition: color 0.3s ease;
 }
 
-.prem-pillar-title {
-  font-size: 1.1rem;
+.clean-pillar-card:hover .clean-pillar-icon {
+  color: #ffffff !important;
+}
+
+.clean-pillar-title {
+  font-size: 1.2rem;
   font-weight: 700;
-  margin-bottom: 0.6rem;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
   letter-spacing: -0.01em;
 }
 
+.clean-pillar-desc {
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.65;
+}
+
 /* ═══════════════════════════════════════════════
-   CTA BANNER
+   CLEAN CTA BANNER (formerly prem-cta-banner)
 ═══════════════════════════════════════════════ */
-.prem-cta-banner {
+.clean-cta-banner {
   position: relative;
   overflow: hidden;
   border-radius: 24px;
-  border: 1px solid #4e46e5bc;
-  padding: 2.2rem 2rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 1px solid #cbd5e1;
+  padding: 3rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1.8rem;
-  box-shadow: 0 16px 40px #4e46e513;
+  gap: 2rem;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
 }
 
-.prem-cta-glow {
+.clean-cta-bg {
   position: absolute;
-  top: -80px;
-  left: -60px;
-  width: 340px;
-  height: 340px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #4e46e522 0%, transparent 70%);
-  filter: blur(64px);
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  background: radial-gradient(circle at 100% 50%, rgba(79, 70, 229, 0.08) 0%, transparent 80%);
   pointer-events: none;
 }
 
-.prem-cta-content {
+.clean-cta-content {
   flex: 1;
-  min-width: 240px;
+  min-width: 280px;
+  position: relative;
+  z-index: 2;
 }
 
-.prem-cta-title {
-  font-size: clamp(1.25rem, 2.5vw, 1.7rem);
+.clean-cta-title {
+  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
   font-weight: 800;
-  color: #0e201d;
-  letter-spacing: -0.03em;
-  margin-bottom: 0.5rem;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.6rem;
 }
 
-.prem-cta-sub {
-  font-size: 0.95rem;
-  color: #5e706a;
-  line-height: 1.65;
+.clean-cta-sub {
+  font-size: 1.05rem;
+  color: #475569;
+  line-height: 1.6;
   margin: 0;
 }
 
-.prem-cta-actions {
+.clean-cta-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 1rem;
   align-items: center;
   flex-shrink: 0;
-}
-
-.prem-cta-btn-primary {
-  background: #4F46E5 !important;
-  color: #fff !important;
-  box-shadow: 0 8px 28px #4F46E541 !important;
-  transition: box-shadow 0.22s, transform 0.18s !important;
-}
-
-.prem-cta-btn-primary:hover {
-  box-shadow: 0 12px 36px #4e46e579 !important;
-  transform: translateY(-2px);
-}
-
-.prem-cta-btn-outline {
-  border-color: #4F46E5 !important;
-  transition: background 0.2s !important;
-}
-
-.prem-cta-btn-outline:hover {
-  background: #4e46e526 !important;
-}
-
-.premium-stack-map {
-  --node-size: clamp(48px, 6.2vw, 78px);
-  --check-size: clamp(14px, 1.9vw, 22px);
   position: relative;
-  z-index: 1;
-  width: 100%;
-  aspect-ratio: 980 / 500;
-  border-radius: 20px;
-  border: 1px solid rgba(81, 132, 196, 0.24);
-  background:
-    radial-gradient(circle at 18% 22%, rgba(39, 119, 216, 0.2), transparent 46%),
-    radial-gradient(circle at 86% 18%, rgba(99, 102, 241, 0.14), transparent 48%),
-    linear-gradient(160deg, #f9fcff 0%, #eef5ff 48%, #eaf2fb 100%);
-  overflow: hidden;
+  z-index: 2;
 }
 
-.premium-stack-lines {
+.clean-cta-btn-primary {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25) !important;
+  transition: all 0.2s ease !important;
+}
+
+.clean-cta-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.35) !important;
+}
+
+.clean-cta-btn-outline {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  font-weight: 600;
+  transition: all 0.2s ease !important;
+}
+
+.clean-cta-btn-outline:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.05) !important;
+}
+
+.clean-stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.clean-node-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 2rem 1.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  animation: clean-fade-up 0.6s ease-out both;
+  animation-delay: var(--delay);
+}
+
+.clean-node-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.08);
+  border-color: #cbd5e1;
+}
+
+.clean-node-bg {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.premium-connector {
-  stroke: rgba(59, 113, 178, 0.36);
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: premium-line-in 0.8s ease forwards;
-  animation-delay: var(--d, 0s);
-}
-
-.premium-node {
-  position: absolute;
-  width: var(--node-size);
-  height: var(--node-size);
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  border: 2px solid color-mix(in srgb, var(--ring) 82%, white 18%);
-  background-color: #071a31;
-  box-shadow:
-    0 0 0 4px color-mix(in srgb, var(--ring) 22%, transparent 78%),
-    0 12px 28px rgba(1, 11, 27, 0.44);
-  color: #eaf3ff;
-  animation: premium-node-in 0.45s ease both;
-  animation-delay: var(--d, 0s);
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
-  transform: translate(-50%, -50%);
-}
-
-.premium-node:hover {
-  transform: translate(-50%, calc(-50% - 3px)) scale(1.03);
-  box-shadow:
-    0 0 0 5px color-mix(in srgb, var(--ring) 34%, transparent 66%),
-    0 16px 34px rgba(1, 11, 27, 0.52);
-}
-
-.premium-node:focus-visible {
-  outline: 2px solid rgba(229, 245, 255, 0.95);
-  outline-offset: 2px;
-}
-
-.premium-node-core {
-  font-size: clamp(1.8rem, 1vw, 1.02rem);
-  font-weight: 800;
-  letter-spacing: 0.02em;
-}
-
-.premium-node-check {
-  position: absolute;
-  top: calc(var(--check-size) * -0.3);
-  right: calc(var(--check-size) * -0.2);
-  width: var(--check-size);
-  height: var(--check-size);
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: clamp(0.58rem, 1vw, 0.8rem);
-  font-weight: 900;
-  color: #ffffff;
-  background: #17c964;
-  border: 2px solid #0a1f3d;
-  box-shadow: 0 6px 12px rgba(8, 68, 42, 0.42);
-}
-
-.premium-node-label {
-  position: absolute;
-  bottom: calc(var(--node-size) * -0.4);
-  left: 50%;
-  transform: translate(-50%, 7px);
-  white-space: nowrap;
-  font-size: clamp(0.58rem, 0.95vw, 0.74rem);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: rgba(18, 54, 96, 0.92);
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.65);
   opacity: 0;
+  transition: opacity 0.4s ease;
   pointer-events: none;
-  transition:
-    opacity 0.18s ease,
-    transform 0.2s ease;
 }
 
-.premium-node:hover .premium-node-label,
-.premium-node:focus-visible .premium-node-label {
+.clean-node-card:hover .clean-node-bg {
   opacity: 1;
-  transform: translate(-50%, 0);
 }
 
-.premium-stack-mobile {
-  display: none;
-}
-
-.premium-mobile-item {
-  display: inline-flex;
+.clean-node-icon-wrap {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  display: flex;
   align-items: center;
-  gap: 0.58rem;
-  padding: 0.45rem 0.7rem;
-  border-radius: 999px;
-  border: 1px solid rgba(125, 182, 255, 0.24);
-  background: rgba(10, 26, 50, 0.78);
-  color: #e2eeff;
+  justify-content: center;
+  transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.clean-node-card:hover .clean-node-icon-wrap {
+  transform: scale(1.08) translateY(-2px);
+  background: #ffffff;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+}
+
+.clean-node-content {
+  position: relative;
+  z-index: 2;
+}
+
+.clean-node-title {
+  font-size: 1.15rem;
   font-weight: 700;
-  animation: premium-mobile-item-in 0.36s ease both;
-  animation-delay: var(--d, 0s);
+  color: #0f172a;
+  margin: 0 0 0.5rem 0;
 }
 
-.premium-mobile-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--ring);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ring) 34%, transparent 66%);
+.clean-node-desc {
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
 }
 
-.premium-mobile-label {
-  font-size: 0.82rem;
-}
-
-.premium-mobile-icon {
-  color: #d8eaff;
-  opacity: 0.95;
+@keyframes clean-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes rise-in {
@@ -1702,39 +1574,7 @@ const premiumStackLines = premiumStackLinks
   }
 }
 
-@keyframes premium-node-in {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -44%) scale(0.92);
-  }
 
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-@keyframes premium-line-in {
-  from {
-    stroke-dashoffset: 1000;
-  }
-
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes premium-mobile-item-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 @keyframes luxe-orb-float {
 
@@ -1749,14 +1589,24 @@ const premiumStackLines = premiumStackLinks
 }
 
 @media (max-width: 760px) {
-  .premium-stack-map {
-    display: none;
+  .clean-stack-grid {
+    grid-template-columns: 1fr;
   }
+}
 
-  .premium-stack-mobile {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.54rem;
+@media (max-width: 600px) {
+  .clean-stack-panel,
+  .clean-panel,
+  .clean-cta-banner {
+    padding: 2rem 1.25rem;
+  }
+  
+  .clean-section-title {
+    font-size: 1.6rem;
+  }
+  
+  .clean-node-card {
+    padding: 1.5rem;
   }
 }
 
@@ -1870,13 +1720,13 @@ const premiumStackLines = premiumStackLinks
     gap: 1.25rem;
   }
 
-  .prem-cta-actions {
+  .clean-cta-actions {
     justify-content: center;
     width: 100%;
   }
 
-  .prem-cta-btn-primary,
-  .prem-cta-btn-outline {
+  .clean-cta-btn-primary,
+  .clean-cta-btn-outline {
     width: 100%;
     margin-bottom: 0.5rem;
   }
@@ -1899,15 +1749,23 @@ const premiumStackLines = premiumStackLinks
   .startup-chip,
   .profile-fact,
   .luxe-orb,
-  .premium-connector,
-  .premium-node,
-  .premium-mobile-item {
+  .clean-node-card,
+  .clean-delivery-chip,
+  .clean-collab-item {
     animation: none;
     opacity: 1;
   }
 
   .luxe-flow-card,
-  .premium-node,
+  .clean-node-card,
+  .clean-node-icon-wrap,
+  .clean-pillar-card,
+  .clean-pillar-icon-wrap,
+  .clean-panel,
+  .clean-stack-panel,
+  .clean-cta-btn-primary,
+  .clean-cta-btn-outline,
+  .clean-collab-item,
   .stat-card {
     transition: none;
   }

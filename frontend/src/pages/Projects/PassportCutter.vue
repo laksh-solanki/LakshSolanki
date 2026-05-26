@@ -7,7 +7,7 @@ const IMAGE_API_KEY = (import.meta.env.VITE_IMAGE_API_KEY || "").trim();
 const MAX_FILE_BYTES = 12 * 1024 * 1024;
 const PASSPORT_WIDTH_MM = 35;
 const PASSPORT_HEIGHT_MM = 45;
-const PASSPORT_PRINT_DPI = 300;
+const PASSPORT_PRINT_DPI = 600;
 const MM_PER_INCH = 25.4;
 const PASSPORT_WIDTH_PX = Math.round((PASSPORT_WIDTH_MM / MM_PER_INCH) * PASSPORT_PRINT_DPI);
 const PASSPORT_HEIGHT_PX = Math.round((PASSPORT_HEIGHT_MM / MM_PER_INCH) * PASSPORT_PRINT_DPI);
@@ -489,6 +489,9 @@ const createBlobWithSolidBackground = async (blob, color, borderPx = PASSPORT_BO
   const innerWidth = Math.max(1, frameWidth - normalizedBorder * 2);
   const innerHeight = Math.max(1, frameHeight - normalizedBorder * 2);
 
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+
   // Fill full canvas, then optionally draw border and inner background.
   ctx.fillStyle = PASSPORT_OUTER_AREA_COLOR;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -608,7 +611,7 @@ const removeBackground = async () => {
 
   try {
     const formData = new FormData();
-    formData.append("size", "auto");
+    formData.append("size", "full");
 
     if (inputMode.value === "file") {
       formData.append("image_file", selectedFile.value, selectedFileName.value || "image");
@@ -672,12 +675,16 @@ const createJpegFromBlob = async (blob, fillColor = "#ffffff") => {
   if (!ctx) {
     throw new Error("Canvas is unavailable in this browser.");
   }
+  
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  
   ctx.fillStyle = fillColor;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
   const output = await new Promise((resolve) => {
-    canvas.toBlob(resolve, "image/jpeg", 0.92);
+    canvas.toBlob(resolve, "image/jpeg", 1.0);
   });
   if (!output) {
     throw new Error("Unable to generate JPG output.");

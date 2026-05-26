@@ -205,6 +205,13 @@ const projects = ref([
 </template>
 
 <style scoped>
+.projects-sidebar {
+  position: fixed !important;
+  top: 81px !important; /* height of header */
+  height: calc(100vh - 64px) !important;
+  z-index: 40 !important;
+}
+
 .projects-shell {
   max-width: min(var(--page-max-width), 100%);
 }
