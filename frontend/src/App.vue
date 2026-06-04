@@ -38,13 +38,13 @@ onMounted(() => {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #4F46E5;
+  background: #0f8f7c;
   border-radius: 100px;
   scroll-behavior: smooth !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #7e78f6;
+  background: #39bca3;
   cursor: pointer;
 }
 

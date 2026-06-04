@@ -53,6 +53,6 @@ const logoSrc = getMediaUrl("Picture/LS.svg");
 }
 
 .brand-name .accent {
-  color: #4F46E5 !important;
+  color: #0f8f7c !important;
 }
 </style>

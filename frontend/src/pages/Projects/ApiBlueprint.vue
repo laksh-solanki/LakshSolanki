@@ -298,7 +298,7 @@ const exportMarkdown = () => {
     <v-container class="py-8 py-md-12">
       <v-row class="ga-0" align="stretch">
         <v-col cols="12" class="mb-6">
-          <v-card class="tool-shell p-5 p-md-7" rounded="xl" elevation="0">
+          <v-card class="tool-shell p-5 p-md-7 animate-fade-in-up" rounded="xl" elevation="0">
             <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-4">
               <div>
                 <p class="panel-kicker mb-1">API Blueprint Designer</p>
@@ -471,7 +471,7 @@ const exportMarkdown = () => {
                     No endpoints defined yet. Add your first endpoint above.
                   </v-alert>
                   <v-list v-else density="compact" class="bg-transparent">
-                    <v-list-item v-for="ep in endpoints" :key="ep.id" rounded="lg" class="mb-2 bg-grey-lighten-4">
+                    <v-list-item v-for="ep in endpoints" :key="ep.id" rounded="lg" class="mb-2 endpoint-item">
                       <template v-slot:prepend>
                         <v-chip :color="methodColors[ep.method]" size="small" label>{{ ep.method }}</v-chip>
                       </template>
@@ -517,20 +517,18 @@ const exportMarkdown = () => {
 
 <style scoped>
 .blueprint-page {
-  background:
-    radial-gradient(circle at 10% 6%, rgba(42, 108, 89, 0.2), transparent 35%),
-    radial-gradient(circle at 90% 12%, rgba(214, 164, 62, 0.18), transparent 35%),
-    linear-gradient(180deg, #f4f8ff 0%, #eef8f1 100%);
+  background: var(--portfolio-bg);
 }
 
 .tool-shell {
-  border: 1px solid rgba(29, 70, 115, 0.15);
-  background: linear-gradient(168deg, #ffffff 0%, #f7fbff 100%);
-  box-shadow: 0 18px 36px rgba(15, 33, 78, 0.08);
+  border: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--portfolio-shadow);
 }
 
 .panel-kicker {
-  color: #4F46E5 !important;
+  color: #0f8f7c !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.71rem;
@@ -539,5 +537,18 @@ const exportMarkdown = () => {
 
 .font-mono {
   font-family: 'Courier New', Courier, monospace;
+}
+
+.endpoint-item {
+  border: 1px solid var(--portfolio-border-color) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  backdrop-filter: blur(12px);
+  transition: all 0.25s ease;
+}
+
+.endpoint-item:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(15, 143, 124, 0.25) !important;
+  transform: translateY(-2px);
 }
 </style>

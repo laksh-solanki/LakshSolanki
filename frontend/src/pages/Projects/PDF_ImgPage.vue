@@ -443,14 +443,13 @@ onUnmounted(() => {
 <style scoped>
 .tool-page {
   position: relative;
-  background:
-    radial-gradient(circle at 10% 0%, rgba(96, 219, 198, 0.18), transparent 28%),
-    radial-gradient(circle at 96% 15%, rgba(255, 199, 120, 0.2), transparent 30%);
+  background: var(--portfolio-bg);
 }
 
 .hero-shell {
-  border-bottom: 1px solid rgba(19, 111, 99, 0.12);
-  background: linear-gradient(152deg, rgba(246, 252, 250, 0.98), rgba(236, 246, 241, 0.92));
+  border-bottom: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
 }
 
 .hero-chip {
@@ -458,8 +457,8 @@ onUnmounted(() => {
   align-items: center;
   padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(19, 111, 99, 0.22);
-  color: #136f63;
+  border: 1px solid rgba(15, 143, 124, 0.3);
+  color: #0f8f7c;
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -473,7 +472,7 @@ onUnmounted(() => {
 }
 
 .hero-subtitle {
-  color: #4d5d59;
+  color: var(--portfolio-ink-soft);
   max-width: 58ch;
   line-height: 1.72;
 }
@@ -485,9 +484,9 @@ onUnmounted(() => {
 }
 
 .stat-item {
-  border: 1px solid rgba(19, 111, 99, 0.15);
+  border: 1px solid var(--portfolio-border-color);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--portfolio-panel-highlight);
   padding: 12px 10px;
   text-align: center;
 }
@@ -496,23 +495,24 @@ onUnmounted(() => {
   display: block;
   font-size: 0.98rem;
   font-weight: 800;
-  color: #10312b;
+  color: var(--portfolio-ink);
 }
 
 .stat-label {
   display: block;
   font-size: 0.73rem;
-  color: #5f716d;
+  color: var(--portfolio-muted);
 }
 
 .tool-shell {
-  border: 1px solid rgba(19, 111, 99, 0.17);
-  background: linear-gradient(160deg, #ffffff 0%, #f5fbf8 100%);
-  box-shadow: 0 16px 30px rgba(11, 39, 34, 0.08);
+  border: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--portfolio-shadow);
 }
 
 .panel-kicker {
-  color: #4F46E5 !important;
+  color: #0f8f7c !important;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-size: 0.72rem;
@@ -520,8 +520,8 @@ onUnmounted(() => {
 }
 
 .upload-zone {
-  border: 3px dashed #4e46e546 !important;
-  background: #4e46e526 !important;
+  border: 3px dashed rgba(15, 143, 124, 0.35) !important;
+  background: rgba(15, 143, 124, 0.08) !important;
   padding: 36px 22px;
   cursor: pointer;
   transition:
@@ -532,14 +532,14 @@ onUnmounted(() => {
 
 .upload-zone:hover {
   transform: translateY(-2px);
- border-color: #0d00ff!important;
-  background: #4e46e52f !important;
+  border-color: #0f8f7c !important;
+  background: rgba(15, 143, 124, 0.15) !important;
 }
 
 .upload-zone.drag-over {
   border-style: solid !important;
-  border-color: rgba(19, 111, 99, 0.95) !important;
-  background: rgba(19, 111, 99, 0.12);
+  border-color: #0f8f7c !important;
+  background: rgba(15, 143, 124, 0.22);
 }
 
 .file-input {
@@ -551,22 +551,22 @@ onUnmounted(() => {
   align-items: center;
   padding: 8px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(19, 111, 99, 0.2);
-  background: rgba(19, 111, 99, 0.08);
+  border: 1px solid rgba(15, 143, 124, 0.3);
+  background: rgba(15, 143, 124, 0.08);
   font-size: 0.85rem;
-  color: #16453d;
+  color: var(--portfolio-primary);
 }
 
 .progress-shell {
-  border: 1px solid rgba(19, 111, 99, 0.14);
+  border: 1px solid var(--portfolio-border-color);
   border-radius: 12px;
-  background: #f8fcfa;
+  background: var(--portfolio-field-bg);
   padding: 12px;
 }
 
 .image-card {
-  border: 1px solid rgba(19, 111, 99, 0.14);
-  background: #ffffff;
+  border: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
 }
 
 .tools-grid {
@@ -580,23 +580,22 @@ onUnmounted(() => {
 }
 
 .converted-image-preview {
-  background: rgba(19, 111, 99, 0.04);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .side-panel {
-  border: 1px solid rgba(19, 111, 99, 0.17);
-  background:
-    radial-gradient(circle at 90% 12%, rgba(255, 201, 131, 0.2), transparent 34%),
-    linear-gradient(160deg, #ffffff 0%, #f4faf7 100%);
-  box-shadow: 0 16px 30px rgba(11, 39, 34, 0.08);
+  border: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--portfolio-shadow);
 }
 
 .output-empty {
-  border: 1px solid rgba(19, 111, 99, 0.14);
+  border: 1px solid var(--portfolio-border-color);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.84);
+  background: rgba(255, 255, 255, 0.02);
   padding: 12px;
-  color: #556865;
+  color: var(--portfolio-muted);
   font-size: 0.9rem;
 }
 
@@ -615,23 +614,23 @@ onUnmounted(() => {
   align-items: center;
   padding: 10px;
   border-radius: 12px;
-  border: 1px solid rgba(19, 111, 99, 0.14);
-  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid var(--portfolio-border-color);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .output-thumb {
-  border: 1px solid rgba(19, 111, 99, 0.18);
-  background: rgba(19, 111, 99, 0.05);
+  border: 1px solid var(--portfolio-border-color);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .output-name {
   font-weight: 700;
-  color: #12352f;
+  color: var(--portfolio-ink);
   font-size: 0.88rem;
 }
 
 .output-path {
-  color: #556865;
+  color: var(--portfolio-muted);
   font-size: 0.79rem;
   line-height: 1.45;
   word-break: break-all;

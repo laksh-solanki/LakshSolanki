@@ -506,7 +506,7 @@ onUnmounted(() => {
 }
 
 .quick-card {
-  border: 1px solid #4e46e590;
+  border: 1px solid rgba(15, 143, 124, 0.55);
   background: rgba(255, 255, 255, 0.9);
   color: var(--portfolio-ink);
   border-radius: 12px;
@@ -521,9 +521,9 @@ onUnmounted(() => {
 }
 
 .quick-card:hover {
-  border-color: #4e46e572;
+  border-color: rgba(15, 143, 124, 0.45);
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px #4e46e53b;
+  box-shadow: 0 8px 20px rgba(15, 143, 124, 0.25);
 }
 
 .suggestion-list {
@@ -533,8 +533,8 @@ onUnmounted(() => {
 }
 
 .suggestion-chip {
-  border: 1px solid #4e46e5c3;
-  background: #4e46e537;
+  border: 1px solid rgba(15, 143, 124, 0.7);
+  background: rgba(15, 143, 124, 0.2);
   color: var(--portfolio-ink-soft);
   border-radius: 999px;
   padding: 6px 11px;
@@ -568,7 +568,7 @@ onUnmounted(() => {
   border-radius: 10px;
   display: grid;
   place-items: center;
-  background: #4e46e56e;
+  background: rgba(15, 143, 124, 0.35);
 }
 
 .search-hit__content {
@@ -596,7 +596,7 @@ onUnmounted(() => {
 .search-hit:hover,
 .search-hit.is-active {
   border-color: rgba(15, 143, 124, 0.24);
-  background: linear-gradient(128deg, #4e46e53b, #4e46e541);
+  background: linear-gradient(128deg, rgba(15, 143, 124, 0.2), rgba(15, 143, 124, 0.25));
 }
 
 .empty-state {
@@ -646,12 +646,12 @@ kbd {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #4e46e5a2;
+  background: rgba(15, 143, 124, 0.6);
   border-radius: 999px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #4e46e5f3;
+  background: #0f8f7c;
 }
 
 @media (max-width: 600px) {

@@ -19,7 +19,7 @@ const socialLinks = [
 
 <template>
   <v-footer class="app-footer">
-    <v-container class="py-7 px-0">
+    <v-container class="py-7" fluid>
       <v-row density="comfortable">
         <!-- Brand & Info -->
         <v-col cols="12" md="4" class="mb-8 mb-md-0">

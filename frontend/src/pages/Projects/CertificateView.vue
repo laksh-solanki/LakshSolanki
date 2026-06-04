@@ -394,14 +394,13 @@ const generatePdf = async () => {
 <style scoped>
 .certificate-page {
   position: relative;
-  background:
-    radial-gradient(circle at 10% 0%, rgba(96, 219, 198, 0.18), transparent 28%),
-    radial-gradient(circle at 96% 15%, rgba(255, 199, 120, 0.2), transparent 30%);
+  background: var(--portfolio-bg);
 }
 
 .hero-shell {
-  border-bottom: 1px solid rgba(19, 111, 99, 0.12);
-  background: linear-gradient(152deg, rgba(246, 252, 250, 0.98), rgba(236, 246, 241, 0.92));
+  border-bottom: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
 }
 
 .hero-chip {
@@ -409,8 +408,8 @@ const generatePdf = async () => {
   align-items: center;
   padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(19, 111, 99, 0.22);
-  color: #136f63;
+  border: 1px solid rgba(15, 143, 124, 0.3);
+  color: #0f8f7c;
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -424,7 +423,7 @@ const generatePdf = async () => {
 }
 
 .hero-subtitle {
-  color: #4d5d59;
+  color: var(--portfolio-ink-soft);
   max-width: 54ch;
   line-height: 1.7;
 }
@@ -436,9 +435,9 @@ const generatePdf = async () => {
 }
 
 .stat-item {
-  border: 1px solid rgba(19, 111, 99, 0.15);
+  border: 1px solid var(--portfolio-border-color);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--portfolio-panel-highlight);
   padding: 12px 10px;
   text-align: center;
 }
@@ -447,19 +446,20 @@ const generatePdf = async () => {
   display: block;
   font-size: 0.98rem;
   font-weight: 800;
-  color: #10312b;
+  color: var(--portfolio-ink);
 }
 
 .stat-label {
   display: block;
   font-size: 0.73rem;
-  color: #5f716d;
+  color: var(--portfolio-muted);
 }
 
 .form-shell {
-  border: 1px solid rgba(19, 111, 99, 0.17);
-  background: linear-gradient(160deg, #ffffff 0%, #f5fbf8 100%);
-  box-shadow: 0 16px 30px rgba(11, 39, 34, 0.08);
+  border: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--portfolio-shadow);
 }
 
 .form-kicker {
@@ -467,34 +467,31 @@ const generatePdf = async () => {
   letter-spacing: 0.09em;
   font-size: 0.72rem;
   font-weight: 700;
-  color: #4F46E5 !important;
+  color: #0f8f7c !important;
 }
 
 .form-input :deep(.v-field) {
   border-radius: 12px;
-  border: 1px solid rgba(19, 111, 99, 0.12);
-  background: #f8fcfa;
+  border: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-field-bg);
 }
 
 .note-alert {
-  border: 1px solid rgba(19, 111, 99, 0.14);
+  border: 1px solid rgba(15, 143, 124, 0.24);
 }
 
 .add-course-panel {
   padding: 18px;
   border-radius: 18px;
-  border: 1px solid rgba(19, 111, 99, 0.14);
-  background:
-    radial-gradient(circle at 100% 0%, rgba(255, 199, 120, 0.12), transparent 32%),
-    linear-gradient(155deg, rgba(255, 255, 255, 0.96), rgba(240, 249, 245, 0.98));
+  border: 1px solid var(--portfolio-border-color);
+  background: rgba(15, 143, 124, 0.03);
 }
 
 .side-panel {
-  border: 1px solid rgba(19, 111, 99, 0.17);
-  background:
-    radial-gradient(circle at 90% 12%, rgba(255, 201, 131, 0.2), transparent 34%),
-    linear-gradient(160deg, #ffffff 0%, #f4faf7 100%);
-  box-shadow: 0 16px 30px rgba(11, 39, 34, 0.08);
+  border: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--portfolio-shadow);
 }
 
 .step-list {
@@ -508,8 +505,8 @@ const generatePdf = async () => {
   gap: 12px;
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid rgba(19, 111, 99, 0.14);
-  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid var(--portfolio-border-color);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .step-index {
@@ -521,17 +518,17 @@ const generatePdf = async () => {
   border-radius: 10px;
   font-size: 0.76rem;
   font-weight: 800;
-  color: #157568;
-  background: rgba(21, 117, 104, 0.12);
+  color: #0f8f7c;
+  background: rgba(15, 143, 124, 0.15);
 }
 
 .step-title {
   font-weight: 700;
-  color: #12352f;
+  color: var(--portfolio-ink);
 }
 
 .step-copy {
-  color: #556865;
+  color: var(--portfolio-muted);
   font-size: 0.89rem;
   line-height: 1.5;
 }

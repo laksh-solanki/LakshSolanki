@@ -362,18 +362,13 @@ const generatePassword = () => {
 
 <style scoped>
 .hub-page {
-  background:
-    radial-gradient(circle at 10% 6%, rgba(42, 108, 89, 0.2), transparent 35%),
-    radial-gradient(circle at 90% 12%, rgba(214, 164, 62, 0.18), transparent 33%),
-    linear-gradient(180deg, #f4f8ff 0%, #eef8f1 100%);
+  background: var(--portfolio-bg);
 }
 
 .hero-shell {
-  border-bottom: 1px solid rgba(15, 143, 124, 0.12);
-  background:
-    radial-gradient(circle at 12% 10%, rgba(15, 143, 124, 0.1), transparent 28%),
-    radial-gradient(circle at 88% 14%, rgba(242, 180, 80, 0.08), transparent 24%),
-    linear-gradient(152deg, rgba(255, 255, 255, 0.98), rgba(240, 246, 244, 0.94));
+  border-bottom: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
 }
 
 .hero-chip {
@@ -381,7 +376,7 @@ const generatePassword = () => {
   align-items: center;
   border-radius: 999px;
   padding: 6px 13px;
-  border: 1px solid rgba(15, 143, 124, 0.16);
+  border: 1px solid rgba(15, 143, 124, 0.3);
   color: var(--portfolio-primary);
   background: rgba(15, 143, 124, 0.08);
   font-size: 0.72rem;
@@ -407,12 +402,12 @@ const generatePassword = () => {
 }
 
 .stat-item {
-  border: 1px solid rgba(15, 143, 124, 0.12);
+  border: 1px solid var(--portfolio-border-color);
   border-radius: 12px;
   padding: 12px 10px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 10px 20px rgba(18, 38, 33, 0.06);
+  background: var(--portfolio-panel-highlight);
+  box-shadow: var(--portfolio-shadow);
 }
 
 .stat-value {
@@ -429,13 +424,14 @@ const generatePassword = () => {
 }
 
 .tool-shell {
-  border: 1px solid rgba(29, 70, 115, 0.15);
-  background: linear-gradient(168deg, #ffffff 0%, #f7fbff 100%);
-  box-shadow: 0 18px 36px rgba(15, 33, 78, 0.08);
+  border: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--portfolio-shadow);
 }
 
 .panel-kicker {
-  color: #4F46E5 !important;
+  color: #0f8f7c !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.71rem;

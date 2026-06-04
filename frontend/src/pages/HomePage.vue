@@ -266,134 +266,139 @@ const premiumStackNodes = [
       </div>
     </section>
 
-    <!-- ═══ STATS SECTION ═══ -->
-    <section class="mb-12 home-section">
-      <v-row>
-        <v-col v-for="(stat, index) in impactStats" :key="stat.label" cols="12" sm="4">
-          <div class="prem-stat-card startup-stat" :style="{ '--delay': `${0.08 + index * 0.09}s` }">
-            <div class="prem-stat-glow"></div>
-            <span class="prem-stat-value">{{ stat.value }}</span>
-            <span class="prem-stat-label">{{ stat.label }}</span>
+    <!-- ═══ DARK SECTION WRAPPER ═══ -->
+    <div class="home-dark-content">
+      <div class="home-dark-inner">
+        <!-- ═══ STATS SECTION ═══ -->
+        <section class="mb-16 home-section">
+          <v-row>
+            <v-col v-for="(stat, index) in impactStats" :key="stat.label" cols="12" sm="4">
+              <div class="prem-stat-card startup-stat" :style="{ '--delay': `${0.08 + index * 0.09}s` }">
+                <div class="prem-stat-glow"></div>
+                <span class="prem-stat-value">{{ stat.value }}</span>
+                <span class="prem-stat-label">{{ stat.label }}</span>
+              </div>
+            </v-col>
+          </v-row>
+        </section>
+
+        <!-- ═══ WHAT I BUILD ═══ -->
+        <section class="mb-16 home-section">
+          <div class="clean-section-head startup-heading" style="--delay: 0.08s">
+            <div>
+              <span class="clean-kicker">Core Stack</span>
+              <h2 class="clean-section-title">Technologies I build with</h2>
+            </div>
+            <v-btn to="/projects" variant="outlined" rounded="xl" class="clean-btn-projects text-none px-5" text="See All Projects"
+              append-icon="mdi-arrow-right" />
           </div>
-        </v-col>
-      </v-row>
-    </section>
 
-    <!-- ═══ WHAT I BUILD ═══ -->
-    <section class="mb-12 home-section">
-      <div class="clean-section-head startup-heading" style="--delay: 0.08s">
-        <div>
-          <span class="clean-kicker">Core Stack</span>
-          <h2 class="clean-section-title">Technologies I build with</h2>
-        </div>
-        <v-btn to="/projects" variant="outlined" rounded="xl" color="primary" text="See All Projects"
-          append-icon="mdi-arrow-right" />
-      </div>
+          <div class="clean-stack-panel startup-flow-card">
+            <div class="clean-panel-bg"></div>
 
-      <div class="clean-stack-panel startup-flow-card">
-        <div class="clean-panel-bg"></div>
-
-        <div class="clean-stack-grid">
-          <div v-for="(node, index) in premiumStackNodes" :key="node.id" class="clean-node-card"
-            :style="{ '--delay': `${0.1 + index * 0.05}s` }">
-            <div class="clean-node-bg" :style="{ background: `radial-gradient(circle at 100% 100%, ${node.ring}0C 0%, transparent 70%)` }"></div>
-            <div class="clean-node-icon-wrap" :style="{ color: node.ring }">
-              <v-icon v-if="node.icon" :icon="node.icon" size="32" />
-            </div>
-            <div class="clean-node-content">
-              <h4 class="clean-node-title">{{ node.label }}</h4>
-              <p class="clean-node-desc">{{ node.desc }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══ HOW I DELIVER ═══ -->
-    <section class="mb-12 home-section">
-      <div class="clean-section-head startup-heading" style="--delay: 0.08s">
-        <div>
-          <span class="clean-kicker">COLLABORATION MODEL</span>
-          <h2 class="clean-section-title">How I Deliver</h2>
-        </div>
-      </div>
-
-      <div class="clean-panel startup-flow-card">
-        <div class="clean-panel-bg"></div>
-        <v-row class="ga-0 position-relative z-2" align="start">
-          <v-col cols="12" md="5" class="pr-md-8">
-            <h3 class="clean-sub-title mb-3">
-              Minimal process, maximum clarity and execution.
-            </h3>
-            <p class="clean-muted mb-6">
-              I partner closely with teams to keep delivery lean, practical, and
-              focused on real outcomes.
-            </p>
-            <div class="d-flex flex-wrap ga-2">
-              <span v-for="(item, index) in deliveryFocus" :key="item" class="clean-delivery-chip"
-                :style="{ '--delay': `${0.2 + index * 0.05}s` }">
-                <v-icon size="14" class="mr-1" color="#6366f1">mdi-check-circle-outline</v-icon>
-                {{ item }}
-              </span>
-            </div>
-          </v-col>
-          <v-col cols="12" md="7" class="mt-8 mt-md-0">
-            <div class="clean-collab-list">
-              <article v-for="(item, index) in collaborationSteps" :key="item.step" class="clean-collab-item"
-                :style="{ '--delay': `${0.24 + index * 0.07}s` }">
-                <span class="clean-collab-step">{{ item.step }}</span>
-                <div>
-                  <h4 class="clean-collab-title mb-1">{{ item.title }}</h4>
-                  <p class="clean-collab-desc mb-0">{{ item.description }}</p>
+            <div class="clean-stack-grid">
+              <div v-for="(node, index) in premiumStackNodes" :key="node.id" class="clean-node-card"
+                :style="{ '--delay': `${0.1 + index * 0.05}s` }">
+                <div class="clean-node-bg" :style="{ background: `radial-gradient(circle at 100% 100%, ${node.ring}20 0%, transparent 70%)` }"></div>
+                <div class="clean-node-icon-wrap" :style="{ color: node.ring }">
+                  <v-icon v-if="node.icon" :icon="node.icon" size="32" />
                 </div>
-              </article>
+                <div class="clean-node-content">
+                  <h4 class="clean-node-title">{{ node.label }}</h4>
+                  <p class="clean-node-desc">{{ node.desc }}</p>
+                </div>
+              </div>
             </div>
-          </v-col>
-        </v-row>
-      </div>
-    </section>
-
-    <!-- ═══ WHAT YOU CAN EXPECT + CTA ═══ -->
-    <section class="home-section">
-      <div class="clean-section-head startup-heading" style="--delay: 0.1s">
-        <div>
-          <span class="clean-kicker">VALUES</span>
-          <h2 class="clean-section-title">What You Can Expect</h2>
-        </div>
-      </div>
-
-      <v-row class="mb-6">
-        <v-col v-for="(pillar, index) in valuePillars" :key="pillar.title" cols="12" md="4">
-          <div class="clean-pillar-card startup-project" :style="{ '--delay': `${0.14 + index * 0.09}s` }">
-            <div class="clean-pillar-icon-wrap">
-              <v-icon :icon="pillar.icon" size="24" class="clean-pillar-icon"></v-icon>
-            </div>
-            <h3 class="clean-pillar-title">{{ pillar.title }}</h3>
-            <p class="clean-pillar-desc mb-0">{{ pillar.description }}</p>
           </div>
-        </v-col>
-      </v-row>
+        </section>
 
-      <!-- CTA Banner -->
-      <div class="clean-cta-banner startup-heading" style="--delay:0.2s">
-        <div class="clean-cta-bg"></div>
-        <div class="clean-cta-content">
-          <h3 class="clean-cta-title">Looking for a focused development partner?</h3>
-          <p class="clean-cta-sub">Explore projects or review my profile to see how I build and deliver.</p>
-        </div>
-        <div class="clean-cta-actions">
-          <v-btn to="/projects" rounded="xl" size="large" class="clean-cta-btn-primary text-none px-7" elevation="0">
-            <v-icon start>mdi-rocket-launch-outline</v-icon>
-            Browse Projects
-          </v-btn>
-          <v-btn to="/about" variant="outlined" rounded="xl" size="large" class="clean-cta-btn-outline "
-            elevation="0">
-            <v-icon start>mdi-account-outline</v-icon>
-            About Me
-          </v-btn>
-        </div>
+        <!-- ═══ HOW I DELIVER ═══ -->
+        <section class="mb-16 home-section">
+          <div class="clean-section-head startup-heading" style="--delay: 0.08s">
+            <div>
+              <span class="clean-kicker">COLLABORATION MODEL</span>
+              <h2 class="clean-section-title">How I Deliver</h2>
+            </div>
+          </div>
+
+          <div class="clean-panel startup-flow-card">
+            <div class="clean-panel-bg"></div>
+            <v-row class="ga-0 position-relative z-2" align="start">
+              <v-col cols="12" md="5" class="pr-md-8">
+                <h3 class="clean-sub-title mb-3">
+                  Minimal process, maximum clarity and execution.
+                </h3>
+                <p class="clean-muted mb-6">
+                  I partner closely with teams to keep delivery lean, practical, and
+                  focused on real outcomes.
+                </p>
+                <div class="d-flex flex-wrap ga-2">
+                  <span v-for="(item, index) in deliveryFocus" :key="item" class="clean-delivery-chip"
+                    :style="{ '--delay': `${0.2 + index * 0.05}s` }">
+                    <v-icon size="14" class="mr-1" color="#39bca3">mdi-check-circle-outline</v-icon>
+                    {{ item }}
+                  </span>
+                </div>
+              </v-col>
+              <v-col cols="12" md="7" class="mt-8 mt-md-0">
+                <div class="clean-collab-list">
+                  <article v-for="(item, index) in collaborationSteps" :key="item.step" class="clean-collab-item"
+                    :style="{ '--delay': `${0.24 + index * 0.07}s` }">
+                    <span class="clean-collab-step">{{ item.step }}</span>
+                    <div>
+                      <h4 class="clean-collab-title mb-1">{{ item.title }}</h4>
+                      <p class="clean-collab-desc mb-0">{{ item.description }}</p>
+                    </div>
+                  </article>
+                </div>
+              </v-col>
+            </v-row>
+          </div>
+        </section>
+
+        <!-- ═══ WHAT YOU CAN EXPECT + CTA ═══ -->
+        <section class="home-section mb-6">
+          <div class="clean-section-head startup-heading" style="--delay: 0.1s">
+            <div>
+              <span class="clean-kicker">VALUES</span>
+              <h2 class="clean-section-title">What You Can Expect</h2>
+            </div>
+          </div>
+
+          <v-row class="mb-12">
+            <v-col v-for="(pillar, index) in valuePillars" :key="pillar.title" cols="12" md="4">
+              <div class="clean-pillar-card startup-project" :style="{ '--delay': `${0.14 + index * 0.09}s` }">
+                <div class="clean-pillar-icon-wrap">
+                  <v-icon :icon="pillar.icon" size="24" class="clean-pillar-icon"></v-icon>
+                </div>
+                <h3 class="clean-pillar-title">{{ pillar.title }}</h3>
+                <p class="clean-pillar-desc mb-0">{{ pillar.description }}</p>
+              </div>
+            </v-col>
+          </v-row>
+
+          <!-- CTA Banner -->
+          <div class="clean-cta-banner startup-heading" style="--delay:0.2s">
+            <div class="clean-cta-bg"></div>
+            <div class="clean-cta-content">
+              <h3 class="clean-cta-title">Looking for a focused development partner?</h3>
+              <p class="clean-cta-sub">Explore projects or review my profile to see how I build and deliver.</p>
+            </div>
+            <div class="clean-cta-actions">
+              <v-btn to="/projects" rounded="xl" size="large" class="clean-cta-btn-primary text-none px-7" elevation="0">
+                <v-icon start>mdi-rocket-launch-outline</v-icon>
+                Browse Projects
+              </v-btn>
+              <v-btn to="/about" variant="outlined" rounded="xl" size="large" class="clean-cta-btn-outline text-none px-7"
+                elevation="0">
+                <v-icon start>mdi-account-outline</v-icon>
+                About Me
+              </v-btn>
+            </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
   </v-container>
 </template>
 
@@ -599,8 +604,8 @@ const premiumStackNodes = [
 }
 
 .hero-v2-stat-pill:hover {
-  background: #4e46e521 !important;
-  border-color: #4e46e5c0 !important;
+  background: rgba(15, 143, 124, 0.15) !important;
+  border-color: rgba(15, 143, 124, 0.4) !important;
 }
 
 .hero-v2-stat-value {
@@ -608,7 +613,7 @@ const premiumStackNodes = [
   font-weight: 800;
   color: #ffffff;
   line-height: 1;
-  background: #4F46E5;
+  background: #0f8f7c;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -637,17 +642,17 @@ const premiumStackNodes = [
 }
 
 .hero-v2-btn-primary:hover {
-  box-shadow: 0 12px 36px #4e46e561 !important;
+  box-shadow: 0 12px 36px rgba(15, 143, 124, 0.35) !important;
   transform: translateY(-2px);
 }
 
 .hero-v2-btn-outline {
-  border: 1px solid #4e46e5 !important;
+  border: 1px solid #0f8f7c !important;
   color: #fff !important;
 }
 
 .hero-v2-btn-outline:hover {
-  background: #4e46e574 !important;
+  background: rgba(15, 143, 124, 0.2) !important;
 }
 
 /* Tech chips */
@@ -723,7 +728,7 @@ const premiumStackNodes = [
   width: 340px;
   height: 340px;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 100%, #4F46E5 0%, #4e46e549 38%, transparent 68%);
+  background: radial-gradient(circle at 50% 100%, #0f8f7c 0%, rgba(15, 143, 124, 0.28) 38%, transparent 68%);
   filter: blur(28px);
   pointer-events: none;
 }
@@ -736,7 +741,7 @@ const premiumStackNodes = [
   width: 240px;
   height: 24px;
   border-radius: 50%;
-  background: radial-gradient(ellipse, #4F46E5 0%, transparent 72%);
+  background: radial-gradient(ellipse, #0f8f7c 0%, transparent 72%);
   filter: blur(10px);
   pointer-events: none;
 }
@@ -748,7 +753,7 @@ const premiumStackNodes = [
   max-height: 92%;
   object-fit: contain;
   object-position: bottom;
-  filter: drop-shadow(0 60px 80px #4F46E5) drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 60px 80px rgba(15, 143, 124, 0.6)) drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
   animation: photo-float 6s ease-in-out infinite;
   user-select: none;
 }
@@ -960,41 +965,80 @@ const premiumStackNodes = [
 }
 
 /* ═══════════════════════════════════════════════
+   DARK SECTION WRAPPER
+═══════════════════════════════════════════════ */
+.home-dark-content {
+  position: relative;
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  background: linear-gradient(to bottom, #060d1f 0%, #08041a 45%, #050212 100%);
+  padding: 5rem 0 7rem;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.home-dark-content::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 80% 20%, rgba(15, 143, 124, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 15% 75%, rgba(57, 188, 163, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.home-dark-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2.5rem;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+/* ═══════════════════════════════════════════════
    PREMIUM STAT CARDS
 ═══════════════════════════════════════════════ */
 .prem-stat-card {
   position: relative;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid #4e46e561;
-  border-radius: 20px;
-  padding: 2rem 1.8rem;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 24px;
+  padding: 2.2rem 1.8rem;
   text-align: center;
-  backdrop-filter: blur(14px);
-  transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
-  box-shadow: 0 10px 30px rgba(15, 143, 124, 0.06);
+  backdrop-filter: blur(20px);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .prem-stat-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 40px #4e46e527;
-  border-color: #4e46e5;
+  box-shadow: 0 20px 40px rgba(15, 143, 124, 0.15);
+  border-color: rgba(15, 143, 124, 0.4) !important;
+  background: radial-gradient(circle at top left, rgba(15, 143, 124, 0.15), transparent 70%), rgba(255, 255, 255, 0.04) !important;
 }
 
 .prem-stat-glow {
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  background: radial-gradient(ellipse at 50% 0%, #4e46e52a 0%, transparent 65%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(15, 143, 124, 0.15) 0%, transparent 65%);
   pointer-events: none;
 }
 
 .prem-stat-value {
   display: block;
-  font-size: clamp(2.4rem, 4vw, 3.2rem);
+  font-size: clamp(2.4rem, 4vw, 3.4rem);
   font-weight: 900;
   letter-spacing: -0.03em;
-  background: #4F46E5;
+  background: linear-gradient(135deg, #ffffff 30%, #a7f3d0 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1004,18 +1048,15 @@ const premiumStackNodes = [
 
 .prem-stat-label {
   display: block;
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.07em;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #5e706a;
+  color: rgba(255, 255, 255, 0.6) !important;
 }
 
 /* ═══════════════════════════════════════════════
-   PREMIUM SECTION HEADING
-═══════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════
-   CLEAN SECTION HEADING (formerly prem-section-head)
+   CLEAN SECTION HEADING
 ═══════════════════════════════════════════════ */
 .clean-section-head {
   display: flex;
@@ -1027,32 +1068,42 @@ const premiumStackNodes = [
 }
 
 .clean-kicker {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #6366f1;
-  margin-bottom: 0.35rem;
+  color: #39bca3 !important; /* glowing emerald */
+  margin-bottom: 0.5rem;
   display: block;
 }
 
 .clean-section-title {
-  font-size: clamp(1.8rem, 3vw, 2.4rem);
-  font-weight: 800;
-  color: #0f172a;
-  letter-spacing: -0.02em;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 900;
+  color: #ffffff !important;
+  letter-spacing: -0.03em;
   margin: 0;
 }
 
+.clean-btn-projects {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+.clean-btn-projects:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
 /* ═══════════════════════════════════════════════
-   CLEAN PANEL (formerly prem-panel)
+   CLEAN PANEL
 ═══════════════════════════════════════════════ */
 .clean-panel, .clean-stack-panel {
   position: relative;
   border-radius: 24px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.04);
+  background: rgba(255, 255, 255, 0.01) !important;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
   padding: 3rem;
   overflow: hidden;
   transition: box-shadow 0.3s ease, transform 0.3s ease;
@@ -1063,8 +1114,7 @@ const premiumStackNodes = [
 }
 
 .clean-panel:hover, .clean-stack-panel:hover {
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
-  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
 }
 
 .clean-panel-bg {
@@ -1073,15 +1123,15 @@ const premiumStackNodes = [
   left: 0;
   right: 0;
   height: 200px;
-  background: linear-gradient(180deg, #f8fafc 0%, rgba(248, 250, 252, 0) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0) 100%);
   pointer-events: none;
 }
 
 /* Inside clean-panel */
 .clean-sub-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff !important;
   letter-spacing: -0.02em;
   line-height: 1.4;
 }
@@ -1089,31 +1139,31 @@ const premiumStackNodes = [
 .clean-muted {
   font-size: 1rem;
   line-height: 1.7;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.55) !important;
 }
 
 /* Delivery chips */
 .clean-delivery-chip {
   display: inline-flex;
   align-items: center;
-  padding: 0.4rem 0.9rem;
+  padding: 0.45rem 1rem;
   border-radius: 999px;
   font-size: 0.8rem;
-  font-weight: 600;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  color: #334155;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
   opacity: 0;
   animation: chip-in 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--delay, 0s);
-  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  transition: all 0.25s ease;
 }
 
 .clean-delivery-chip:hover {
-  background: #ffffff;
-  border-color: #cbd5e1;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(15, 23, 42, 0.05);
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* Collab list */
@@ -1128,88 +1178,99 @@ const premiumStackNodes = [
   align-items: start;
   gap: 1.2rem;
   padding: 1.2rem 1.4rem;
-  border-radius: 16px;
-  border: 1px solid transparent;
-  background: #f8fafc;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+  background: rgba(255, 255, 255, 0.015) !important;
   opacity: 0;
   animation: startup-scale 0.62s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: var(--delay, 0s);
-  transition: all 0.25s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .clean-collab-item:hover {
-  background: #ffffff;
-  border-color: #e2e8f0;
-  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.04);
-  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(15, 143, 124, 0.2) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  transform: translateX(6px);
 }
 
 .clean-collab-step {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.6rem;
+  height: 2.6rem;
   border-radius: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 800;
-  color: #4f46e5;
-  background: #e0e7ff;
+  color: #39bca3 !important; /* neon emerald */
+  background: rgba(57, 188, 163, 0.1) !important;
+  border: 1px solid rgba(57, 188, 163, 0.2) !important;
   flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.clean-collab-item:hover .clean-collab-step {
+  color: #ffffff !important;
+  background: #39bca3 !important;
+  border-color: #39bca3 !important;
+  box-shadow: 0 0 12px rgba(57, 188, 163, 0.4);
 }
 
 .clean-collab-title {
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #ffffff !important;
 }
 
 .clean-collab-desc {
   font-size: 0.95rem;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.5) !important;
   line-height: 1.6;
 }
 
 /* ═══════════════════════════════════════════════
-   CLEAN PILLAR CARDS (formerly prem-pillar-card)
+   CLEAN PILLAR CARDS
 ═══════════════════════════════════════════════ */
 .clean-pillar-card {
   position: relative;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.02) !important;
   border-radius: 20px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
   padding: 2.2rem 1.8rem;
   height: 100%;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .clean-pillar-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.08);
-  border-color: #cbd5e1;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
 }
 
 .clean-pillar-icon-wrap {
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: #f1f5f9;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
   display: grid;
   place-items: center;
   margin-bottom: 1.4rem;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .clean-pillar-card:hover .clean-pillar-icon-wrap {
-  background: #4f46e5;
-  color: #ffffff;
+  background: #0f8f7c !important;
+  color: #ffffff !important;
   transform: scale(1.05) rotate(-5deg);
-  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 10px 20px rgba(15, 143, 124, 0.3);
 }
 
 .clean-pillar-icon {
-  color: #4f46e5;
+  color: #0f8f7c !important;
   transition: color 0.3s ease;
 }
 
@@ -1218,35 +1279,35 @@ const premiumStackNodes = [
 }
 
 .clean-pillar-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff !important;
   margin-bottom: 0.75rem;
   letter-spacing: -0.01em;
 }
 
 .clean-pillar-desc {
   font-size: 0.95rem;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.5) !important;
   line-height: 1.65;
 }
 
 /* ═══════════════════════════════════════════════
-   CLEAN CTA BANNER (formerly prem-cta-banner)
+   CLEAN CTA BANNER
 ═══════════════════════════════════════════════ */
 .clean-cta-banner {
   position: relative;
   overflow: hidden;
-  border-radius: 24px;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 1px solid #cbd5e1;
-  padding: 3rem;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.6) 0%, rgba(8, 4, 26, 0.8) 100%) !important;
+  border: 1px solid rgba(15, 143, 124, 0.2) !important;
+  padding: 3.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 2rem;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .clean-cta-bg {
@@ -1255,7 +1316,7 @@ const premiumStackNodes = [
   right: 0;
   width: 50%;
   height: 100%;
-  background: radial-gradient(circle at 100% 50%, rgba(79, 70, 229, 0.08) 0%, transparent 80%);
+  background: radial-gradient(circle at 100% 50%, rgba(15, 143, 124, 0.18) 0%, transparent 80%);
   pointer-events: none;
 }
 
@@ -1267,16 +1328,16 @@ const premiumStackNodes = [
 }
 
 .clean-cta-title {
-  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
-  font-weight: 800;
-  color: #0f172a;
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-weight: 900;
+  color: #ffffff !important;
   letter-spacing: -0.02em;
   margin-bottom: 0.6rem;
 }
 
 .clean-cta-sub {
   font-size: 1.05rem;
-  color: #475569;
+  color: rgba(255, 255, 255, 0.7) !important;
   line-height: 1.6;
   margin: 0;
 }
@@ -1284,7 +1345,7 @@ const premiumStackNodes = [
 .clean-cta-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.25rem;
   align-items: center;
   flex-shrink: 0;
   position: relative;
@@ -1292,31 +1353,32 @@ const premiumStackNodes = [
 }
 
 .clean-cta-btn-primary {
-  background: #4f46e5 !important;
+  background: #0f8f7c !important;
   color: #ffffff !important;
-  font-weight: 600;
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25) !important;
-  transition: all 0.2s ease !important;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(15, 143, 124, 0.3) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .clean-cta-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.35) !important;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(15, 143, 124, 0.45) !important;
+  background: #0d7667 !important;
 }
 
 .clean-cta-btn-outline {
-  background: #ffffff !important;
-  color: #0f172a !important;
-  border: 1px solid #cbd5e1 !important;
-  font-weight: 600;
-  transition: all 0.2s ease !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  font-weight: 700;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .clean-cta-btn-outline:hover {
-  background: #f8fafc !important;
-  border-color: #94a3b8 !important;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.05) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
 }
 
 .clean-stack-grid {
@@ -1329,15 +1391,15 @@ const premiumStackNodes = [
 
 .clean-node-card {
   position: relative;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
   border-radius: 20px;
   padding: 2rem 1.8rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 1.25rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
   animation: clean-fade-up 0.6s ease-out both;
   animation-delay: var(--delay);
@@ -1345,8 +1407,9 @@ const premiumStackNodes = [
 
 .clean-node-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.08);
-  border-color: #cbd5e1;
+  box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
 }
 
 .clean-node-bg {
@@ -1362,11 +1425,11 @@ const premiumStackNodes = [
 }
 
 .clean-node-icon-wrap {
-  width: 54px;
-  height: 54px;
+  width: 56px;
+  height: 56px;
   border-radius: 14px;
-  background: #f8fafc;
-  border: 1px solid #f1f5f9;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1377,8 +1440,8 @@ const premiumStackNodes = [
 
 .clean-node-card:hover .clean-node-icon-wrap {
   transform: scale(1.08) translateY(-2px);
-  background: #ffffff;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 .clean-node-content {
@@ -1387,15 +1450,15 @@ const premiumStackNodes = [
 }
 
 .clean-node-title {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #ffffff !important;
   margin: 0 0 0.5rem 0;
 }
 
 .clean-node-desc {
   font-size: 0.95rem;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.5) !important;
   line-height: 1.6;
   margin: 0;
 }
@@ -1704,20 +1767,21 @@ const premiumStackNodes = [
     padding: 1.5rem 1.2rem;
   }
 
-  .prem-panel {
+  .clean-panel,
+  .clean-stack-panel {
     padding: 1.5rem 1.25rem;
   }
 
-  .collab-item {
+  .clean-collab-item {
     gap: 0.75rem;
-    padding: 0.8rem 1rem;
+    padding: 0.8rem 1.2rem;
   }
 
-  .prem-cta-banner {
-    padding: 1.5rem 1.25rem;
+  .clean-cta-banner {
+    padding: 2rem 1.5rem;
     flex-direction: column;
     text-align: center;
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
 
   .clean-cta-actions {

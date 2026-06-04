@@ -235,9 +235,9 @@ const projects = ref([
   justify-content: center;
   min-height: 28px;
   padding: 0 12px;
-  border: 1px solid #4e46e59e;
+  border: 1px solid rgba(15, 143, 124, 0.45);
   border-radius: 999px;
-  background: #1104ff2f;
+  background: rgba(15, 143, 124, 0.12);
   color: var(--portfolio-primary);
   font: inherit;
   font-size: 0.78rem;
@@ -254,21 +254,21 @@ const projects = ref([
 
 .filter-chip:hover,
 .project-tag:hover {
-  border-color: #4e46e5;
-  background: #4e46e5;
+  border-color: #0f8f7c;
+  background: #0f8f7c;
   color: white;
 }
 
 .filter-chip.is-active,
 .project-tag.is-active {
   border-color: transparent;
-  background: linear-gradient(135deg, var(--portfolio-primary));
-  color: #04100e;
+  background: linear-gradient(135deg, var(--portfolio-primary), #0d7667);
+  color: #ffffff;
 }
 
 .project-card {
   display: flex;
-  color: #04100e !important;
+  color: var(--portfolio-ink) !important;
   flex-direction: column;
   width: 100%;
   min-height: 100%;
@@ -282,7 +282,7 @@ const projects = ref([
   max-height: 220px;
   background:
     radial-gradient(circle at 82% 16%, rgba(209, 138, 31, 0.18), transparent 36%),
-    linear-gradient(145deg, rgba(241, 247, 245, 0.95), #8a85ed15);
+    linear-gradient(145deg, rgba(15, 23, 42, 0.95), #8a85ed15);
 }
 
 .project-media :deep(.v-img__img) {
@@ -320,7 +320,7 @@ const projects = ref([
 
 .project-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 18px 36px rgba(16, 35, 31, 0.12);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
 }
 
 .project-card:hover .project-media {

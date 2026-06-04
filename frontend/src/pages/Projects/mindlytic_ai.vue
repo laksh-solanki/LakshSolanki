@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
@@ -979,10 +979,10 @@ const authorizedFetchHistory = async (path = "", options = {}) => {
 const hasUser = computed(() => Boolean(currentUser.value));
 const isDarkTheme = computed(() => pageTheme.value === "dark");
 const themeToggleLabel = computed(() =>
-  isDarkTheme.value ? "Switch to light theme" : "Switch to black theme",
+  isDarkTheme.value ? "Switch to green theme" : "Switch to black theme",
 );
 const themeToggleIcon = computed(() =>
-  isDarkTheme.value ? "mdi-white-balance-sunny" : "mdi-weather-night",
+  isDarkTheme.value ? "mdi-palette-swatch" : "mdi-weather-night",
 );
 const canSend = computed(
   () => hasUser.value && !sending.value && Boolean(userInput.value.trim()),
@@ -1915,7 +1915,7 @@ onUnmounted(() => {
 
 <template>
   <v-theme-provider :theme="pageVuetifyTheme" with-background>
-    <div class="mindlytic-page" :class="{ 'theme-dark': isDarkTheme }">
+    <div class="mindlytic-page animate-fade-in-up" :class="{ 'theme-dark': isDarkTheme }">
       <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
       <v-dialog v-model="deleteDialog" max-width="360">
@@ -2509,7 +2509,7 @@ onUnmounted(() => {
 }
 
 .input-box {
-  background: white;
+  background: rgb(var(--v-theme-surface)) !important;
   border-radius: 16px;
 }
 
@@ -2787,7 +2787,7 @@ onUnmounted(() => {
 .auth-title {
   font-size: 2rem;
   font-weight: 600;
-  color: #0d0d0d;
+  color: rgb(var(--v-theme-on-surface));
   margin: 0;
 }
 
@@ -2798,7 +2798,7 @@ onUnmounted(() => {
 .auth-secure-text {
   font-size: 0.75rem;
   font-weight: 500;
-  color: #65676b;
+  color: rgba(var(--v-theme-on-surface), 0.6);
   margin: 12px 0 0;
   text-align: center;
   letter-spacing: 0.2px;
@@ -2819,10 +2819,10 @@ onUnmounted(() => {
   font-weight: 500 !important;
   letter-spacing: 0.32px;
   text-transform: none !important;
-  background-color: #fff !important;
-  color: #3c4043 !important;
-  border: 1px solid #dadce0 !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
   transition: all 0.2s ease !important;
   position: relative;
   overflow: hidden;
@@ -2840,14 +2840,14 @@ onUnmounted(() => {
 }
 
 .google-auth-btn:hover:not(:disabled) {
-  background-color: #f8f9fa !important;
-  border-color: #d2d3d4 !important;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12) !important;
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(15, 143, 124, 0.25) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 .google-auth-btn:active:not(:disabled) {
-  background-color: #f1f3f4 !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  background-color: rgba(255, 255, 255, 0.16) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
 }
 
 .google-auth-btn:disabled {
@@ -3018,8 +3018,9 @@ onUnmounted(() => {
 
 /* User Message */
 .message-row-user .message-bubble {
-  background-color: #f4f4f4 !important;
-  color: #0d0d0d;
+  background-color: rgba(15, 143, 124, 0.15) !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
+  border: 1px solid rgba(15, 143, 124, 0.22) !important;
   border-radius: 24px;
   max-width: 80%;
 }
@@ -3032,7 +3033,7 @@ onUnmounted(() => {
 /* AI Message */
 .message-row-ai .message-bubble {
   background-color: transparent !important;
-  color: #0d0d0d;
+  color: rgb(var(--v-theme-on-surface)) !important;
   border-radius: 0;
   padding-left: 0;
   padding-right: 0;
@@ -3045,8 +3046,9 @@ onUnmounted(() => {
 }
 
 .message-bubble-error {
-  background-color: #fef2f2 !important;
-  color: #991b1b !important;
+  background-color: rgba(248, 81, 73, 0.15) !important;
+  color: #ff7b72 !important;
+  border: 1px solid rgba(248, 81, 73, 0.25) !important;
 }
 
 .mindlytic-page.theme-dark .message-bubble-error {
@@ -3149,10 +3151,11 @@ onUnmounted(() => {
 .composer-panel {
   max-width: 768px;
   margin: 0 auto;
-  background-color: #f3f4f6 !important;
-  border: 1px solid rgba(15, 23, 42, 0.16) !important;
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(15, 143, 124, 0.16) !important;
+  backdrop-filter: blur(12px);
   border-radius: 15px !important;
-  padding: 12px 12px 12px 12px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -3161,7 +3164,7 @@ onUnmounted(() => {
 }
 
 .composer-panel:focus-within {
-  border-color: rgba(15, 23, 42, 0.24) !important;
+  border-color: rgba(15, 143, 124, 0.42) !important;
 }
 
 .mindlytic-page.theme-dark .composer-panel {
@@ -3195,7 +3198,7 @@ onUnmounted(() => {
 }
 
 .composer-input :deep(textarea) {
-  color: #0d0d0d !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
   padding: 3px 0 !important;
   box-sizing: border-box;
 }
@@ -3238,7 +3241,7 @@ onUnmounted(() => {
 .composer-model-select :deep(.v-field__input) {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #494949 !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
   box-sizing: border-box;
 }
 
@@ -3246,15 +3249,16 @@ onUnmounted(() => {
   color: #f3f3f3 !important;
 }
 
-.mindlytic-page.theme-dark .composer-send {
-  background: #fff !important;
-  color: #000 !important;
+.composer-send {
+  flex-shrink: 0;
+  background: rgb(var(--v-theme-primary)) !important;
+  color: rgb(var(--v-theme-on-primary)) !important;
 }
 
 .composer-send:disabled {
-  opacity: 0.2;
-  background: #000 !important;
-  color: #fff !important;
+  opacity: 0.3 !important;
+  background: rgba(var(--v-theme-on-surface), 0.08) !important;
+  color: rgba(var(--v-theme-on-surface), 0.3) !important;
 }
 
 .mindlytic-page.theme-dark .composer-send:disabled {
@@ -3267,7 +3271,7 @@ onUnmounted(() => {
   width: 100%;
   font-size: 1rem;
   line-height: 1.65;
-  color: #0d0d0d !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
   background-color: transparent !important;
   overflow-wrap: anywhere;
 }
@@ -3285,14 +3289,14 @@ onUnmounted(() => {
 }
 
 .markdown-body :deep(pre) {
-  background-color: #ebf2ff !important;
-  color: #000000 !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
   padding: 14px 16px !important;
-  border-radius: 0px;
+  border-radius: 8px;
   overflow-x: auto;
   overflow-y: hidden;
   margin: 0;
-  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(15, 143, 124, 0.16);
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
 }
@@ -3303,8 +3307,8 @@ onUnmounted(() => {
 }
 
 .markdown-body :deep(:not(pre) > code) {
-  background-color: rgba(0, 0, 0, 0.05) !important;
-  color: #111827 !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: rgb(var(--v-theme-primary)) !important;
   padding: 2px 6px;
   border-radius: 6px;
   font-size: 0.88em;
@@ -3337,12 +3341,12 @@ onUnmounted(() => {
 .markdown-body :deep(.inline-code-runner) {
   width: 100%;
   max-width: 100%;
-  border: 1px solid rgba(15, 23, 42, 0.16);
+  border: 1px solid rgba(15, 143, 124, 0.22);
   border-radius: 12px;
   overflow: hidden;
   margin: 16px 0;
-  background-color: #fff !important;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  background-color: rgb(var(--v-theme-surface)) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .mindlytic-page.theme-dark .markdown-body :deep(.inline-code-runner) {
@@ -3356,9 +3360,9 @@ onUnmounted(() => {
   align-items: center;
   flex-wrap: wrap;
   gap: 8px 10px;
-  background-color: #d1e0fd !important;
+  background-color: rgb(var(--v-theme-surface-light)) !important;
   padding: 10px 12px;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.12);
+  border-bottom: 1px solid rgba(15, 143, 124, 0.16);
 }
 
 .mindlytic-page.theme-dark .markdown-body :deep(.inline-code-runner-head) {
@@ -3377,7 +3381,7 @@ onUnmounted(() => {
 .markdown-body :deep(.inline-code-lang) {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #4b5563 !important;
+  color: rgba(var(--v-theme-on-surface), 0.7) !important;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
@@ -3396,17 +3400,17 @@ onUnmounted(() => {
   font-weight: 600;
   padding: 4px 10px;
   background-color: transparent !important;
-  border: 1px solid rgba(15, 23, 42, 0.2) !important;
+  border: 1px solid rgba(15, 143, 124, 0.22) !important;
   border-radius: 6px;
-  color: #0d0d0d !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
   cursor: pointer;
   margin-left: 0;
   transition: all 0.2s;
 }
 
 .markdown-body :deep(.code-runner-inline-btn:hover) {
-  background-color: rgba(15, 23, 42, 0.06) !important;
-  border-color: rgba(15, 23, 42, 0.32) !important;
+  background-color: rgba(15, 143, 124, 0.08) !important;
+  border-color: rgba(15, 143, 124, 0.42) !important;
 }
 
 .mindlytic-page.theme-dark .markdown-body :deep(.code-runner-inline-btn) {
@@ -3449,8 +3453,8 @@ onUnmounted(() => {
   min-width: 320px;
   min-height: 0;
   overflow: hidden;
-  background-color: #fff !important;
-  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: rgb(var(--v-theme-surface)) !important;
+  border-left: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -3471,7 +3475,7 @@ onUnmounted(() => {
 
 .ai-runner-head {
   padding: 12px 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -3487,7 +3491,7 @@ onUnmounted(() => {
   font-weight: 500;
   font-size: 0.875rem;
   line-height: 1.25;
-  color: #0d0d0d !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
   margin: 0;
   min-width: 0;
 }

@@ -49,7 +49,7 @@ defineExpose({ start, finish });
 
 .loader-bar {
   height: 100%;
-  background: linear-gradient(90deg, #4F46E5, #4e46e590);
+  background: linear-gradient(90deg, #0f8f7c, rgba(15, 143, 124, 0.56));
   transition: width 0.3s ease;
 }
 </style>

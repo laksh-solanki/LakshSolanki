@@ -328,20 +328,20 @@ const scrollToSubscribe = () => {
 /* ─── TOKENS ──────────────────────────────────────── */
 .about-page {
   --ap-primary: #0f8f7c;
-  --ap-primary-dim: rgba(15, 143, 124, 0.12);
+  --ap-primary-dim: rgba(15, 143, 124, 0.15);
   --ap-primary-soft: rgba(15, 143, 124, 0.08);
   --ap-secondary: #d18a1f;
   --ap-secondary-dim: rgba(209, 138, 31, 0.14);
-  --ap-ink: #0e201d;
-  --ap-ink-soft: #1e3530;
-  --ap-muted: #5e706a;
-  --ap-surface: #ffffff;
-  --ap-surface-soft: rgba(255, 255, 255, 0.88);
-  --ap-border: rgba(15, 143, 124, 0.15);
-  --ap-border-strong: rgba(15, 143, 124, 0.28);
-  --ap-shadow-sm: 0 8px 24px rgba(14, 32, 29, 0.06);
-  --ap-shadow-md: 0 16px 40px rgba(14, 32, 29, 0.08);
-  --ap-shadow-lg: 0 24px 56px rgba(14, 32, 29, 0.12);
+  --ap-ink: #f0f6fc;
+  --ap-ink-soft: #c9d1d9;
+  --ap-muted: #8b949e;
+  --ap-surface: #161b22;
+  --ap-surface-soft: rgba(255, 255, 255, 0.02);
+  --ap-border: rgba(255, 255, 255, 0.08);
+  --ap-border-strong: rgba(255, 255, 255, 0.15);
+  --ap-shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.2);
+  --ap-shadow-md: 0 16px 40px rgba(0, 0, 0, 0.3);
+  --ap-shadow-lg: 0 24px 56px rgba(0, 0, 0, 0.4);
   --ap-radius: 20px;
   --ap-radius-sm: 14px;
   --ap-radius-xs: 8px;
@@ -373,7 +373,7 @@ const scrollToSubscribe = () => {
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #4e46e5;
+  color: #0f8f7c;
   padding: 4px 12px;
   border-radius: 999px;
   margin-bottom: 14px;
@@ -385,7 +385,7 @@ const scrollToSubscribe = () => {
   font-weight: 800;
   letter-spacing: -0.025em;
   line-height: 1.15;
-  background: linear-gradient(110deg, #0e201d 0%, #4e46e5 40%, #4F46E5 100%);
+  background: linear-gradient(110deg, #ffffff 0%, #39bca3 40%, #0f8f7c 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -406,8 +406,8 @@ const scrollToSubscribe = () => {
 /* Override kicker inside dark hero to match HomePage teal glow style */
 .ap-hero .ap-kicker {
   color: #39bca3;
-  background: #4e46e543;
-  border-color: #4e46e561;
+  background: rgba(15, 143, 124, 0.22);
+  border-color: rgba(15, 143, 124, 0.35);
 }
 
 /* ─── HERO ──────────────────────────────────────────── */
@@ -416,8 +416,8 @@ const scrollToSubscribe = () => {
   overflow: hidden;
   border-bottom: none;
   background:
-    radial-gradient(ellipse 80% 60% at 68% 44%, #4e46e543 0%, transparent 58%),
-    radial-gradient(ellipse 60% 50% at 12% 82%, rgba(99, 60, 232, 0.15) 0%, transparent 52%),
+    radial-gradient(ellipse 80% 60% at 68% 44%, rgba(15, 143, 124, 0.22) 0%, transparent 58%),
+    radial-gradient(ellipse 60% 50% at 12% 82%, rgba(15, 143, 124, 0.15) 0%, transparent 52%),
     linear-gradient(138deg, #061210 0%, #071a14 35%, #080e1c 65%, #060c18 100%);
   padding-block: 80px 64px;
 }
@@ -666,7 +666,7 @@ const scrollToSubscribe = () => {
 .ap-profile-card {
   position: relative;
   overflow: clip;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--ap-surface-soft);
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius);
   padding: 28px 22px 22px;
@@ -687,13 +687,13 @@ const scrollToSubscribe = () => {
   width: 280px;
   height: 280px;
   border-radius: 50%;
-  background: radial-gradient(circle, #4e46e543, transparent 60%);
+  background: radial-gradient(circle, rgba(15, 143, 124, 0.22), transparent 60%);
   pointer-events: none;
 }
 
 :deep(.ap-profile-avatar) {
   border: 3px solid rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 8px 28px #4e46e543 !important;
+  box-shadow: 0 8px 28px rgba(15, 143, 124, 0.22) !important;
   margin-bottom: 14px;
 }
 
@@ -770,7 +770,7 @@ const scrollToSubscribe = () => {
 }
 
 .ap-card {
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--ap-surface-soft);
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius);
   padding: 28px 28px 24px;
@@ -789,7 +789,7 @@ const scrollToSubscribe = () => {
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #4F46E5;
+  color: #0f8f7c;
   margin: 0 0 10px;
 }
 
@@ -798,7 +798,7 @@ const scrollToSubscribe = () => {
   font-size: clamp(1.2rem, 1.8vw, 1.5rem);
   font-weight: 800;
   letter-spacing: -0.02em;
-  background: linear-gradient(110deg, #0e201d 0%, #0b6f60 60%, #0f8f7c 100%);
+  background: linear-gradient(110deg, #ffffff 0%, #39bca3 60%, #0f8f7c 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -820,8 +820,8 @@ const scrollToSubscribe = () => {
 }
 
 .ap-highlight-cell {
-  background: #4e46e51c;
-  border: 1px solid #4e46e575;
+  background: rgba(15, 143, 124, 0.08);
+  border: 1px solid rgba(15, 143, 124, 0.25);
   border-radius: var(--ap-radius);
   padding: 18px 16px;
   backdrop-filter: blur(8px);
@@ -830,7 +830,7 @@ const scrollToSubscribe = () => {
 
 .ap-highlight-cell:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 32px #4e46e53e;
+  box-shadow: 0 12px 32px rgba(15, 143, 124, 0.22);
   border-color: var(--ap-border-strong);
 }
 
@@ -839,7 +839,7 @@ const scrollToSubscribe = () => {
   font-size: 1.9rem;
   font-weight: 900;
   letter-spacing: -0.04em;
-  background: #4F46E5;
+  background: #0f8f7c;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -970,14 +970,14 @@ const scrollToSubscribe = () => {
   font-weight: 700;
   padding: 4px 12px;
   border-radius: 999px;
-  background: #4e46e539;
-  border: 1px solid #4e46e58c;
-  color: #4F46E5;
+  background: rgba(15, 143, 124, 0.12);
+  border: 1px solid rgba(15, 143, 124, 0.28);
+  color: #0f8f7c;
   transition: background 0.18s ease, transform 0.18s ease;
 }
 
 .ap-chip:hover {
-  background: #4F46E5;
+  background: #0f8f7c;
   color: white;
   transform: translateY(-1px);
 }
@@ -987,7 +987,7 @@ const scrollToSubscribe = () => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--ap-surface-soft);
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius);
   overflow: hidden;
@@ -1012,7 +1012,7 @@ const scrollToSubscribe = () => {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--ap-surface-soft);
   border: 1px solid var(--ap-border);
   border-radius: 999px;
   padding: 7px 14px;
@@ -1050,7 +1050,7 @@ const scrollToSubscribe = () => {
 }
 
 .ap-check-list__icon {
-  color: #4F46E5 !important;
+  color: #0f8f7c !important;
   flex-shrink: 0;
   margin-top: 1px;
 }
@@ -1065,7 +1065,7 @@ const scrollToSubscribe = () => {
 .ap-strength-card {
   position: relative;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--ap-surface-soft);
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius);
   padding: 28px 24px;
@@ -1113,7 +1113,7 @@ const scrollToSubscribe = () => {
   font-family: "Space Grotesk", sans-serif;
   font-size: 1.05rem;
   font-weight: 800;
-  background: linear-gradient(110deg, #4e46e53d 0%, #4F46E5 60%, #4F46E5 100%);
+  background: linear-gradient(110deg, rgba(15, 143, 124, 0.24) 0%, #0f8f7c 60%, #0f8f7c 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1147,9 +1147,9 @@ const scrollToSubscribe = () => {
 /* ─── PROCESS ────────────────────────────────────── */
 .ap-process-wrap {
   background:
-    radial-gradient(ellipse at 8% 12%, #4e46e53d 0%, transparent 48%),
-    radial-gradient(ellipse at 90% 85%, #4e46e544 0%, transparent 45%),
-    linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, #4e46e515 100%);
+    radial-gradient(ellipse at 8% 12%, rgba(15, 143, 124, 0.15) 0%, transparent 48%),
+    radial-gradient(ellipse at 90% 85%, rgba(57, 188, 163, 0.12) 0%, transparent 45%),
+    linear-gradient(145deg, rgba(22, 27, 34, 0.8) 0%, rgba(15, 143, 124, 0.05) 100%);
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius);
   padding: 40px 36px;
@@ -1176,7 +1176,7 @@ const scrollToSubscribe = () => {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #4e46e59e, #4e46e5);
+  background: linear-gradient(90deg, rgba(15, 143, 124, 0.62), #0f8f7c);
   z-index: 0;
 }
 
@@ -1196,12 +1196,12 @@ const scrollToSubscribe = () => {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4e46e5, #4e46e5e2);
+  background: linear-gradient(135deg, #0f8f7c, #0d7667);
   color: #ffffff;
   font-family: "Space Grotesk", sans-serif;
   font-size: 1rem;
   font-weight: 900;
-  box-shadow: 0 6px 20px #4e46e58d;
+  box-shadow: 0 6px 20px rgba(15, 143, 124, 0.55);
   margin-bottom: 16px;
 }
 

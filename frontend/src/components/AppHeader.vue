@@ -210,8 +210,8 @@ const closeDrawer = () => {
 
 .seg-active {
   color: #ffffff !important;
-  background: #4F46E5 !important;
-  box-shadow: 0 4px 16px #4e46e54c;
+  background: #0f8f7c !important;
+  box-shadow: 0 4px 16px rgba(15, 143, 124, 0.3);
 }
 
 .seg-active:hover {
@@ -221,14 +221,14 @@ const closeDrawer = () => {
 
 /* ---------------------------------
    ACTIONS & BUTTONS
---------------------------------- */
+   --------------------------------- */
 .header-actions {
   z-index: 2;
   flex-shrink: 0;
 }
 
 .github-action-btn {
-  background: #4F46E5 !important;
+  background: #0f8f7c !important;
   color: white !important;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 6px 16px rgba(15, 143, 124, 0.25) !important;
@@ -237,7 +237,7 @@ const closeDrawer = () => {
 
 .github-action-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px #4e46e54e !important;
+  box-shadow: 0 10px 24px rgba(15, 143, 124, 0.3) !important;
   filter: brightness(1.08);
 }
 
@@ -257,7 +257,7 @@ const closeDrawer = () => {
 
 /* ---------------------------------
    MOBILE DRAWER (ULTRA PREMIUM)
---------------------------------- */
+   --------------------------------- */
 .premium-mobile-drawer {
   backdrop-filter: blur(36px) saturate(200%);
 }
@@ -295,8 +295,8 @@ const closeDrawer = () => {
 }
 
 .premium-drawer-item:hover {
-  background: #4e46e5 !important;
-  border-color: #4e46e5 !important;
+  background: #0f8f7c !important;
+  border-color: #0f8f7c !important;
   transform: translateX(4px);
   opacity: 1;
 }
@@ -308,21 +308,21 @@ const closeDrawer = () => {
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: #4e46e561;
-  color: #4e46e5;
+  background: rgba(15, 143, 124, 0.25);
+  color: #0f8f7c;
   margin-right: 18px;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .premium-drawer-item:hover .link-icon-wrapper {
-  background: #4e46e5;
+  background: #0f8f7c;
   transform: scale(1.06) rotate(-4deg);
 }
 
 .active-icon-wrapper {
-  background: linear-gradient(135deg, #4e46e5, #4e46e5);
+  background: linear-gradient(135deg, #0f8f7c, #0f8f7c);
   color: #fff !important;
-  box-shadow: 0 8px 20px #4e46e538;
+  box-shadow: 0 8px 20px rgba(15, 143, 124, 0.3);
 }
 
 .link-title {
@@ -350,18 +350,18 @@ const closeDrawer = () => {
 }
 
 .premium-github-btn {
-  background: linear-gradient(135deg, #4e46e5ce, #4e46e5) !important;
+  background: linear-gradient(135deg, rgba(15, 143, 124, 0.8), #0f8f7c) !important;
   color: white !important;
   font-weight: 700;
   letter-spacing: 0.03em;
-  box-shadow: 0 10px 30px #4e46e578 !important;
+  box-shadow: 0 10px 30px rgba(15, 143, 124, 0.47) !important;
   transition: all 0.3s ease !important;
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .premium-github-btn:hover {
   transform: translateY(-3px);
-  box-shadow: 0 14px 40px #4e46e578 !important;
+  box-shadow: 0 14px 40px rgba(15, 143, 124, 0.47) !important;
   filter: brightness(1.1);
 }
 

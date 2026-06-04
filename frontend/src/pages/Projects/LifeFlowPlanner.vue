@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { computed, onBeforeUnmount, ref, watch } from "vue";
 import Alerts from "@/components/Alerts.vue";
 
@@ -391,14 +391,28 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .lifeflow-page {
-  background: #f8fafc;
+  background: var(--portfolio-bg);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .minimal-shell {
   max-width: 980px;
   margin: 0 auto;
-  border: 1px solid rgba(15, 23, 42, 0.09);
-  background: #ffffff;
+  border: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--portfolio-shadow);
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .mode-select {
@@ -406,11 +420,20 @@ onBeforeUnmount(() => {
 }
 
 .task-list {
-  border-color: rgba(15, 23, 42, 0.09) !important;
+  border-color: var(--portfolio-border-color) !important;
+  background: var(--portfolio-field-bg) !important;
+}
+
+.task-item {
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.task-item:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
 }
 
 .task-item+.task-item {
-  border-top: 1px solid rgba(15, 23, 42, 0.06);
+  border-top: 1px solid var(--portfolio-border-color);
 }
 
 .minutes-input {

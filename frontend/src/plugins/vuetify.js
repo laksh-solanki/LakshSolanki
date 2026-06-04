@@ -4,7 +4,7 @@ import "vuetify/styles";
 // Composables
 import { h } from "vue";
 import { createVuetify } from "vuetify";
-import * as mdiIcons from "@mdi/js";
+import { iconMap } from "./icons";
 import { aliases as mdiAliases, mdi } from "vuetify/iconsets/mdi-svg";
 import {
   VFileUpload,
@@ -12,21 +12,6 @@ import {
   VFileUploadItem,
   VFileUploadList,
 } from 'vuetify/labs/VFileUpload'
-
-const toMdiJsExportName = (iconName) => {
-  if (typeof iconName !== "string" || !iconName.startsWith("mdi-")) {
-    return null;
-  }
-
-  const token = iconName
-    .slice(4)
-    .split("-")
-    .filter(Boolean)
-    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-    .join("");
-
-  return `mdi${token}`;
-};
 
 const resolveMdiSvgIcon = (icon) => {
   if (typeof icon !== "string") {
@@ -37,12 +22,7 @@ const resolveMdiSvgIcon = (icon) => {
     return icon.slice(4);
   }
 
-  const exportName = toMdiJsExportName(icon);
-  if (!exportName) {
-    return icon;
-  }
-
-  return mdiIcons[exportName] ?? mdiIcons.mdiHelpCircleOutline;
+  return iconMap[icon] ?? iconMap["mdi-help-circle-outline"] ?? "";
 };
 
 const mdiSvgCompat = {
@@ -71,27 +51,27 @@ export default createVuetify({
     VFileUploadList,
   },
   theme: {
-    defaultTheme: "portfolioLight",
+    defaultTheme: "portfolioDark",
     themes: {
       portfolioLight: {
-        dark: false,
+        dark: true,
         colors: {
-          background: "#f5f8fb",
-          surface: "#ffffff",
-          "surface-bright": "#fcfeff",
-          "surface-light": "#eef5f2",
-          "surface-variant": "#e4eee9",
-          primary: "#4F46E5",
-          "on-primary": "#f7fffd",
+          background: "#060e0c",
+          surface: "#0d201b",
+          "surface-bright": "#152d27",
+          "surface-light": "#1c3c34",
+          "surface-variant": "#1c3c34",
+          primary: "#0f8f7c",
+          "on-primary": "#ffffff",
           secondary: "#d18a1f",
-          "on-secondary": "#231603",
-          error: "#d95364",
+          "on-secondary": "#ffffff",
+          error: "#f85149",
           "on-error": "#ffffff",
-          info: "#3b82f6",
-          success: "#16a34a",
-          warning: "#d97706",
-          "on-background": "#10201d",
-          "on-surface": "#13211f",
+          info: "#58a6ff",
+          success: "#3fb950",
+          warning: "#d29922",
+          "on-background": "#c9d1d9",
+          "on-surface": "#f0f6fc",
         },
       },
       portfolioDark: {
@@ -102,7 +82,7 @@ export default createVuetify({
           "surface-bright": "#21262d",
           "surface-light": "#30363d",
           "surface-variant": "#30363d",
-          primary: "#4F46E5",
+          primary: "#0f8f7c",
           "on-primary": "#ffffff",
           secondary: "#d18a1f",
           "on-secondary": "#ffffff",

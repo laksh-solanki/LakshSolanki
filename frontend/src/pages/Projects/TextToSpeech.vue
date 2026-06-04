@@ -1090,14 +1090,13 @@ onUnmounted(() => {
 <style scoped>
 .tool-page {
   position: relative;
-  background:
-    radial-gradient(circle at 10% 0%, rgba(96, 219, 198, 0.18), transparent 28%),
-    radial-gradient(circle at 96% 15%, rgba(255, 199, 120, 0.2), transparent 30%);
+  background: var(--portfolio-bg);
 }
 
 .hero-shell {
-  border-bottom: 1px solid rgba(19, 111, 99, 0.12);
-  background: linear-gradient(152deg, rgba(246, 252, 250, 0.98), rgba(236, 246, 241, 0.92));
+  border-bottom: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
 }
 
 .hero-chip {
@@ -1105,8 +1104,8 @@ onUnmounted(() => {
   align-items: center;
   padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(19, 111, 99, 0.22);
-  color: #136f63;
+  border: 1px solid rgba(15, 143, 124, 0.3);
+  color: #0f8f7c;
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1120,7 +1119,7 @@ onUnmounted(() => {
 }
 
 .hero-subtitle {
-  color: #4d5d59;
+  color: var(--portfolio-ink-soft);
   max-width: 64ch;
   line-height: 1.72;
 }
@@ -1132,9 +1131,9 @@ onUnmounted(() => {
 }
 
 .stat-item {
-  border: 1px solid rgba(19, 111, 99, 0.15);
+  border: 1px solid var(--portfolio-border-color);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--portfolio-panel-highlight);
   padding: 12px 10px;
   text-align: center;
 }
@@ -1143,23 +1142,24 @@ onUnmounted(() => {
   display: block;
   font-size: 0.98rem;
   font-weight: 800;
-  color: #10312b;
+  color: var(--portfolio-ink);
 }
 
 .stat-label {
   display: block;
   font-size: 0.73rem;
-  color: #5f716d;
+  color: var(--portfolio-muted);
 }
 
 .tool-shell {
-  border: 1px solid rgba(19, 111, 99, 0.17);
-  background: linear-gradient(160deg, #ffffff 0%, #f5fbf8 100%);
-  box-shadow: 0 16px 30px rgba(11, 39, 34, 0.08);
+  border: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--portfolio-shadow);
 }
 
 .panel-kicker {
-  color: #4F46E5 !important;
+  color: #0f8f7c !important;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-size: 0.72rem;
@@ -1167,9 +1167,9 @@ onUnmounted(() => {
 }
 
 .sentence-control {
-  border: 1px solid rgba(19, 111, 99, 0.14);
+  border: 1px solid var(--portfolio-border-color);
   border-radius: 12px;
-  background: #f8fcfa;
+  background: var(--portfolio-field-bg);
   padding: 12px;
 }
 
@@ -1178,32 +1178,31 @@ onUnmounted(() => {
 }
 
 .progress-shell {
-  border: 1px solid rgba(19, 111, 99, 0.14);
+  border: 1px solid var(--portfolio-border-color);
   border-radius: 12px;
-  background: #f8fcfa;
+  background: var(--portfolio-field-bg);
   padding: 12px;
 }
 
 .speech-preview-text {
   line-height: 1.8;
   font-size: 1.02rem;
-  color: #223f39;
+  color: var(--portfolio-ink);
   min-height: 90px;
 }
 
 .word-highlight {
-  background: rgba(255, 193, 94, 0.44);
-  color: #153d35;
+  background: rgba(15, 143, 124, 0.44);
+  color: #ffffff;
   border-radius: 6px;
   padding: 0 4px;
 }
 
 .side-panel {
-  border: 1px solid rgba(19, 111, 99, 0.17);
-  background:
-    radial-gradient(circle at 90% 12%, rgba(255, 201, 131, 0.2), transparent 34%),
-    linear-gradient(160deg, #ffffff 0%, #f4faf7 100%);
-  box-shadow: 0 16px 30px rgba(11, 39, 34, 0.08);
+  border: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--portfolio-shadow);
 }
 
 .preset-chip {
@@ -1212,14 +1211,14 @@ onUnmounted(() => {
 }
 
 .snippet-item {
-  border: 1px solid rgba(19, 111, 99, 0.12);
-  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--portfolio-border-color);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .snippet-title {
   all: unset;
   cursor: pointer;
-  color: #174840;
+  color: var(--portfolio-ink);
   font-size: 0.9rem;
   line-height: 1.4;
 }
@@ -1231,7 +1230,7 @@ onUnmounted(() => {
 .shortcut-list {
   margin: 0;
   padding-left: 18px;
-  color: #385953;
+  color: var(--portfolio-muted);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1240,9 +1239,9 @@ onUnmounted(() => {
 kbd {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.74rem;
-  border: 1px solid rgba(19, 111, 99, 0.25);
+  border: 1px solid rgba(15, 143, 124, 0.3);
   border-radius: 6px;
-  background: rgba(19, 111, 99, 0.09);
+  background: rgba(15, 143, 124, 0.15);
   padding: 2px 6px;
 }
 

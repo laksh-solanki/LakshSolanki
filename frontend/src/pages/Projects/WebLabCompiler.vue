@@ -413,29 +413,27 @@ onUnmounted(() => {
 <style scoped>
 .lab-page {
   position: relative;
-  background:
-    radial-gradient(circle at 8% 2%, rgba(68, 203, 177, 0.2), transparent 29%),
-    radial-gradient(circle at 96% 12%, rgba(255, 177, 100, 0.22), transparent 33%),
-    linear-gradient(180deg, #f7fdfa 0%, #eef7f3 100%);
+  background: var(--portfolio-bg);
 }
 
 .hero-shell {
-  border-bottom: 1px solid rgba(19, 97, 86, 0.14);
-  background: linear-gradient(155deg, rgba(248, 255, 253, 0.97), rgba(233, 247, 241, 0.92));
+  border-bottom: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
 }
 
 .hero-chip {
   display: inline-flex;
   align-items: center;
-  border: 1px solid rgba(19, 97, 86, 0.25);
+  border: 1px solid rgba(15, 143, 124, 0.3);
   border-radius: 999px;
   padding: 6px 12px;
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #0f6559;
+  color: #0f8f7c;
   font-weight: 700;
-  background: rgba(255, 255, 255, 0.74);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .hero-title {
@@ -445,20 +443,21 @@ onUnmounted(() => {
 }
 
 .hero-subtitle {
-  color: #516562;
+  color: var(--portfolio-ink-soft);
   max-width: 60ch;
   line-height: 1.7;
 }
 
 .tool-shell {
-  border: 1px solid rgba(19, 97, 86, 0.17);
-  background: linear-gradient(162deg, #ffffff 0%, #f4fbf8 100%);
-  box-shadow: 0 17px 34px rgba(10, 36, 32, 0.08);
+  border: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-panel-highlight);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--portfolio-shadow);
 }
 
 .editor :deep(.v-field) {
-  border: 1px solid rgba(19, 97, 86, 0.12);
-  background: #f7fcfa;
+  border: 1px solid var(--portfolio-border-color);
+  background: var(--portfolio-field-bg);
 }
 
 .editor-layout {
@@ -494,12 +493,12 @@ onUnmounted(() => {
   height: 2px;
   border-radius: 999px;
   transform: translateX(-50%);
-  background: #4F46E5;
+  background: #0f8f7c;
   transition: background 0.2s ease;
 }
 
 .editor-divider:hover::before {
-  background: #4F46E5;
+  background: #0f8f7c;
 }
 
 :global(body.editor-resizing) .editor-divider::before {
@@ -521,9 +520,9 @@ onUnmounted(() => {
 }
 
 .preview-stage {
-  border: 1px solid rgba(15, 143, 124, 0.14);
+  border: 1px solid var(--portfolio-border-color);
   border-radius: 14px;
-  background: linear-gradient(180deg, #fcfeff, #eef5f2);
+  background: var(--portfolio-field-bg);
   padding: 16px;
   overflow: auto;
 }
@@ -545,7 +544,7 @@ onUnmounted(() => {
 .preview-frame {
   width: 100%;
   height: 680px;
-  border: 1px solid rgba(18, 38, 33, 0.08);
+  border: 1px solid var(--portfolio-border-color);
   border-radius: 12px;
   background: #ffffff;
   display: block;
