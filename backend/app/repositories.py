@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 import re
 from copy import deepcopy
 from typing import Any
@@ -139,8 +140,8 @@ def _to_public_conversation(document: dict[str, Any] | None) -> dict[str, Any] |
 
 
 class Repositories:
-    def __init__(self, db: Database | None) -> None:
-        self.db = db
+    def __init__(self, db: Database | Callable[[], Database | None] | None) -> None:
+        self._db_provider = db if callable(db) else lambda: db
         self.memory: dict[str, list[dict[str, Any]]] = {
             "courses": [],
             "media": [],
@@ -150,7 +151,8 @@ class Repositories:
         }
 
     def _collection(self, name: str) -> Collection | None:
-        return self.db[name] if self.db is not None else None
+        db = self._db_provider()
+        return db[name] if db is not None else None
 
     def list_courses(self, *, search: str = "", limit: int = 50, sort: str = "asc") -> list[dict[str, Any]]:
         normalized_search = search.strip()

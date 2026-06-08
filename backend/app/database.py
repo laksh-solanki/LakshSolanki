@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
 
 from pymongo import ASCENDING, DESCENDING, MongoClient
@@ -29,10 +30,13 @@ class DatabaseStatus:
 
 
 class DatabaseManager:
+    RECONNECT_INTERVAL_SECONDS = 15
+
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
         self.client: MongoClient | None = None
         self.db: Database | None = None
+        self._last_connect_attempt = 0.0
         self.status = DatabaseStatus(
             mode="memory",
             enabled=False,
@@ -46,6 +50,7 @@ class DatabaseManager:
         if not self.settings.mongodb_uri:
             return
 
+        self._last_connect_attempt = time.monotonic()
         try:
             self.client = MongoClient(
                 self.settings.mongodb_uri,
@@ -74,6 +79,15 @@ class DatabaseManager:
                 reason="MongoDB connection failed",
                 updatedAt=now_iso(),
             )
+
+    def ensure_connected(self) -> Database | None:
+        if self.db is not None:
+            return self.db
+        if not self.settings.mongodb_uri:
+            return None
+        if time.monotonic() - self._last_connect_attempt >= self.RECONNECT_INTERVAL_SECONDS:
+            self._connect()
+        return self.db
 
     def _ensure_indexes(self) -> None:
         if self.db is None:

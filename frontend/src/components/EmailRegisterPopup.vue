@@ -6,9 +6,9 @@
     <v-form ref="formRef" v-model="isValid" @submit.prevent="handleSubscribe">
       <Alerts v-model="showAlert" :message="feedbackMessage" :type="feedbackType" />
 
-      <v-text-field v-model.trim="email" label="Email address" type="email" variant="solo-filled"
+      <v-text-field v-model.trim="email" type="email" variant="outlined" label="Enter your email"
         prepend-inner-icon="mdi-email-outline" :rules="emailRules" hide-details :disabled="isLoading || isSubscribed"
-        density="comfortable" flat class="newsletter-input mb-3"></v-text-field>
+        density="comfortable" flat class="newsletter-input mb-3" ></v-text-field>
 
       <v-btn block type="submit" color="primary" :loading="isLoading" :disabled="!isValid || isSubscribed"
         rounded="xl" elevation="0">
@@ -94,10 +94,10 @@ const handleSubscribe = async () => {
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(15, 143, 124, 0.14);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(244, 249, 247, 0.96));
+  background: linear-gradient(180deg, rgba(38, 43, 49, 0.92), rgba(38, 43, 49, 0.92));
   box-shadow:
     0 20px 36px rgba(18, 38, 33, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.82);
+    inset 0 1px 0 rgba(38, 43, 49, 0.92);
 }
 
 .newsletter-head {
@@ -150,8 +150,6 @@ const handleSubscribe = async () => {
 .newsletter-input :deep(.v-field) {
   border: 1px solid rgba(15, 143, 124, 0.16) !important;
   border-radius: 14px !important;
-  background: rgba(255, 255, 255, 0.96) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
 }
 
 .newsletter-input :deep(.v-label),

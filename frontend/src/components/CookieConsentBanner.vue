@@ -115,7 +115,7 @@ onMounted(() => {
   gap: 16px;
 
   padding: 6px 8px 6px 18px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(31, 40, 48, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(15, 143, 124, 0.12);

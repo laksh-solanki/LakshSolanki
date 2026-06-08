@@ -389,7 +389,7 @@ onUnmounted(() => {
   min-width: 195px;
   justify-content: space-between;
   border-color: rgba(15, 143, 124, 0.18);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(38, 43, 49, 0.92);
   color: var(--portfolio-ink);
   box-shadow: 0 8px 18px rgba(18, 38, 33, 0.06);
 }
@@ -405,7 +405,7 @@ onUnmounted(() => {
   border-radius: 8px;
   padding: 2px 7px;
   color: var(--portfolio-muted);
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(22, 19, 19, 0.96);
 }
 
 .search-trigger--compact {
@@ -424,7 +424,7 @@ onUnmounted(() => {
 .palette-shell {
   border-radius: 22px;
   border: 1px solid rgba(15, 143, 124, 0.14);
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.99), rgba(244, 249, 247, 0.98));
+  background: linear-gradient(165deg, rgba(38, 43, 49, 0.92), rgba(38, 43, 49, 0.92));
   box-shadow: 0 26px 70px rgba(18, 38, 33, 0.12);
   overflow: hidden;
   display: flex;
@@ -438,7 +438,7 @@ onUnmounted(() => {
   gap: 12px;
   border-bottom: 1px solid rgba(15, 143, 124, 0.12);
   padding: 14px 18px;
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.98), rgba(244, 249, 247, 0.96));
+  background: linear-gradient(165deg, rgba(38, 43, 49, 0.92), rgba(38, 43, 49, 0.92));
 }
 
 .palette-head__icon {
@@ -461,7 +461,7 @@ onUnmounted(() => {
 
 .palette-close {
   border: 1px solid rgba(15, 143, 124, 0.14);
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(38, 43, 49, 0.92);
   color: var(--portfolio-ink-soft);
   border-radius: 10px;
   display: flex;
@@ -478,7 +478,7 @@ onUnmounted(() => {
   border-radius: 6px;
   display: flex;
   padding: 1px 5px;
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(38, 43, 49, 0.92);
 }
 
 .palette-body {
@@ -507,7 +507,7 @@ onUnmounted(() => {
 
 .quick-card {
   border: 1px solid rgba(15, 143, 124, 0.55);
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(38, 43, 49, 0.92);
   color: var(--portfolio-ink);
   border-radius: 12px;
   padding: 10px 12px;
@@ -613,7 +613,7 @@ onUnmounted(() => {
 
 .palette-foot {
   border-top: 1px solid rgba(15, 143, 124, 0.12);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(38, 43, 49, 0.92);
   color: var(--portfolio-muted);
   padding: 10px 16px;
   display: flex;

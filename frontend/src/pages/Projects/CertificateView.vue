@@ -254,15 +254,15 @@ const generatePdf = async () => {
               <v-row>
                 <v-col cols="12" md="6">
                   <v-text-field v-model.trim="form.fname" :rules="[(v) => !!v || 'Full Name is required']"
-                    label="Full Name" placeholder="Enter your full name" name="fname" id="fname" rounded="lg"
-                    autocomplete="name" spellcheck="false" prepend-inner-icon="mdi-account" variant="solo-filled" flat
+                    label="Full Name" name="fname" id="fname" rounded="lg"
+                    autocomplete="name" spellcheck="false" prepend-inner-icon="mdi-account" variant="outlined" flat
                     class="form-input"></v-text-field>
                 </v-col>
 
                 <v-col cols="12" md="6">
                   <v-select v-model="form.course" :items="courses" :rules="[(v) => !!v || 'Course is required']"
                     :label="coursesLoading ? 'Loading courses...' : 'Select Course'" name="course" id="course"
-                    rounded="lg" item-title="name" return-object prepend-inner-icon="mdi-school" variant="solo-filled"
+                    rounded="lg" item-title="name" return-object prepend-inner-icon="mdi-school" variant="outlined"
                     flat class="form-input"></v-select>
                 </v-col>
               </v-row>

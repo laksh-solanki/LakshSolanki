@@ -86,7 +86,7 @@ class HistoryUpsert(StrictModel):
 
 
 db_manager = DatabaseManager(settings)
-repositories = Repositories(db_manager.db)
+repositories = Repositories(db_manager.ensure_connected)
 token_verifier = FirebaseTokenVerifier(
     project_id=settings.firebase_project_id,
     jwks_url=settings.firebase_jwks_url,
