@@ -1,11 +1,16 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { RouterView, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { getMediaUrl } from "@/utils/mediaUrl";
 
 const route = useRoute();
 const { mobile } = useDisplay();
+
+const activeCategory = ref("All");
+const searchQuery = ref("");
+
+const categories = ["All", "Productivity", "Document & Image", "AI & Language", "Developer Tools"];
 
 const projects = ref([
   {
@@ -142,78 +147,160 @@ const projects = ref([
   },
 ]);
 
+const filteredProjects = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase();
+  const cat = activeCategory.value;
+
+  return projects.value.filter((p) => {
+    let matchesCategory = true;
+    if (cat !== "All") {
+      if (cat === "Productivity") {
+        matchesCategory = p.category === "Productivity Tool" || p.category === "Everyday Productivity";
+      } else if (cat === "Document & Image") {
+        matchesCategory = p.category === "Document Tooling" || p.category === "Image Utility";
+      } else if (cat === "AI & Language") {
+        matchesCategory = p.category === "AI Interface" || p.category === "Language Tool";
+      } else if (cat === "Developer Tools") {
+        matchesCategory =
+          p.category === "Developer Power Tool" ||
+          p.category === "Developer Utility" ||
+          p.category === "All-in-One Utility" ||
+          p.category === "Developer Tooling" ||
+          p.category === "Web API Experiment";
+      }
+    }
+
+    let matchesSearch = true;
+    if (query) {
+      matchesSearch =
+        p.title.toLowerCase().includes(query) ||
+        p.category.toLowerCase().includes(query) ||
+        p.tags.some((tag) => tag.toLowerCase().includes(query));
+    }
+
+    return matchesCategory && matchesSearch;
+  });
+});
+
+const currentProjectTitle = computed(() => {
+  const p = projects.value.find((proj) => proj.link === route.path);
+  return p ? p.title : "Project Viewer";
+});
 </script>
 
 <template>
-  <v-layout class="projects-page-layout h-100">
-    <v-navigation-drawer expand-on-hover rail class="border-e projects-sidebar">
-      <v-list density="compact" color="primary" nav>
-        <v-list-item to="/projects" prepend-icon="mdi-chart-tree" title="All Projects" class="mb-2 text-primary"
-          rounded="lg"></v-list-item>
-
-        <v-divider class="mb-2 opacity-20"></v-divider>
-
-        <v-list-item v-for="project in projects" :key="project.id" :to="project.link" :title="project.title"
-          :prepend-icon="project.icon" rounded="lg" class="mb-1"></v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-
-    <v-main class="projects-main">
-      <template v-if="route.name === 'Projects'">
-        <v-container class="py-8 py-md-12 projects-shell">
-          <section class="section-shell p-6 p-md-8 mb-8 header-card">
-            <p class="text-overline text-primary font-weight-bold mb-2">Portfolio Projects</p>
-            <h1 class="text-h4 text-md-h3 mb-3">Selected developer tools and product builds</h1>
+  <div class="projects-page-layout w-100 min-h-100">
+    <template v-if="route.name === 'Projects'">
+      <v-container class="py-8 py-md-12 projects-shell animate-fade-in-up">
+        <section class="section-shell p-6 p-md-8 mb-8 header-card overflow-hidden">
+          <div class="cyber-grid-container">
+            <div class="cyber-grid-3d"></div>
+          </div>
+          <div style="position: relative; z-index: 1;">
+            <p class="text-overline text-primary font-weight-bold mb-2">Portfolio Workspace</p>
+            <h1 class="text-h4 text-md-h3 mb-3 font-weight-bold">Selected developer tools and product builds</h1>
             <p class="muted-copy mb-0 intro-copy">
               Each project focuses on practical product value: performance, clean interfaces, and maintainable code.
             </p>
-          </section>
+          </div>
+        </section>
 
-          <v-row>
-            <v-col v-for="project in projects" :key="project.id" cols="12" md="6" lg="4" class="d-flex">
-              <v-card class="section-shell project-card h-100" color="primary" :to="project.link" flat hover
-                rounded="lg">
-                <v-img :src="project.image" cover class="project-media"></v-img>
+        <!-- Search + Categories bar -->
+        <div class="d-flex align-center justify-space-between mb-8 flex-wrap ga-4">
+          <div class="d-flex align-center flex-grow-1" style="max-width: 440px; min-width: 280px;">
+            <v-text-field
+              v-model="searchQuery"
+              density="comfortable"
+              variant="solo-filled"
+              rounded="xl"
+              placeholder="Search projects by title, tag, or tech..."
+              prepend-inner-icon="mdi-magnify"
+              hide-details
+              color="primary"
+              class="flex-grow-1 glass-search-field"
+              clearable
+            />
+          </div>
+          <!-- Category Chips -->
+          <div class="d-flex flex-wrap ga-2">
+            <v-chip 
+              v-for="cat in categories" 
+              :key="cat" 
+              class="filter-chip"
+              :class="{ 'is-active': activeCategory === cat }"
+              @click="activeCategory = cat"
+            >
+              {{ cat }}
+            </v-chip>
+          </div>
+        </div>
 
-                <div class="p-5 d-flex flex-column project-card-body">
-                  <p class="text-caption text-primary font-weight-bold text-uppercase mb-2">
-                    {{ project.category }}
-                  </p>
-                  <h2 class="text-h6 mb-2">{{ project.title }}</h2>
-                  <p class="muted-copy mb-1 project-description">{{ project.description }}</p>
+        <!-- Filter Response -->
+        <div v-if="searchQuery || activeCategory !== 'All'" class="mb-6 d-flex align-center flex-wrap ga-2">
+          <v-chip v-if="searchQuery" color="primary" variant="tonal" size="small" prepend-icon="mdi-magnify">
+            query: "{{ searchQuery }}"
+          </v-chip>
+          <v-chip v-if="activeCategory !== 'All'" color="secondary" variant="tonal" size="small" prepend-icon="mdi-tag-outline">
+            category: {{ activeCategory }}
+          </v-chip>
+          <span class="text-caption text-medium-emphasis">Found {{ filteredProjects.length }} project matches</span>
+        </div>
 
-                  <div class="d-flex flex-wrap ga-2 mt-3 mb-2 project-tag-row">
-                    <v-chip v-for="tag in project.tags" :key="tag" flat class="project-tag" :text="tag">
-                      {{ tag }}
-                    </v-chip>
-                  </div>
-                  <span class="text-primary font-weight-bold project-link">Open project -></span>
+        <!-- Visual Cards Grid -->
+        <v-row>
+          <v-col v-for="project in filteredProjects" :key="project.id" cols="12" md="6" lg="4" class="d-flex">
+            <v-card v-3d-tilt class="section-shell project-card h-100 glow-on-hover" color="primary" :to="project.link" flat hover
+              rounded="lg">
+              <v-img :src="project.image" cover class="project-media"></v-img>
+
+              <div class="p-5 d-flex flex-column project-card-body">
+                <p class="text-caption text-primary font-weight-bold text-uppercase mb-2">
+                  {{ project.category }}
+                </p>
+                <h2 class="text-h6 mb-2 font-weight-bold">{{ project.title }}</h2>
+                <p class="muted-copy mb-1 project-description">{{ project.description }}</p>
+
+                <div class="d-flex flex-wrap ga-2 mt-3 mb-2 project-tag-row">
+                  <v-chip v-for="tag in project.tags" :key="tag" flat class="project-tag" :text="tag">
+                    {{ tag }}
+                  </v-chip>
                 </div>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-container>
-      </template>
-      <template v-else>
-        <div v-if="mobile" class="px-4 pt-4 pb-3 d-flex align-center">
-          <v-btn variant="text" prepend-icon="mdi-arrow-left" to="/projects" color="primary" rounded="xl" text="Back" />
+                <span class="text-primary font-weight-bold project-link">Open project -></span>
+              </div>
+            </v-card>
+          </v-col>
+
+          <!-- Fallback if query returns no matches -->
+          <v-col v-if="filteredProjects.length === 0" cols="12" class="text-center py-12">
+            <v-icon icon="mdi-magnify-minus" size="64" color="primary" class="mb-4 opacity-40"></v-icon>
+            <h3 class="text-h6 text-medium-emphasis mb-2">No projects match your filter query</h3>
+            <p class="text-caption text-medium-emphasis mb-4">Try clearing active category parameters or keyword spellings.</p>
+            <v-btn color="primary" variant="tonal" rounded="xl" @click="searchQuery = ''; activeCategory = 'All';" class="text-none">Clear filters</v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </template>
+    <template v-else>
+      <v-container class="py-4 py-md-6 projects-shell animate-fade-in-up">
+        <!-- Premium glassmorphic breadcrumb header shown on ALL devices -->
+        <div class="breadcrumb-bar d-flex align-center py-3 px-5 mb-6 rounded-xl border" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(15, 143, 124, 0.12) !important; backdrop-filter: blur(12px);">
+          <v-btn to="/projects" variant="text" color="primary" class="text-none font-weight-bold mr-1" rounded="xl" prepend-icon="mdi-arrow-left">
+            Back to Projects
+          </v-btn>
+          <v-divider vertical class="mx-3 opacity-20" style="height: 20px;"></v-divider>
+          <span class="text-caption text-medium-emphasis d-none d-sm-inline">Active Project</span>
+          <v-icon size="14" class="mx-2 text-medium-emphasis d-none d-sm-inline">mdi-chevron-right</v-icon>
+          <span class="text-subtitle-2 text-primary font-weight-bold">{{ currentProjectTitle }}</span>
         </div>
         <RouterView />
-      </template>
-    </v-main>
-  </v-layout>
+      </v-container>
+    </template>
+  </div>
 </template>
 
 <style scoped>
-.projects-sidebar {
-  position: fixed !important;
-  top: 81px !important; /* height of header */
-  height: calc(100vh - 64px) !important;
-  z-index: 40 !important;
-}
-
 .projects-shell {
-  max-width: min(var(--page-max-width), 100%);
+  max-width: min(var(--page-max-width), 100%) !important;
 }
 
 .intro-copy {
@@ -224,10 +311,6 @@ const projects = ref([
   position: relative;
 }
 
-.filter-label {
-  letter-spacing: 0.08em;
-}
-
 .filter-chip,
 .project-tag {
   display: inline-flex;
@@ -235,14 +318,12 @@ const projects = ref([
   justify-content: center;
   min-height: 28px;
   padding: 0 12px;
-  border: 1px solid rgba(15, 143, 124, 0.45);
+  border: 1px solid rgba(15, 143, 124, 0.25);
   border-radius: 999px;
-  background: rgba(15, 143, 124, 0.12);
+  background: rgba(15, 143, 124, 0.06);
   color: var(--portfolio-primary);
-  font: inherit;
   font-size: 0.78rem;
   font-weight: 700;
-  line-height: 1;
   white-space: nowrap;
   cursor: pointer;
   transition:
@@ -255,12 +336,11 @@ const projects = ref([
 .filter-chip:hover,
 .project-tag:hover {
   border-color: #0f8f7c;
-  background: #0f8f7c;
-  color: white;
+  background: rgba(15, 143, 124, 0.16);
+  color: #39bca3;
 }
 
-.filter-chip.is-active,
-.project-tag.is-active {
+.filter-chip.is-active {
   border-color: transparent;
   background: linear-gradient(135deg, var(--portfolio-primary), #0d7667);
   color: #ffffff;

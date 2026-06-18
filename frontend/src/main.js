@@ -23,8 +23,12 @@ import router from "./router";
 // Plugins
 import { registerPlugins } from "@/plugins";
 
+import v3dTilt from "@/utils/v3dTilt";
+
 const app = createApp(App);
 const pinia = createPinia();
+
+app.directive("3d-tilt", v3dTilt);
 
 app.use(pinia);
 app.use(router);

@@ -1,5 +1,5 @@
 <template>
-  <div class="about-page">
+  <div class="about-page animate-fade-in-up">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
     <!-- ───────── HERO ───────── -->
@@ -8,7 +8,7 @@
         <div class="mesh-orb mesh-orb--1"></div>
         <div class="mesh-orb mesh-orb--2"></div>
         <div class="mesh-orb mesh-orb--3"></div>
-        <div class="mesh-grid"></div>
+        <div class="cyber-grid-container" style="opacity: 0.12;"><div class="cyber-grid-3d"></div></div>
       </div>
 
       <div class="ap-container ap-hero__inner">
@@ -34,14 +34,14 @@
 
         <!-- Bento stat grid -->
         <div class="ap-hero__bento ai-4">
-          <article v-for="(s, i) in stats" :key="s.label" class="ap-bento-card" :class="`ap-bento-card--${i}`">
+          <article v-for="(s, i) in stats" :key="s.label" v-3d-tilt class="ap-bento-card" :class="`ap-bento-card--${i}`">
             <div class="ap-bento-card__accent"></div>
             <p class="ap-bento-card__value">{{ s.value }}</p>
             <p class="ap-bento-card__label">{{ s.label }}</p>
           </article>
 
           <!-- Profile mini-card inside bento -->
-          <div class="ap-bento-profile">
+          <div v-3d-tilt class="ap-bento-profile">
             <PhotoZoomDialog :src="myPhoto" alt="Laksh Solanki" :size="52" avatar-class="ap-bento-avatar" />
             <div>
               <p class="ap-bento-profile__name">Laksh Solanki</p>
@@ -52,18 +52,18 @@
             </span>
           </div>
 
-          <v-img :src="aboutPhoto1" cover class="ap-bento-img" />
+          <v-img v-3d-tilt :src="aboutPhoto1" cover class="ap-bento-img" />
         </div>
       </div>
     </section>
 
     <!-- ───────── PROFILE + CARDS ───────── -->
-    <section class="ap-section">
+    <section class="ap-section animate-fade-in-up">
       <div class="ap-container ap-profile-layout">
 
         <!-- Sticky profile sidebar -->
         <aside class="ap-profile-sidebar">
-          <div class="ap-profile-card ai-5">
+          <div v-3d-tilt class="ap-profile-card ai-5">
             <div class="ap-profile-card__glow"></div>
             <PhotoZoomDialog :src="myPhoto" alt="Laksh Solanki" :size="96" avatar-class="ap-profile-avatar" />
             <h2 class="ap-profile-card__name">Laksh Solanki</h2>
@@ -94,7 +94,7 @@
         <div class="ap-main-col">
 
           <!-- Intro card -->
-          <div class="ap-card ai-6">
+          <div v-3d-tilt class="ap-card ai-6">
             <p class="ap-card__overline">Developer Profile</p>
             <h3 class="ap-card__headline">I build products that stay maintainable as they scale.</h3>
             <p class="ap-card__body">
@@ -104,10 +104,10 @@
           </div>
 
           <!-- Career highlights bento -->
-          <div class="ap-card ai-7">
+          <div v-3d-tilt class="ap-card ai-7">
             <p class="ap-card__overline">Career Highlights</p>
             <div class="ap-highlights-grid">
-              <div v-for="h in highlights" :key="h.title" class="ap-highlight-cell">
+              <div v-for="h in highlights" :key="h.title" v-3d-tilt class="ap-highlight-cell">
                 <p class="ap-highlight-cell__value">{{ h.value }}</p>
                 <p class="ap-highlight-cell__title">{{ h.title }}</p>
                 <p class="ap-highlight-cell__caption">{{ h.caption }}</p>
@@ -116,7 +116,7 @@
           </div>
 
           <!-- Experience timeline -->
-          <div class="ap-card ai-8">
+          <div v-3d-tilt class="ap-card ai-8">
             <p class="ap-card__overline">Experience Timeline</p>
             <div class="ap-timeline">
               <div v-for="(job, i) in experiences" :key="job.role" class="ap-timeline__item">
@@ -137,16 +137,49 @@
           </div>
 
           <!-- Skills -->
-          <div class="ap-card ai-9">
+          <div v-3d-tilt class="ap-card ai-9">
             <p class="ap-card__overline">Stack &amp; Expertise</p>
-            <div class="ap-skills-grid">
-              <div v-for="group in skillGroups" :key="group.title" class="ap-skill-group">
-                <p class="ap-skill-group__title">{{ group.title }}</p>
-                <div class="ap-chips">
-                  <span v-for="skill in group.skills" :key="skill" class="ap-chip">{{ skill }}</span>
+            <v-row class="ga-0" no-gutters>
+              <v-col cols="12" md="7" class="pr-md-4">
+                <div class="ap-skills-grid">
+                  <div 
+                    v-for="(group, idx) in skillGroups" 
+                    :key="group.title" 
+                    class="ap-skill-group p-2 rounded-lg cursor-pointer"
+                    :style="activeSkillGroupIndex === idx ? 'background: rgba(15, 143, 124, 0.06); border: 1px solid rgba(15, 143, 124, 0.25);' : 'border: 1px solid transparent;'"
+                    @click="activeSkillGroupIndex = idx"
+                  >
+                    <p class="ap-skill-group__title mb-2 d-flex align-center justify-space-between" style="font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ap-ink-soft);">
+                      {{ group.title }}
+                      <v-icon v-if="activeSkillGroupIndex === idx" size="10" color="primary">mdi-circle</v-icon>
+                    </p>
+                    <div class="ap-chips">
+                      <span v-for="skill in group.skills" :key="skill" class="ap-chip">{{ skill }}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </v-col>
+              <v-col cols="12" md="5" class="mt-4 mt-md-0 pl-md-4 border-s-md" style="border-color: var(--ap-border) !important;">
+                <v-card class="section-shell rounded-xl p-5 h-100 d-flex flex-column justify-center position-relative overflow-hidden" flat style="background: rgba(255, 255, 255, 0.02) !important; border-color: rgba(15, 143, 124, 0.15) !important; min-height: 180px;">
+                  <div class="cyber-grid-container" style="opacity: 0.04;"><div class="cyber-grid-3d"></div></div>
+                  <div style="position: relative; z-index: 1;">
+                    <div class="d-flex align-center mb-3">
+                      <v-avatar color="primary" size="32" variant="tonal" class="mr-3">
+                        <v-icon size="18">{{ getSkillGroupIcon(activeSkillGroupIndex) }}</v-icon>
+                      </v-avatar>
+                      <h4 class="text-subtitle-1 font-weight-bold" style="color: var(--ap-ink);">{{ skillGroups[activeSkillGroupIndex].title }} Insights</h4>
+                    </div>
+                    <p class="mb-4 text-medium-emphasis text-body-2" style="line-height: 1.6;">
+                      {{ skillSummaries[activeSkillGroupIndex] }}
+                    </p>
+                    <div class="d-flex align-center justify-space-between text-caption border-t pt-3" style="border-color: rgba(255, 255, 255, 0.06) !important;">
+                      <span class="text-medium-emphasis">Expertise:</span>
+                      <span class="text-primary font-weight-bold">Production Ready</span>
+                    </div>
+                  </div>
+                </v-card>
+              </v-col>
+            </v-row>
           </div>
 
         </div>
@@ -183,21 +216,117 @@
     </section>
 
     <!-- ───────── PROCESS ───────── -->
-    <section class="ap-section ap-section--last">
+    <section class="ap-section ap-section--last animate-fade-in-up">
       <div class="ap-container">
-        <div class="ap-process-wrap ai-12">
-          <div class="ap-process-wrap__head">
-            <p class="ap-kicker">Workflow</p>
-            <h2 class="ap-section-headline">How projects are delivered</h2>
-          </div>
-          <div class="ap-process-grid">
-            <div v-for="(step, i) in processSteps" :key="step.title" class="ap-process-step" :style="`--i:${i}`">
-              <div class="ap-process-step__num">0{{ i + 1 }}</div>
-              <div class="ap-process-step__line"></div>
-              <h3 class="ap-process-step__title">{{ step.title }}</h3>
-              <p class="ap-process-step__desc">{{ step.description }}</p>
-            </div>
-          </div>
+        <div class="ap-process-wrap ai-12 overflow-hidden">
+          <v-row class="ga-0 align-center">
+            <v-col cols="12" md="6" class="pr-md-8 mb-6 mb-md-0">
+              <p class="ap-kicker">Workflow</p>
+              <h2 class="ap-section-headline mb-4">How projects are delivered</h2>
+              
+              <div class="ap-process-list">
+                <article 
+                  v-for="(step, i) in processSteps" 
+                  :key="step.title" 
+                  class="p-4 rounded-xl cursor-pointer mb-3 border transition-all"
+                  :style="activeWorkflowStep === i ? 'background: rgba(15, 143, 124, 0.08); border-color: #0f8f7c;' : 'background: rgba(255,255,255,0.02); border-color: var(--ap-border);'"
+                  @click="runWorkflowStep(i)"
+                >
+                  <div class="d-flex align-center justify-space-between mb-2">
+                    <span class="text-caption font-weight-bold text-primary">0{{ i + 1 }} &mdash; Step</span>
+                    <v-icon v-if="activeWorkflowStep === i" icon="mdi-circle-slice-8" color="primary" size="18" />
+                  </div>
+                  <h3 class="text-subtitle-1 font-weight-bold mb-1" style="color: var(--ap-ink);">{{ step.title }}</h3>
+                  <p class="text-caption text-medium-emphasis mb-0" style="line-height: 1.5;">{{ step.description }}</p>
+                </article>
+              </div>
+
+              <div class="mt-4">
+                <v-btn 
+                  color="primary" 
+                  rounded="xl" 
+                  prepend-icon="mdi-play-circle-outline" 
+                  class="text-none"
+                  :loading="isRunningWorkflow"
+                  @click="runAllWorkflow"
+                >
+                  Run Delivery Pipeline
+                </v-btn>
+              </div>
+            </v-col>
+
+            <v-col cols="12" md="6" class="pl-md-4">
+              <!-- Interactive Visual Pipeline Monitor -->
+              <v-card class="section-shell rounded-xl p-6 h-100 d-flex flex-column justify-space-between position-relative overflow-hidden" flat style="background: rgba(255, 255, 255, 0.02) !important; border-color: rgba(15, 143, 124, 0.15) !important; min-height: 340px;">
+                <div class="cyber-grid-container" style="opacity: 0.05;"><div class="cyber-grid-3d"></div></div>
+                <div style="position: relative; z-index: 1;" class="w-100">
+                  <div class="d-flex align-center justify-space-between mb-4">
+                    <span class="text-overline font-weight-bold text-primary" style="letter-spacing: 0.1em !important;">Pipeline Status Monitor</span>
+                    <v-chip size="x-small" :color="isRunningWorkflow ? 'warning' : pipelineProgress === 100 ? 'success' : 'primary'" class="font-weight-bold">
+                      {{ isRunningWorkflow ? 'Running' : pipelineProgress === 100 ? 'Complete' : 'Idle' }}
+                    </v-chip>
+                  </div>
+
+                  <!-- Connected Pipeline Track -->
+                  <div class="pipeline-svg-track position-relative mb-6 d-flex align-center justify-space-between px-6 py-2">
+                    <div class="pipeline-line-bg" style="position: absolute; left: 10%; right: 10%; height: 3px; background: rgba(255,255,255,0.08); top: 50%; transform: translateY(-50%); z-index: 0;"></div>
+                    <div class="pipeline-line-progress" :style="`position: absolute; left: 10%; width: ${Math.max(0, pipelineProgress - 10) * 0.8}%; height: 3px; background: linear-gradient(90deg, var(--ap-primary), #39bca3); top: 50%; transform: translateY(-50%); z-index: 1; transition: width 0.3s ease;`"></div>
+                    
+                    <div 
+                      v-for="(step, i) in processSteps" 
+                      :key="step.title" 
+                      class="pipeline-node d-flex align-center justify-center rounded-circle transition-all"
+                      :style="`width: 36px; height: 36px; z-index: 2; border: 2px solid ${activeWorkflowStep === i ? '#0f8f7c' : pipelineProgress > (i * 33.3) ? '#39bca3' : 'rgba(255,255,255,0.15)'}; background: ${pipelineProgress > (i * 33.3) ? 'rgba(15, 143, 124, 0.2)' : '#070a12'};`"
+                    >
+                      <v-icon size="14" :color="pipelineProgress > (i * 33.3) ? 'primary' : 'medium-emphasis'">
+                        {{ pipelineProgress > (i * 33.3) ? 'mdi-check' : 'mdi-circle' }}
+                      </v-icon>
+                    </div>
+                  </div>
+
+                  <!-- Telemetry progress bar -->
+                  <div class="mb-5">
+                    <div class="d-flex align-center justify-space-between mb-1.5">
+                      <span class="text-caption text-medium-emphasis">Process Completion</span>
+                      <span class="text-caption font-weight-bold text-primary">{{ Math.round(pipelineProgress) }}%</span>
+                    </div>
+                    <v-progress-linear 
+                      :model-value="pipelineProgress" 
+                      color="primary" 
+                      height="6" 
+                      rounded
+                      bg-opacity="0.1"
+                    />
+                  </div>
+
+                  <!-- Step milestones checks list -->
+                  <div class="pipeline-tasks">
+                    <div class="text-caption text-medium-emphasis mb-3">Milestone Telemetry</div>
+                    
+                    <div class="d-flex flex-column ga-2.5">
+                      <div 
+                        v-for="(task, idx) in getStepTasks(activeWorkflowStep !== null ? activeWorkflowStep : 0)" 
+                        :key="task"
+                        class="d-flex align-center text-caption transition-all py-1.5 px-3 rounded-lg"
+                        style="background: rgba(255, 255, 255, 0.02);"
+                      >
+                        <v-icon 
+                          size="16" 
+                          :color="isItemChecked(activeWorkflowStep, idx) ? 'primary' : 'medium-emphasis'"
+                          class="mr-2.5 transition-all"
+                        >
+                          {{ isItemChecked(activeWorkflowStep, idx) ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline' }}
+                        </v-icon>
+                        <span :class="{ 'text-primary font-weight-bold': isItemChecked(activeWorkflowStep, idx) }" style="transition: color 0.25s ease;">
+                          {{ task }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
         </div>
       </div>
     </section>
@@ -218,6 +347,13 @@ const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
 
+const activeSkillGroupIndex = ref(0);
+
+const getSkillGroupIcon = (idx) => {
+  const icons = ["mdi-xml", "mdi-server", "mdi-tools", "mdi-git"];
+  return icons[idx] || "mdi-code-braces";
+};
+
 const stats = [
   { value: "15+", label: "Projects Delivered" },
   { value: "4+", label: "Years Experience" },
@@ -230,24 +366,6 @@ const missionPoints = [
   "Scalable component architecture from day one",
   "Performance-first implementation for web products",
   "Clear collaboration and reliable delivery rhythm",
-];
-
-const strengths = [
-  {
-    title: "UI Engineering",
-    description: "High-quality interfaces with consistent spacing, typography, interactions, and responsive behavior.",
-    icon: "mdi-view-quilt-outline",
-  },
-  {
-    title: "Clean Architecture",
-    description: "Readable and maintainable code structure with practical patterns that support future features.",
-    icon: "mdi-sitemap-outline",
-  },
-  {
-    title: "Execution Focus",
-    description: "Fast iteration with quality checks so products ship smoothly without compromising standards.",
-    icon: "mdi-rocket-launch-outline",
-  },
 ];
 
 const processSteps = [
@@ -299,6 +417,119 @@ const skillGroups = [
   { title: "Tooling", skills: ["Vite", "Git", "pnpm", "Postman", "VS Code", "Deployment"] },
   { title: "Workflow", skills: ["Feature Planning", "Code Review", "Refactoring", "Debugging", "Documentation"] },
 ];
+
+const skillSummaries = [
+  "Core UI engineering built with Vue 3.5 composition, utilizing reactive state. Designed using Vuetify 4 component layers, custom utility tokens in CSS, and Pinia global stores.",
+  "Scalable Node.js architectures, leveraging Fastify endpoints, token-based verification protocols, and clean validation parameters via schemas.",
+  "Vite 8 compiler configurations, pnpm workspace tooling, secure deployment integrations, and automated lint environments.",
+  "Feature validation, iterative design reviews, performant edge case testing, and detailed engineering blueprints."
+];
+
+const activeWorkflowStep = ref(null);
+const isRunningWorkflow = ref(false);
+const pipelineProgress = ref(0);
+const checkedItems = ref({
+  0: [false, false, false],
+  1: [false, false, false],
+  2: [false, false, false]
+});
+
+const getStepTasks = (stepIdx) => {
+  const tasks = {
+    0: ["Requirement & spec analysis validated", "Competitive research and benchmarks complete", "Project scope and dev roadmap set"],
+    1: ["Component architecture constructed", "Polished client UI layout structured", "Integration APIs connected"],
+    2: ["Lighthouse optimization checked (100%)", "Multi-device viewport responsive audit verified", "Staging code build deployed successfully"]
+  };
+  return tasks[stepIdx] || [];
+};
+
+const isItemChecked = (stepIdx, itemIdx) => {
+  if (stepIdx === null) {
+    return pipelineProgress.value === 100;
+  }
+  return checkedItems.value[stepIdx]?.[itemIdx] || false;
+};
+
+const runWorkflowStep = (stepIndex) => {
+  if (isRunningWorkflow.value) return;
+  activeWorkflowStep.value = stepIndex;
+  
+  const targetProgress = (stepIndex + 1) * 33.3;
+  let startProgress = pipelineProgress.value;
+  const progressTimer = setInterval(() => {
+    if (startProgress < targetProgress) {
+      startProgress += 2.5;
+      pipelineProgress.value = Math.min(Math.round(startProgress), targetProgress);
+    } else if (startProgress > targetProgress) {
+      startProgress -= 2.5;
+      pipelineProgress.value = Math.max(Math.round(startProgress), targetProgress);
+    } else {
+      clearInterval(progressTimer);
+    }
+  }, 15);
+
+  checkedItems.value[stepIndex] = [false, false, false];
+  let checkIdx = 0;
+  const checkTimer = setInterval(() => {
+    if (checkIdx < 3) {
+      checkedItems.value[stepIndex][checkIdx] = true;
+      checkIdx++;
+    } else {
+      clearInterval(checkTimer);
+    }
+  }, 150);
+};
+
+const runAllWorkflow = () => {
+  if (isRunningWorkflow.value) return;
+  isRunningWorkflow.value = true;
+  pipelineProgress.value = 0;
+  
+  checkedItems.value = {
+    0: [false, false, false],
+    1: [false, false, false],
+    2: [false, false, false]
+  };
+  
+  let currentStep = 0;
+  const runNext = () => {
+    if (currentStep > 2) {
+      isRunningWorkflow.value = false;
+      activeWorkflowStep.value = null;
+      pipelineProgress.value = 100;
+      return;
+    }
+    
+    activeWorkflowStep.value = currentStep;
+    
+    const targetProgress = (currentStep + 1) * 33.3;
+    let startProgress = pipelineProgress.value;
+    const progressTimer = setInterval(() => {
+      if (startProgress < targetProgress) {
+        startProgress += 1.5;
+        pipelineProgress.value = Math.min(Math.round(startProgress), targetProgress);
+      } else {
+        clearInterval(progressTimer);
+      }
+    }, 15);
+
+    let checkIdx = 0;
+    const checkTimer = setInterval(() => {
+      if (checkIdx < 3) {
+        checkedItems.value[currentStep][checkIdx] = true;
+        checkIdx++;
+      } else {
+        clearInterval(checkTimer);
+        setTimeout(() => {
+          currentStep++;
+          runNext();
+        }, 300);
+      }
+    }, 200);
+  };
+  
+  runNext();
+};
 
 const showAlert = (message, type = "success") => {
   alertMessage.value = message;
@@ -650,16 +881,93 @@ const scrollToSubscribe = () => {
 /* ─── PROFILE LAYOUT ─────────────────────────────── */
 .ap-profile-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 32px;
+  grid-template-columns: 320px 1fr;
+  gap: 36px;
   align-items: start;
 }
 
 .ap-profile-sidebar {
   position: sticky;
-  top: 88px;
+  top: 96px;
   align-self: start;
-  z-index: 1;
+  z-index: 10;
+}
+
+.ap-main-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (max-width: 960px) {
+  .ap-profile-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .ap-profile-sidebar {
+    position: static;
+  }
+}
+
+/* ─── 3D PARALLAX DEPTH EFFECTS ─────────────────── */
+.ap-profile-card,
+.ap-card {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* Float child layers on tilt */
+.ap-profile-card :deep(.ap-profile-avatar) {
+  transform: translateZ(55px) !important;
+}
+
+.ap-profile-card__name,
+.ap-profile-card__title,
+.ap-profile-card__info,
+.ap-profile-card__actions,
+.ap-profile-card__socials {
+  transform: translateZ(30px);
+}
+
+.ap-card__overline,
+.ap-card__headline,
+.ap-card__body,
+.ap-highlights-grid,
+.ap-timeline,
+.ap-skills-grid {
+  transform: translateZ(25px);
+}
+
+.ap-highlight-cell {
+  transform: translateZ(10px);
+  transform-style: preserve-3d;
+}
+.ap-highlight-cell__value {
+  transform: translateZ(25px);
+}
+.ap-highlight-cell__title,
+.ap-highlight-cell__caption {
+  transform: translateZ(15px);
+}
+
+.ap-timeline__item {
+  transform-style: preserve-3d;
+}
+.ap-timeline__body {
+  transform: translateZ(20px);
+}
+.ap-timeline__dot {
+  transform: translateZ(35px);
+}
+.ap-timeline__period {
+  transform: translateZ(15px);
+}
+
+.pipeline-node {
+  transform: translateZ(40px);
+}
+.pipeline-tasks {
+  transform: translateZ(20px);
 }
 
 /* profile card */
