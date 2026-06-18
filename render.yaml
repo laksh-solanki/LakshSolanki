@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: lakshsolanki
+    runtime: static
+    rootDir: frontend
+    buildCommand: pnpm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
