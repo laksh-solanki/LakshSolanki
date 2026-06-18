@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "baseUrl": "/",
+    "checkJs": false,
+    "baseUrl": ".",
     "lib": [
       "esnext",
       "dom",
@@ -9,12 +10,18 @@
       "scripthost"
     ],
     "module": "esnext",
+    "moduleResolution": "bundler",
     "paths": {
       "@/*": [
-        "src/*"
+        "./src/*"
       ]
     },
-    "target": "esnext"
+    "resolveJsonModule": true,
+    "target": "esnext",
+    "types": [
+      "vite/client"
+    ],
+    "useDefineForClassFields": true
   },
   "exclude": [
     "node_modules",

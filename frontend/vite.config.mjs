@@ -8,9 +8,7 @@ import Fonts from "unplugin-fonts/vite";
 import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "node:url";
 
-
-export default defineConfig(async () => {
-
+export default defineConfig(() => {
   return {
     base: process.env.VITE_BASE_URL || "/",
     plugins: [

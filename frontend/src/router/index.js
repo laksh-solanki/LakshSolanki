@@ -1,6 +1,7 @@
 import { createWebHistory, createRouter } from "vue-router";
 import { ref } from "vue";
 
+/** @type {import("vue-router").RouteRecordRaw[]} */
 const routes = [
   {
     path: "/",
@@ -116,7 +117,7 @@ const router = createRouter({
 
 export const isGlobalLoading = ref({ start: () => { }, finish: () => { } });
 router.beforeEach((to) => {
-  document.title = to.meta.title || "LakshSolanki";
+  document.title = typeof to.meta.title === "string" ? to.meta.title : "LakshSolanki";
   if (isGlobalLoading.value?.start) {
     isGlobalLoading.value.start();
   }
