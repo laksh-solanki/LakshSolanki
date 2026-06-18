@@ -11,7 +11,7 @@ import {
   VFileUploadDropzone,
   VFileUploadItem,
   VFileUploadList,
-} from 'vuetify/labs/VFileUpload'
+} from "vuetify/components";
 
 const resolveMdiSvgIcon = (icon) => {
   if (typeof icon !== "string") {
