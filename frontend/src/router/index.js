@@ -30,13 +30,13 @@ const routes = [
       {
         path: "img-pdf",
         name: "ImageToPDF",
-        component: () => import("@/pages/Projects/Img_PdfPage.vue"),
+        component: () => import("@/pages/Projects/ImgPdfPage.vue"),
         meta: { title: "LakshSolanki | Img to PDF" },
       },
       {
         path: "pdf-img",
         name: "PDFToImage",
-        component: () => import("@/pages/Projects/PDF_ImgPage.vue"),
+        component: () => import("@/pages/Projects/PdfImgPage.vue"),
         meta: { title: "LakshSolanki | PDF to Img" },
       },
       {
@@ -48,7 +48,7 @@ const routes = [
       {
         path: "mindlytic_ai",
         name: "mindlyticAi",
-        component: () => import("@/pages/Projects/mindlytic_ai.vue"),
+        component: () => import("@/pages/Projects/MindlyticAi.vue"),
         meta: { title: "LakshSolanki | mindlytic AI" },
       },
       {
@@ -98,7 +98,7 @@ const routes = [
   {
     path: "/notfound",
     name: "NotFound",
-    component: () => import("@/pages/Not_FoundPage.vue"),
+    component: () => import("@/pages/NotFoundPage.vue"),
     meta: { title: "LakshSolanki | Not Found" },
   },
   {

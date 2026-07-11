@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import mainsvgicon from "@/assets/mainsvgicon.vue";
-import SearchBar from "@/components/Search-bar.vue";
+import SearchBar from "@/components/SearchBar.vue";
 
 const route = useRoute();
 const drawer = ref(false);

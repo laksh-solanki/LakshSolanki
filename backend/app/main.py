@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
+
 import re
 import time
 from typing import Any, Literal
@@ -92,11 +94,17 @@ token_verifier = FirebaseTokenVerifier(
     jwks_url=settings.firebase_jwks_url,
     test_mode=settings.firebase_auth_test_mode,
 )
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    db_manager.close()
+
 
 app = FastAPI(
     title="LakshSolanki Backend",
     version="2.0.0",
     description="Python backend for the main site API.",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -503,10 +511,6 @@ def delete_ai_history(
         return JSONResponse(status_code=404, content={"error": "Conversation not found"})
     return JSONResponse(content={"message": "Conversation removed successfully"})
 
-
-@app.on_event("shutdown")
-def shutdown_event() -> None:
-    db_manager.close()
 
 
 @app.exception_handler(HTTPException)

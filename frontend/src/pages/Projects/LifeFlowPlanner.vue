@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { computed, onBeforeUnmount, ref, watch } from "vue";
 import Alerts from "@/components/Alerts.vue";
 
@@ -302,7 +302,6 @@ onBeforeUnmount(() => {
               A minimal daily planner with smart capture, voice input, offline save, and focus blocks.
             </p>
           </div>
-          <v-btn variant="text" color="primary" prepend-icon="mdi-arrow-left" rounded="lg" @click="goBack">Back</v-btn>
         </div>
 
         <div class="d-flex flex-wrap ga-2 mb-5">

@@ -74,7 +74,7 @@ const projects = ref([
     category: "AI Interface",
     description:
       "Prompt-driven chat interface with markdown rendering, code highlighting, and clipboard-ready snippets.",
-    image: getMediaUrl("project_img/Project-5.png"),
+    image: getMediaUrl("project_img/Project-5.jpg"),
     icon: "mdi-robot-outline",
     link: "/projects/mindlytic_ai",
     tags: ["Gemini API", "Markdown"],
@@ -223,9 +223,9 @@ const currentProjectTitle = computed(() => {
           </div>
           <!-- Category Chips -->
           <div class="d-flex flex-wrap ga-2">
-            <v-chip 
-              v-for="cat in categories" 
-              :key="cat" 
+            <v-chip
+              v-for="cat in categories"
+              :key="cat"
               class="filter-chip"
               :class="{ 'is-active': activeCategory === cat }"
               @click="activeCategory = cat"
@@ -281,16 +281,62 @@ const currentProjectTitle = computed(() => {
       </v-container>
     </template>
     <template v-else>
-      <v-container class="py-4 py-md-6 projects-shell animate-fade-in-up">
+      <v-container class="py-4 py-md-6 active-project-shell animate-fade-in-up" fluid>
         <!-- Premium glassmorphic breadcrumb header shown on ALL devices -->
-        <div class="breadcrumb-bar d-flex align-center py-3 px-5 mb-6 rounded-xl border" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(15, 143, 124, 0.12) !important; backdrop-filter: blur(12px);">
+        <div class="breadcrumb-bar d-flex align-center py-3 px-5 mb-6 rounded-xl border flex-wrap ga-2" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(15, 143, 124, 0.12) !important; backdrop-filter: blur(12px);">
           <v-btn to="/projects" variant="text" color="primary" class="text-none font-weight-bold mr-1" rounded="xl" prepend-icon="mdi-arrow-left">
-            Back to Projects
+            Projects
           </v-btn>
           <v-divider vertical class="mx-3 opacity-20" style="height: 20px;"></v-divider>
-          <span class="text-caption text-medium-emphasis d-none d-sm-inline">Active Project</span>
-          <v-icon size="14" class="mx-2 text-medium-emphasis d-none d-sm-inline">mdi-chevron-right</v-icon>
-          <span class="text-subtitle-2 text-primary font-weight-bold">{{ currentProjectTitle }}</span>
+
+          <!-- Dropdown menu to switch between all project tools -->
+          <v-menu transition="slide-y-transition">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                color="primary"
+                variant="flat"
+                rounded="xl"
+                class="text-none font-weight-bold"
+                v-bind="props"
+                append-icon="mdi-chevron-down"
+              >
+                {{ currentProjectTitle }}
+              </v-btn>
+            </template>
+            <v-list class="bg-surface border mt-2" rounded="lg" style="max-height: 400px; overflow-y: auto;">
+              <v-list-item
+                v-for="proj in projects"
+                :key="proj.id"
+                :to="proj.link"
+                color="primary"
+                :active="route.path === proj.link"
+              >
+                <template v-slot:prepend>
+                  <v-icon :icon="proj.icon" class="mr-2" size="20"></v-icon>
+                </template>
+                <v-list-item-title class="font-weight-bold">{{ proj.title }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+
+          <v-divider vertical class="mx-3 opacity-20 d-none d-md-inline" style="height: 20px;"></v-divider>
+
+          <!-- Quick switch chips for related utilities -->
+          <div class="d-none d-md-flex align-center ga-2">
+            <span class="text-caption text-medium-emphasis mr-1">Quick Switch:</span>
+            <v-btn
+              v-for="quickProj in projects.filter(p => ['Image to PDF Converter', 'PDF to Image Converter', 'Certificate Generator'].includes(p.title))"
+              :key="quickProj.id"
+              :to="quickProj.link"
+              size="small"
+              variant="tonal"
+              rounded="pill"
+              class="text-none font-weight-bold"
+              :color="route.path === quickProj.link ? 'primary' : 'medium-emphasis'"
+            >
+              {{ quickProj.title.replace(' Converter', '') }}
+            </v-btn>
+          </div>
         </div>
         <RouterView />
       </v-container>
@@ -301,6 +347,13 @@ const currentProjectTitle = computed(() => {
 <style scoped>
 .projects-shell {
   max-width: min(var(--page-max-width), 100%) !important;
+}
+
+.active-project-shell {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: clamp(10px, 1.8vw, 24px) !important;
+  padding-right: clamp(10px, 1.8vw, 24px) !important;
 }
 
 .intro-copy {

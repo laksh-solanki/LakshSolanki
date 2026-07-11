@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from "vue";
-import Certificate from "@/components/certificate.vue";
+import Certificate from "@/components/Certificate.vue";
 import Alerts from "@/components/Alerts.vue";
 import PhotoZoomDialog from "@/components/PhotoZoomDialog.vue";
 import { getApiBaseUrl } from "@/utils/apiBaseUrl";

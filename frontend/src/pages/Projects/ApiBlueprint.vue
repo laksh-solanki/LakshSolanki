@@ -304,8 +304,6 @@ const exportMarkdown = () => {
                 <p class="panel-kicker mb-1">API Blueprint Designer</p>
                 <h2 class="text-h5 font-weight-bold mb-1">Design and document your REST APIs</h2>
               </div>
-              <v-btn class="text-none" color="primary" variant="text" rounded="lg" prepend-icon="mdi-arrow-left"
-                @click="goBack">Back</v-btn>
             </div>
 
             <v-row>
