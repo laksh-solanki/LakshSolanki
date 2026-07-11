@@ -10,3 +10,9 @@ Thumbs.db
 .idea/
 .vscode/
 mindlytic-frontend/public/lib/webviewer/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
