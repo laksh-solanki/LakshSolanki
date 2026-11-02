@@ -2,7 +2,7 @@ const encodeMediaKey = (key) =>
   String(key || "")
     .replace(/^\/+/, "")
     .split("/")
-    .map((segment) => encodeURIComponent(segment))
+    .map((segment) => encodeURI(segment))
     .join("/");
 
 const getMediaBaseUrl = () => {
