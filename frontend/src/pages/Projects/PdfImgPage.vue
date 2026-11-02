@@ -1,5 +1,6 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, inject, onMounted, onUnmounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import Alerts from "@/components/Alerts.vue";
 import PhotoZoomDialog from "@/components/PhotoZoomDialog.vue";
 
@@ -15,6 +16,18 @@ const fileInput = ref(null);
 const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
+
+const route = useRoute();
+const router = useRouter();
+const studioMode = inject("studioMode", null);
+
+const switchTab = (tab) => {
+  if (studioMode?.switchTab) {
+    studioMode.switchTab(tab);
+  } else {
+    router.replace({ query: { ...route.query, mode: tab } });
+  }
+};
 const searchQuery = ref("");
 const sortMode = ref("page-asc");
 const selectedImageIds = ref([]);
@@ -314,46 +327,155 @@ onUnmounted(() => {
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
     <v-container class="py-8 py-md-12">
       <v-row density="comfortable" align="start">
-        <v-col cols="12" :lg="images.length > 0 ? 4 : 12">
-          <v-card class="tool-shell p-5 p-md-7" rounded="xl" elevation="0">
-            <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
-              <div>
-                <p class="panel-kicker mb-1">Upload PDF</p>
-                <h2 class="text-h5 font-weight-bold mb-1">Drop your file here</h2>
+        <!-- Left Sidebar: Links + Conversion Mode (clean sidebar) -->
+        <v-col cols="12" md="4" lg="3">
+          <v-card class="tool-shell p-5" rounded="xl" elevation="0">
+            <!-- Studio Mode Navigation (List-wise in Side Bar) -->
+            <div class="studio-mode-nav" :class="{ 'mb-4': images.length }">
+              <div class="d-flex align-center justify-space-between mb-3">
+                <p class="panel-kicker mb-0">Conversion Mode</p>
+                <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold">
+                  PDF → Image
+                </v-chip>
+              </div>
+
+              <div class="mode-list-container d-flex flex-column ga-2">
+                <button
+                  type="button"
+                  class="mode-list-btn"
+                  @click="switchTab('img-to-pdf')"
+                >
+                  <div class="mode-btn-icon">
+                    <v-icon size="20">mdi-image-multiple-outline</v-icon>
+                  </div>
+                  <div class="mode-btn-content text-left">
+                    <div class="mode-btn-title">Image to PDF</div>
+                    <div class="mode-btn-subtitle">Batch images into single PDF</div>
+                  </div>
+                  <v-icon size="16" class="mode-btn-chevron">mdi-chevron-right</v-icon>
+                </button>
+
+                <button
+                  type="button"
+                  class="mode-list-btn is-active"
+                  @click="switchTab('pdf-to-img')"
+                >
+                  <div class="mode-btn-icon">
+                    <v-icon size="20">mdi-file-pdf-box</v-icon>
+                  </div>
+                  <div class="mode-btn-content text-left">
+                    <div class="mode-btn-title">PDF to Image</div>
+                    <div class="mode-btn-subtitle">Extract pages to JPG / PNG</div>
+                  </div>
+                  <v-icon size="16" class="mode-btn-chevron">mdi-check</v-icon>
+                </button>
               </div>
             </div>
 
-            <v-sheet :class="['upload-zone', { 'drag-over': isDragging }]" rounded="xl" border @click="triggerFileInput"
-              @dragenter.prevent="isDragging = true" @dragover.prevent @dragleave.prevent="isDragging = false"
-              @drop="handleDrop">
-              <input ref="fileInput" type="file" accept="application/pdf" @change="handleFileSelect" class="file-input"
-                required />
+            <!-- Permanently mounted hidden input for file picking -->
+            <input
+              ref="fileInput"
+              type="file"
+              accept="application/pdf"
+              @change="handleFileSelect"
+              class="d-none"
+            />
 
-              <div class="d-flex flex-column align-center ga-4 justify-center text-center">
-                <v-icon size="72" color="primary" :icon="images.length>0 ? 'mdi-plus-circle-outline' : 'mdi-cloud-upload-outline' " />
-                <div class="text-h6 font-weight-bold">Drag and drop PDF file</div>
-                <div class="text-body-1 text-medium-emphasis">or click to browse from your device</div>
-                <p class="text-caption text-medium-emphasis mb-0">Supported format: PDF</p>
+            <!-- Loaded Document Info (Shown once PDF is processed) -->
+            <template v-if="pdfFile && images.length">
+              <div class="compact-upload-bar d-flex align-center justify-space-between p-3 rounded-lg mb-3">
+                <div class="d-flex align-center ga-2 min-w-0">
+                  <v-icon color="primary" size="22">mdi-file-pdf-box</v-icon>
+                  <div class="min-w-0">
+                    <div class="text-body-2 font-weight-bold text-truncate">{{ pdfName }}</div>
+                    <div class="text-caption text-medium-emphasis">
+                      {{ images.length }} {{ images.length === 1 ? 'page' : 'pages' }} extracted
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <v-btn
+                block
+                variant="tonal"
+                color="primary"
+                rounded="lg"
+                prepend-icon="mdi-swap-horizontal"
+                class="text-none font-weight-bold mb-3"
+                @click="triggerFileInput"
+              >
+                Change PDF Document
+              </v-btn>
+
+              <div v-if="isConverting" class="progress-shell mt-4">
+                <div class="d-flex justify-space-between align-center mb-2">
+                  <span class="text-body-2">{{ conversionStatus }}</span>
+                  <span class="text-caption">{{ conversionProgress }}%</span>
+                </div>
+                <v-progress-linear :model-value="conversionProgress" color="primary" rounded height="8"></v-progress-linear>
+              </div>
+            </template>
+          </v-card>
+        </v-col>
+
+        <!-- Right Main Workspace: Upload Container OR Extracted Images Grid -->
+        <v-col cols="12" md="8" lg="9">
+          <!-- Big Upload Container on the Right (Auto-hides once PDF is uploaded and converted) -->
+          <v-card v-if="!images.length" class="tool-shell p-6 p-md-8" rounded="xl" elevation="0">
+            <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-6">
+              <div>
+                <p class="panel-kicker mb-1">Select Document</p>
+                <h2 class="text-h5 font-weight-bold mb-1">Drop your PDF here</h2>
+                <p class="text-body-2 text-medium-emphasis mb-0">
+                  Upload any PDF document to extract each page into high-resolution JPG or PNG images.
+                </p>
+              </div>
+            </div>
+
+            <v-sheet
+              :class="['upload-zone', 'upload-zone-lg', { 'drag-over': isDragging }]"
+              rounded="xl"
+              border
+              @click="triggerFileInput"
+              @dragenter.prevent="isDragging = true"
+              @dragover.prevent
+              @dragleave.prevent="isDragging = false"
+              @drop="handleDrop"
+            >
+              <div class="d-flex flex-column align-center ga-4 justify-center text-center py-10 py-md-16">
+                <v-icon size="80" color="primary" icon="mdi-cloud-upload-outline" />
+                <div class="text-h5 font-weight-bold">Drag and drop PDF file here</div>
+                <div class="text-body-1 text-medium-emphasis">or click anywhere in this container to browse</div>
+
+                <div class="d-flex align-center ga-2 mt-2">
+                  <span class="feature-chip">All Pages</span>
+                  <span class="feature-chip">High Resolution</span>
+                  <span class="feature-chip">Instant Extraction</span>
+                </div>
+
+                <v-btn
+                  color="primary"
+                  variant="flat"
+                  rounded="xl"
+                  prepend-icon="mdi-file-pdf-box"
+                  class="text-none font-weight-bold px-6 mt-4"
+                  @click.stop="triggerFileInput"
+                >
+                  Choose PDF File
+                </v-btn>
               </div>
             </v-sheet>
-
-            <div v-if="pdfName" class="selected-file mt-4">
-              <v-icon icon="mdi-file-document" size="18" class="mr-2"></v-icon>
-              {{ pdfName }}
-            </div>
 
             <div v-if="isConverting" class="progress-shell mt-5">
               <div class="d-flex justify-space-between align-center mb-2">
                 <span class="text-body-2">{{ conversionStatus }}</span>
                 <span class="text-caption">{{ conversionProgress }}%</span>
               </div>
-              <v-progress-linear :model-value="conversionProgress" color="primary" rounded
-                height="8"></v-progress-linear>
+              <v-progress-linear :model-value="conversionProgress" color="primary" rounded height="8"></v-progress-linear>
             </div>
           </v-card>
-        </v-col>
 
-        <v-col cols="12" lg="8">
+          <!-- Extracted Images Workspace (Auto-shown once images are extracted) -->
           <transition name="slide-up">
             <div v-if="images.length > 0">
               <v-card class="tool-shell p-4 p-md-5" rounded="xl" elevation="0">
@@ -441,6 +563,103 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* Studio Mode Navigation (List-wise in Side Bar) */
+.studio-mode-nav {
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(124, 14, 68, 0.1);
+}
+
+.mode-list-container {
+  width: 100%;
+}
+
+.mode-list-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(124, 14, 68, 0.12);
+  background: #ffffff;
+  color: #231219;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+}
+
+.mode-list-btn:hover {
+  border-color: #7c0e44;
+  background: #faf3f0;
+  transform: translateY(-1px);
+}
+
+.mode-list-btn.is-active {
+  background: linear-gradient(135deg, #7c0e44 0%, #931a56 100%);
+  border-color: #7c0e44;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(124, 14, 68, 0.25);
+}
+
+.mode-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(124, 14, 68, 0.08);
+  color: #7c0e44;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.mode-list-btn.is-active .mode-btn-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.mode-btn-content {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.mode-btn-title {
+  font-family: "Space Grotesk", -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.mode-btn-subtitle {
+  font-family: "Manrope", -apple-system, sans-serif;
+  font-size: 11px;
+  color: #7e636e;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+.mode-list-btn.is-active .mode-btn-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.mode-btn-chevron {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mode-list-btn.is-active .mode-btn-chevron {
+  opacity: 1;
+  color: #ffffff;
+}
+
+/* Compact summary bar when upload container auto-hides */
+.compact-upload-bar {
+  background: rgba(124, 14, 68, 0.04);
+  border: 1px dashed rgba(124, 14, 68, 0.2);
+}
+
 .tool-page {
   position: relative;
   background: var(--portfolio-bg);
@@ -674,5 +893,56 @@ onUnmounted(() => {
     gap: 10px;
     padding: 10px;
   }
+
+  .upload-zone-lg {
+    min-height: 340px;
+  }
+}
+
+/* Empty Workspace Canvas */
+.empty-workspace-shell {
+  min-height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1.5px dashed rgba(124, 14, 68, 0.2);
+}
+
+.empty-icon-halo {
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  background: rgba(124, 14, 68, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: #faf3f0;
+  border: 1px solid rgba(124, 14, 68, 0.1);
+  font-family: "Space Grotesk", -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #7c0e44;
+}
+
+.sidebar-guide-note {
+  background: rgba(124, 14, 68, 0.04);
+  border: 1px solid rgba(124, 14, 68, 0.1);
+}
+
+.upload-zone-lg {
+  min-height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 </style>

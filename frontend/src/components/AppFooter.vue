@@ -19,12 +19,12 @@ const socialLinks = [
 
 <template>
   <v-footer class="app-footer">
-    <v-container class="py-10" fluid>
+    <v-container class="py-8 py-md-12">
       <v-row density="comfortable">
         <!-- Brand & Info -->
-        <v-col cols="12" md="4" class="mb-8 mb-md-0">
-          <mainsvgicon :size="40" class="mb-5" />
-          <p class="text-body-2 footer-copy mb-6 pr-md-6">
+        <v-col cols="12" md="4" class="mb-6 mb-md-0">
+          <mainsvgicon :size="40" class="mb-4" />
+          <p class="text-body-2 footer-copy mb-5 pr-md-6">
             Building digital products that combine beautiful, minimal design with robust engineering. Focused on creating exceptional, fast, and scalable user experiences.
           </p>
           <div class="d-flex ga-3">
@@ -36,9 +36,9 @@ const socialLinks = [
         </v-col>
 
         <!-- Navigation -->
-        <v-col cols="6" md="2" class="mb-8 mb-md-0">
-          <h4 class="footer-heading mb-5">Navigation</h4>
-          <div class="d-flex flex-column ga-3">
+        <v-col cols="6" sm="6" md="2" class="mb-6 mb-md-0">
+          <h4 class="footer-heading mb-4">Navigation</h4>
+          <div class="d-flex flex-column ga-2 ga-md-3">
             <router-link v-for="item in quickLinks" :key="item.path" :to="item.path"
                class="footer-link text-body-2">
               {{ item.title }}
@@ -47,9 +47,9 @@ const socialLinks = [
         </v-col>
 
         <!-- Services -->
-        <v-col cols="6" md="2" class="mb-8 mb-md-0">
-          <h4 class="footer-heading mb-5">Services</h4>
-          <div class="d-flex flex-column ga-3">
+        <v-col cols="6" sm="6" md="2" class="mb-6 mb-md-0">
+          <h4 class="footer-heading mb-4">Services</h4>
+          <div class="d-flex flex-column ga-2 ga-md-3">
             <span v-for="service in services" :key="service" class="footer-item text-body-2">
               {{ service }}
             </span>
@@ -63,14 +63,14 @@ const socialLinks = [
         </v-col>
       </v-row>
 
-      <v-divider class="my-8 footer-divider"></v-divider>
+      <v-divider class="my-6 my-md-8 footer-divider"></v-divider>
 
       <!-- Bottom Bar -->
-      <div class="footer-bottom d-flex flex-column flex-sm-row justify-space-between align-center">
-        <span class="text-caption footer-copyright mb-3 mb-sm-0">
+      <div class="footer-bottom d-flex flex-column flex-sm-row justify-space-between align-center text-center text-sm-start ga-3">
+        <span class="text-caption footer-copyright">
           &copy; {{ new Date().getFullYear() }} Laksh Solanki. All rights reserved.
         </span>
-        <div class="d-flex ga-6 align-center">
+        <div class="d-flex ga-4 ga-sm-6 align-center flex-wrap justify-center">
           <span class="text-caption footer-meta d-flex align-center">
             <v-icon size="x-small" icon="mdi-map-marker-outline" class="mr-1"></v-icon> IST Timezone
           </span>

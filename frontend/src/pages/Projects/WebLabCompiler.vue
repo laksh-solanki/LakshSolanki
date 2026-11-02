@@ -565,22 +565,30 @@ onUnmounted(() => {
 }
 
 @media (max-width: 960px) {
+  .editor-pane {
+    height: 280px;
+  }
+
   .preview-frame {
-    height: 520px;
+    height: 440px;
   }
 }
 
 @media (max-width: 600px) {
+  .editor-pane {
+    height: 240px;
+  }
+
   .preview-stage {
-    padding: 10px;
+    padding: 8px;
   }
 
   .preview-frame {
-    height: 420px;
+    height: 380px;
   }
 
   .preview-frame--mobile {
-    height: 620px;
+    height: 500px;
   }
 }
 

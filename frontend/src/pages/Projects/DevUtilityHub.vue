@@ -448,10 +448,6 @@ const generatePassword = () => {
   .hero-stats {
     grid-template-columns: 1fr;
   }
-
-  .toggle-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 600px) {
@@ -467,6 +463,12 @@ const generatePassword = () => {
 
   .stat-value {
     font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tool-shell {
+    padding: 18px 14px !important;
   }
 }
 </style>

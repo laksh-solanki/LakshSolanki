@@ -140,6 +140,23 @@ const goBack = () => {
   100% { transform: scale(1.3); opacity: 0; }
 }
 
+@media (max-width: 600px) {
+  .minimal-404 {
+    padding: 28px 16px !important;
+    border-radius: 18px;
+  }
+
+  .action-row {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .action-row :deep(.v-btn) {
+    width: 100% !important;
+    justify-content: center;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .radar-circle {
     animation: none;

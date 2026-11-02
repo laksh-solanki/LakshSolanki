@@ -36,10 +36,20 @@
 
 html,
 body,
-#app {
+#app,
+.v-application,
+.v-application__wrap {
   min-height: 100%;
   overflow-x: clip;
+  width: 100%;
+  max-width: 100%;
   background: var(--portfolio-bg);
+}
+
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
 }
 
 body {
@@ -139,7 +149,8 @@ kbd {
 .projects-shell,
 .about-page > section > .v-container,
 .about-page > .profile-merge > .v-container,
-.premium-footer > .v-container {
+.premium-footer > .v-container,
+.app-footer > .v-container {
   width: 100%;
   max-width: min(var(--page-max-width), 100%) !important;
   padding-left: var(--page-gutter) !important;
@@ -560,7 +571,8 @@ kbd {
   .projects-shell,
   .about-page > section > .v-container,
   .about-page > .profile-merge > .v-container,
-  .premium-footer > .v-container {
+  .premium-footer > .v-container,
+  .app-footer > .v-container {
     padding-left: var(--page-gutter-tight) !important;
     padding-right: var(--page-gutter-tight) !important;
   }
@@ -568,4 +580,12 @@ kbd {
   .section-shell {
     border-radius: 16px;
   }
+}
+
+/* Responsive Table Wrapper */
+.v-table,
+.table-responsive {
+  max-width: 100%;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
 }

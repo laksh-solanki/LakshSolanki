@@ -1132,6 +1132,17 @@ const copyEmail = async () => {
     grid-column: span 1;
   }
 
+  .ap-bento-profile {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .ap-bento-badge {
+    margin-left: 0;
+    width: 100%;
+  }
+
   .ap-highlights-grid {
     grid-template-columns: 1fr;
   }
@@ -1143,6 +1154,30 @@ const copyEmail = async () => {
 
   .ap-timeline__connector {
     display: none;
+  }
+
+  .ap-mission-card__img-col {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ap-hero__actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .ap-hero__actions .ap-btn {
+    width: 100% !important;
+    justify-content: center;
+  }
+
+  .ap-card {
+    padding: 18px 14px;
+  }
+
+  .ap-profile-card {
+    padding: 20px 16px;
   }
 }
 </style>

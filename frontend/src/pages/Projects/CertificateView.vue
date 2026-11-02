@@ -899,4 +899,15 @@ const generatePdf = async () => {
     height: 150px;
   }
 }
+
+@media (max-width: 480px) {
+  .certificate-page .form-shell,
+  .certificate-page .side-panel {
+    padding: 18px 14px !important;
+  }
+
+  .style-dialog-card {
+    padding: 16px 12px !important;
+  }
+}
 </style>

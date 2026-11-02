@@ -1268,4 +1268,11 @@ kbd {
     min-height: 76px;
   }
 }
+
+@media (max-width: 480px) {
+  .tool-shell,
+  .side-panel {
+    padding: 18px 14px !important;
+  }
+}
 </style>

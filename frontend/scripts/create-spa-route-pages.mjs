@@ -10,6 +10,7 @@ const spaRoutes = [
   "/about",
   "/projects",
   "/projects/certificate-gen",
+  "/projects/pdf-image-studio",
   "/projects/img-pdf",
   "/projects/pdf-img",
   "/projects/text-to-speech",

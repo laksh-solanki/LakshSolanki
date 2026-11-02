@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import { computed, onBeforeUnmount, ref, watch } from "vue";
 import Alerts from "@/components/Alerts.vue";
 
@@ -445,6 +445,10 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 600px) {
+  .minimal-shell {
+    padding: 18px 14px !important;
+  }
+
   .mode-select {
     max-width: 100%;
     width: 100%;

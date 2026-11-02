@@ -1,5 +1,6 @@
 <script setup>
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, inject, onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
 import Alerts from "@/components/Alerts.vue";
 import PhotoZoomDialog from "@/components/PhotoZoomDialog.vue";
@@ -71,6 +72,18 @@ const fileInput = ref(null);
 const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
+
+const route = useRoute();
+const router = useRouter();
+const studioMode = inject("studioMode", null);
+
+const switchTab = (tab) => {
+  if (studioMode?.switchTab) {
+    studioMode.switchTab(tab);
+  } else {
+    router.replace({ query: { ...route.query, mode: tab } });
+  }
+};
 const generatedPdfUrl = ref("");
 const generatedPdfName = ref("");
 const previewImage = ref(null);
@@ -682,69 +695,63 @@ onUnmounted(() => {
 
     <v-container class="py-8 py-md-12">
       <v-row density="comfortable" align="start">
-        <v-col cols="12" :lg="images.length > 0 ? 4 : 12">
-          <v-card class="tool-shell p-5 p-md-7" rounded="xl" elevation="0">
-            <div
-              class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5"
-            >
-              <div>
-                <p class="panel-kicker mb-1">PDF Atelier</p>
-                <h2 class="text-h5 font-weight-bold mb-1">
-                  Build polished image PDFs
-                </h2>
+        <!-- Left Sidebar: Links + Conversion Mode (clean sidebar) -->
+        <v-col cols="12" md="4" lg="3">
+          <v-card class="tool-shell p-5" rounded="xl" elevation="0">
+            <!-- Studio Mode Navigation (List-wise in Side Bar) -->
+            <div class="studio-mode-nav" :class="{ 'mb-4': images.length }">
+              <div class="d-flex align-center justify-space-between mb-3">
+                <p class="panel-kicker mb-0">Conversion Mode</p>
+                <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold">
+                  Image → PDF
+                </v-chip>
               </div>
-              <v-icon
-                icon="mdi-file-pdf-box"
-                color="primary"
-                size="30"
-              ></v-icon>
+
+              <div class="mode-list-container d-flex flex-column ga-2">
+                <button
+                  type="button"
+                  class="mode-list-btn is-active"
+                  @click="switchTab('img-to-pdf')"
+                >
+                  <div class="mode-btn-icon">
+                    <v-icon size="20">mdi-image-multiple-outline</v-icon>
+                  </div>
+                  <div class="mode-btn-content text-left">
+                    <div class="mode-btn-title">Image to PDF</div>
+                    <div class="mode-btn-subtitle">Batch images into single PDF</div>
+                  </div>
+                  <v-icon size="16" class="mode-btn-chevron">mdi-check</v-icon>
+                </button>
+
+                <button
+                  type="button"
+                  class="mode-list-btn"
+                  @click="switchTab('pdf-to-img')"
+                >
+                  <div class="mode-btn-icon">
+                    <v-icon size="20">mdi-file-pdf-box</v-icon>
+                  </div>
+                  <div class="mode-btn-content text-left">
+                    <div class="mode-btn-title">PDF to Image</div>
+                    <div class="mode-btn-subtitle">Extract pages to JPG / PNG</div>
+                  </div>
+                  <v-icon size="16" class="mode-btn-chevron">mdi-chevron-right</v-icon>
+                </button>
+              </div>
             </div>
 
-            <v-sheet
-              :class="['upload-zone', { 'drag-over': isDragging }]"
-              rounded="xl"
-              border
-              @click="triggerFileInput"
-              @dragenter.prevent="isDragging = true"
-              @dragover.prevent
-              @dragleave.prevent="isDragging = false"
-              @drop="handleDrop"
-            >
-              <input
-                ref="fileInput"
-                type="file"
-                multiple
-                accept="image/*"
-                @change="handleFileSelect"
-                class="file-input"
-                required
-              />
+            <!-- Permanently mounted hidden input for file picking -->
+            <input
+              ref="fileInput"
+              type="file"
+              multiple
+              accept="image/*"
+              @change="handleFileSelect"
+              class="d-none"
+            />
 
-              <div
-                class="d-flex flex-column align-center ga-4 justify-center text-center"
-              >
-                <v-icon
-                  size="72"
-                  :icon="
-                    images.length > 0
-                      ? 'mdi-plus-circle-outline'
-                      : 'mdi-cloud-upload-outline'
-                  "
-                  color="primary"
-                />
-                <div class="text-h6 font-weight-bold">
-                  Drop images into the studio
-                </div>
-                <div class="text-body-1 text-medium-emphasis">
-                  or click to browse from your device
-                </div>
-                <p class="text-caption text-medium-emphasis mb-0">
-                  Supported: JPG, PNG, GIF, WebP
-                </p>
-              </div>
-            </v-sheet>
-
-            <div v-if="isConverting" class="progress-shell mt-5">
+            <!-- Progress & Stats (when images loaded) -->
+            <div v-if="isConverting" class="progress-shell mt-4">
               <div class="d-flex justify-space-between align-center mb-2">
                 <span class="text-body-2">{{ conversionStatus }}</span>
                 <span class="text-caption">{{ conversionProgress }}%</span>
@@ -757,7 +764,7 @@ onUnmounted(() => {
               ></v-progress-linear>
             </div>
 
-            <div v-if="images.length" class="studio-stats mt-5">
+            <div v-if="images.length" class="studio-stats mt-4">
               <div
                 v-for="item in studioStats"
                 :key="item.label"
@@ -921,7 +928,64 @@ onUnmounted(() => {
           </v-card>
         </v-col>
 
-        <v-col cols="12" lg="8">
+        <!-- Main Right Side Big Container -->
+        <v-col cols="12" md="8" lg="9">
+          <!-- Big Upload Container (Shown when no images yet) -->
+          <v-card
+            v-if="!images.length"
+            class="tool-shell p-6 p-md-8"
+            rounded="xl"
+            elevation="0"
+          >
+            <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
+              <div>
+                <p class="panel-kicker mb-1">Batch Importer</p>
+                <h2 class="text-h5 font-weight-bold mb-1">Upload image files</h2>
+                <p class="text-caption text-medium-emphasis mb-0">
+                  Drop or select JPG, PNG, GIF, or WebP images to compile into a single styled PDF
+                </p>
+              </div>
+            </div>
+
+            <v-sheet
+              :class="['upload-zone upload-zone-lg', { 'drag-over': isDragging }]"
+              rounded="xl"
+              border
+              @click="triggerFileInput"
+              @dragenter.prevent="isDragging = true"
+              @dragover.prevent
+              @dragleave.prevent="isDragging = false"
+              @drop="handleDrop"
+            >
+              <div class="d-flex flex-column align-center ga-4 justify-center text-center py-10">
+                <div class="empty-icon-halo mb-2">
+                  <v-icon size="56" color="primary">mdi-cloud-upload-outline</v-icon>
+                </div>
+                <div class="text-h5 font-weight-bold">Drag and drop images here</div>
+                <div class="text-body-1 text-medium-emphasis">or click to browse from your device</div>
+
+                <div class="d-flex flex-wrap justify-center ga-2 mt-2">
+                  <span class="feature-chip">JPG</span>
+                  <span class="feature-chip">PNG</span>
+                  <span class="feature-chip">WEBP</span>
+                  <span class="feature-chip">GIF</span>
+                </div>
+
+                <v-btn
+                  color="primary"
+                  variant="flat"
+                  rounded="xl"
+                  prepend-icon="mdi-plus"
+                  class="text-none font-weight-bold px-6 mt-4"
+                  @click.stop="triggerFileInput"
+                >
+                  Browse Images
+                </v-btn>
+              </div>
+            </v-sheet>
+          </v-card>
+
+          <!-- Uploaded Images Page Queue (Auto-replaces upload zone after selecting images) -->
           <transition name="slide-up">
             <div v-if="images.length > 0">
               <v-card class="tool-shell p-4 p-md-5" rounded="xl" elevation="0">
@@ -935,6 +999,16 @@ onUnmounted(() => {
                     </h3>
                   </div>
                   <div class="d-flex align-center ga-2 flex-wrap">
+                    <v-btn
+                      variant="tonal"
+                      color="primary"
+                      rounded="lg"
+                      prepend-icon="mdi-plus"
+                      class="text-none font-weight-bold"
+                      @click="triggerFileInput"
+                    >
+                      Add More Images
+                    </v-btn>
                     <v-btn
                       @click="toggleAllImagesOrientation"
                       :icon="
@@ -1151,6 +1225,8 @@ onUnmounted(() => {
                 </v-row>
               </v-card>
             </div>
+
+
           </transition>
         </v-col>
       </v-row>
@@ -1171,6 +1247,103 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* Studio Mode Navigation (List-wise in Side Bar) */
+.studio-mode-nav {
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(124, 14, 68, 0.1);
+}
+
+.mode-list-container {
+  width: 100%;
+}
+
+.mode-list-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(124, 14, 68, 0.12);
+  background: #ffffff;
+  color: #231219;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+}
+
+.mode-list-btn:hover {
+  border-color: #7c0e44;
+  background: #faf3f0;
+  transform: translateY(-1px);
+}
+
+.mode-list-btn.is-active {
+  background: linear-gradient(135deg, #7c0e44 0%, #931a56 100%);
+  border-color: #7c0e44;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(124, 14, 68, 0.25);
+}
+
+.mode-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(124, 14, 68, 0.08);
+  color: #7c0e44;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.mode-list-btn.is-active .mode-btn-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.mode-btn-content {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.mode-btn-title {
+  font-family: "Space Grotesk", -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.mode-btn-subtitle {
+  font-family: "Manrope", -apple-system, sans-serif;
+  font-size: 11px;
+  color: #7e636e;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+.mode-list-btn.is-active .mode-btn-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.mode-btn-chevron {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mode-list-btn.is-active .mode-btn-chevron {
+  opacity: 1;
+  color: #ffffff;
+}
+
+/* Compact summary bar when upload container auto-hides */
+.compact-upload-bar {
+  background: rgba(124, 14, 68, 0.04);
+  border: 1px dashed rgba(124, 14, 68, 0.2);
+}
+
 .tool-page {
   position: relative;
   background: var(--portfolio-bg);
@@ -1465,4 +1638,53 @@ onUnmounted(() => {
     flex-direction: column;
   }
 }
+
+/* Empty Workspace Canvas */
+.empty-workspace-shell {
+  min-height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 1.5px dashed rgba(124, 14, 68, 0.2);
+}
+
+.empty-icon-halo {
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  background: rgba(124, 14, 68, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: #faf3f0;
+  border: 1px solid rgba(124, 14, 68, 0.1);
+  font-family: "Space Grotesk", -apple-system, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #7c0e44;
+}
+
+
+.sidebar-guide-note {
+  background: rgba(124, 14, 68, 0.04);
+  border: 1px solid rgba(124, 14, 68, 0.1);
+}
+
+.upload-zone-lg {
+  min-height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
 </style>

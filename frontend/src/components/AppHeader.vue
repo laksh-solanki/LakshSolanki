@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import mainsvgicon from "@/assets/mainsvgicon.vue";
 import SearchBar from "@/components/SearchBar.vue";
@@ -20,6 +20,13 @@ const isActive = (path) =>
 const closeDrawer = () => {
   drawer.value = false;
 };
+
+watch(
+  () => route.path,
+  () => {
+    drawer.value = false;
+  }
+);
 </script>
 
 <template>
@@ -28,13 +35,22 @@ const closeDrawer = () => {
     v-model="drawer"
     temporary
     location="right"
-    :width="$vuetify.display.xs ? 320 : 380"
+    :width="$vuetify.display.xs ? 300 : 360"
     class="premium-mobile-drawer border-0"
   >
     <div class="drawer-shell d-flex flex-column h-100">
       <div class="drawer-header d-flex align-center justify-space-between mb-8">
         <mainsvgicon :size="42" />
-        <v-btn class="drawer-close" icon="mdi-close" variant="tonal" size="small" @click="closeDrawer"></v-btn>
+        <v-btn
+          class="drawer-close"
+          icon
+          variant="tonal"
+          size="small"
+          aria-label="Close navigation menu"
+          @click="closeDrawer"
+        >
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
       </div>
 
       <nav class="drawer-nav flex-1">
@@ -111,7 +127,7 @@ const closeDrawer = () => {
       </nav>
 
       <!-- Right Actions (Search + Social) -->
-      <div class="header-actions d-flex align-center ga-2 ga-md-4">
+      <div class="header-actions d-flex align-center ga-2 ga-md-3">
         <SearchBar class="search-component" />
 
         <v-btn
@@ -121,9 +137,10 @@ const closeDrawer = () => {
           :href="githubProfile"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label="GitHub Profile"
         >
-          <v-icon start icon="mdi-github" size="20"></v-icon>
-          <span class="font-weight-bold">GitHub</span>
+          <v-icon icon="mdi-github" size="20" class="mr-lg-2"></v-icon>
+          <span class="font-weight-bold d-none d-lg-inline">GitHub</span>
         </v-btn>
 
         <!-- Mobile Drawer Toggle -->
@@ -188,12 +205,13 @@ const closeDrawer = () => {
 .seg-item {
   position: relative;
   border-radius: 100px;
-  padding: 8px 20px;
+  padding: 7px clamp(12px, 1.4vw, 20px);
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: clamp(0.85rem, 0.9vw, 0.92rem);
   letter-spacing: 0.01em;
   color: var(--portfolio-ink-soft, #4E3842);
   transition: all 0.25s ease;
+  white-space: nowrap;
 }
 
 .seg-item-content {
@@ -254,8 +272,10 @@ const closeDrawer = () => {
    MOBILE DRAWER
 --------------------------------- */
 .premium-mobile-drawer {
+  max-width: 86vw !important;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
+  z-index: 10060 !important;
 }
 
 .premium-mobile-drawer :deep(.v-navigation-drawer__content) {
@@ -271,6 +291,9 @@ const closeDrawer = () => {
 .drawer-close {
   background: rgba(124, 14, 68, 0.06);
   color: var(--portfolio-primary, #7C0E44) !important;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 10;
 }
 
 .drawer-subtitle {

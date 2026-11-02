@@ -366,28 +366,30 @@ const exportMarkdown = () => {
 
                   <v-col cols="12">
                     <p class="text-subtitle-2 font-weight-bold mb-2">Parameters</p>
-                    <v-table density="compact" class="mb-2" v-if="currentEndpoint.parameters.length">
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>In</th>
-                          <th>Type</th>
-                          <th>Required</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="(param, idx) in currentEndpoint.parameters" :key="idx">
-                          <td>{{ param.name }}</td>
-                          <td>{{ param.in }}</td>
-                          <td>{{ param.type }}</td>
-                          <td>{{ param.required ? "Yes" : "No" }}</td>
-                          <td>
-                            <v-btn icon="mdi-close" size="small" variant="text" @click="removeParameter(idx)" />
-                          </td>
-                        </tr>
-                      </tbody>
-                    </v-table>
+                    <div class="table-responsive mb-2" v-if="currentEndpoint.parameters.length">
+                      <v-table density="compact">
+                        <thead>
+                          <tr>
+                            <th>Name</th>
+                            <th>In</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(param, idx) in currentEndpoint.parameters" :key="idx">
+                            <td>{{ param.name }}</td>
+                            <td>{{ param.in }}</td>
+                            <td>{{ param.type }}</td>
+                            <td>{{ param.required ? "Yes" : "No" }}</td>
+                            <td>
+                              <v-btn icon="mdi-close" size="small" variant="text" @click="removeParameter(idx)" />
+                            </td>
+                          </tr>
+                        </tbody>
+                      </v-table>
+                    </div>
                     <v-row>
                       <v-col cols="12" md="3">
                         <v-text-field v-model="paramInput.name" label="Name" variant="outlined" density="compact"
@@ -419,24 +421,26 @@ const exportMarkdown = () => {
 
                   <v-col cols="12">
                     <p class="text-subtitle-2 font-weight-bold mb-2">Responses</p>
-                    <v-table density="compact" class="mb-2" v-if="currentEndpoint.responses.length">
-                      <thead>
-                        <tr>
-                          <th>Status</th>
-                          <th>Description</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="(res, idx) in currentEndpoint.responses" :key="idx">
-                          <td>{{ res.status }}</td>
-                          <td>{{ res.description }}</td>
-                          <td>
-                            <v-btn icon="mdi-close" size="small" variant="text" @click="removeResponse(idx)" />
-                          </td>
-                        </tr>
-                      </tbody>
-                    </v-table>
+                    <div class="table-responsive mb-2" v-if="currentEndpoint.responses.length">
+                      <v-table density="compact">
+                        <thead>
+                          <tr>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(res, idx) in currentEndpoint.responses" :key="idx">
+                            <td>{{ res.status }}</td>
+                            <td>{{ res.description }}</td>
+                            <td>
+                              <v-btn icon="mdi-close" size="small" variant="text" @click="removeResponse(idx)" />
+                            </td>
+                          </tr>
+                        </tbody>
+                      </v-table>
+                    </div>
                     <v-row>
                       <v-col cols="12" md="3">
                         <v-text-field v-model="responseInput.status" label="Status Code" variant="outlined"
@@ -548,5 +552,11 @@ const exportMarkdown = () => {
   background: rgba(255, 255, 255, 0.05) !important;
   border-color: rgba(124, 14, 68, 0.25) !important;
   transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+  .tool-shell {
+    padding: 18px 14px !important;
+  }
 }
 </style>

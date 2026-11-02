@@ -657,10 +657,16 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 600px) {
+  .zoom-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
   .zoom-stage {
-    min-height: 100dvh;
-    max-height: 100dvh;
-    padding: 14px;
+    min-height: calc(100dvh - 90px);
+    max-height: calc(100dvh - 90px);
+    padding: 12px;
   }
 }
 </style>

@@ -28,16 +28,18 @@ const routes = [
         meta: { title: "LakshSolanki | Certificate Generator" },
       },
       {
+        path: "pdf-image-studio",
+        name: "PdfImageStudio",
+        component: () => import("@/pages/Projects/PdfImageStudio.vue"),
+        meta: { title: "LakshSolanki | PDF & Image Studio" },
+      },
+      {
         path: "img-pdf",
-        name: "ImageToPDF",
-        component: () => import("@/pages/Projects/ImgPdfPage.vue"),
-        meta: { title: "LakshSolanki | Img to PDF" },
+        redirect: "/projects/pdf-image-studio?mode=img-to-pdf",
       },
       {
         path: "pdf-img",
-        name: "PDFToImage",
-        component: () => import("@/pages/Projects/PdfImgPage.vue"),
-        meta: { title: "LakshSolanki | PDF to Img" },
+        redirect: "/projects/pdf-image-studio?mode=pdf-to-img",
       },
       {
         path: "text-to-speech",

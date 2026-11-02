@@ -37,25 +37,14 @@ const projects = ref([
   },
   {
     id: 2,
-    title: "Image to PDF Converter",
-    category: "Productivity Tool",
-    description:
-      "Batch image import, ordering, and conversion to downloadable PDFs with a clean browser-first UX.",
-    image: getMediaUrl("project_img/Project-2.png"),
-    icon: "mdi-file-pdf-box",
-    link: "/projects/img-pdf",
-    tags: ["Vue", "File Processing", "UX"],
-  },
-  {
-    id: 3,
-    title: "PDF to Image Converter",
+    title: "PDF & Image Studio",
     category: "Document Tooling",
     description:
-      "Extract and export high-quality page images from PDFs with performant rendering and easy downloads.",
-    image: getMediaUrl("Picture/Project-3.jpg"),
-    icon: "mdi-image-multiple-outline",
-    link: "/projects/pdf-img",
-    tags: ["PDF.js", "Performance", "Vue"],
+      "All-in-one document workspace: convert batches of images into formatted PDFs, or extract high-resolution pages from PDF documents.",
+    image: getMediaUrl("project_img/Project-2.svg"),
+    icon: "mdi-file-swap-outline",
+    link: "/projects/pdf-image-studio",
+    tags: ["Image to PDF", "PDF to Image", "PDF.js", "jsPDF"],
   },
   {
     id: 4,
@@ -74,7 +63,7 @@ const projects = ref([
     category: "AI Interface",
     description:
       "Prompt-driven chat interface with markdown rendering, code highlighting, and clipboard-ready snippets.",
-    image: getMediaUrl("project_img/Project-5.jpg"),
+    image: getMediaUrl("project_img/Project-5.svg"),
     icon: "mdi-robot-outline",
     link: "/projects/mindlytic_ai",
     tags: ["Gemini API", "Markdown"],
@@ -205,7 +194,7 @@ const currentProjectTitle = computed(() => {
 
         <!-- Search + Categories bar -->
         <div class="d-flex align-center justify-space-between mb-8 flex-wrap ga-4">
-          <div class="d-flex align-center flex-grow-1" style="max-width: 440px; min-width: 280px;">
+          <div class="d-flex align-center flex-grow-1 projects-search-wrap">
             <v-text-field
               v-model="searchQuery"
               density="comfortable"
@@ -220,7 +209,7 @@ const currentProjectTitle = computed(() => {
             />
           </div>
           <!-- Category Chips -->
-          <div class="d-flex flex-wrap ga-2">
+          <div class="d-flex flex-wrap ga-2 category-chips-row">
             <button
               v-for="cat in categories"
               :key="cat"
@@ -328,7 +317,7 @@ const currentProjectTitle = computed(() => {
           <div class="d-none d-md-flex align-center ga-2">
             <span class="text-caption text-medium-emphasis mr-1">Quick Switch:</span>
             <v-btn
-              v-for="quickProj in projects.filter(p => ['Image to PDF Converter', 'PDF to Image Converter', 'Certificate Generator'].includes(p.title))"
+              v-for="quickProj in projects.filter(p => ['PDF & Image Studio', 'Certificate Generator'].includes(p.title))"
               :key="quickProj.id"
               :to="quickProj.link"
               size="small"
@@ -420,6 +409,12 @@ const currentProjectTitle = computed(() => {
   box-shadow: 0 12px 30px rgba(124, 14, 68, 0.09) !important;
 }
 
+.projects-search-wrap {
+  width: 100%;
+  max-width: 440px;
+  min-width: 260px;
+}
+
 .project-media-wrap {
   overflow: hidden;
   background: var(--portfolio-surface-soft, #FAF3F0);
@@ -427,9 +422,9 @@ const currentProjectTitle = computed(() => {
 }
 
 .project-media {
+  width: 100%;
   aspect-ratio: 16 / 9;
-  min-height: 180px;
-  max-height: 210px;
+  object-fit: cover;
   transition: transform 0.35s ease;
 }
 
@@ -489,9 +484,22 @@ const currentProjectTitle = computed(() => {
     max-width: none;
   }
 
-  .project-media {
-    min-height: 160px;
-    max-height: 180px;
+  .projects-search-wrap {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .filter-chip {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+
+  .breadcrumb-bar {
+    padding: 10px 14px !important;
+  }
+
+  .breadcrumb-bar .v-divider {
+    display: none !important;
   }
 
   .project-card-body {

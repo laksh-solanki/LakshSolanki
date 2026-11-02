@@ -668,7 +668,7 @@ const premiumStackNodes = [
 ═══════════════════════════════════════════════ */
 .stack-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 16px;
 }
 
@@ -816,17 +816,18 @@ const premiumStackNodes = [
   background: linear-gradient(135deg, #7C0E44 0%, #AA5E7A 100%);
   border-radius: 20px;
   color: #FFFFFF;
+  padding: clamp(20px, 4vw, 44px);
   box-shadow: 0 8px 28px rgba(124, 14, 68, 0.2);
 }
 
 .cta-banner-title {
-  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+  font-size: clamp(1.35rem, 2.2vw, 1.85rem);
   font-weight: 800;
   color: #FFFFFF;
 }
 
 .cta-banner-sub {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.88);
   font-size: 0.95rem;
 }
 
@@ -888,13 +889,13 @@ const premiumStackNodes = [
   }
 
   .hero-photo-stage {
-    width: clamp(280px, 88vw, 360px);
+    width: min(340px, 100%);
     border-radius: 24px;
   }
 
   .hero-photo-ring {
-    inset: -10px;
-    border-radius: 30px;
+    inset: -8px;
+    border-radius: 28px;
   }
 
   .hero-photo {
@@ -903,6 +904,47 @@ const premiumStackNodes = [
 
   .stack-grid {
     grid-template-columns: 1fr;
+  }
+
+  .collab-panel {
+    padding: 18px 14px;
+  }
+
+  .collab-step-item {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-cta-row {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .hero-btn-primary,
+  .hero-btn-outline {
+    width: 100% !important;
+    justify-content: center;
+  }
+
+  .hero-pill-item {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
+  .cta-banner {
+    padding: 20px 16px;
+  }
+
+  .cta-banner .d-flex {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .cta-banner-btn-primary,
+  .cta-banner-btn-outline {
+    width: 100% !important;
+    justify-content: center;
   }
 }
 </style>
