@@ -25,30 +25,29 @@ onMounted(() => {
   isGlobalLoading.value = loaderRef.value;
 });
 </script>
+
 <style>
 /* Consistent scrollbar styling across portfolio pages */
 ::-webkit-scrollbar {
-  width: 7px;
+  width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
-  scroll-behavior: smooth !important;
+  background: var(--portfolio-surface-soft, #FAF3F0);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #0f8f7c;
+  background: var(--portfolio-secondary, #AA5E7A);
   border-radius: 100px;
-  scroll-behavior: smooth !important;
+  border: 2px solid var(--portfolio-surface-soft, #FAF3F0);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #39bca3;
-  cursor: pointer;
+  background: var(--portfolio-primary, #7C0E44);
 }
 
-/* Unified minimal background for all project tool pages */
+/* Unified clean background for all project tool pages */
 .ai-page,
 .tool-page,
 .hub-page,
@@ -56,7 +55,7 @@ onMounted(() => {
 .lab-page,
 .certificate-page,
 .mindlytic-page {
-  background: rgb(var(--v-theme-background)) !important;
+  background: var(--portfolio-bg, #F2DACE) !important;
 }
 
 .ai-page .hero-shell,
@@ -66,36 +65,27 @@ onMounted(() => {
 .lab-page .hero-shell,
 .certificate-page .hero-shell,
 .mindlytic-page .hero-shell {
-  background: transparent !important;
-  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
+  background: var(--portfolio-surface-soft, #FAF3F0) !important;
+  border-bottom: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.12)) !important;
 }
 
-/* Use fluid project containers with lower side margins */
-.ai-page>.v-container,
-.ai-page .hero-shell>.v-container,
-.tool-page>.v-container,
-.tool-page .hero-shell>.v-container,
-.hub-page>.v-container,
-.hub-page .hero-shell>.v-container,
-.forge-page>.v-container,
-.forge-page .hero-shell>.v-container,
-.lab-page>.v-container,
-.lab-page .hero-shell>.v-container,
-.certificate-page>.v-container,
-.certificate-page .hero-shell>.v-container {
+/* Fluid project containers */
+.ai-page > .v-container,
+.ai-page .hero-shell > .v-container,
+.tool-page > .v-container,
+.tool-page .hero-shell > .v-container,
+.hub-page > .v-container,
+.hub-page .hero-shell > .v-container,
+.forge-page > .v-container,
+.forge-page .hero-shell > .v-container,
+.lab-page > .v-container,
+.lab-page .hero-shell > .v-container,
+.certificate-page > .v-container,
+.certificate-page .hero-shell > .v-container {
   max-width: none !important;
   width: 100% !important;
-  padding-left: clamp(10px, 1.6vw, 22px) !important;
-  padding-right: clamp(10px, 1.6vw, 22px) !important;
-}
-
-/* Match project main containers with AI chat main container background */
-.tool-page>.v-container,
-.hub-page>.v-container,
-.forge-page>.v-container,
-.lab-page>.v-container,
-.certificate-page>.v-container {
-  background: rgb(var(--v-theme-background)) !important;
+  padding-left: clamp(14px, 2vw, 28px) !important;
+  padding-right: clamp(14px, 2vw, 28px) !important;
 }
 
 .tool-page .tool-shell,
@@ -109,13 +99,13 @@ onMounted(() => {
 .lab-page .side-panel,
 .certificate-page .form-shell,
 .certificate-page .side-panel {
-  background: rgb(var(--v-theme-surface)) !important;
-  border-color: rgba(var(--v-theme-on-surface), 0.14) !important;
+  background: var(--portfolio-surface, #FFFFFF) !important;
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.12)) !important;
+  box-shadow: var(--portfolio-shadow, 0 8px 24px rgba(124, 14, 68, 0.06)) !important;
 }
 
-/* Hide project hero stats cards on mobile screens */
+/* Responsive adjustment for stats cards */
 @media (max-width: 768px) {
-
   .ai-page .hero-stats,
   .tool-page .hero-stats,
   .hub-page .hero-stats,

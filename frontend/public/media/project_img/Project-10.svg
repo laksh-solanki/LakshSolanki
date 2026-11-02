@@ -1,74 +1,78 @@
 <svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="scene" x1="64" y1="36" x2="1138" y2="666" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#102B25" />
-      <stop offset="1" stop-color="#0A1A17" />
+    <linearGradient id="p10-bg" x1="0" y1="0" x2="1200" y2="700" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FAF3F0" />
+      <stop offset="0.65" stop-color="#F5E4DC" />
+      <stop offset="1" stop-color="#EED3C5" />
     </linearGradient>
-    <linearGradient id="shell" x1="210" y1="124" x2="992" y2="592" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#133A33" />
-      <stop offset="1" stop-color="#0F2C27" />
+    <radialGradient id="p10-glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 120) scale(340 340)">
+      <stop stop-color="#D49A9A" stop-opacity="0.32" />
+      <stop offset="1" stop-color="#D49A9A" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="p10-glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(120 620) scale(300 240)">
+      <stop stop-color="#AA5E7A" stop-opacity="0.22" />
+      <stop offset="1" stop-color="#AA5E7A" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="p10-portrait" x1="0" y1="0" x2="0" y2="100%">
+      <stop stop-color="#7C0E44" />
+      <stop offset="1" stop-color="#52072D" />
     </linearGradient>
-    <linearGradient id="topbar" x1="245" y1="166" x2="952" y2="166" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#4CCFB7" />
-      <stop offset="1" stop-color="#2CA792" />
-    </linearGradient>
-    <linearGradient id="subject" x1="400" y1="286" x2="456" y2="428" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFCAA0" />
-      <stop offset="1" stop-color="#F2A66E" />
-    </linearGradient>
-    <linearGradient id="shirt" x1="370" y1="352" x2="478" y2="476" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#5BC9FF" />
-      <stop offset="1" stop-color="#2F86C9" />
-    </linearGradient>
-    <pattern id="checker" width="28" height="28" patternUnits="userSpaceOnUse">
-      <rect width="28" height="28" fill="#EEF2F5" />
-      <rect width="14" height="14" fill="#DEE5EA" />
-      <rect x="14" y="14" width="14" height="14" fill="#DEE5EA" />
-    </pattern>
-    <filter id="glow" x="0" y="0" width="1200" height="700" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feGaussianBlur stdDeviation="16" />
+    <filter id="p10-shadow" x="70" y="46" width="1060" height="608" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="30" flood-color="#7C0E44" flood-opacity="0.08" />
     </filter>
   </defs>
 
-  <rect width="1200" height="700" rx="28" fill="url(#scene)" />
-  <ellipse cx="600" cy="612" rx="368" ry="58" fill="#3AC9A933" filter="url(#glow)" />
+  <!-- Background Canvas -->
+  <rect width="1200" height="700" fill="url(#p10-bg)" />
+  <circle cx="1080" cy="120" r="280" fill="url(#p10-glowA)" />
+  <circle cx="120" cy="620" r="240" fill="url(#p10-glowB)" />
 
-  <rect x="210" y="122" width="780" height="456" rx="26" fill="url(#shell)" stroke="#1F6155" stroke-width="2" />
-  <rect x="245" y="154" width="710" height="58" rx="16" fill="url(#topbar)" fill-opacity="0.16" stroke="#65E0CB66" />
+  <!-- Main Container -->
+  <g filter="url(#p10-shadow)">
+    <rect x="110" y="70" width="980" height="560" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
+  </g>
 
-  <circle cx="276" cy="183" r="8" fill="#62DAC5" />
-  <circle cx="303" cy="183" r="8" fill="#4FC8B1" />
-  <circle cx="330" cy="183" r="8" fill="#3AB29D" />
+  <!-- Header -->
+  <text x="150" y="132" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="30" font-weight="800" letter-spacing="-0.02em">PASSPORT PHOTO CUTTER</text>
+  <text x="150" y="164" fill="#4E3842" font-family="'Manrope', -apple-system, sans-serif" font-size="16" font-weight="500">Auto background removal, standard 35 × 45 mm canvas fitting &amp; print border guides.</text>
 
-  <text x="360" y="192" fill="#BDF8EC" font-size="30" font-family="Segoe UI, Arial, sans-serif" font-weight="700">
-    Background Remover
-  </text>
+  <!-- Workflow Stage -->
+  <rect x="150" y="196" width="900" height="392" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
 
-  <rect x="246" y="246" width="314" height="278" rx="18" fill="#12322C" stroke="#2A6E61" />
-  <rect x="642" y="246" width="314" height="278" rx="18" fill="url(#checker)" stroke="#2A6E61" />
+  <!-- Step 1: Upload Card -->
+  <rect x="190" y="236" width="290" height="312" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" stroke-width="1.5" />
+  <text x="216" y="272" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700">1. RAW UPLOAD</text>
 
-  <text x="273" y="278" fill="#8BDCCB" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="600">Original</text>
-  <text x="669" y="278" fill="#1D6A5D" font-size="18" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Removed BG</text>
+  <!-- Silhouette in raw frame -->
+  <circle cx="335" cy="350" r="44" fill="#D49A9A" />
+  <path d="M260 480C260 430 294 400 335 400C376 400 410 430 410 480H260Z" fill="#AA5E7A" />
 
-  <rect x="278" y="298" width="250" height="194" rx="16" fill="#204D44" />
-  <circle cx="403" cy="390" r="88" fill="#6AC6A133" />
-  <circle cx="403" cy="349" r="34" fill="url(#subject)" />
-  <path d="M350 472C350 426 373 394 404 394C435 394 458 426 458 472V492H350V472Z" fill="url(#shirt)" />
-  <rect x="336" y="298" width="32" height="32" rx="8" fill="#FFFFFF22" />
-  <path d="M344 314L352 322L360 306" stroke="#B6F1E4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- Crop overlay guidelines -->
+  <rect x="235" y="295" width="200" height="230" fill="none" stroke="#7C0E44" stroke-width="2" stroke-dasharray="6 6" rx="10" />
 
-  <rect x="674" y="298" width="250" height="194" rx="16" fill="#FFFFFFAA" />
-  <circle cx="799" cy="349" r="34" fill="url(#subject)" />
-  <path d="M746 472C746 426 769 394 800 394C831 394 854 426 854 472V492H746V472Z" fill="url(#shirt)" />
-  <circle cx="701" cy="313" r="10" fill="#52CBB6" />
-  <path d="M694 313H708M701 306V320" stroke="#EFFFFA" stroke-width="2.5" stroke-linecap="round" />
+  <!-- Transition Arrow Badge -->
+  <circle cx="530" cy="392" r="34" fill="#7C0E44" />
+  <path d="M518 392H542M536 384L544 392L536 400" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
 
-  <circle cx="600" cy="384" r="48" fill="#15574B" stroke="#4CCFB7" stroke-width="2" />
-  <path d="M577 390L595 372L607 384L626 365" stroke="#A5F5E4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
-  <path d="M574 418H626" stroke="#66DCC6" stroke-width="4" stroke-linecap="round" />
+  <!-- Step 2: Formatted Passport Output -->
+  <rect x="580" y="236" width="430" height="312" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" stroke-width="1.5" />
+  <text x="606" y="272" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700">2. EXPORT READY (35 × 45 mm)</text>
 
-  <rect x="252" y="540" width="212" height="24" rx="12" fill="#183F38" />
-  <rect x="474" y="540" width="116" height="24" rx="12" fill="#20584D" />
-  <rect x="602" y="540" width="154" height="24" rx="12" fill="#1D5146" />
-  <rect x="766" y="540" width="180" height="24" rx="12" fill="#173E37" />
+  <!-- Passport Card Preview -->
+  <rect x="606" y="295" width="180" height="230" rx="8" fill="#FAF3F0" stroke="#7C0E44" stroke-width="2" />
+  <circle cx="696" cy="360" r="38" fill="#AA5E7A" />
+  <path d="M632 485C632 440 660 412 696 412C732 412 760 440 760 485H632Z" fill="url(#p10-portrait)" />
+
+  <!-- Spec details on right side of card -->
+  <rect x="814" y="295" width="170" height="36" rx="10" fill="#FAF3F0" />
+  <text x="828" y="318" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">35 mm × 45 mm</text>
+
+  <rect x="814" y="343" width="170" height="36" rx="10" fill="#FAF3F0" />
+  <text x="828" y="366" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">White Background</text>
+
+  <rect x="814" y="391" width="170" height="36" rx="10" fill="#FAF3F0" />
+  <text x="828" y="414" fill="#7E636E" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">300 DPI Print Spec</text>
+
+  <rect x="814" y="465" width="170" height="48" rx="14" fill="#7C0E44" />
+  <text x="842" y="495" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700">DOWNLOAD</text>
 </svg>

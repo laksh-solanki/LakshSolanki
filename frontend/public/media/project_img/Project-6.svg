@@ -1,43 +1,100 @@
 <svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0B302A"/>
-      <stop offset="0.55" stop-color="#126B5F"/>
-      <stop offset="1" stop-color="#31A08E"/>
+    <linearGradient id="p6-bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FAF3F0" />
+      <stop offset="0.65" stop-color="#F5E4DC" />
+      <stop offset="1" stop-color="#EED3C5" />
     </linearGradient>
-    <linearGradient id="card" x1="170" y1="100" x2="1030" y2="575" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0F1B2B" stop-opacity="0.95"/>
-      <stop offset="1" stop-color="#112838" stop-opacity="0.95"/>
-    </linearGradient>
+    <radialGradient id="p6-glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 120) scale(320 320)">
+      <stop stop-color="#D49A9A" stop-opacity="0.3" />
+      <stop offset="1" stop-color="#D49A9A" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="p6-glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(120 620) scale(300 240)">
+      <stop stop-color="#AA5E7A" stop-opacity="0.22" />
+      <stop offset="1" stop-color="#AA5E7A" stop-opacity="0" />
+    </radialGradient>
+    <filter id="p6-shadow" x="70" y="46" width="1060" height="585" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="30" flood-color="#7C0E44" flood-opacity="0.08" />
+    </filter>
   </defs>
 
-  <rect width="1200" height="675" fill="url(#bg)"/>
-  <circle cx="1060" cy="115" r="190" fill="#FFD09B" fill-opacity="0.2"/>
-  <circle cx="95" cy="620" r="170" fill="#8CE7D7" fill-opacity="0.2"/>
+  <!-- Background -->
+  <rect width="1200" height="675" fill="url(#p6-bg)" />
+  <circle cx="1080" cy="120" r="260" fill="url(#p6-glowA)" />
+  <circle cx="120" cy="620" r="240" fill="url(#p6-glowB)" />
 
-  <rect x="130" y="88" width="940" height="500" rx="24" fill="url(#card)" stroke="#52D0B8" stroke-opacity="0.35"/>
-  <rect x="170" y="145" width="420" height="360" rx="16" fill="#0A1522" stroke="#2BC5AA" stroke-opacity="0.35"/>
-  <rect x="620" y="145" width="410" height="150" rx="16" fill="#0A1522" stroke="#2BC5AA" stroke-opacity="0.35"/>
-  <rect x="620" y="325" width="410" height="180" rx="16" fill="#0A1522" stroke="#2BC5AA" stroke-opacity="0.35"/>
+  <!-- Main Studio Card -->
+  <g filter="url(#p6-shadow)">
+    <rect x="110" y="76" width="980" height="522" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
+  </g>
 
-  <text x="185" y="182" fill="#8EF0DC" font-size="22" font-family="Consolas, monospace">{</text>
-  <text x="210" y="214" fill="#F9A1A9" font-size="20" font-family="Consolas, monospace">"project"</text>
-  <text x="320" y="214" fill="#B8D8FF" font-size="20" font-family="Consolas, monospace">: "Mindlytic"</text>
-  <text x="210" y="246" fill="#F9A1A9" font-size="20" font-family="Consolas, monospace">"features"</text>
-  <text x="332" y="246" fill="#B8D8FF" font-size="20" font-family="Consolas, monospace">: ["diff", "format"]</text>
-  <text x="210" y="278" fill="#F9A1A9" font-size="20" font-family="Consolas, monospace">"status"</text>
-  <text x="308" y="278" fill="#B8D8FF" font-size="20" font-family="Consolas, monospace">: "premium"</text>
-  <text x="185" y="312" fill="#8EF0DC" font-size="22" font-family="Consolas, monospace">}</text>
+  <!-- Left: Code Studio Window -->
+  <rect x="150" y="118" width="430" height="438" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+  
+  <!-- Window Header Dots -->
+  <circle cx="180" cy="144" r="6" fill="#7C0E44" />
+  <circle cx="198" cy="144" r="6" fill="#AA5E7A" />
+  <circle cx="216" cy="144" r="6" fill="#D49A9A" />
+  <line x1="150" y1="166" x2="580" y2="166" stroke="rgba(124, 14, 68, 0.08)" stroke-width="1" />
 
-  <text x="650" y="190" fill="#FFD49A" font-size="24" font-family="Verdana, sans-serif" font-weight="700">JSON FORGE STUDIO</text>
-  <text x="650" y="228" fill="#A2E8DA" font-size="17" font-family="Verdana, sans-serif">Validate  Format  Minify  Compare  Export</text>
+  <!-- Formatted JSON Code -->
+  <text x="180" y="210" fill="#7C0E44" font-size="22" font-family="'JetBrains Mono', Consolas, monospace" font-weight="700">{</text>
+  <text x="206" y="246" fill="#7C0E44" font-size="18" font-family="'JetBrains Mono', Consolas, monospace" font-weight="600">"service"</text>
+  <text x="312" y="246" fill="#231219" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">: </text>
+  <text x="334" y="246" fill="#AA5E7A" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">"JSON Forge"</text>
+  <text x="460" y="246" fill="#7C0E44" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">,</text>
 
-  <rect x="650" y="354" width="122" height="48" rx="12" fill="#1B8F7D"/>
-  <text x="663" y="386" fill="#ECFFF9" font-size="17" font-family="Verdana, sans-serif" font-weight="700">VALIDATE</text>
+  <text x="206" y="284" fill="#7C0E44" font-size="18" font-family="'JetBrains Mono', Consolas, monospace" font-weight="600">"schema"</text>
+  <text x="296" y="284" fill="#231219" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">: </text>
+  <text x="318" y="284" fill="#AA5E7A" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">"OpenAPI 3.1"</text>
+  <text x="450" y="284" fill="#7C0E44" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">,</text>
 
-  <rect x="786" y="354" width="112" height="48" rx="12" fill="#2A5BB8"/>
-  <text x="803" y="386" fill="#ECF3FF" font-size="17" font-family="Verdana, sans-serif" font-weight="700">FORMAT</text>
+  <text x="206" y="322" fill="#7C0E44" font-size="18" font-family="'JetBrains Mono', Consolas, monospace" font-weight="600">"features"</text>
+  <text x="312" y="322" fill="#231219" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">: [</text>
+  <text x="230" y="354" fill="#AA5E7A" font-size="17" font-family="'JetBrains Mono', Consolas, monospace">"validate"</text>
+  <text x="330" y="354" fill="#7C0E44" font-size="17" font-family="'JetBrains Mono', Consolas, monospace">, </text>
+  <text x="348" y="354" fill="#AA5E7A" font-size="17" font-family="'JetBrains Mono', Consolas, monospace">"diff"</text>
+  <text x="408" y="354" fill="#7C0E44" font-size="17" font-family="'JetBrains Mono', Consolas, monospace">, </text>
+  <text x="426" y="354" fill="#AA5E7A" font-size="17" font-family="'JetBrains Mono', Consolas, monospace">"minify"</text>
+  <text x="206" y="386" fill="#231219" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">],</text>
 
-  <rect x="912" y="354" width="96" height="48" rx="12" fill="#A64545"/>
-  <text x="937" y="386" fill="#FFF0F0" font-size="17" font-family="Verdana, sans-serif" font-weight="700">DIFF</text>
+  <text x="206" y="424" fill="#7C0E44" font-size="18" font-family="'JetBrains Mono', Consolas, monospace" font-weight="600">"verified"</text>
+  <text x="312" y="424" fill="#231219" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">: </text>
+  <text x="334" y="424" fill="#7C0E44" font-size="18" font-family="'JetBrains Mono', Consolas, monospace" font-weight="700">true</text>
+
+  <text x="180" y="462" fill="#7C0E44" font-size="22" font-family="'JetBrains Mono', Consolas, monospace" font-weight="700">}</text>
+
+  <!-- Right Top: Overview Panel -->
+  <rect x="606" y="118" width="444" height="210" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+  <text x="638" y="168" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="28" font-weight="800" letter-spacing="-0.02em">JSON FORGE STUDIO</text>
+  <text x="638" y="204" fill="#4E3842" font-family="'Manrope', -apple-system, sans-serif" font-size="16" font-weight="500">Validation, syntax formatting, minify &amp; schema diffing.</text>
+  <text x="638" y="230" fill="#7E636E" font-family="'Manrope', -apple-system, sans-serif" font-size="15">Engineered for clean, zero-defect API payloads.</text>
+
+  <!-- Tags -->
+  <rect x="638" y="262" width="108" height="32" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
+  <text x="657" y="283" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">VALIDATOR</text>
+
+  <rect x="758" y="262" width="96" height="32" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
+  <text x="781" y="283" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">FORMAT</text>
+
+  <rect x="866" y="262" width="112" height="32" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
+  <text x="888" y="283" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">DEEP DIFF</text>
+
+  <!-- Right Bottom: Action Panel -->
+  <rect x="606" y="346" width="444" height="210" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+
+  <text x="638" y="394" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="16" font-weight="700">Engine Tools</text>
+
+  <!-- Action Buttons -->
+  <rect x="638" y="420" width="124" height="48" rx="14" fill="#7C0E44" />
+  <text x="662" y="450" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700" letter-spacing="0.04em">VALIDATE</text>
+
+  <rect x="774" y="420" width="124" height="48" rx="14" fill="#AA5E7A" />
+  <text x="803" y="450" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700" letter-spacing="0.04em">FORMAT</text>
+
+  <rect x="910" y="420" width="108" height="48" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.2)" stroke-width="1.5" />
+  <text x="946" y="450" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700" letter-spacing="0.04em">DIFF</text>
+
+  <!-- Bottom Metric -->
+  <text x="638" y="520" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="14">Output: 100% compliant JSON • Zero parser warnings</text>
 </svg>

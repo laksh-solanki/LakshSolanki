@@ -4,55 +4,47 @@
 
     <!-- ───────── HERO ───────── -->
     <section class="ap-hero">
-      <div class="ap-hero__mesh" aria-hidden="true">
-        <div class="mesh-orb mesh-orb--1"></div>
-        <div class="mesh-orb mesh-orb--2"></div>
-        <div class="mesh-orb mesh-orb--3"></div>
-        <div class="cyber-grid-container" style="opacity: 0.12;"><div class="cyber-grid-3d"></div></div>
-      </div>
-
       <div class="ap-container ap-hero__inner">
         <div class="ap-hero__text">
-          <v-chip class="ap-kicker ai-0 " variant="flat" color="primary">About Mindlytic</v-chip>
-          <h1 class="ap-hero__headline ai-1">
+          <v-chip class="ap-kicker mb-4" variant="tonal" color="primary">About Mindlytic</v-chip>
+          <h1 class="ap-hero__headline mb-4">
             Crafting<br />
             <em class="ap-hero__accent">developer-first</em><br />
             digital products.
           </h1>
-          <p class="ap-hero__sub ai-2">
+          <p class="ap-hero__sub mb-6">
             I build fast, maintainable web experiences where design quality
             and engineering quality move together — from idea to a polished,
             reliable launch.
           </p>
-          <div class="ap-hero__actions ai-3">
-            <v-btn class="ap-btn" size="large" color="primary" rounded="xl" variant="flat" @click="scrollToSubscribe"
-              text="Let's Collaborate" />
-            <v-btn to="/projects" size="large" color="primary" rounded="xl" variant="tonal" class="ap-btn"
-              text="View Projects" />
+          <div class="ap-hero__actions d-flex flex-wrap ga-3">
+            <v-btn class="ap-btn text-none font-weight-bold px-7" size="large" color="primary" rounded="xl" variant="flat"
+              elevation="0" @click="copyEmail" text="Let's Collaborate" />
+            <v-btn to="/projects" size="large" color="primary" rounded="xl" variant="outlined" class="ap-btn text-none font-weight-bold px-7"
+              elevation="0" text="View Projects" />
           </div>
         </div>
 
         <!-- Bento stat grid -->
-        <div class="ap-hero__bento ai-4">
-          <article v-for="(s, i) in stats" :key="s.label" v-3d-tilt class="ap-bento-card" :class="`ap-bento-card--${i}`">
-            <div class="ap-bento-card__accent"></div>
+        <div class="ap-hero__bento">
+          <article v-for="(s, i) in stats" :key="s.label" class="ap-bento-card" :class="`ap-bento-card--${i}`">
             <p class="ap-bento-card__value">{{ s.value }}</p>
             <p class="ap-bento-card__label">{{ s.label }}</p>
           </article>
 
           <!-- Profile mini-card inside bento -->
-          <div v-3d-tilt class="ap-bento-profile">
-            <PhotoZoomDialog :src="myPhoto" alt="Laksh Solanki" :size="52" avatar-class="ap-bento-avatar" />
+          <div class="ap-bento-profile">
+            <PhotoZoomDialog :src="myPhoto" alt="Laksh Solanki" :size="50" avatar-class="ap-bento-avatar" />
             <div>
               <p class="ap-bento-profile__name">Laksh Solanki</p>
               <p class="ap-bento-profile__role">Founder, Mindlytic</p>
             </div>
             <span class="ap-bento-badge">
-              <v-chip size="small" color="success" text="Open to work"></v-chip>
+              <v-chip size="small" color="primary" variant="tonal" text="Open to work" class="font-weight-bold"></v-chip>
             </span>
           </div>
 
-          <v-img v-3d-tilt :src="aboutPhoto1" cover class="ap-bento-img" />
+          <v-img :src="aboutPhoto1" cover class="ap-bento-img" alt="Creative workstation visual" />
         </div>
       </div>
     </section>
@@ -60,11 +52,9 @@
     <!-- ───────── PROFILE + CARDS ───────── -->
     <section class="ap-section animate-fade-in-up">
       <div class="ap-container ap-profile-layout">
-
         <!-- Sticky profile sidebar -->
         <aside class="ap-profile-sidebar">
-          <div v-3d-tilt class="ap-profile-card ai-5">
-            <div class="ap-profile-card__glow"></div>
+          <div class="ap-profile-card">
             <PhotoZoomDialog :src="myPhoto" alt="Laksh Solanki" :size="96" avatar-class="ap-profile-avatar" />
             <h2 class="ap-profile-card__name">Laksh Solanki</h2>
             <p class="ap-profile-card__title">Senior Full-Stack Engineer</p>
@@ -74,10 +64,10 @@
               <div class="ap-info-row"><span class="ap-info-label">Based in</span><strong>India 🇮🇳</strong></div>
             </div>
             <div class="ap-profile-card__actions">
-              <v-btn class="ap-btn ap-btn--block" href="mailto:lakshsolanki848@gmail.com" size="large" rounded="xl"
-                variant="flat" text="Contact me" color="primary" />
-              <v-btn class="ap-btn ap-btn--block" @click="copyEmail" size="large" rounded="xl" variant="outlined"
-                text="Copy Email" color="primary" />
+              <v-btn class="ap-btn text-none font-weight-bold" href="mailto:lakshsolanki848@gmail.com" size="large" rounded="xl"
+                variant="flat" text="Contact me" color="primary" block elevation="0" />
+              <v-btn class="ap-btn text-none font-weight-bold" @click="copyEmail" size="large" rounded="xl" variant="outlined"
+                text="Copy Email" color="primary" block elevation="0" />
             </div>
             <div class="ap-profile-card__socials">
               <v-btn icon="mdi-github" href="https://github.com/laksh-solanki" target="_blank" variant="outlined"
@@ -92,9 +82,8 @@
 
         <!-- Main content column -->
         <div class="ap-main-col">
-
           <!-- Intro card -->
-          <div v-3d-tilt class="ap-card ai-6">
+          <div class="ap-card">
             <p class="ap-card__overline">Developer Profile</p>
             <h3 class="ap-card__headline">I build products that stay maintainable as they scale.</h3>
             <p class="ap-card__body">
@@ -104,10 +93,10 @@
           </div>
 
           <!-- Career highlights bento -->
-          <div v-3d-tilt class="ap-card ai-7">
+          <div class="ap-card">
             <p class="ap-card__overline">Career Highlights</p>
             <div class="ap-highlights-grid">
-              <div v-for="h in highlights" :key="h.title" v-3d-tilt class="ap-highlight-cell">
+              <div v-for="h in highlights" :key="h.title" class="ap-highlight-cell">
                 <p class="ap-highlight-cell__value">{{ h.value }}</p>
                 <p class="ap-highlight-cell__title">{{ h.title }}</p>
                 <p class="ap-highlight-cell__caption">{{ h.caption }}</p>
@@ -116,7 +105,7 @@
           </div>
 
           <!-- Experience timeline -->
-          <div v-3d-tilt class="ap-card ai-8">
+          <div class="ap-card">
             <p class="ap-card__overline">Experience Timeline</p>
             <div class="ap-timeline">
               <div v-for="(job, i) in experiences" :key="job.role" class="ap-timeline__item">
@@ -124,7 +113,7 @@
                   <span class="ap-timeline__period">{{ job.period }}</span>
                 </div>
                 <div class="ap-timeline__connector">
-                  <div class="ap-timeline__dot" :class="`ap-timeline__dot--${i}`"></div>
+                  <div class="ap-timeline__dot"></div>
                   <div v-if="i < experiences.length - 1" class="ap-timeline__line"></div>
                 </div>
                 <div class="ap-timeline__body">
@@ -137,51 +126,47 @@
           </div>
 
           <!-- Skills -->
-          <div v-3d-tilt class="ap-card ai-9">
+          <div class="ap-card">
             <p class="ap-card__overline">Stack &amp; Expertise</p>
             <v-row class="ga-0" no-gutters>
               <v-col cols="12" md="7" class="pr-md-4">
                 <div class="ap-skills-grid">
-                  <div 
-                    v-for="(group, idx) in skillGroups" 
-                    :key="group.title" 
-                    class="ap-skill-group p-2 rounded-lg cursor-pointer"
-                    :style="activeSkillGroupIndex === idx ? 'background: rgba(15, 143, 124, 0.06); border: 1px solid rgba(15, 143, 124, 0.25);' : 'border: 1px solid transparent;'"
+                  <div
+                    v-for="(group, idx) in skillGroups"
+                    :key="group.title"
+                    class="ap-skill-group p-3 rounded-lg cursor-pointer mb-2"
+                    :class="{ 'is-active-skill': activeSkillGroupIndex === idx }"
                     @click="activeSkillGroupIndex = idx"
                   >
-                    <p class="ap-skill-group__title mb-2 d-flex align-center justify-space-between" style="font-size: 0.82rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ap-ink-soft);">
+                    <p class="ap-skill-group__title mb-2 d-flex align-center justify-space-between">
                       {{ group.title }}
                       <v-icon v-if="activeSkillGroupIndex === idx" size="10" color="primary">mdi-circle</v-icon>
                     </p>
-                    <div class="ap-chips">
+                    <div class="ap-chips d-flex flex-wrap ga-2">
                       <span v-for="skill in group.skills" :key="skill" class="ap-chip">{{ skill }}</span>
                     </div>
                   </div>
                 </div>
               </v-col>
               <v-col cols="12" md="5" class="mt-4 mt-md-0 pl-md-4 border-s-md" style="border-color: var(--ap-border) !important;">
-                <v-card class="section-shell rounded-xl p-5 h-100 d-flex flex-column justify-center position-relative overflow-hidden" flat style="background: rgba(255, 255, 255, 0.02) !important; border-color: rgba(15, 143, 124, 0.15) !important; min-height: 180px;">
-                  <div class="cyber-grid-container" style="opacity: 0.04;"><div class="cyber-grid-3d"></div></div>
-                  <div style="position: relative; z-index: 1;">
-                    <div class="d-flex align-center mb-3">
-                      <v-avatar color="primary" size="32" variant="tonal" class="mr-3">
-                        <v-icon size="18">{{ getSkillGroupIcon(activeSkillGroupIndex) }}</v-icon>
-                      </v-avatar>
-                      <h4 class="text-subtitle-1 font-weight-bold" style="color: var(--ap-ink);">{{ skillGroups[activeSkillGroupIndex].title }} Insights</h4>
-                    </div>
-                    <p class="mb-4 text-medium-emphasis text-body-2" style="line-height: 1.6;">
-                      {{ skillSummaries[activeSkillGroupIndex] }}
-                    </p>
-                    <div class="d-flex align-center justify-space-between text-caption border-t pt-3" style="border-color: rgba(255, 255, 255, 0.06) !important;">
-                      <span class="text-medium-emphasis">Expertise:</span>
-                      <span class="text-primary font-weight-bold">Production Ready</span>
-                    </div>
+                <v-card class="section-shell rounded-xl p-5 h-100 d-flex flex-column justify-center" flat>
+                  <div class="d-flex align-center mb-3">
+                    <v-avatar color="primary" size="32" variant="tonal" class="mr-3">
+                      <v-icon size="18">{{ getSkillGroupIcon(activeSkillGroupIndex) }}</v-icon>
+                    </v-avatar>
+                    <h4 class="text-subtitle-1 font-weight-bold" style="color: var(--ap-ink);">{{ skillGroups[activeSkillGroupIndex].title }} Insights</h4>
+                  </div>
+                  <p class="mb-4 text-body-2" style="color: var(--ap-muted); line-height: 1.6;">
+                    {{ skillSummaries[activeSkillGroupIndex] }}
+                  </p>
+                  <div class="d-flex align-center justify-space-between text-caption border-t pt-3" style="border-color: rgba(124, 14, 68, 0.08) !important;">
+                    <span style="color: var(--ap-muted);">Status:</span>
+                    <span class="text-primary font-weight-bold">Production Ready</span>
                   </div>
                 </v-card>
               </v-col>
             </v-row>
           </div>
-
         </div>
       </div>
     </section>
@@ -189,24 +174,24 @@
     <!-- ───────── MISSION ───────── -->
     <section class="ap-section">
       <div class="ap-container">
-        <div class="ap-mission-card ai-10">
+        <div class="ap-mission-card">
           <div class="ap-mission-card__img-col">
-            <v-img :src="aboutPhoto2" cover class="ap-mission-img" />
+            <v-img :src="aboutPhoto2" cover class="ap-mission-img" alt="Mission workspace" />
             <div class="ap-mission-card__img-badge">
-              <v-icon icon="mdi-rocket-launch" size="18" />
-              Launched 15+ products
+              <v-icon icon="mdi-rocket-launch-outline" size="18" class="mr-1" />
+              15+ Products Launched
             </div>
           </div>
           <div class="ap-mission-card__text-col">
             <p class="ap-kicker">Mission</p>
-            <h2 class="ap-section-headline">Build products that users trust and teams can scale</h2>
-            <p class="ap-muted-copy">
+            <h2 class="ap-section-headline mb-3">Build products that users trust and teams can scale</h2>
+            <p class="ap-muted-copy mb-6">
               Mindlytic focuses on practical engineering decisions that support long-term product growth.
-              Interfaces intuitive, codebases maintainable, features delivered with consistency.
+              Intuitive interfaces, maintainable codebases, and features delivered with reliable consistency.
             </p>
             <ul class="ap-check-list">
               <li v-for="point in missionPoints" :key="point" class="ap-check-list__item">
-                <v-icon icon="mdi-check-circle" class="ap-check-list__icon" />
+                <v-icon icon="mdi-check-circle-outline" class="ap-check-list__icon mr-2" color="primary" />
                 <span>{{ point }}</span>
               </li>
             </ul>
@@ -218,18 +203,18 @@
     <!-- ───────── PROCESS ───────── -->
     <section class="ap-section ap-section--last animate-fade-in-up">
       <div class="ap-container">
-        <div class="ap-process-wrap ai-12 overflow-hidden">
+        <div class="ap-process-wrap p-6 p-md-8">
           <v-row class="ga-0 align-center">
             <v-col cols="12" md="6" class="pr-md-8 mb-6 mb-md-0">
               <p class="ap-kicker">Workflow</p>
               <h2 class="ap-section-headline mb-4">How projects are delivered</h2>
-              
+
               <div class="ap-process-list">
-                <article 
-                  v-for="(step, i) in processSteps" 
-                  :key="step.title" 
+                <article
+                  v-for="(step, i) in processSteps"
+                  :key="step.title"
                   class="p-4 rounded-xl cursor-pointer mb-3 border transition-all"
-                  :style="activeWorkflowStep === i ? 'background: rgba(15, 143, 124, 0.08); border-color: #0f8f7c;' : 'background: rgba(255,255,255,0.02); border-color: var(--ap-border);'"
+                  :class="{ 'is-active-step': activeWorkflowStep === i }"
                   @click="runWorkflowStep(i)"
                 >
                   <div class="d-flex align-center justify-space-between mb-2">
@@ -237,16 +222,17 @@
                     <v-icon v-if="activeWorkflowStep === i" icon="mdi-circle-slice-8" color="primary" size="18" />
                   </div>
                   <h3 class="text-subtitle-1 font-weight-bold mb-1" style="color: var(--ap-ink);">{{ step.title }}</h3>
-                  <p class="text-caption text-medium-emphasis mb-0" style="line-height: 1.5;">{{ step.description }}</p>
+                  <p class="text-caption mb-0" style="color: var(--ap-muted); line-height: 1.5;">{{ step.description }}</p>
                 </article>
               </div>
 
               <div class="mt-4">
-                <v-btn 
-                  color="primary" 
-                  rounded="xl" 
-                  prepend-icon="mdi-play-circle-outline" 
-                  class="text-none"
+                <v-btn
+                  color="primary"
+                  rounded="xl"
+                  prepend-icon="mdi-play-circle-outline"
+                  class="text-none font-weight-bold"
+                  elevation="0"
                   :loading="isRunningWorkflow"
                   @click="runAllWorkflow"
                 >
@@ -257,26 +243,28 @@
 
             <v-col cols="12" md="6" class="pl-md-4">
               <!-- Interactive Visual Pipeline Monitor -->
-              <v-card class="section-shell rounded-xl p-6 h-100 d-flex flex-column justify-space-between position-relative overflow-hidden" flat style="background: rgba(255, 255, 255, 0.02) !important; border-color: rgba(15, 143, 124, 0.15) !important; min-height: 340px;">
-                <div class="cyber-grid-container" style="opacity: 0.05;"><div class="cyber-grid-3d"></div></div>
-                <div style="position: relative; z-index: 1;" class="w-100">
+              <v-card class="section-shell rounded-xl p-6 h-100 d-flex flex-column justify-space-between" flat>
+                <div class="w-100">
                   <div class="d-flex align-center justify-space-between mb-4">
                     <span class="text-overline font-weight-bold text-primary" style="letter-spacing: 0.1em !important;">Pipeline Status Monitor</span>
-                    <v-chip size="x-small" :color="isRunningWorkflow ? 'warning' : pipelineProgress === 100 ? 'success' : 'primary'" class="font-weight-bold">
+                    <v-chip size="x-small" :color="isRunningWorkflow ? 'secondary' : pipelineProgress === 100 ? 'primary' : 'secondary'" class="font-weight-bold" variant="tonal">
                       {{ isRunningWorkflow ? 'Running' : pipelineProgress === 100 ? 'Complete' : 'Idle' }}
                     </v-chip>
                   </div>
 
                   <!-- Connected Pipeline Track -->
                   <div class="pipeline-svg-track position-relative mb-6 d-flex align-center justify-space-between px-6 py-2">
-                    <div class="pipeline-line-bg" style="position: absolute; left: 10%; right: 10%; height: 3px; background: rgba(255,255,255,0.08); top: 50%; transform: translateY(-50%); z-index: 0;"></div>
-                    <div class="pipeline-line-progress" :style="`position: absolute; left: 10%; width: ${Math.max(0, pipelineProgress - 10) * 0.8}%; height: 3px; background: linear-gradient(90deg, var(--ap-primary), #39bca3); top: 50%; transform: translateY(-50%); z-index: 1; transition: width 0.3s ease;`"></div>
-                    
-                    <div 
-                      v-for="(step, i) in processSteps" 
-                      :key="step.title" 
+                    <div class="pipeline-line-bg"></div>
+                    <div class="pipeline-line-progress" :style="`width: ${Math.max(0, pipelineProgress - 10) * 0.8}%;`"></div>
+
+                    <div
+                      v-for="(step, i) in processSteps"
+                      :key="step.title"
                       class="pipeline-node d-flex align-center justify-center rounded-circle transition-all"
-                      :style="`width: 36px; height: 36px; z-index: 2; border: 2px solid ${activeWorkflowStep === i ? '#0f8f7c' : pipelineProgress > (i * 33.3) ? '#39bca3' : 'rgba(255,255,255,0.15)'}; background: ${pipelineProgress > (i * 33.3) ? 'rgba(15, 143, 124, 0.2)' : '#070a12'};`"
+                      :class="{
+                        'is-node-active': activeWorkflowStep === i,
+                        'is-node-done': pipelineProgress > (i * 33.3)
+                      }"
                     >
                       <v-icon size="14" :color="pipelineProgress > (i * 33.3) ? 'primary' : 'medium-emphasis'">
                         {{ pipelineProgress > (i * 33.3) ? 'mdi-check' : 'mdi-circle' }}
@@ -287,13 +275,13 @@
                   <!-- Telemetry progress bar -->
                   <div class="mb-5">
                     <div class="d-flex align-center justify-space-between mb-1.5">
-                      <span class="text-caption text-medium-emphasis">Process Completion</span>
+                      <span class="text-caption" style="color: var(--ap-muted);">Process Completion</span>
                       <span class="text-caption font-weight-bold text-primary">{{ Math.round(pipelineProgress) }}%</span>
                     </div>
-                    <v-progress-linear 
-                      :model-value="pipelineProgress" 
-                      color="primary" 
-                      height="6" 
+                    <v-progress-linear
+                      :model-value="pipelineProgress"
+                      color="primary"
+                      height="6"
                       rounded
                       bg-opacity="0.1"
                     />
@@ -301,23 +289,23 @@
 
                   <!-- Step milestones checks list -->
                   <div class="pipeline-tasks">
-                    <div class="text-caption text-medium-emphasis mb-3">Milestone Telemetry</div>
-                    
-                    <div class="d-flex flex-column ga-2.5">
-                      <div 
-                        v-for="(task, idx) in getStepTasks(activeWorkflowStep !== null ? activeWorkflowStep : 0)" 
+                    <div class="text-caption mb-3 font-weight-bold" style="color: var(--ap-ink-soft);">Milestone Telemetry</div>
+
+                    <div class="d-flex flex-column ga-2">
+                      <div
+                        v-for="(task, idx) in getStepTasks(activeWorkflowStep !== null ? activeWorkflowStep : 0)"
                         :key="task"
-                        class="d-flex align-center text-caption transition-all py-1.5 px-3 rounded-lg"
-                        style="background: rgba(255, 255, 255, 0.02);"
+                        class="d-flex align-center text-caption py-2 px-3 rounded-lg"
+                        style="background: var(--ap-surface-soft);"
                       >
-                        <v-icon 
-                          size="16" 
+                        <v-icon
+                          size="16"
                           :color="isItemChecked(activeWorkflowStep, idx) ? 'primary' : 'medium-emphasis'"
                           class="mr-2.5 transition-all"
                         >
-                          {{ isItemChecked(activeWorkflowStep, idx) ? 'mdi-checkbox-marked-circle' : 'mdi-checkbox-blank-circle-outline' }}
+                          {{ isItemChecked(activeWorkflowStep, idx) ? 'mdi-checkbox-marked-circle-outline' : 'mdi-checkbox-blank-circle-outline' }}
                         </v-icon>
-                        <span :class="{ 'text-primary font-weight-bold': isItemChecked(activeWorkflowStep, idx) }" style="transition: color 0.25s ease;">
+                        <span :class="{ 'text-primary font-weight-bold': isItemChecked(activeWorkflowStep, idx) }" style="transition: color 0.2s ease;">
                           {{ task }}
                         </span>
                       </div>
@@ -341,7 +329,7 @@ import { getMediaUrl } from "@/utils/mediaUrl";
 
 const aboutPhoto1 = getMediaUrl("about_img/about_photo_1.svg");
 const aboutPhoto2 = getMediaUrl("about_img/about_photo_2.jpg");
-const myPhoto = getMediaUrl("Picture/my-pic.jpg");
+const myPhoto = getMediaUrl("Picture/my-pic.jpeg");
 
 const alertVisible = ref(false);
 const alertMessage = ref("");
@@ -419,9 +407,9 @@ const skillGroups = [
 ];
 
 const skillSummaries = [
-  "Core UI engineering built with Vue 3.5 composition, utilizing reactive state. Designed using Vuetify 4 component layers, custom utility tokens in CSS, and Pinia global stores.",
+  "Core UI engineering built with Vue 3 composition API, utilizing reactive state. Designed using Vuetify 4 component layers, custom utility tokens in CSS, and Pinia stores.",
   "Scalable Node.js architectures, leveraging Fastify endpoints, token-based verification protocols, and clean validation parameters via schemas.",
-  "Vite 8 compiler configurations, pnpm workspace tooling, secure deployment integrations, and automated lint environments.",
+  "Vite 8 compiler configurations, pnpm workspace tooling, secure deployment integrations, and automated build environments.",
   "Feature validation, iterative design reviews, performant edge case testing, and detailed engineering blueprints."
 ];
 
@@ -453,7 +441,7 @@ const isItemChecked = (stepIdx, itemIdx) => {
 const runWorkflowStep = (stepIndex) => {
   if (isRunningWorkflow.value) return;
   activeWorkflowStep.value = stepIndex;
-  
+
   const targetProgress = (stepIndex + 1) * 33.3;
   let startProgress = pipelineProgress.value;
   const progressTimer = setInterval(() => {
@@ -484,13 +472,13 @@ const runAllWorkflow = () => {
   if (isRunningWorkflow.value) return;
   isRunningWorkflow.value = true;
   pipelineProgress.value = 0;
-  
+
   checkedItems.value = {
     0: [false, false, false],
     1: [false, false, false],
     2: [false, false, false]
   };
-  
+
   let currentStep = 0;
   const runNext = () => {
     if (currentStep > 2) {
@@ -499,9 +487,9 @@ const runAllWorkflow = () => {
       pipelineProgress.value = 100;
       return;
     }
-    
+
     activeWorkflowStep.value = currentStep;
-    
+
     const targetProgress = (currentStep + 1) * 33.3;
     let startProgress = pipelineProgress.value;
     const progressTimer = setInterval(() => {
@@ -527,7 +515,7 @@ const runAllWorkflow = () => {
       }
     }, 200);
   };
-  
+
   runNext();
 };
 
@@ -545,69 +533,49 @@ const copyEmail = async () => {
     showAlert("Unable to copy email on this browser.", "error");
   }
 };
-
-const scrollToSubscribe = () => {
-  const section = document.getElementById("subscribe-container");
-  if (!section) return;
-  section.scrollIntoView({ behavior: "smooth", block: "center" });
-  section.classList.add("subscribe-focus");
-  window.setTimeout(() => section.classList.remove("subscribe-focus"), 1600);
-};
 </script>
 
 <style scoped>
 /* ─── TOKENS ──────────────────────────────────────── */
 .about-page {
-  --ap-primary: #0f8f7c;
-  --ap-primary-dim: rgba(15, 143, 124, 0.15);
-  --ap-primary-soft: rgba(15, 143, 124, 0.08);
-  --ap-secondary: #d18a1f;
-  --ap-secondary-dim: rgba(209, 138, 31, 0.14);
-  --ap-ink: #f0f6fc;
-  --ap-ink-soft: #c9d1d9;
-  --ap-muted: #8b949e;
-  --ap-surface: #161b22;
-  --ap-surface-soft: rgba(255, 255, 255, 0.02);
-  --ap-border: rgba(255, 255, 255, 0.08);
-  --ap-border-strong: rgba(255, 255, 255, 0.15);
-  --ap-shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.2);
-  --ap-shadow-md: 0 16px 40px rgba(0, 0, 0, 0.3);
-  --ap-shadow-lg: 0 24px 56px rgba(0, 0, 0, 0.4);
-  --ap-radius: 20px;
-  --ap-radius-sm: 14px;
-  --ap-radius-xs: 8px;
+  --ap-primary: #7C0E44;
+  --ap-secondary: #AA5E7A;
+  --ap-accent: #D49A9A;
+  --ap-bg: #F2DACE;
+  --ap-surface: #FFFFFF;
+  --ap-surface-soft: #FAF3F0;
+  --ap-ink: #231219;
+  --ap-ink-soft: #4E3842;
+  --ap-muted: #7E636E;
+  --ap-border: rgba(124, 14, 68, 0.12);
+  --ap-border-strong: rgba(124, 14, 68, 0.24);
+  --ap-shadow-sm: 0 4px 16px rgba(124, 14, 68, 0.04);
+  --ap-shadow-md: 0 8px 24px rgba(124, 14, 68, 0.06);
+  --ap-radius: 18px;
   color: var(--ap-ink);
 }
 
-/* ─── LAYOUT ──────────────────────────────────────── */
 .ap-container {
   width: 100%;
-  max-width: min(1360px, 100%);
+  max-width: min(var(--page-max-width, 1360px), 100%);
   margin-inline: auto;
-  padding-inline: clamp(16px, 2vw, 28px);
+  padding-inline: clamp(16px, 2.4vw, 32px);
 }
 
 .ap-section {
-  padding-block: 56px;
+  padding-block: clamp(36px, 5vw, 64px);
 }
 
 .ap-section--last {
-  padding-bottom: 96px;
+  padding-bottom: 80px;
 }
 
 /* ─── TYPOGRAPHY ──────────────────────────────────── */
 .ap-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #0f8f7c;
-  padding: 4px 12px;
-  border-radius: 999px;
-  margin-bottom: 14px;
 }
 
 .ap-section-headline {
@@ -616,407 +584,159 @@ const scrollToSubscribe = () => {
   font-weight: 800;
   letter-spacing: -0.025em;
   line-height: 1.15;
-  background: linear-gradient(110deg, #ffffff 0%, #39bca3 40%, #0f8f7c 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0 0 16px;
-}
-
-.ap-section-head {
-  margin-bottom: 40px;
-}
-
-.ap-muted-copy {
-  color: var(--ap-muted);
-  font-size: 0.97rem;
-  line-height: 1.8;
-  margin: 0 0 20px;
-}
-
-/* Override kicker inside dark hero to match HomePage teal glow style */
-.ap-hero .ap-kicker {
-  color: #39bca3;
-  background: rgba(15, 143, 124, 0.22);
-  border-color: rgba(15, 143, 124, 0.35);
-}
-
-/* ─── HERO ──────────────────────────────────────────── */
-.ap-hero {
-  position: relative;
-  overflow: hidden;
-  border-bottom: none;
-  background:
-    radial-gradient(ellipse 80% 60% at 68% 44%, rgba(15, 143, 124, 0.22) 0%, transparent 58%),
-    radial-gradient(ellipse 60% 50% at 12% 82%, rgba(15, 143, 124, 0.15) 0%, transparent 52%),
-    linear-gradient(138deg, #061210 0%, #071a14 35%, #080e1c 65%, #060c18 100%);
-  padding-block: 80px 64px;
-}
-
-/*─ Dark hero mesh (matching HomePage hero-v2) ── */
-.ap-hero__mesh {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.mesh-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(72px);
-  pointer-events: none;
-  animation: orbFloat 12s ease-in-out infinite alternate;
-}
-
-.mesh-orb--1 {
-  width: 520px;
-  height: 520px;
-  background: radial-gradient(circle, rgba(15, 143, 124, 0.35) 0%, transparent 70%);
-  top: -140px;
-  left: -100px;
-  animation-duration: 16s;
-}
-
-.mesh-orb--2 {
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle, rgba(57, 188, 163, 0.22) 0%, transparent 70%);
-  bottom: -120px;
-  right: 5%;
-  animation-duration: 12s;
-  animation-delay: -4s;
-}
-
-.mesh-orb--3 {
-  width: 340px;
-  height: 340px;
-  background: radial-gradient(circle, rgba(99, 60, 232, 0.12) 0%, transparent 70%);
-  top: 30%;
-  right: 28%;
-  animation-duration: 18s;
-  animation-delay: -8s;
-}
-
-.mesh-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.022) 0px, rgba(255, 255, 255, 0.022) 1px, transparent 1px, transparent 64px),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.022) 0px, rgba(255, 255, 255, 0.022) 1px, transparent 1px, transparent 64px);
-  pointer-events: none;
-}
-
-@keyframes orbFloat {
-  from {
-    transform: translate(0, 0) scale(1);
-  }
-
-  to {
-    transform: translate(24px, -18px) scale(1.08);
-  }
-}
-
-.ap-hero__inner {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr 480px;
-  gap: 48px;
-  align-items: center;
+  color: var(--ap-ink);
 }
 
 .ap-hero__headline {
   font-family: "Space Grotesk", sans-serif;
-  font-size: clamp(2.6rem, 4.8vw, 4.4rem);
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1.0;
-  color: #ffffff;
-  margin: 0 0 20px;
+  font-size: clamp(2.4rem, 4vw, 3.8rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--ap-ink);
 }
 
 .ap-hero__accent {
   font-style: normal;
-  background: linear-gradient(92deg, #39bca3 0%, #0f8f7c 48%, #60a5fa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--ap-primary);
 }
 
 .ap-hero__sub {
-  font-size: clamp(0.96rem, 1.2vw, 1.06rem);
-  color: rgba(255, 255, 255, 0.55);
-  line-height: 1.8;
-  max-width: 54ch;
-  margin: 0 0 32px;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--ap-ink-soft);
+  max-width: 52ch;
 }
 
-.ap-hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+/* ─── HERO ────────────────────────────────────────── */
+.ap-hero {
+  padding-top: clamp(20px, 4vw, 40px);
 }
 
-/* ─── BUTTONS ────────────────────────────────────── */
-.ap-btn {
-  padding: 10px 24px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-  white-space: nowrap;
+.ap-hero__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: clamp(28px, 4vw, 56px);
 }
 
-/* ─── BENTO GRID ──────────────────────────────────── */
+/* Bento grid */
 .ap-hero__bento {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: auto auto auto;
-  gap: 12px;
+  gap: 14px;
 }
 
-/* Dark glass bento cards on dark hero */
 .ap-bento-card {
-  position: relative;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.055);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: var(--ap-radius-sm);
-  padding: 18px 18px 16px;
-  backdrop-filter: blur(14px);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius);
+  padding: 20px;
+  box-shadow: var(--ap-shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .ap-bento-card:hover {
-  transform: translateY(-3px);
-  background: rgba(255, 255, 255, 0.09);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
-}
-
-.ap-bento-card__accent {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #7cf5d0, #39bca3);
-  border-radius: 3px 3px 0 0;
-}
-
-.ap-bento-card--0 .ap-bento-card__accent,
-.ap-bento-card--2 .ap-bento-card__accent {
-  background: linear-gradient(90deg, #7cf5d0, #39bca3);
-}
-
-.ap-bento-card--1 .ap-bento-card__accent,
-.ap-bento-card--3 .ap-bento-card__accent {
-  background: linear-gradient(90deg, #a78bfa, #60a5fa);
+  transform: translateY(-2px);
+  box-shadow: var(--ap-shadow-md);
+  border-color: var(--ap-border-strong);
 }
 
 .ap-bento-card__value {
   font-family: "Space Grotesk", sans-serif;
-  font-size: 1.8rem;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  color: #ffffff;
-  margin: 0 0 4px;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--ap-primary);
+  line-height: 1;
+  margin: 0 0 6px;
 }
 
 .ap-bento-card__label {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--ap-muted);
   margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
 }
 
-/* Profile mini-card — dark glass on hero */
 .ap-bento-profile {
-  grid-column: 1 / -1;
+  grid-column: span 2;
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--ap-radius-sm);
-  padding: 14px 16px;
-  backdrop-filter: blur(14px);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+  gap: 14px;
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-border);
+  border-radius: var(--ap-radius);
+  padding: 14px 18px;
+  box-shadow: var(--ap-shadow-sm);
 }
 
 .ap-bento-profile__name {
-  font-weight: 800;
-  font-size: 0.92rem;
-  color: #ffffff;
-  margin: 0 0 2px;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--ap-ink);
+  margin: 0;
 }
 
 .ap-bento-profile__role {
   font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--ap-muted);
   margin: 0;
-}
-
-:deep(.ap-bento-avatar) {
-  border: 2.5px solid rgba(255, 255, 255, 0.22) !important;
-  box-shadow: 0 4px 16px rgba(122, 65, 255, 0.32) !important;
-  flex-shrink: 0;
 }
 
 .ap-bento-badge {
   margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
 }
 
 .ap-bento-img {
-  grid-column: 1 / -1;
-  height: 200px;
-  border-radius: var(--ap-radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  overflow: hidden;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.30);
+  grid-column: span 2;
+  border-radius: var(--ap-radius);
+  border: 1px solid var(--ap-border);
+  max-height: 160px;
+  background: var(--ap-surface-soft);
 }
 
-/* ─── PROFILE LAYOUT ─────────────────────────────── */
+/* ─── PROFILE LAYOUT ──────────────────────────────── */
 .ap-profile-layout {
   display: grid;
   grid-template-columns: 320px 1fr;
-  gap: 36px;
   align-items: start;
+  gap: 32px;
 }
 
 .ap-profile-sidebar {
   position: sticky;
   top: 96px;
-  align-self: start;
-  z-index: 10;
 }
 
-.ap-main-col {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-@media (max-width: 960px) {
-  .ap-profile-layout {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-  .ap-profile-sidebar {
-    position: static;
-  }
-}
-
-/* ─── 3D PARALLAX DEPTH EFFECTS ─────────────────── */
-.ap-profile-card,
-.ap-card {
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-}
-
-/* Float child layers on tilt */
-.ap-profile-card :deep(.ap-profile-avatar) {
-  transform: translateZ(55px) !important;
-}
-
-.ap-profile-card__name,
-.ap-profile-card__title,
-.ap-profile-card__info,
-.ap-profile-card__actions,
-.ap-profile-card__socials {
-  transform: translateZ(30px);
-}
-
-.ap-card__overline,
-.ap-card__headline,
-.ap-card__body,
-.ap-highlights-grid,
-.ap-timeline,
-.ap-skills-grid {
-  transform: translateZ(25px);
-}
-
-.ap-highlight-cell {
-  transform: translateZ(10px);
-  transform-style: preserve-3d;
-}
-.ap-highlight-cell__value {
-  transform: translateZ(25px);
-}
-.ap-highlight-cell__title,
-.ap-highlight-cell__caption {
-  transform: translateZ(15px);
-}
-
-.ap-timeline__item {
-  transform-style: preserve-3d;
-}
-.ap-timeline__body {
-  transform: translateZ(20px);
-}
-.ap-timeline__dot {
-  transform: translateZ(35px);
-}
-.ap-timeline__period {
-  transform: translateZ(15px);
-}
-
-.pipeline-node {
-  transform: translateZ(40px);
-}
-.pipeline-tasks {
-  transform: translateZ(20px);
-}
-
-/* profile card */
 .ap-profile-card {
-  position: relative;
-  overflow: clip;
-  background: var(--ap-surface-soft);
+  background: var(--ap-surface);
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius);
-  padding: 28px 22px 22px;
-  box-shadow: var(--ap-shadow-md);
-  backdrop-filter: blur(14px);
+  padding: 28px 22px;
+  box-shadow: var(--ap-shadow-sm);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 0;
 }
 
-.ap-profile-card__glow {
-  position: absolute;
-  top: -60px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 280px;
-  height: 280px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(15, 143, 124, 0.22), transparent 60%);
-  pointer-events: none;
-}
-
-:deep(.ap-profile-avatar) {
-  border: 3px solid rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 8px 28px rgba(15, 143, 124, 0.22) !important;
+.ap-profile-avatar {
+  border: 2px solid var(--ap-primary) !important;
   margin-bottom: 14px;
 }
 
 .ap-profile-card__name {
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 1.12rem;
+  font-size: 1.3rem;
   font-weight: 800;
   color: var(--ap-ink);
   margin: 0 0 4px;
 }
 
 .ap-profile-card__title {
-  font-size: 0.8rem;
-  color: var(--ap-muted);
-  margin: 0 0 20px;
+  font-size: 0.85rem;
+  color: var(--ap-secondary);
+  font-weight: 600;
+  margin: 0 0 18px;
 }
 
 .ap-profile-card__info {
@@ -1024,17 +744,16 @@ const scrollToSubscribe = () => {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 20px;
-  text-align: left;
   border-top: 1px solid var(--ap-border);
-  padding-top: 18px;
+  border-bottom: 1px solid var(--ap-border);
+  padding: 14px 0;
+  margin-bottom: 18px;
+  font-size: 0.86rem;
 }
 
 .ap-info-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 0.85rem;
 }
 
 .ap-info-label {
@@ -1043,7 +762,6 @@ const scrollToSubscribe = () => {
 
 .ap-info-row strong {
   color: var(--ap-ink);
-  font-weight: 700;
 }
 
 .ap-profile-card__actions {
@@ -1051,23 +769,25 @@ const scrollToSubscribe = () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .ap-profile-card__socials {
   display: flex;
   gap: 10px;
   border-top: 1px solid var(--ap-border);
-  padding-top: 18px;
+  padding-top: 16px;
   width: 100%;
   justify-content: center;
 }
 
 .ap-social-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  border-color: var(--ap-border) !important;
+}
+
+.ap-social-btn:hover {
+  background: rgba(124, 14, 68, 0.06) !important;
+  border-color: var(--ap-primary) !important;
 }
 
 /* ─── MAIN CONTENT CARDS ──────────────────────────── */
@@ -1078,27 +798,26 @@ const scrollToSubscribe = () => {
 }
 
 .ap-card {
-  background: var(--ap-surface-soft);
+  background: var(--ap-surface);
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius);
-  padding: 28px 28px 24px;
+  padding: 26px;
   box-shadow: var(--ap-shadow-sm);
-  backdrop-filter: blur(12px);
-  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .ap-card:hover {
-  box-shadow: var(--ap-shadow-md);
   border-color: var(--ap-border-strong);
+  box-shadow: var(--ap-shadow-md);
 }
 
 .ap-card__overline {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #0f8f7c;
-  margin: 0 0 10px;
+  color: var(--ap-primary);
+  margin: 0 0 8px;
 }
 
 .ap-card__headline {
@@ -1106,91 +825,81 @@ const scrollToSubscribe = () => {
   font-size: clamp(1.2rem, 1.8vw, 1.5rem);
   font-weight: 800;
   letter-spacing: -0.02em;
-  background: linear-gradient(110deg, #ffffff 0%, #39bca3 60%, #0f8f7c 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0 0 12px;
+  color: var(--ap-ink);
+  margin: 0 0 10px;
 }
 
 .ap-card__body {
   color: var(--ap-muted);
-  font-size: 0.96rem;
-  line-height: 1.75;
+  font-size: 0.95rem;
+  line-height: 1.65;
   margin: 0;
 }
 
-/* highlights grid */
+/* Highlights Grid */
 .ap-highlights-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+  gap: 12px;
 }
 
 .ap-highlight-cell {
-  background: rgba(15, 143, 124, 0.08);
-  border: 1px solid rgba(15, 143, 124, 0.25);
-  border-radius: var(--ap-radius);
-  padding: 18px 16px;
-  backdrop-filter: blur(8px);
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  background: var(--ap-surface-soft);
+  border: 1px solid var(--ap-border);
+  border-radius: 14px;
+  padding: 16px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .ap-highlight-cell:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(15, 143, 124, 0.22);
+  transform: translateY(-2px);
   border-color: var(--ap-border-strong);
 }
 
 .ap-highlight-cell__value {
   font-family: "Space Grotesk", sans-serif;
-  font-size: 1.9rem;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  background: #0f8f7c;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--ap-primary);
   margin: 0 0 4px;
 }
 
 .ap-highlight-cell__title {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--ap-ink);
   margin: 0 0 4px;
 }
 
 .ap-highlight-cell__caption {
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   color: var(--ap-muted);
   margin: 0;
-  line-height: 1.5;
 }
 
-/* ─── TIMELINE ──────────────────────────────────── */
+/* Experience Timeline */
 .ap-timeline {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 18px;
+  margin-top: 14px;
 }
 
 .ap-timeline__item {
   display: grid;
-  grid-template-columns: 100px 28px 1fr;
-  gap: 0 14px;
+  grid-template-columns: 130px 24px 1fr;
+  gap: 16px;
   align-items: start;
 }
 
-.ap-timeline__aside {
-  padding-top: 8px;
-  text-align: right;
-}
-
 .ap-timeline__period {
-  font-size: 0.74rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: var(--ap-muted);
+  color: var(--ap-primary);
+  background: rgba(124, 14, 68, 0.08);
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-block;
   white-space: nowrap;
 }
 
@@ -1198,64 +907,57 @@ const scrollToSubscribe = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: 100%;
 }
 
 .ap-timeline__dot {
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  border: 3px solid var(--ap-surface);
-  box-shadow: 0 0 0 3px var(--ap-primary);
-  flex-shrink: 0;
-  margin-top: 6px;
-}
-
-.ap-timeline__dot--1 {
-  box-shadow: 0 0 0 3px #5b8bd1;
-}
-
-.ap-timeline__dot--2 {
-  box-shadow: 0 0 0 3px #d18a1f;
+  background: var(--ap-primary);
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 0 0 2px var(--ap-primary);
+  margin-top: 4px;
 }
 
 .ap-timeline__line {
   width: 2px;
   flex: 1;
-  min-height: 32px;
-  background: linear-gradient(to bottom, var(--ap-border-strong), var(--ap-border));
-  margin-block: 4px;
-}
-
-.ap-timeline__body {
-  padding: 4px 0 28px;
+  background: var(--ap-border);
+  margin-top: 6px;
+  min-height: 40px;
 }
 
 .ap-timeline__role {
-  font-size: 0.96rem;
-  font-weight: 800;
+  font-size: 0.98rem;
+  font-weight: 700;
   color: var(--ap-ink);
-  margin: 0 0 4px;
+  margin: 0 0 2px;
 }
 
 .ap-timeline__company {
-  font-size: 0.83rem;
+  font-size: 0.82rem;
+  color: var(--ap-secondary);
   font-weight: 600;
-  color: var(--ap-primary);
   margin: 0 0 6px;
 }
 
 .ap-timeline__summary {
-  font-size: 0.87rem;
+  font-size: 0.88rem;
   color: var(--ap-muted);
-  line-height: 1.65;
+  line-height: 1.55;
   margin: 0;
 }
 
-/* ─── SKILLS ──────────────────────────────────────── */
-.ap-skills-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
+/* Skills */
+.ap-skill-group {
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.ap-skill-group.is-active-skill {
+  background: rgba(124, 14, 68, 0.06);
+  border: 1px solid rgba(124, 14, 68, 0.2);
 }
 
 .ap-skill-group__title {
@@ -1264,78 +966,66 @@ const scrollToSubscribe = () => {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--ap-ink-soft);
-  margin: 0 0 10px;
-}
-
-.ap-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
 }
 
 .ap-chip {
-  font-size: 0.76rem;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: rgba(15, 143, 124, 0.12);
-  border: 1px solid rgba(15, 143, 124, 0.28);
-  color: #0f8f7c;
-  transition: background 0.18s ease, transform 0.18s ease;
-}
-
-.ap-chip:hover {
-  background: #0f8f7c;
-  color: white;
-  transform: translateY(-1px);
-}
-
-/* ─── MISSION ──────────────────────────────────────── */
-.ap-mission-card {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-  background: var(--ap-surface-soft);
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  background: var(--ap-surface);
   border: 1px solid var(--ap-border);
-  border-radius: var(--ap-radius);
+  color: var(--ap-primary);
+}
+
+/* ─── MISSION CARD ────────────────────────────────── */
+.ap-mission-card {
+  background: var(--ap-surface);
+  border: 1px solid var(--ap-border);
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: var(--ap-shadow-md);
-  backdrop-filter: blur(14px);
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  box-shadow: var(--ap-shadow-sm);
 }
 
 .ap-mission-card__img-col {
   position: relative;
-  min-height: 340px;
+  min-height: 320px;
+  background: var(--ap-surface-soft);
 }
 
 .ap-mission-img {
+  width: 100%;
   height: 100%;
-  min-height: 340px;
 }
 
 .ap-mission-card__img-badge {
   position: absolute;
-  bottom: 16px;
-  left: 16px;
-  display: inline-flex;
+  bottom: 18px;
+  left: 18px;
+  display: flex;
   align-items: center;
-  gap: 7px;
-  background: var(--ap-surface-soft);
-  border: 1px solid var(--ap-border);
-  border-radius: 999px;
-  padding: 7px 14px;
-  font-size: 0.8rem;
+  padding: 8px 14px;
+  border-radius: 100px;
+  background: #FFFFFF;
+  border: 1px solid rgba(124, 14, 68, 0.14);
+  color: var(--ap-primary);
+  font-size: 0.82rem;
   font-weight: 700;
-  color: var(--ap-ink);
-  box-shadow: var(--ap-shadow-sm);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 14px rgba(124, 14, 68, 0.1);
 }
 
 .ap-mission-card__text-col {
-  padding: 40px 36px;
+  padding: clamp(24px, 4vw, 44px);
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.ap-muted-copy {
+  color: var(--ap-muted);
+  line-height: 1.65;
 }
 
 .ap-check-list {
@@ -1344,466 +1034,115 @@ const scrollToSubscribe = () => {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .ap-check-list__item {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--ap-ink-soft);
-  line-height: 1.5;
-}
-
-.ap-check-list__icon {
-  color: #0f8f7c !important;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-/* ─── STRENGTHS ──────────────────────────────────── */
-.ap-strengths-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-}
-
-.ap-strength-card {
-  position: relative;
-  overflow: hidden;
-  background: var(--ap-surface-soft);
-  border: 1px solid var(--ap-border);
-  border-radius: var(--ap-radius);
-  padding: 28px 24px;
-  box-shadow: var(--ap-shadow-sm);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease, border-color 0.28s ease;
-  animation: slideUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--i, 0) * 0.12s + 0.1s);
-  backdrop-filter: blur(12px);
-}
-
-.ap-strength-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(160deg, rgba(15, 143, 124, 0.06) 0%, transparent 60%);
-  border-radius: inherit;
-}
-
-.ap-strength-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--ap-shadow-md);
-  border-color: var(--ap-border-strong);
-}
-
-.ap-strength-card__icon-wrap {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--ap-radius-xs);
-  background: var(--ap-primary-soft);
-  border: 1px solid var(--ap-border);
-  display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ap-ink-soft);
 }
 
-.ap-strength-card__icon {
-  color: var(--ap-primary) !important;
-}
-
-.ap-strength-card__title {
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 1.05rem;
-  font-weight: 800;
-  background: linear-gradient(110deg, rgba(15, 143, 124, 0.24) 0%, #0f8f7c 60%, #0f8f7c 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0;
-}
-
-.ap-strength-card__desc {
-  font-size: 0.88rem;
-  color: var(--ap-muted);
-  line-height: 1.7;
-  margin: 0;
-  flex: 1;
-}
-
-.ap-strength-card__footer {
-  margin-top: auto;
-}
-
-.ap-strength-card__tag {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--ap-primary);
-  background: var(--ap-primary-soft);
-  border: 1px solid var(--ap-border);
-  padding: 3px 10px;
-  border-radius: 999px;
-}
-
-/* ─── PROCESS ────────────────────────────────────── */
+/* ─── PROCESS / WORKFLOW ──────────────────────────── */
 .ap-process-wrap {
-  background:
-    radial-gradient(ellipse at 8% 12%, rgba(15, 143, 124, 0.15) 0%, transparent 48%),
-    radial-gradient(ellipse at 90% 85%, rgba(57, 188, 163, 0.12) 0%, transparent 45%),
-    linear-gradient(145deg, rgba(22, 27, 34, 0.8) 0%, rgba(15, 143, 124, 0.05) 100%);
+  background: var(--ap-surface);
   border: 1px solid var(--ap-border);
-  border-radius: var(--ap-radius);
-  padding: 40px 36px;
-  box-shadow: var(--ap-shadow-md);
-  overflow: hidden;
-  backdrop-filter: blur(14px);
+  border-radius: 20px;
+  box-shadow: var(--ap-shadow-sm);
 }
 
-.ap-process-wrap__head {
-  margin-bottom: 36px;
+.ap-process-list article {
+  border-color: var(--ap-border) !important;
+  background: var(--ap-surface-soft) !important;
 }
 
-.ap-process-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-  position: relative;
+.ap-process-list article.is-active-step {
+  background: rgba(124, 14, 68, 0.06) !important;
+  border-color: var(--ap-primary) !important;
 }
 
-.ap-process-grid::before {
-  content: "";
+.pipeline-line-bg {
   position: absolute;
-  top: 28px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(15, 143, 124, 0.62), #0f8f7c);
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  background: var(--ap-border);
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 0;
 }
 
-.ap-process-step {
-  position: relative;
-  padding: 0 24px 0 0;
-  animation: slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--i, 0) * 0.14s + 0.2s);
-}
-
-.ap-process-step__num {
-  position: relative;
+.pipeline-line-progress {
+  position: absolute;
+  left: 10%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--ap-primary), var(--ap-secondary));
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #0f8f7c, #0d7667);
-  color: #ffffff;
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 1rem;
-  font-weight: 900;
-  box-shadow: 0 6px 20px rgba(15, 143, 124, 0.55);
-  margin-bottom: 16px;
+  transition: width 0.3s ease;
 }
 
-.ap-process-step__line {
-  display: none;
+.pipeline-node {
+  width: 36px;
+  height: 36px;
+  z-index: 2;
+  border: 2px solid var(--ap-border);
+  background: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(124, 14, 68, 0.08);
 }
 
-.ap-process-step__title {
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 1rem;
-  font-weight: 800;
-  color: var(--ap-ink);
-  margin: 0 0 8px;
+.pipeline-node.is-node-active {
+  border-color: var(--ap-primary);
 }
 
-.ap-process-step__desc {
-  font-size: 0.87rem;
-  color: var(--ap-muted);
-  line-height: 1.7;
-  margin: 0;
-  max-width: 28ch;
+.pipeline-node.is-node-done {
+  border-color: var(--ap-secondary);
+  background: rgba(124, 14, 68, 0.08);
 }
 
-/* ─── ENTRANCE ANIMATIONS ────────────────────────── */
-.ai-0,
-.ai-1,
-.ai-2,
-.ai-3,
-.ai-4,
-.ai-5,
-.ai-6,
-.ai-7,
-.ai-8,
-.ai-9,
-.ai-10,
-.ai-11,
-.ai-12 {
-  opacity: 0;
-  animation: slideUp 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.ai-0 {
-  animation-delay: 0.05s;
-}
-
-.ai-1 {
-  animation-delay: 0.13s;
-}
-
-.ai-2 {
-  animation-delay: 0.21s;
-}
-
-.ai-3 {
-  animation-delay: 0.29s;
-}
-
-.ai-4 {
-  animation-delay: 0.35s;
-}
-
-.ai-5 {
-  animation-delay: 0.12s;
-}
-
-.ai-6 {
-  animation-delay: 0.18s;
-}
-
-.ai-7 {
-  animation-delay: 0.26s;
-}
-
-.ai-8 {
-  animation-delay: 0.34s;
-}
-
-.ai-9 {
-  animation-delay: 0.42s;
-}
-
-.ai-10 {
-  animation-delay: 0.14s;
-}
-
-.ai-11 {
-  animation-delay: 0.10s;
-}
-
-.ai-12 {
-  animation-delay: 0.16s;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(28px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ─── RESPONSIVE ─────────────────────────────────── */
-@media (max-width: 1200px) {
-  .ap-hero__inner {
-    grid-template-columns: 1fr 420px;
-    gap: 36px;
-  }
-
-  .ap-profile-layout {
-    grid-template-columns: 260px 1fr;
-    gap: 24px;
-  }
-
-  .ap-strengths-grid {
-    gap: 14px;
-  }
-}
-
+/* Responsive */
 @media (max-width: 960px) {
-  .ap-hero {
-    padding-block: 56px 48px;
-  }
-
   .ap-hero__inner {
     grid-template-columns: 1fr;
-    gap: 40px;
-  }
-
-  .ap-hero__bento {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .ap-hero__sub {
-    max-width: none;
   }
 
   .ap-profile-layout {
     grid-template-columns: 1fr;
   }
 
-  .ap-profile-card {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 16px;
-    text-align: left;
-    align-items: flex-start;
-  }
-
-  :deep(.ap-profile-avatar) {
-    margin-bottom: 0 !important;
-  }
-
-  .ap-profile-card__name,
-  .ap-profile-card__title {
-    text-align: left;
-    width: 100%;
+  .ap-profile-sidebar {
+    position: static;
   }
 
   .ap-mission-card {
     grid-template-columns: 1fr;
   }
-
-  .ap-mission-card__img-col {
-    min-height: 260px;
-  }
-
-  .ap-strengths-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .ap-process-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .ap-process-grid::before {
-    display: none;
-  }
-
-  .ap-process-step {
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }
 
-@media (max-width: 640px) {
-  .ap-hero__headline {
-    font-size: clamp(2.2rem, 9vw, 3rem);
-  }
-
-  .ap-hero__bento {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .ap-highlights-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .ap-skills-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .ap-timeline__item {
-    grid-template-columns: 80px 24px 1fr;
-  }
-
-  .ap-card,
-  .ap-profile-card,
-  .ap-strength-card {
-    padding: 20px 18px;
-  }
-
-  .ap-profile-card {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .ap-profile-card__name,
-  .ap-profile-card__title {
-    text-align: center;
-  }
-
-  .ap-mission-card__text-col {
-    padding: 28px 18px;
-  }
-
-  .ap-process-wrap {
-    padding: 28px 18px;
-  }
-
-  .ap-section {
-    padding-block: 40px;
-  }
-}
-
-@media (max-width: 440px) {
-  .ap-profile-sidebar {
-    position: relative;
-    top: auto;
-  }
-
+@media (max-width: 600px) {
   .ap-hero__bento {
     grid-template-columns: 1fr;
+  }
+
+  .ap-bento-profile,
+  .ap-bento-img {
+    grid-column: span 1;
   }
 
   .ap-highlights-grid {
     grid-template-columns: 1fr;
   }
 
-  .ap-bento-badge {
-    display: none;
-  }
-
   .ap-timeline__item {
-    grid-template-columns: 24px 1fr;
-    gap: 0 12px;
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 
-  .ap-timeline__aside {
+  .ap-timeline__connector {
     display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-  .ai-0,
-  .ai-1,
-  .ai-2,
-  .ai-3,
-  .ai-4,
-  .ai-5,
-  .ai-6,
-  .ai-7,
-  .ai-8,
-  .ai-9,
-  .ai-10,
-  .ai-11,
-  .ai-12,
-  .ap-strength-card,
-  .ap-process-step {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-
-  .mesh-orb {
-    animation: none;
   }
 }
 </style>

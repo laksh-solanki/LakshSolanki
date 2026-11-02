@@ -578,11 +578,14 @@ onBeforeUnmount(() => {
 }
 
 .zoom-card {
-  background: linear-gradient(165deg, rgba(38, 43, 49, 0.92), rgba(38, 43, 49, 0.92));
+  background: #FFFFFF !important;
+  color: var(--portfolio-ink, #231219) !important;
+  border: 1px solid rgba(124, 14, 68, 0.14) !important;
+  box-shadow: 0 16px 40px rgba(124, 14, 68, 0.12) !important;
 }
 
 .zoom-card.is-custom-card {
-  background: linear-gradient(165deg, rgba(38, 43, 49, 0.92), rgba(38, 43, 49, 0.92));
+  background: #FFFFFF !important;
 }
 
 .zoom-toolbar {
@@ -590,8 +593,9 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border-bottom: 1px solid rgba(15, 143, 124, 0.12);
-  background: linear-gradient(120deg, rgba(38, 43, 49, 0.92), rgba(38, 43, 49, 0.92));
+  border-bottom: 1px solid rgba(124, 14, 68, 0.1);
+  background: var(--portfolio-surface-soft, #FAF3F0);
+  color: var(--portfolio-ink, #231219);
 }
 
 .zoom-stage {
@@ -599,9 +603,7 @@ onBeforeUnmount(() => {
   max-height: min(80vh, 860px);
   overflow: auto;
   padding: 22px;
-  background:
-    radial-gradient(circle at 12% 10%, rgba(15, 143, 124, 0.08), transparent 34%),
-    linear-gradient(150deg, rgba(38, 43, 49, 0.92), rgba(38, 43, 49, 0.92));
+  background: var(--portfolio-bg, #F2DACE);
   display: grid;
   place-items: center;
   cursor: default;
@@ -618,8 +620,8 @@ onBeforeUnmount(() => {
   max-width: 100%;
   max-height: min(70vh, 760px);
   border-radius: 14px;
-  border: 1px solid rgba(15, 143, 124, 0.14);
-  box-shadow: 0 16px 30px rgba(18, 38, 33, 0.08);
+  border: 1px solid rgba(124, 14, 68, 0.14);
+  box-shadow: 0 12px 30px rgba(124, 14, 68, 0.08);
   transition: width 0.2s ease, height 0.2s ease;
   user-select: none;
   flex: none;
@@ -627,7 +629,7 @@ onBeforeUnmount(() => {
 
 .zoom-custom-content {
   overflow: hidden;
-  background: rgba(38, 43, 49, 0.92);
+  background: #FFFFFF;
 }
 
 .zoom-custom-content-inner {

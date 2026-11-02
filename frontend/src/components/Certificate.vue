@@ -210,12 +210,12 @@ const certificateCode = computed(
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  color: #10201d;
+  color: #231219;
   background: radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.78), transparent 28%),
-              linear-gradient(155deg, #fffdfa 0%, #f5ecdd 58%, #efe2cc 100%);
-  box-shadow: inset 0 0 0 1px rgba(125, 104, 68, 0.18),
+              linear-gradient(155deg, #FFFFFF 0%, #FAF3F0 58%, #F5E5DC 100%);
+  box-shadow: inset 0 0 0 1px rgba(124, 14, 68, 0.14),
               inset 0 0 0 10px rgba(255, 255, 255, 0.22),
-              0 20px 40px rgba(53, 40, 20, 0.12);
+              0 20px 40px rgba(124, 14, 68, 0.06);
 }
 
 .canvas-premium::before,
@@ -227,19 +227,19 @@ const certificateCode = computed(
 
 .canvas-premium::before {
   inset: 10px;
-  border: 1.5px solid rgba(132, 104, 49, 0.5);
+  border: 1.5px solid rgba(124, 14, 68, 0.35);
 }
 
 .canvas-premium::after {
   inset: 20px;
-  border: 1px solid rgba(19, 111, 99, 0.18);
+  border: 1px solid rgba(170, 94, 122, 0.2);
 }
 
 .corner-ornament {
   position: absolute;
   width: 84px;
   height: 84px;
-  border: 1.5px solid rgba(159, 123, 62, 0.45);
+  border: 1.5px solid rgba(124, 14, 68, 0.25);
   border-radius: 50%;
   opacity: 0.55;
 }
@@ -249,7 +249,7 @@ const certificateCode = computed(
   content: "";
   position: absolute;
   inset: 14px;
-  border: 1px solid rgba(159, 123, 62, 0.38);
+  border: 1px solid rgba(124, 14, 68, 0.18);
   border-radius: 50%;
 }
 
@@ -285,9 +285,9 @@ const certificateCode = computed(
   min-height: 34px;
   padding: 6px 14px;
   border-radius: 999px;
-  color: #6c5318;
-  background: rgba(242, 180, 80, 0.14);
-  border: 1px solid rgba(160, 121, 47, 0.24);
+  color: #7C0E44;
+  background: rgba(124, 14, 68, 0.08);
+  border: 1px solid rgba(124, 14, 68, 0.2);
   font-family: "Segoe UI", "Trebuchet MS", sans-serif;
   font-size: 0.7rem;
   font-weight: 700;
@@ -312,7 +312,7 @@ const certificateCode = computed(
   line-height: 1.05;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #113730;
+  color: #231219;
 }
 
 .header-brand-subtitle,
@@ -327,7 +327,7 @@ const certificateCode = computed(
 
 .header-brand-subtitle {
   margin: 4px 0 0;
-  color: #6e7a76;
+  color: #7E636E;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -346,15 +346,15 @@ const certificateCode = computed(
 .header-divider::before,
 .header-divider::after {
   content: "";
-  border-top: 1px solid rgba(17, 55, 48, 0.18);
+  border-top: 1px solid rgba(124, 14, 68, 0.15);
 }
 
 .divider-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(154, 116, 36, 0.72);
-  box-shadow: 0 0 0 6px rgba(154, 116, 36, 0.12);
+  background: rgba(124, 14, 68, 0.8);
+  box-shadow: 0 0 0 6px rgba(124, 14, 68, 0.12);
 }
 
 .certificate-main {
@@ -369,7 +369,7 @@ const certificateCode = computed(
 
 .section-kicker {
   margin: 0 0 10px;
-  color: #956f22;
+  color: #7C0E44;
   font-size: 0.8rem;
   font-weight: 800;
   letter-spacing: 0.24em;
@@ -380,13 +380,13 @@ const certificateCode = computed(
   margin: 0;
   font-size: 3.05rem;
   line-height: 1.03;
-  color: #0f2c28;
+  color: #7C0E44;
   letter-spacing: 0.01em;
 }
 
 .certificate-intro {
   margin: 14px 0 18px;
-  color: #5d6d69;
+  color: #4E3842;
   font-size: 1.05rem;
 }
 
@@ -395,15 +395,15 @@ const certificateCode = computed(
   padding: 16px 24px;
   margin-bottom: 18px;
   border-radius: 22px;
-  border: 1px solid rgba(158, 122, 53, 0.24);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(250, 242, 226, 0.86));
+  border: 1px solid rgba(170, 94, 122, 0.24);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(250, 243, 240, 0.9));
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45),
-              0 10px 24px rgba(86, 67, 34, 0.06);
+              0 10px 24px rgba(124, 14, 68, 0.04);
 }
 
 .recipient-name {
   margin: 0;
-  color: #0f2925;
+  color: #231219;
   font-size: 2.75rem;
   line-height: 1.12;
   letter-spacing: 0.02em;
@@ -413,7 +413,7 @@ const certificateCode = computed(
 .completion-copy {
   width: min(100%, 610px);
   margin: 0 0 28px;
-  color: #495955;
+  color: #4E3842;
   font-size: 1.08rem;
   line-height: 1.7;
 }
@@ -428,7 +428,7 @@ const certificateCode = computed(
 .credential-card {
   padding: 14px 12px;
   border-radius: 18px;
-  border: 1px solid rgba(19, 111, 99, 0.14);
+  border: 1px solid rgba(124, 14, 68, 0.14);
   background: rgba(255, 255, 255, 0.62);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
 }
@@ -436,7 +436,7 @@ const certificateCode = computed(
 .credential-label {
   display: block;
   margin-bottom: 8px;
-  color: #6e7d79;
+  color: #7E636E;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -445,7 +445,7 @@ const certificateCode = computed(
 
 .credential-card strong {
   display: block;
-  color: #132e2a;
+  color: #231219;
   font-size: 1.08rem;
   line-height: 1.4;
   overflow-wrap: anywhere;

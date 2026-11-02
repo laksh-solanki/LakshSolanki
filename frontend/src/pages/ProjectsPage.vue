@@ -192,11 +192,9 @@ const currentProjectTitle = computed(() => {
   <div class="projects-page-layout w-100 min-h-100">
     <template v-if="route.name === 'Projects'">
       <v-container class="py-8 py-md-12 projects-shell animate-fade-in-up">
-        <section class="section-shell p-6 p-md-8 mb-8 header-card overflow-hidden">
-          <div class="cyber-grid-container">
-            <div class="cyber-grid-3d"></div>
-          </div>
-          <div style="position: relative; z-index: 1;">
+        <!-- Header Banner -->
+        <section class="section-shell p-6 p-md-8 mb-8 header-card">
+          <div>
             <p class="text-overline text-primary font-weight-bold mb-2">Portfolio Workspace</p>
             <h1 class="text-h4 text-md-h3 mb-3 font-weight-bold">Selected developer tools and product builds</h1>
             <p class="muted-copy mb-0 intro-copy">
@@ -211,27 +209,28 @@ const currentProjectTitle = computed(() => {
             <v-text-field
               v-model="searchQuery"
               density="comfortable"
-              variant="solo-filled"
+              variant="outlined"
               rounded="xl"
               placeholder="Search projects by title, tag, or tech..."
               prepend-inner-icon="mdi-magnify"
               hide-details
               color="primary"
-              class="flex-grow-1 glass-search-field"
+              class="flex-grow-1 clean-search-field"
               clearable
             />
           </div>
           <!-- Category Chips -->
           <div class="d-flex flex-wrap ga-2">
-            <v-chip
+            <button
               v-for="cat in categories"
               :key="cat"
+              type="button"
               class="filter-chip"
               :class="{ 'is-active': activeCategory === cat }"
               @click="activeCategory = cat"
             >
               {{ cat }}
-            </v-chip>
+            </button>
           </div>
         </div>
 
@@ -249,41 +248,45 @@ const currentProjectTitle = computed(() => {
         <!-- Visual Cards Grid -->
         <v-row>
           <v-col v-for="project in filteredProjects" :key="project.id" cols="12" md="6" lg="4" class="d-flex">
-            <v-card v-3d-tilt class="section-shell project-card h-100 glow-on-hover" color="primary" :to="project.link" flat hover
-              rounded="lg">
-              <v-img :src="project.image" cover class="project-media"></v-img>
+            <v-card class="section-shell project-card h-100" :to="project.link" flat hover rounded="xl">
+              <div class="project-media-wrap">
+                <v-img :src="project.image" cover class="project-media" alt="Project preview"></v-img>
+              </div>
 
               <div class="p-5 d-flex flex-column project-card-body">
-                <p class="text-caption text-primary font-weight-bold text-uppercase mb-2">
+                <p class="text-caption text-primary font-weight-bold text-uppercase mb-1">
                   {{ project.category }}
                 </p>
-                <h2 class="text-h6 mb-2 font-weight-bold">{{ project.title }}</h2>
-                <p class="muted-copy mb-1 project-description">{{ project.description }}</p>
+                <h2 class="text-h6 mb-2 font-weight-bold project-title">{{ project.title }}</h2>
+                <p class="muted-copy mb-3 project-description">{{ project.description }}</p>
 
-                <div class="d-flex flex-wrap ga-2 mt-3 mb-2 project-tag-row">
-                  <v-chip v-for="tag in project.tags" :key="tag" flat class="project-tag" :text="tag">
+                <div class="d-flex flex-wrap ga-2 mt-auto mb-3 project-tag-row">
+                  <span v-for="tag in project.tags" :key="tag" class="project-tag">
                     {{ tag }}
-                  </v-chip>
+                  </span>
                 </div>
-                <span class="text-primary font-weight-bold project-link">Open project -></span>
+                <div class="project-link-row d-flex align-center text-primary font-weight-bold">
+                  <span>Open project</span>
+                  <v-icon size="16" class="ml-1">mdi-arrow-right</v-icon>
+                </div>
               </div>
             </v-card>
           </v-col>
 
           <!-- Fallback if query returns no matches -->
           <v-col v-if="filteredProjects.length === 0" cols="12" class="text-center py-12">
-            <v-icon icon="mdi-magnify-minus" size="64" color="primary" class="mb-4 opacity-40"></v-icon>
-            <h3 class="text-h6 text-medium-emphasis mb-2">No projects match your filter query</h3>
+            <v-icon icon="mdi-magnify-minus" size="56" color="primary" class="mb-3 opacity-60"></v-icon>
+            <h3 class="text-h6 font-weight-bold mb-2">No projects match your filter query</h3>
             <p class="text-caption text-medium-emphasis mb-4">Try clearing active category parameters or keyword spellings.</p>
-            <v-btn color="primary" variant="tonal" rounded="xl" @click="searchQuery = ''; activeCategory = 'All';" class="text-none">Clear filters</v-btn>
+            <v-btn color="primary" variant="outlined" rounded="xl" @click="searchQuery = ''; activeCategory = 'All';" class="text-none font-weight-bold">Clear filters</v-btn>
           </v-col>
         </v-row>
       </v-container>
     </template>
     <template v-else>
       <v-container class="py-4 py-md-6 active-project-shell animate-fade-in-up" fluid>
-        <!-- Premium glassmorphic breadcrumb header shown on ALL devices -->
-        <div class="breadcrumb-bar d-flex align-center py-3 px-5 mb-6 rounded-xl border flex-wrap ga-2" style="background: rgba(255, 255, 255, 0.02); border-color: rgba(15, 143, 124, 0.12) !important; backdrop-filter: blur(12px);">
+        <!-- Breadcrumb header -->
+        <div class="breadcrumb-bar d-flex align-center py-3 px-5 mb-6 rounded-xl flex-wrap ga-2">
           <v-btn to="/projects" variant="text" color="primary" class="text-none font-weight-bold mr-1" rounded="xl" prepend-icon="mdi-arrow-left">
             Projects
           </v-btn>
@@ -332,7 +335,7 @@ const currentProjectTitle = computed(() => {
               variant="tonal"
               rounded="pill"
               class="text-none font-weight-bold"
-              :color="route.path === quickProj.link ? 'primary' : 'medium-emphasis'"
+              :color="route.path === quickProj.link ? 'primary' : 'secondary'"
             >
               {{ quickProj.title.replace(' Converter', '') }}
             </v-btn>
@@ -352,112 +355,133 @@ const currentProjectTitle = computed(() => {
 .active-project-shell {
   max-width: 100% !important;
   width: 100% !important;
-  padding-left: clamp(10px, 1.8vw, 24px) !important;
-  padding-right: clamp(10px, 1.8vw, 24px) !important;
+  padding-left: clamp(12px, 1.8vw, 24px) !important;
+  padding-right: clamp(12px, 1.8vw, 24px) !important;
+}
+
+.header-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.12));
+  box-shadow: var(--portfolio-shadow, 0 8px 24px rgba(124, 14, 68, 0.06));
 }
 
 .intro-copy {
   max-width: 70ch;
+  color: var(--portfolio-muted, #7E636E);
+  line-height: 1.65;
 }
 
-.header-card {
-  position: relative;
+.clean-search-field :deep(.v-field) {
+  background: #FFFFFF !important;
+  border-color: rgba(124, 14, 68, 0.14) !important;
+  box-shadow: 0 2px 8px rgba(124, 14, 68, 0.04);
 }
 
-.filter-chip,
-.project-tag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 28px;
-  padding: 0 12px;
-  border: 1px solid rgba(15, 143, 124, 0.25);
+.filter-chip {
+  border: 1px solid rgba(124, 14, 68, 0.14);
   border-radius: 999px;
-  background: rgba(15, 143, 124, 0.06);
-  color: var(--portfolio-primary);
-  font-size: 0.78rem;
-  font-weight: 700;
-  white-space: nowrap;
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--portfolio-ink-soft, #4E3842);
+  background: #FFFFFF;
   cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
+  transition: all 0.2s ease;
 }
 
-.filter-chip:hover,
-.project-tag:hover {
-  border-color: #0f8f7c;
-  background: rgba(15, 143, 124, 0.16);
-  color: #39bca3;
+.filter-chip:hover {
+  border-color: var(--portfolio-primary, #7C0E44);
+  background: rgba(124, 14, 68, 0.05);
+  color: var(--portfolio-primary, #7C0E44);
 }
 
 .filter-chip.is-active {
   border-color: transparent;
-  background: linear-gradient(135deg, var(--portfolio-primary), #0d7667);
-  color: #ffffff;
+  background: var(--portfolio-primary, #7C0E44);
+  color: #FFFFFF;
+  box-shadow: 0 2px 10px rgba(124, 14, 68, 0.2);
 }
 
 .project-card {
   display: flex;
-  color: var(--portfolio-ink) !important;
   flex-direction: column;
   width: 100%;
   min-height: 100%;
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  background: #FFFFFF !important;
+  border: 1px solid rgba(124, 14, 68, 0.12) !important;
+  box-shadow: var(--portfolio-shadow, 0 8px 24px rgba(124, 14, 68, 0.06));
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(124, 14, 68, 0.28) !important;
+  box-shadow: 0 12px 30px rgba(124, 14, 68, 0.09) !important;
+}
+
+.project-media-wrap {
+  overflow: hidden;
+  background: var(--portfolio-surface-soft, #FAF3F0);
+  border-bottom: 1px solid rgba(124, 14, 68, 0.08);
 }
 
 .project-media {
   aspect-ratio: 16 / 9;
   min-height: 180px;
-  max-height: 220px;
-  background:
-    radial-gradient(circle at 82% 16%, rgba(209, 138, 31, 0.18), transparent 36%),
-    linear-gradient(145deg, rgba(15, 23, 42, 0.95), #8a85ed15);
+  max-height: 210px;
+  transition: transform 0.35s ease;
 }
 
-.project-media :deep(.v-img__img) {
-  object-fit: cover;
+.project-card:hover .project-media {
+  transform: scale(1.04);
 }
 
 .project-card-body {
-  min-height: 260px;
+  min-height: 240px;
   flex: 1 1 auto;
+}
+
+.project-title {
+  color: var(--portfolio-ink, #231219);
 }
 
 .project-description {
   flex: 1 1 auto;
   display: -webkit-box;
-  line-clamp: 4;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  color: var(--portfolio-muted, #7E636E);
+  line-height: 1.6;
 }
 
 .project-tag-row {
-  min-height: 34px;
-  align-content: flex-start;
+  min-height: 30px;
 }
 
-.project-link {
+.project-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  background: rgba(170, 94, 122, 0.08);
+  border: 1px solid rgba(170, 94, 122, 0.18);
+  color: var(--portfolio-primary, #7C0E44);
+}
+
+.project-link-row {
   margin-top: auto;
-  padding-top: 2px;
+  font-size: 0.88rem;
+  letter-spacing: 0.01em;
 }
 
-.project-media,
-.project-description,
-.project-link {
-  transition: transform 0.45s ease;
-}
-
-.project-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.35);
-}
-
-.project-card:hover .project-media {
-  transform: scale(1.05);
+.breadcrumb-bar {
+  background: #FFFFFF;
+  border: 1px solid rgba(124, 14, 68, 0.12);
+  box-shadow: 0 2px 10px rgba(124, 14, 68, 0.04);
 }
 
 @media (max-width: 600px) {
@@ -466,16 +490,12 @@ const currentProjectTitle = computed(() => {
   }
 
   .project-media {
-    min-height: 162px;
-    max-height: 190px;
+    min-height: 160px;
+    max-height: 180px;
   }
 
   .project-card-body {
     min-height: 0;
-  }
-
-  .project-description {
-    line-clamp: 5;
   }
 }
 </style>

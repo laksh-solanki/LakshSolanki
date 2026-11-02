@@ -1104,8 +1104,8 @@ onUnmounted(() => {
   align-items: center;
   padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(15, 143, 124, 0.3);
-  color: #0f8f7c;
+  border: 1px solid rgba(124, 14, 68, 0.3);
+  color: #7C0E44;
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1159,7 +1159,7 @@ onUnmounted(() => {
 }
 
 .panel-kicker {
-  color: #0f8f7c !important;
+  color: #7C0E44 !important;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-size: 0.72rem;
@@ -1192,7 +1192,7 @@ onUnmounted(() => {
 }
 
 .word-highlight {
-  background: rgba(15, 143, 124, 0.44);
+  background: rgba(124, 14, 68, 0.44);
   color: #ffffff;
   border-radius: 6px;
   padding: 0 4px;
@@ -1239,9 +1239,9 @@ onUnmounted(() => {
 kbd {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.74rem;
-  border: 1px solid rgba(15, 143, 124, 0.3);
+  border: 1px solid rgba(124, 14, 68, 0.3);
   border-radius: 6px;
-  background: rgba(15, 143, 124, 0.15);
+  background: rgba(124, 14, 68, 0.15);
   padding: 2px 6px;
 }
 

@@ -1190,7 +1190,7 @@ onUnmounted(() => {
 }
 
 .panel-kicker {
-  color: #0f8f7c !important;
+  color: #7C0E44 !important;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-size: 0.72rem;
@@ -1198,10 +1198,10 @@ onUnmounted(() => {
 }
 
 .upload-zone {
-  border: 3px dashed rgba(15, 143, 124, 0.35) !important;
+  border: 3px dashed rgba(124, 14, 68, 0.35) !important;
   background:
-    linear-gradient(145deg, rgba(15, 143, 124, 0.1), rgba(209, 138, 31, 0.05)),
-    rgba(15, 143, 124, 0.08) !important;
+    linear-gradient(145deg, rgba(124, 14, 68, 0.1), rgba(170, 94, 122, 0.05)),
+    rgba(124, 14, 68, 0.08) !important;
   padding: 36px 22px;
   cursor: pointer;
   transition:
@@ -1212,16 +1212,16 @@ onUnmounted(() => {
 
 .upload-zone:hover {
   transform: translateY(-2px);
-  border-color: #0f8f7c !important;
+  border-color: #7C0E44 !important;
   background:
-    linear-gradient(145deg, rgba(15, 143, 124, 0.16), rgba(209, 138, 31, 0.08)),
-    rgba(15, 143, 124, 0.15) !important;
+    linear-gradient(145deg, rgba(124, 14, 68, 0.16), rgba(170, 94, 122, 0.08)),
+    rgba(124, 14, 68, 0.15) !important;
 }
 
 .upload-zone.drag-over {
   border-style: solid !important;
-  border-color: #0f8f7c !important;
-  background: rgba(15, 143, 124, 0.22);
+  border-color: #7C0E44 !important;
+  background: rgba(124, 14, 68, 0.22);
 }
 
 .file-input {
@@ -1319,10 +1319,10 @@ onUnmounted(() => {
 .swatch-btn:hover,
 .swatch-btn.is-active {
   transform: translateY(-2px);
-  border-color: #d18a1f;
+  border-color: #AA5E7A;
   box-shadow:
     0 10px 20px rgba(0, 0, 0, 0.22),
-    0 0 0 3px rgba(209, 138, 31, 0.16);
+    0 0 0 3px rgba(170, 94, 122, 0.16);
 }
 
 .progress-shell {
@@ -1358,10 +1358,10 @@ onUnmounted(() => {
   border-radius: 14px;
   padding: 8px;
   background-image:
-    linear-gradient(45deg, rgba(15, 143, 124, 0.1) 25%, transparent 25%),
-    linear-gradient(-45deg, rgba(15, 143, 124, 0.1) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, rgba(15, 143, 124, 0.1) 75%),
-    linear-gradient(-45deg, transparent 75%, rgba(15, 143, 124, 0.1) 75%);
+    linear-gradient(45deg, rgba(124, 14, 68, 0.1) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(124, 14, 68, 0.1) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(124, 14, 68, 0.1) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(124, 14, 68, 0.1) 75%);
   background-position:
     0 0,
     0 8px,

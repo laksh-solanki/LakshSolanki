@@ -5,10 +5,8 @@
 </template>
 
 <script setup>
-// Library Imports
 import { ref } from "vue";
 
-// State & Refs
 const progress = ref(0);
 const isVisible = ref(false);
 let interval = null;
@@ -17,7 +15,6 @@ const start = () => {
   isVisible.value = true;
   progress.value = 0;
 
-  // Trickle effect: moves fast at first, then slows down
   interval = setInterval(() => {
     if (progress.value < 90) {
       progress.value += Math.random() * 10;
@@ -30,10 +27,9 @@ const finish = () => {
   setTimeout(() => {
     isVisible.value = false;
     clearInterval(interval);
-  }, 300); // Wait for the "100%" animation to finish
+  }, 300);
 };
 
-// Expose methods to be used by the router
 defineExpose({ start, finish });
 </script>
 
@@ -43,13 +39,13 @@ defineExpose({ start, finish });
   top: 0;
   left: 0;
   width: 100%;
-  height: 2px;
+  height: 3px;
   z-index: 9999;
 }
 
 .loader-bar {
   height: 100%;
-  background: linear-gradient(90deg, #0f8f7c, rgba(15, 143, 124, 0.56));
+  background: linear-gradient(90deg, #7C0E44, #AA5E7A);
   transition: width 0.3s ease;
 }
 </style>

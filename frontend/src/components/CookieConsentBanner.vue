@@ -92,9 +92,9 @@ onMounted(() => {
           <span class="cookie-text">We use cookies to improve your experience.</span>
         </div>
         <div class="cookie-actions">
-          <v-btn variant="outlined" color="red" size="small" rounded="pill" class="" @click="rejectCookies"
+          <v-btn variant="outlined" color="primary" size="small" rounded="pill" class="text-none" @click="rejectCookies"
             text="Reject" />
-          <v-btn variant="outlined" color="primary" size="small" rounded="pill" class=""
+          <v-btn variant="flat" color="primary" size="small" rounded="pill" class="text-none"
             @click="acceptCookies" text="Accept" />
         </div>
       </section>
@@ -114,13 +114,13 @@ onMounted(() => {
   align-items: center;
   gap: 16px;
 
-  padding: 6px 8px 6px 18px;
-  background: rgba(31, 40, 48, 0.9);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(15, 143, 124, 0.12);
+  padding: 8px 12px 8px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(124, 14, 68, 0.15);
   border-radius: 100px;
-  box-shadow: 0 10px 30px -5px rgba(18, 38, 33, 0.12);
+  box-shadow: 0 10px 30px rgba(124, 14, 68, 0.08);
 
   width: auto;
   max-width: calc(100vw - 32px);
@@ -137,25 +137,20 @@ onMounted(() => {
 .cookie-text {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--portfolio-ink);
+  color: var(--portfolio-ink, #231219);
   letter-spacing: -0.01em;
 }
 
 .cookie-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
-}
-
-.mini-btn {
-  font-weight: 700 !important;
-  letter-spacing: 0.01em;
+  gap: 8px;
 }
 
 /* Slide Transition */
 .cookie-slide-enter-active,
 .cookie-slide-leave-active {
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .cookie-slide-enter-from,
@@ -164,11 +159,10 @@ onMounted(() => {
   opacity: 0;
 }
 
-/* Responsiveness */
 @media (max-width: 640px) {
   .cookie-banner-minimal {
     bottom: 20px;
-    padding: 10px 12px 10px 16px;
+    padding: 12px 16px;
     border-radius: 20px;
     flex-direction: column;
     align-items: flex-start;
@@ -183,10 +177,6 @@ onMounted(() => {
   .cookie-actions {
     width: 100%;
     justify-content: flex-end;
-  }
-
-  .cookie-text {
-    font-size: 0.825rem;
   }
 }
 </style>

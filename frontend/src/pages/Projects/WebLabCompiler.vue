@@ -10,7 +10,7 @@ const defaultTemplate = {
   id: "chart",
   label: "Bars + Data",
   html: `<section><h2>Revenue</h2><div id="bars"></div></section>`,
-  css: `body{margin:0;padding:24px;font-family:Trebuchet MS,sans-serif;background:#f4faf8;color:#103832}section{max-width:640px;margin:0 auto;background:#fff;border:1px solid rgba(15,143,124,.16);border-radius:14px;padding:20px;box-shadow:0 16px 28px rgba(18,38,33,.06)}#bars{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;align-items:end;height:220px}#bars div{background:linear-gradient(180deg,#0f8f7c,#36bfa6);border-radius:8px 8px 4px 4px}`,
+  css: `body{margin:0;padding:24px;font-family:Trebuchet MS,sans-serif;background:#faf3f0;color:#231219}section{max-width:640px;margin:0 auto;background:#fff;border:1px solid rgba(124,14,68,.16);border-radius:14px;padding:20px;box-shadow:0 16px 28px rgba(124,14,68,.06)}#bars{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;align-items:end;height:220px}#bars div{background:linear-gradient(180deg,#7c0e44,#aa5e7a);border-radius:8px 8px 4px 4px}`,
   js: `const bars=document.getElementById("bars");const values=[48,72,55,86,66,91,74];bars.innerHTML=values.map(v=>'<div style="height:'+v*2+'px" title="'+v+'"></div>').join("");console.info("rendered values",values);`,
 };
 const htmlCode = ref("");
@@ -425,13 +425,13 @@ onUnmounted(() => {
 .hero-chip {
   display: inline-flex;
   align-items: center;
-  border: 1px solid rgba(15, 143, 124, 0.3);
+  border: 1px solid rgba(124, 14, 68, 0.3);
   border-radius: 999px;
   padding: 6px 12px;
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #0f8f7c;
+  color: #7C0E44;
   font-weight: 700;
   background: rgba(255, 255, 255, 0.02);
 }
@@ -493,12 +493,12 @@ onUnmounted(() => {
   height: 2px;
   border-radius: 999px;
   transform: translateX(-50%);
-  background: #0f8f7c;
+  background: #7C0E44;
   transition: background 0.2s ease;
 }
 
 .editor-divider:hover::before {
-  background: #0f8f7c;
+  background: #7C0E44;
 }
 
 :global(body.editor-resizing) .editor-divider::before {

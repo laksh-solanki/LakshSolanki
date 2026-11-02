@@ -82,9 +82,9 @@ const closeDrawer = () => {
   </v-navigation-drawer>
 
   <v-app-bar
-    class="premium-app-bar scrolled-down"
+    class="premium-app-bar"
     flat
-    height="80"
+    height="76"
   >
     <v-container class="h-100 d-flex align-center justify-space-between px-4 px-md-8 mx-auto w-100" style="max-width: var(--page-max-width, 1400px);">
       <!-- Brand Logo -->
@@ -103,7 +103,7 @@ const closeDrawer = () => {
             :class="{ 'seg-active': isActive(link.path) }"
           >
             <span class="seg-item-content">
-              <v-icon size="20" class="mr-2">{{ isActive(link.path) ? link.activeIcon : link.icon }}</v-icon>
+              <v-icon size="19" class="mr-2">{{ isActive(link.path) ? link.activeIcon : link.icon }}</v-icon>
               {{ link.title }}
             </span>
           </router-link>
@@ -112,7 +112,6 @@ const closeDrawer = () => {
 
       <!-- Right Actions (Search + Social) -->
       <div class="header-actions d-flex align-center ga-2 ga-md-4">
-
         <SearchBar class="search-component" />
 
         <v-btn
@@ -133,6 +132,7 @@ const closeDrawer = () => {
           icon
           variant="tonal"
           @click="drawer = true"
+          aria-label="Open navigation menu"
         >
           <v-icon>mdi-menu</v-icon>
         </v-btn>
@@ -146,22 +146,23 @@ const closeDrawer = () => {
    GLOBAL HEADER (Vue App Bar)
 --------------------------------- */
 .premium-app-bar {
-  background: rgba(var(--v-theme-surface), 0.75) !important;
-  color: rgb(var(--v-theme-on-surface)) !important;
-  backdrop-filter: blur(28px) saturate(200%);
-  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08) !important;
-  box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.1) !important;
-  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: var(--portfolio-ink, #231219) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(124, 14, 68, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(124, 14, 68, 0.04) !important;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.4, 1) !important;
 }
 
 .brand-link {
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.25s ease;
   transform-origin: left center;
-  z-index: 2; /* Ensure it stays clickable above absolute nav */
+  z-index: 2;
 }
 
 .brand-link:hover {
-  transform: scale(1.04);
+  transform: scale(1.03);
 }
 
 /* ------------------------------------
@@ -177,23 +178,22 @@ const closeDrawer = () => {
 .nav-segment-control {
   display: flex;
   align-items: center;
-  background: rgba(var(--v-theme-on-surface), 0.04);
-  padding: 6px;
+  background: rgba(124, 14, 68, 0.05);
+  padding: 5px;
   border-radius: 100px;
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.06);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
-  gap: 4px;
+  border: 1px solid rgba(124, 14, 68, 0.09);
+  gap: 3px;
 }
 
 .seg-item {
   position: relative;
   border-radius: 100px;
-  padding: 8px 22px;
+  padding: 8px 20px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   letter-spacing: 0.01em;
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-  overflow: hidden;
+  color: var(--portfolio-ink-soft, #4E3842);
+  transition: all 0.25s ease;
 }
 
 .seg-item-content {
@@ -204,170 +204,147 @@ const closeDrawer = () => {
 }
 
 .seg-item:hover {
-  color: rgb(var(--v-theme-on-surface));
-  background: rgba(var(--v-theme-on-surface), 0.06);
+  color: var(--portfolio-primary, #7C0E44);
+  background: rgba(124, 14, 68, 0.06);
 }
 
 .seg-active {
-  color: #ffffff !important;
-  background: #0f8f7c !important;
-  box-shadow: 0 4px 16px rgba(15, 143, 124, 0.3);
+  color: #FFFFFF !important;
+  background: var(--portfolio-primary, #7C0E44) !important;
+  box-shadow: 0 2px 10px rgba(124, 14, 68, 0.25);
 }
 
 .seg-active:hover {
-  background: var(--portfolio-primary, #0f8f7c);
-  filter: brightness(1.06);
+  background: #901452 !important;
+  color: #FFFFFF !important;
 }
 
 /* ---------------------------------
    ACTIONS & BUTTONS
-   --------------------------------- */
+--------------------------------- */
 .header-actions {
   z-index: 2;
   flex-shrink: 0;
 }
 
 .github-action-btn {
-  background: #0f8f7c !important;
-  color: white !important;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 6px 16px rgba(15, 143, 124, 0.25) !important;
-  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
+  background: var(--portfolio-primary, #7C0E44) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(124, 14, 68, 0.12);
+  box-shadow: 0 2px 8px rgba(124, 14, 68, 0.18) !important;
+  transition: all 0.25s ease !important;
 }
 
 .github-action-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(15, 143, 124, 0.3) !important;
-  filter: brightness(1.08);
+  background: #901452 !important;
+  box-shadow: 0 6px 16px rgba(124, 14, 68, 0.25) !important;
 }
 
 .mobile-menu-btn {
-  background: rgba(var(--v-theme-on-surface), 0.06);
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  background: rgba(124, 14, 68, 0.06);
+  border: 1px solid rgba(124, 14, 68, 0.1);
   border-radius: 12px;
-  color: rgb(var(--v-theme-on-surface)) !important;
-  transition: background-color 0.2s ease;
-  width: 44px !important;
-  height: 44px !important;
-}
-
-.mobile-menu-btn:hover {
-  background: rgba(var(--v-theme-on-surface), 0.1);
+  color: var(--portfolio-primary, #7C0E44) !important;
+  width: 42px !important;
+  height: 42px !important;
 }
 
 /* ---------------------------------
-   MOBILE DRAWER (ULTRA PREMIUM)
-   --------------------------------- */
+   MOBILE DRAWER
+--------------------------------- */
 .premium-mobile-drawer {
-  backdrop-filter: blur(36px) saturate(200%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
 .premium-mobile-drawer :deep(.v-navigation-drawer__content) {
-  background: rgba(var(--v-theme-surface), 0.85);
-  box-shadow: -20px 0 60px rgba(0, 0, 0, 0.15);
-  border-left: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  background: #FFFFFF;
+  box-shadow: -10px 0 30px rgba(124, 14, 68, 0.08);
+  border-left: 1px solid rgba(124, 14, 68, 0.1);
 }
 
 .drawer-shell {
-  padding: 30px 20px;
+  padding: 24px 20px;
 }
 
 .drawer-close {
-  background: rgba(var(--v-theme-on-surface), 0.06);
-  color: rgb(var(--v-theme-on-surface)) !important;
+  background: rgba(124, 14, 68, 0.06);
+  color: var(--portfolio-primary, #7C0E44) !important;
 }
 
 .drawer-subtitle {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: rgba(var(--v-theme-on-surface), 0.45);
-  margin-bottom: 20px;
-  padding-left: 14px;
+  letter-spacing: 0.12em;
+  color: var(--portfolio-muted, #7E636E);
+  margin-bottom: 16px;
+  padding-left: 8px;
 }
 
 .premium-drawer-item {
   border: 1px solid transparent !important;
   padding: 10px 14px !important;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  opacity: 0.9;
+  transition: all 0.2s ease;
+  color: var(--portfolio-ink, #231219) !important;
 }
 
 .premium-drawer-item:hover {
-  background: #0f8f7c !important;
-  border-color: #0f8f7c !important;
+  background: rgba(124, 14, 68, 0.05) !important;
+  border-color: rgba(124, 14, 68, 0.1) !important;
   transform: translateX(4px);
-  opacity: 1;
 }
 
 .link-icon-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: rgba(15, 143, 124, 0.25);
-  color: #0f8f7c;
-  margin-right: 18px;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.premium-drawer-item:hover .link-icon-wrapper {
-  background: #0f8f7c;
-  transform: scale(1.06) rotate(-4deg);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(124, 14, 68, 0.08);
+  color: var(--portfolio-primary, #7C0E44);
+  margin-right: 14px;
+  transition: all 0.2s ease;
 }
 
 .active-icon-wrapper {
-  background: linear-gradient(135deg, #0f8f7c, #0f8f7c);
-  color: #fff !important;
-  box-shadow: 0 8px 20px rgba(15, 143, 124, 0.3);
+  background: var(--portfolio-primary, #7C0E44);
+  color: #FFFFFF !important;
 }
 
 .link-title {
-  color: rgb(var(--v-theme-on-surface));
-  font-size: 1rem;
+  color: var(--portfolio-ink, #231219);
+  font-size: 0.98rem;
   font-weight: 600;
-  letter-spacing: 0em;
 }
 
 .link-arrow {
-  color: rgba(var(--v-theme-on-surface), 0.4);
-  transition: transform 0.3s ease, color 0.3s ease;
+  color: var(--portfolio-muted, #7E636E);
+  transition: transform 0.2s ease;
 }
 
 .premium-drawer-item:hover .link-arrow {
-  transform: translateX(4px);
-  color: rgb(var(--v-theme-on-surface));
+  transform: translateX(3px);
+  color: var(--portfolio-primary, #7C0E44);
 }
 
 .is-active-item {
-  background: rgba(var(--v-theme-on-surface), 0.04) !important;
-  border-color: rgba(var(--v-theme-on-surface), 0.1) !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02);
-  opacity: 1;
+  background: rgba(124, 14, 68, 0.06) !important;
+  border-color: rgba(124, 14, 68, 0.14) !important;
 }
 
 .premium-github-btn {
-  background: linear-gradient(135deg, rgba(15, 143, 124, 0.8), #0f8f7c) !important;
-  color: white !important;
+  background: linear-gradient(135deg, var(--portfolio-primary, #7C0E44), var(--portfolio-secondary, #AA5E7A)) !important;
+  color: #FFFFFF !important;
   font-weight: 700;
-  letter-spacing: 0.03em;
-  box-shadow: 0 10px 30px rgba(15, 143, 124, 0.47) !important;
-  transition: all 0.3s ease !important;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.premium-github-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 14px 40px rgba(15, 143, 124, 0.47) !important;
-  filter: brightness(1.1);
+  box-shadow: 0 4px 16px rgba(124, 14, 68, 0.2) !important;
 }
 
 @media (max-width: 600px) {
   .drawer-shell {
-    padding: 24px 16px;
+    padding: 20px 16px;
   }
 }
 </style>

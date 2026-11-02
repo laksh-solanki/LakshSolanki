@@ -526,7 +526,7 @@ const exportMarkdown = () => {
 }
 
 .panel-kicker {
-  color: #0f8f7c !important;
+  color: #7C0E44 !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.71rem;
@@ -546,7 +546,7 @@ const exportMarkdown = () => {
 
 .endpoint-item:hover {
   background: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(15, 143, 124, 0.25) !important;
+  border-color: rgba(124, 14, 68, 0.25) !important;
   transform: translateY(-2px);
 }
 </style>

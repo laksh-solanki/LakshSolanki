@@ -50,9 +50,10 @@ const logoSrc = getMediaUrl("Picture/LS.svg");
   font-weight: 800;
   letter-spacing: -0.03em;
   font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  color: var(--portfolio-ink, #231219);
 }
 
 .brand-name .accent {
-  color: #0f8f7c !important;
+  color: var(--portfolio-primary, #7C0E44) !important;
 }
 </style>

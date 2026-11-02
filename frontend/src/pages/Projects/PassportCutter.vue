@@ -50,9 +50,9 @@ const solidColorPresets = [
   { name: "White", hex: "#ffffff" },
   { name: "Cloud Gray", hex: "#f5f5f5" },
   { name: "Black", hex: "#000000" },
-  { name: "Teal", hex: "#0f8f7c" },
+  { name: "Burgundy", hex: "#7c0e44" },
   { name: "Royal Blue", hex: "#2f6fed" },
-  { name: "Sun Yellow", hex: "#f8d24a" },
+  { name: "Rose", hex: "#aa5e7a" },
   { name: "Rose Pink", hex: "#f08ca0" },
 ];
 
@@ -971,8 +971,8 @@ watch(
   align-items: center;
   padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(15, 143, 124, 0.3);
-  color: #0f8f7c;
+  border: 1px solid rgba(124, 14, 68, 0.3);
+  color: #7C0E44;
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -998,7 +998,7 @@ watch(
 }
 
 .panel-kicker {
-  color: #0f8f7c !important;
+  color: #7C0E44 !important;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-size: 0.89rem;
@@ -1039,7 +1039,7 @@ watch(
 }
 
 .mode-toggle {
-  border: 1px solid rgba(15, 143, 124, 0.3);
+  border: 1px solid rgba(124, 14, 68, 0.3);
   border-radius: 14px;
   overflow: hidden;
   width: 100%;
@@ -1050,7 +1050,7 @@ watch(
 }
 
 .drop-zone {
-  border: 1.5px dashed rgba(15, 143, 124, 0.35);
+  border: 1.5px dashed rgba(124, 14, 68, 0.35);
   border-radius: 18px;
   padding: 26px 18px;
   text-align: center;
@@ -1063,14 +1063,14 @@ watch(
 }
 
 .drop-zone:hover {
-  border-color: rgba(15, 143, 124, 0.6);
-  background: rgba(15, 143, 124, 0.08);
+  border-color: rgba(124, 14, 68, 0.6);
+  background: rgba(124, 14, 68, 0.08);
   transform: translateY(-2px);
 }
 
 .drop-zone-active {
   border-color: var(--portfolio-primary);
-  background: rgba(15, 143, 124, 0.12);
+  background: rgba(124, 14, 68, 0.12);
 }
 
 .tools-unlock-note {
@@ -1079,14 +1079,14 @@ watch(
   gap: 10px;
   padding: 12px 14px;
   border-radius: 14px;
-  background: rgba(15, 143, 124, 0.15);
-  border: 1px solid rgba(15, 143, 124, 0.3);
-  color: #0f8f7c !important;
+  background: rgba(124, 14, 68, 0.15);
+  border: 1px solid rgba(124, 14, 68, 0.3);
+  color: #7C0E44 !important;
   line-height: 1.4;
 }
 
 .tools-unlock-icon {
-  color: #0f8f7c;
+  color: #7C0E44;
 }
 
 .output-controls {
@@ -1125,11 +1125,11 @@ watch(
   height: 26px;
   padding: 0 10px;
   border-radius: 999px;
-  border: 1px solid rgba(15, 143, 124, 0.3);
-  background: rgba(15, 143, 124, 0.08);
+  border: 1px solid rgba(124, 14, 68, 0.3);
+  background: rgba(124, 14, 68, 0.08);
   font-size: 0.76rem;
   font-weight: 700;
-  color: #0f8f7c;
+  color: #7C0E44;
 }
 
 .output-controls-row {
@@ -1145,7 +1145,7 @@ watch(
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  border: 1px solid rgba(15, 143, 124, 0.3);
+  border: 1px solid rgba(124, 14, 68, 0.3);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.02);
 }

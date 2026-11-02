@@ -8,10 +8,10 @@
 
       <v-text-field v-model.trim="email" type="email" variant="outlined" label="Enter your email"
         prepend-inner-icon="mdi-email-outline" :rules="emailRules" hide-details :disabled="isLoading || isSubscribed"
-        density="comfortable" flat class="newsletter-input mb-3" ></v-text-field>
+        density="comfortable" flat class="newsletter-input mb-3"></v-text-field>
 
       <v-btn block type="submit" color="primary" :loading="isLoading" :disabled="!isValid || isSubscribed"
-        rounded="xl" elevation="0">
+        rounded="xl" elevation="0" class="text-none subscribe-btn">
         <v-icon start icon="mdi-bell-ring-outline"></v-icon>
         {{ isSubscribed ? "Already subscribed" : "Join the newsletter" }}
       </v-btn>
@@ -93,11 +93,9 @@ const handleSubscribe = async () => {
 .newsletter-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(15, 143, 124, 0.14);
-  background: linear-gradient(180deg, rgba(38, 43, 49, 0.92), rgba(38, 43, 49, 0.92));
-  box-shadow:
-    0 20px 36px rgba(18, 38, 33, 0.08),
-    inset 0 1px 0 rgba(38, 43, 49, 0.92);
+  border: 1px solid rgba(124, 14, 68, 0.14) !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 4px 16px rgba(124, 14, 68, 0.05) !important;
 }
 
 .newsletter-head {
@@ -105,59 +103,26 @@ const handleSubscribe = async () => {
   z-index: 1;
 }
 
-.eyebrow-chip {
-  display: inline-flex;
-  align-items: center;
-  margin-bottom: 10px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(15, 143, 124, 0.18);
-  background: rgba(15, 143, 124, 0.08);
-  color: var(--portfolio-primary);
-  font-size: 0.67rem;
-  text-transform: uppercase;
-  letter-spacing: 0.11em;
-  font-weight: 700;
-}
-
-.mail-avatar {
-  border: 1px solid rgba(15, 143, 124, 0.16);
-}
-
-.tracking-wide {
-  letter-spacing: 0.08em;
-}
-
-.copy-muted {
-  color: var(--portfolio-muted);
-}
-
-.newsletter-card h3 {
-  color: var(--portfolio-ink);
-}
-
-.benefit-chips {
-  position: relative;
-  z-index: 1;
-}
-
-.benefit-chips :deep(.v-chip) {
-  border: 1px solid rgba(15, 143, 124, 0.14);
-  background: rgba(15, 143, 124, 0.08);
-  color: var(--portfolio-ink);
-}
-
 .newsletter-input :deep(.v-field) {
-  border: 1px solid rgba(15, 143, 124, 0.16) !important;
-  border-radius: 14px !important;
+  border: 1px solid rgba(124, 14, 68, 0.16) !important;
+  border-radius: 12px !important;
+  background: #FFFFFF !important;
 }
 
 .newsletter-input :deep(.v-label),
 .newsletter-input :deep(input) {
-  color: var(--portfolio-ink);
+  color: var(--portfolio-ink, #231219) !important;
+}
+
+.subscribe-btn {
+  background: var(--portfolio-primary, #7C0E44) !important;
+  color: #FFFFFF !important;
+  font-weight: 700;
+  transition: all 0.2s ease;
 }
 
 .subscribe-btn:hover {
-  filter: brightness(1.05);
+  background: #901452 !important;
+  transform: translateY(-1px);
 }
 </style>

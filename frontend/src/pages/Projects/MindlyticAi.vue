@@ -979,7 +979,7 @@ const authorizedFetchHistory = async (path = "", options = {}) => {
 const hasUser = computed(() => Boolean(currentUser.value));
 const isDarkTheme = computed(() => pageTheme.value === "dark");
 const themeToggleLabel = computed(() =>
-  isDarkTheme.value ? "Switch to green theme" : "Switch to black theme",
+  isDarkTheme.value ? "Switch theme" : "Switch to black theme",
 );
 const themeToggleIcon = computed(() =>
   isDarkTheme.value ? "mdi-palette-swatch" : "mdi-weather-night",
@@ -2841,7 +2841,7 @@ onUnmounted(() => {
 
 .google-auth-btn:hover:not(:disabled) {
   background-color: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(15, 143, 124, 0.25) !important;
+  border-color: rgba(124, 14, 68, 0.25) !important;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
@@ -3018,9 +3018,9 @@ onUnmounted(() => {
 
 /* User Message */
 .message-row-user .message-bubble {
-  background-color: rgba(15, 143, 124, 0.15) !important;
+  background-color: rgba(124, 14, 68, 0.15) !important;
   color: rgb(var(--v-theme-on-surface)) !important;
-  border: 1px solid rgba(15, 143, 124, 0.22) !important;
+  border: 1px solid rgba(124, 14, 68, 0.22) !important;
   border-radius: 24px;
   max-width: 80%;
 }
@@ -3152,7 +3152,7 @@ onUnmounted(() => {
   max-width: 768px;
   margin: 0 auto;
   background-color: rgba(255, 255, 255, 0.02) !important;
-  border: 1px solid rgba(15, 143, 124, 0.16) !important;
+  border: 1px solid rgba(124, 14, 68, 0.16) !important;
   backdrop-filter: blur(12px);
   border-radius: 15px !important;
   padding: 12px;
@@ -3164,7 +3164,7 @@ onUnmounted(() => {
 }
 
 .composer-panel:focus-within {
-  border-color: rgba(15, 143, 124, 0.42) !important;
+  border-color: rgba(124, 14, 68, 0.42) !important;
 }
 
 .mindlytic-page.theme-dark .composer-panel {
@@ -3296,7 +3296,7 @@ onUnmounted(() => {
   overflow-x: auto;
   overflow-y: hidden;
   margin: 0;
-  box-shadow: inset 0 0 0 1px rgba(15, 143, 124, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(124, 14, 68, 0.16);
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
 }
@@ -3341,7 +3341,7 @@ onUnmounted(() => {
 .markdown-body :deep(.inline-code-runner) {
   width: 100%;
   max-width: 100%;
-  border: 1px solid rgba(15, 143, 124, 0.22);
+  border: 1px solid rgba(124, 14, 68, 0.22);
   border-radius: 12px;
   overflow: hidden;
   margin: 16px 0;
@@ -3362,7 +3362,7 @@ onUnmounted(() => {
   gap: 8px 10px;
   background-color: rgb(var(--v-theme-surface-light)) !important;
   padding: 10px 12px;
-  border-bottom: 1px solid rgba(15, 143, 124, 0.16);
+  border-bottom: 1px solid rgba(124, 14, 68, 0.16);
 }
 
 .mindlytic-page.theme-dark .markdown-body :deep(.inline-code-runner-head) {
@@ -3400,7 +3400,7 @@ onUnmounted(() => {
   font-weight: 600;
   padding: 4px 10px;
   background-color: transparent !important;
-  border: 1px solid rgba(15, 143, 124, 0.22) !important;
+  border: 1px solid rgba(124, 14, 68, 0.22) !important;
   border-radius: 6px;
   color: rgb(var(--v-theme-on-surface)) !important;
   cursor: pointer;
@@ -3409,8 +3409,8 @@ onUnmounted(() => {
 }
 
 .markdown-body :deep(.code-runner-inline-btn:hover) {
-  background-color: rgba(15, 143, 124, 0.08) !important;
-  border-color: rgba(15, 143, 124, 0.42) !important;
+  background-color: rgba(124, 14, 68, 0.08) !important;
+  border-color: rgba(124, 14, 68, 0.42) !important;
 }
 
 .mindlytic-page.theme-dark .markdown-body :deep(.code-runner-inline-btn) {
@@ -3428,7 +3428,7 @@ onUnmounted(() => {
 }
 
 .markdown-body :deep(pre code .token.string) {
-  color: #10b981;
+  color: #AA5E7A;
 }
 
 .markdown-body :deep(pre code .token.keyword) {
@@ -3440,7 +3440,7 @@ onUnmounted(() => {
 }
 
 .markdown-body :deep(pre code .token.number) {
-  color: #f59e0b;
+  color: #AA5E7A;
 }
 
 .markdown-body :deep(pre code .token.operator) {

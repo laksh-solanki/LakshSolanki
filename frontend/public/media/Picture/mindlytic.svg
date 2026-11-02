@@ -1,52 +1,50 @@
 <svg width="300" height="300" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="gemini-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#4285F4" />
-      <stop offset="40%" stop-color="#9b72cb" />
-      <stop offset="70%" stop-color="#d96570" />
-      <stop offset="100%" stop-color="#f4af42" />
+    <linearGradient id="mindlytic-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C0E44" />
+      <stop offset="50%" stop-color="#AA5E7A" />
+      <stop offset="100%" stop-color="#D49A9A" />
     </linearGradient>
-    
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="2" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    <filter id="soft-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#7C0E44" flood-opacity="0.25" />
     </filter>
   </defs>
 
   <style>
     @keyframes breathe {
-      0%, 100% { transform: scale(1); opacity: 0.9; }
-      50% { transform: scale(1.05); opacity: 1; }
-    }
-    @keyframes shift {
-      0% { stop-color: #4285F4; }
-      50% { stop-color: #d96570; }
-      100% { stop-color: #4285F4; }
+      0%, 100% { transform: scale(1); opacity: 0.95; }
+      50% { transform: scale(1.03); opacity: 1; }
     }
     .m-body {
-      animation: breathe 4s ease-in-out infinite;
+      animation: breathe 3.5s ease-in-out infinite;
       transform-origin: center;
     }
     .flare {
       animation: breathe 2s ease-in-out infinite alternate;
+      transform-origin: center;
     }
   </style>
 
-  <rect x="10" y="10" width="80" height="80" rx="25" fill="#f8f9ff" stroke="#e0e0e0" stroke-width="0.5" />
+  <!-- Clean card base -->
+  <rect x="8" y="8" width="84" height="84" rx="24" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" stroke-width="1.5" />
 
+  <!-- Neural M-curve -->
   <path class="m-body" d="M30 65 
            C30 35, 35 25, 45 25 
            C50 25, 50 45, 50 45 
            C50 45, 50 25, 55 25 
            C65 25, 70 35, 70 65" 
         fill="none" 
-        stroke="url(#gemini-grad)" 
-        stroke-width="12" 
+        stroke="url(#mindlytic-grad)" 
+        stroke-width="11" 
         stroke-linecap="round" 
-        filter="url(#glow)" />
+        stroke-linejoin="round"
+        filter="url(#soft-glow)" />
 
-  <path class="flare" d="M85 15 C85 18 82 20 80 20 C82 20 85 22 85 25 C85 22 88 20 90 20 C88 20 85 18 85 15Z" 
-        fill="#9b72cb" />
+  <!-- AI Flare -->
+  <path class="flare" d="M82 18 C82 21 79 23 77 23 C79 23 82 25 82 28 C82 25 85 23 87 23 C85 23 82 21 82 18Z" 
+        fill="#7C0E44" />
 
-  <rect x="35" y="75" width="30" height="6" rx="3" fill="#F4C430" opacity="0.8" />
+  <!-- Base Accent Pill -->
+  <rect x="36" y="74" width="28" height="5" rx="2.5" fill="#AA5E7A" opacity="0.85" />
 </svg>

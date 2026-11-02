@@ -376,9 +376,9 @@ const generatePassword = () => {
   align-items: center;
   border-radius: 999px;
   padding: 6px 13px;
-  border: 1px solid rgba(15, 143, 124, 0.3);
+  border: 1px solid rgba(124, 14, 68, 0.3);
   color: var(--portfolio-primary);
-  background: rgba(15, 143, 124, 0.08);
+  background: rgba(124, 14, 68, 0.08);
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -431,7 +431,7 @@ const generatePassword = () => {
 }
 
 .panel-kicker {
-  color: #0f8f7c !important;
+  color: #7C0E44 !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.71rem;

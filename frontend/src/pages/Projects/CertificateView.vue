@@ -408,8 +408,8 @@ const generatePdf = async () => {
   align-items: center;
   padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(15, 143, 124, 0.3);
-  color: #0f8f7c;
+  border: 1px solid rgba(124, 14, 68, 0.3);
+  color: #7C0E44;
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -467,7 +467,7 @@ const generatePdf = async () => {
   letter-spacing: 0.09em;
   font-size: 0.72rem;
   font-weight: 700;
-  color: #0f8f7c !important;
+  color: #7C0E44 !important;
 }
 
 .form-input :deep(.v-field) {
@@ -477,14 +477,14 @@ const generatePdf = async () => {
 }
 
 .note-alert {
-  border: 1px solid rgba(15, 143, 124, 0.24);
+  border: 1px solid rgba(124, 14, 68, 0.24);
 }
 
 .add-course-panel {
   padding: 18px;
   border-radius: 18px;
   border: 1px solid var(--portfolio-border-color);
-  background: rgba(15, 143, 124, 0.03);
+  background: rgba(124, 14, 68, 0.03);
 }
 
 .side-panel {
@@ -518,8 +518,8 @@ const generatePdf = async () => {
   border-radius: 10px;
   font-size: 0.76rem;
   font-weight: 800;
-  color: #0f8f7c;
-  background: rgba(15, 143, 124, 0.15);
+  color: #7C0E44;
+  background: rgba(124, 14, 68, 0.15);
 }
 
 .step-title {

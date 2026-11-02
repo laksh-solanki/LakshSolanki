@@ -1,53 +1,64 @@
 <svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bg" x1="80" y1="60" x2="1120" y2="660" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#EAF8FF"/>
-      <stop offset="1" stop-color="#D9F3E8"/>
+    <linearGradient id="pc-bg" x1="0" y1="0" x2="1200" y2="720" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FAF3F0" />
+      <stop offset="0.65" stop-color="#F5E4DC" />
+      <stop offset="1" stop-color="#EED3C5" />
     </linearGradient>
-    <linearGradient id="card" x1="270" y1="130" x2="930" y2="590" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFFFFF"/>
-      <stop offset="1" stop-color="#F3FFFA"/>
+    <linearGradient id="pc-card" x1="0" y1="0" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#FFFFFF" />
+      <stop offset="1" stop-color="#FCF9F7" />
     </linearGradient>
-    <linearGradient id="accent" x1="355" y1="188" x2="845" y2="558" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#17A48E"/>
-      <stop offset="1" stop-color="#148C7A"/>
+    <linearGradient id="pc-accent" x1="0" y1="0" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#7C0E44" />
+      <stop offset="1" stop-color="#54082D" />
     </linearGradient>
-    <filter id="shadow" x="210" y="100" width="780" height="560" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-      <feOffset dy="10"/>
-      <feGaussianBlur stdDeviation="20"/>
-      <feComposite in2="hardAlpha" operator="out"/>
-      <feColorMatrix type="matrix" values="0 0 0 0 0.0313725 0 0 0 0 0.188235 0 0 0 0 0.164706 0 0 0 0.2 0"/>
-      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1_1"/>
-      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1_1" result="shape"/>
+    <radialGradient id="pc-glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 120) scale(340 340)">
+      <stop stop-color="#D49A9A" stop-opacity="0.32" />
+      <stop offset="1" stop-color="#D49A9A" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="pc-glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(120 640) scale(300 240)">
+      <stop stop-color="#AA5E7A" stop-opacity="0.22" />
+      <stop offset="1" stop-color="#AA5E7A" stop-opacity="0" />
+    </radialGradient>
+    <filter id="pc-shadow" x="180" y="70" width="840" height="580" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="30" flood-color="#7C0E44" flood-opacity="0.08" />
     </filter>
   </defs>
 
-  <rect width="1200" height="720" rx="30" fill="url(#bg)"/>
-  <circle cx="175" cy="130" r="95" fill="#BDEFE2" fill-opacity="0.5"/>
-  <circle cx="1060" cy="620" r="115" fill="#B5E8F8" fill-opacity="0.45"/>
+  <rect width="1200" height="720" fill="url(#pc-bg)" />
+  <circle cx="1080" cy="120" r="280" fill="url(#pc-glowA)" />
+  <circle cx="120" cy="640" r="250" fill="url(#pc-glowB)" />
 
-  <g filter="url(#shadow)">
-    <rect x="250" y="120" width="700" height="500" rx="28" fill="url(#card)"/>
-    <rect x="310" y="170" width="360" height="400" rx="18" fill="#EEF5F8" stroke="#C8DDE4" stroke-width="4"/>
-    <rect x="342" y="202" width="296" height="336" rx="12" fill="#FFFFFF"/>
-    <rect x="356" y="216" width="268" height="308" rx="10" fill="url(#accent)"/>
+  <g filter="url(#pc-shadow)">
+    <rect x="220" y="90" width="760" height="520" rx="28" fill="url(#pc-card)" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
+    
+    <!-- Photo Frame (Left) -->
+    <rect x="270" y="140" width="350" height="420" rx="18" fill="#FAF3F0" stroke="#AA5E7A" stroke-width="2" />
+    <rect x="296" y="168" width="298" height="364" rx="12" fill="#FFFFFF" />
+    <rect x="312" y="184" width="266" height="332" rx="10" fill="url(#pc-accent)" />
 
-    <ellipse cx="490" cy="340" rx="72" ry="88" fill="#F6D8BD"/>
-    <rect x="428" y="406" width="124" height="88" rx="26" fill="#F1C9A8"/>
-    <path d="M424 328C424 291 450 262 490 262C530 262 556 291 556 328C556 355 533 372 490 372C447 372 424 355 424 328Z" fill="#263845"/>
+    <!-- Portrait Silhouette -->
+    <ellipse cx="445" cy="305" rx="64" ry="76" fill="#FCEEE8" />
+    <path d="M375 480C375 405 405 372 445 372C485 372 515 405 515 480H375Z" fill="#FAF3F0" />
 
-    <rect x="720" y="210" width="180" height="22" rx="11" fill="#A9E3D7"/>
-    <rect x="720" y="248" width="142" height="16" rx="8" fill="#C8EEE6"/>
-    <rect x="720" y="304" width="192" height="18" rx="9" fill="#D6ECF8"/>
-    <rect x="720" y="336" width="165" height="18" rx="9" fill="#D6ECF8"/>
-    <rect x="720" y="368" width="198" height="18" rx="9" fill="#D6ECF8"/>
+    <!-- Spec Bars (Right) -->
+    <rect x="660" y="170" width="180" height="24" rx="12" fill="#7C0E44" />
+    <text x="682" y="187" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">35 mm x 45 mm</text>
 
-    <rect x="720" y="450" width="192" height="56" rx="14" fill="#17A48E"/>
-    <path d="M792 479L816 503L866 453" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="660" y="210" width="220" height="20" rx="10" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.15)" />
+    <text x="674" y="225" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">Standard Passport Size</text>
+
+    <rect x="660" y="260" width="260" height="18" rx="9" fill="#FAF3F0" />
+    <rect x="660" y="292" width="230" height="18" rx="9" fill="#FAF3F0" />
+    <rect x="660" y="324" width="250" height="18" rx="9" fill="#FAF3F0" />
+
+    <!-- Action Button -->
+    <rect x="660" y="440" width="240" height="56" rx="16" fill="#7C0E44" />
+    <text x="704" y="475" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="16" font-weight="700">PRINT READY</text>
+    <path d="M848 468L856 476L872 460" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
   </g>
 
-  <text x="120" y="652" fill="#0E3A35" font-family="Manrope, Arial, sans-serif" font-size="48" font-weight="800">Passport Cutter</text>
-  <text x="121" y="688" fill="#3D5B57" font-family="Manrope, Arial, sans-serif" font-size="24" font-weight="600">35 mm x 45 mm • Auto Border • Background Remove</text>
+  <text x="120" y="652" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="44" font-weight="800" letter-spacing="-0.02em">Passport Cutter</text>
+  <text x="121" y="688" fill="#4E3842" font-family="'Manrope', -apple-system, sans-serif" font-size="20" font-weight="600">35 mm x 45 mm - Auto Border Guides - Clean Background Isolation</text>
 </svg>

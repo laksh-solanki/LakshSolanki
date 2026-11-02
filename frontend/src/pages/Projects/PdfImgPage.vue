@@ -457,8 +457,8 @@ onUnmounted(() => {
   align-items: center;
   padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(15, 143, 124, 0.3);
-  color: #0f8f7c;
+  border: 1px solid rgba(124, 14, 68, 0.3);
+  color: #7C0E44;
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -512,7 +512,7 @@ onUnmounted(() => {
 }
 
 .panel-kicker {
-  color: #0f8f7c !important;
+  color: #7C0E44 !important;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-size: 0.72rem;
@@ -520,8 +520,8 @@ onUnmounted(() => {
 }
 
 .upload-zone {
-  border: 3px dashed rgba(15, 143, 124, 0.35) !important;
-  background: rgba(15, 143, 124, 0.08) !important;
+  border: 3px dashed rgba(124, 14, 68, 0.35) !important;
+  background: rgba(124, 14, 68, 0.08) !important;
   padding: 36px 22px;
   cursor: pointer;
   transition:
@@ -532,14 +532,14 @@ onUnmounted(() => {
 
 .upload-zone:hover {
   transform: translateY(-2px);
-  border-color: #0f8f7c !important;
-  background: rgba(15, 143, 124, 0.15) !important;
+  border-color: #7C0E44 !important;
+  background: rgba(124, 14, 68, 0.15) !important;
 }
 
 .upload-zone.drag-over {
   border-style: solid !important;
-  border-color: #0f8f7c !important;
-  background: rgba(15, 143, 124, 0.22);
+  border-color: #7C0E44 !important;
+  background: rgba(124, 14, 68, 0.22);
 }
 
 .file-input {
@@ -551,8 +551,8 @@ onUnmounted(() => {
   align-items: center;
   padding: 8px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(15, 143, 124, 0.3);
-  background: rgba(15, 143, 124, 0.08);
+  border: 1px solid rgba(124, 14, 68, 0.3);
+  background: rgba(124, 14, 68, 0.08);
   font-size: 0.85rem;
   color: var(--portfolio-primary);
 }

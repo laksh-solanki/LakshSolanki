@@ -1,55 +1,80 @@
 <svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bg" x1="1180" y1="20" x2="120" y2="690" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#18243D" />
-      <stop offset="1" stop-color="#0D1426" />
+    <linearGradient id="p8-bg" x1="0" y1="0" x2="1200" y2="720" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FAF3F0" />
+      <stop offset="0.65" stop-color="#F5E4DC" />
+      <stop offset="1" stop-color="#EED3C5" />
     </linearGradient>
-    <linearGradient id="gold" x1="835" y1="133" x2="322" y2="596" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#F8D37D" />
-      <stop offset="1" stop-color="#D39A38" />
-    </linearGradient>
-    <linearGradient id="line" x1="0" y1="0" x2="1" y2="1">
-      <stop stop-color="#4EC9B0" stop-opacity="0.7" />
-      <stop offset="1" stop-color="#4EC9B0" stop-opacity="0" />
-    </linearGradient>
-    <filter id="glow" x="241" y="82" width="738" height="556" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+    <radialGradient id="p8-glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 120) scale(340 340)">
+      <stop stop-color="#D49A9A" stop-opacity="0.32" />
+      <stop offset="1" stop-color="#D49A9A" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="p8-glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(120 640) scale(300 240)">
+      <stop stop-color="#AA5E7A" stop-opacity="0.22" />
+      <stop offset="1" stop-color="#AA5E7A" stop-opacity="0" />
+    </radialGradient>
+    <filter id="p8-shadow" x="70" y="46" width="1060" height="628" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="30" flood-color="#7C0E44" flood-opacity="0.08" />
     </filter>
   </defs>
 
-  <rect width="1200" height="720" rx="26" fill="url(#bg)" />
-  <circle cx="1045" cy="108" r="180" fill="#304C89" fill-opacity="0.3" />
-  <circle cx="135" cy="644" r="230" fill="#1C5D72" fill-opacity="0.28" />
+  <!-- Canvas Background -->
+  <rect width="1200" height="720" fill="url(#p8-bg)" />
+  <circle cx="1080" cy="120" r="280" fill="url(#p8-glowA)" />
+  <circle cx="120" cy="640" r="250" fill="url(#p8-glowB)" />
 
-  <path d="M0 493C164 465 274 405 430 351C586 297 738 278 980 295C1106 304 1166 285 1200 262V720H0V493Z" fill="#0B101E" fill-opacity="0.55" />
-
-  <g filter="url(#glow)">
-    <rect x="295" y="125" width="610" height="448" rx="22" fill="#101A2F" stroke="#32518F" stroke-opacity="0.7" />
-    <rect x="333" y="192" width="534" height="324" rx="14" fill="#0B1324" stroke="#27426F" />
-    <path d="M352 223H520" stroke="#526EA3" stroke-width="8" stroke-linecap="round" />
-    <path d="M352 254H458" stroke="#3A537F" stroke-width="8" stroke-linecap="round" />
-    <rect x="614" y="216" width="228" height="112" rx="10" fill="#111F3B" />
-    <rect x="632" y="236" width="156" height="13" rx="6" fill="#4EC9B0" fill-opacity="0.6" />
-    <rect x="632" y="263" width="192" height="10" rx="5" fill="#748AB5" fill-opacity="0.58" />
-    <rect x="632" y="286" width="120" height="10" rx="5" fill="#748AB5" fill-opacity="0.42" />
-
-    <rect x="355" y="352" width="148" height="118" rx="12" fill="#132342" stroke="#315184" />
-    <path d="M380 383L470 383" stroke="url(#line)" stroke-width="10" stroke-linecap="round" />
-    <path d="M380 411L445 411" stroke="#6E85B0" stroke-width="8" stroke-linecap="round" />
-
-    <rect x="536" y="352" width="306" height="118" rx="12" fill="#111E39" stroke="#315184" />
-    <path d="M560 383L813 383" stroke="#D39A38" stroke-width="9" stroke-linecap="round" />
-    <path d="M560 411L748 411" stroke="#F8D37D" stroke-width="7" stroke-linecap="round" />
-    <path d="M560 437L690 437" stroke="#7B91BC" stroke-width="6" stroke-linecap="round" />
+  <!-- Main Container -->
+  <g filter="url(#p8-shadow)">
+    <rect x="110" y="66" width="980" height="588" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
   </g>
 
-  <rect x="312" y="80" width="134" height="34" rx="17" fill="#21365C" />
-  <text x="379" y="102" fill="#F8D37D" font-family="Manrope, Arial, sans-serif" font-weight="700" font-size="15" text-anchor="middle">TOOLKIT</text>
-  <text x="600" y="633" fill="url(#gold)" font-family="Space Grotesk, Arial, sans-serif" font-weight="700" font-size="56" text-anchor="middle">
-    Dev Utility Hub
-  </text>
-  <text x="600" y="666" fill="#9BA9C7" font-family="Manrope, Arial, sans-serif" font-size="22" text-anchor="middle">
-    Case conversion, encoding, passwords, and UUIDs in one workspace.
-  </text>
+  <!-- Header Block -->
+  <text x="150" y="128" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="30" font-weight="800" letter-spacing="-0.02em">DEV UTILITY HUB</text>
+  <text x="150" y="160" fill="#4E3842" font-family="'Manrope', -apple-system, sans-serif" font-size="16" font-weight="500">Unified developer toolset for encoders, generators, case converters &amp; security tokens.</text>
+
+  <!-- 4 Modular Tool Tiles -->
+
+  <!-- Tile 1: Base64 / URL -->
+  <rect x="150" y="196" width="425" height="196" rx="18" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+  <rect x="176" y="222" width="40" height="40" rx="10" fill="#7C0E44" />
+  <text x="187" y="248" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="18" font-weight="700">64</text>
+  <text x="230" y="246" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="17" font-weight="700">Base64 &amp; URL Encoder</text>
+  <text x="176" y="292" fill="#7E636E" font-family="'JetBrains Mono', Consolas, monospace" font-size="14">SGVsbG8gV29ybGQh...</text>
+  <rect x="176" y="322" width="104" height="30" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
+  <text x="194" y="342" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">ENCODE</text>
+  <rect x="292" y="322" width="104" height="30" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
+  <text x="310" y="342" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">DECODE</text>
+
+  <!-- Tile 2: Password Generator -->
+  <rect x="625" y="196" width="425" height="196" rx="18" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+  <rect x="651" y="222" width="40" height="40" rx="10" fill="#AA5E7A" />
+  <path d="M667 248V240C667 235.582 670.582 232 675 232C679.418 232 683 235.582 683 240V248M664 248H686C687.105 248 688 248.895 688 250V258C688 259.105 687.105 260 686 260H664C662.895 260 662 259.105 662 258V250C662 248.895 662.895 248 664 248Z" stroke="#FFFFFF" stroke-width="2" />
+  <text x="705" y="246" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="17" font-weight="700">Password &amp; Entropy</text>
+  <text x="651" y="292" fill="#7C0E44" font-family="'JetBrains Mono', Consolas, monospace" font-size="15" font-weight="700">k9#Px!8Lm@92Q$vR</text>
+  <rect x="651" y="322" width="130" height="30" rx="8" fill="#7C0E44" />
+  <text x="668" y="342" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">GENERATE</text>
+  <text x="800" y="342" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">128-bit Entropy</text>
+
+  <!-- Tile 3: UUID v4 -->
+  <rect x="150" y="416" width="425" height="196" rx="18" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+  <rect x="176" y="442" width="40" height="40" rx="10" fill="#7C0E44" />
+  <text x="184" y="468" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700">UUID</text>
+  <text x="230" y="466" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="17" font-weight="700">UUID v4 Generator</text>
+  <text x="176" y="512" fill="#7E636E" font-family="'JetBrains Mono', Consolas, monospace" font-size="13">e4d909c2-9014-4c8d-bf84-...</text>
+  <rect x="176" y="542" width="120" height="30" rx="8" fill="#7C0E44" />
+  <text x="194" y="562" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">NEW UUID</text>
+  <text x="314" y="562" fill="#7E636E" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="600">RFC 4122 Compliant</text>
+
+  <!-- Tile 4: Case Converter -->
+  <rect x="625" y="416" width="425" height="196" rx="18" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+  <rect x="651" y="442" width="40" height="40" rx="10" fill="#D49A9A" />
+  <text x="659" y="468" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="15" font-weight="800">Aa</text>
+  <text x="705" y="466" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="17" font-weight="700">Text Case Transformer</text>
+  <text x="651" y="512" fill="#7E636E" font-family="'JetBrains Mono', Consolas, monospace" font-size="13">camelCase • kebab-case • CONST</text>
+  <rect x="651" y="542" width="100" height="30" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
+  <text x="670" y="562" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">CAMEL</text>
+  <rect x="763" y="542" width="100" height="30" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
+  <text x="784" y="562" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">KEBAB</text>
+  <rect x="875" y="542" width="100" height="30" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
+  <text x="898" y="562" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">SNAKE</text>
 </svg>
