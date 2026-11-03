@@ -68,7 +68,7 @@
         </div>
       </main>
 
-      <footer class="palette-foot hidden-xs">
+      <footer class="palette-foot d-none d-sm-flex">
         <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> Navigate</span>
         <span><kbd>Enter</kbd> Open</span>
         <span><kbd>Esc</kbd> Close</span>
@@ -719,6 +719,25 @@ kbd {
 
   .search-hit__route {
     display: none;
+  }
+}
+
+@media (min-width: 960px) and (max-width: 1100px) {
+  .search-trigger {
+    min-width: 130px;
+    padding: 0 10px !important;
+  }
+  .search-trigger__kbd {
+    display: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .search-trigger--compact {
+    min-width: 38px !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 10px !important;
   }
 }
 </style>

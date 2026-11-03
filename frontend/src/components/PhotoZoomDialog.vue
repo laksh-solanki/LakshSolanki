@@ -37,7 +37,7 @@
     <v-dialog v-model="dialogOpen" :max-width="maxWidth" :fullscreen="$vuetify.display.xs && fullscreenOnMobile" :scrollable="true">
       <v-card class="zoom-card border" :class="{ 'is-custom-card': isCustomMode }" rounded="xl">
         <div class="zoom-toolbar px-4 py-3">
-          <p class="text-subtitle-2 font-weight-bold m-0">{{ dialogLabel }}</p>
+          <p class="zoom-title text-subtitle-2 font-weight-bold m-0">{{ dialogLabel }}</p>
           <div class="d-flex align-center ga-1 flex-wrap justify-end">
             <slot name="toolbar-actions" :close-dialog="closeDialog"></slot>
             <v-btn
@@ -656,11 +656,23 @@ onBeforeUnmount(() => {
   pointer-events: none;
 }
 
+.zoom-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (max-width: 600px) {
   .zoom-toolbar {
     flex-wrap: wrap;
     gap: 8px;
-    padding: 10px 12px;
+    padding: 8px 12px !important;
+  }
+
+  .zoom-title {
+    max-width: 140px;
+    font-size: 0.85rem;
   }
 
   .zoom-stage {

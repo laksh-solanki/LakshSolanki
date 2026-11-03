@@ -553,7 +553,8 @@ const generatePdf = async () => {
             :key="tmpl.id"
             cols="12"
             sm="6"
-            md="4"
+            md="6"
+            lg="3"
             class="p-2"
           >
             <div
@@ -615,11 +616,13 @@ const generatePdf = async () => {
           variant="outlined"
           color="primary"
           rounded="lg"
-          class="text-none px-3 mr-2"
+          class="text-none px-2 px-sm-3 mr-1 mr-sm-2 text-caption text-sm-button"
           prepend-icon="mdi-palette-outline"
+          size="small"
           @click="openStyleDialogFromPreview"
         >
-          Change Style
+          <span class="d-none d-sm-inline">Change Style</span>
+          <span class="d-inline d-sm-none">Style</span>
         </v-btn>
         <v-btn
           @click="generatePdf"
@@ -628,9 +631,11 @@ const generatePdf = async () => {
           variant="flat"
           color="primary"
           rounded="lg"
-          class="text-none px-4"
+          class="text-none px-2 px-sm-4 text-caption text-sm-button"
+          size="small"
         >
-          Download PDF
+          <span class="d-none d-sm-inline">Download PDF</span>
+          <span class="d-inline d-sm-none">PDF</span>
         </v-btn>
       </template>
 

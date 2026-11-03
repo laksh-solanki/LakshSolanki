@@ -365,9 +365,35 @@ watch(
   box-shadow: 0 4px 16px rgba(124, 14, 68, 0.2) !important;
 }
 
+@media (min-width: 960px) and (max-width: 1100px) {
+  .seg-item {
+    padding: 6px 10px;
+    font-size: 0.82rem;
+  }
+  .seg-item-content .v-icon {
+    font-size: 16px !important;
+    margin-right: 4px !important;
+  }
+}
+
 @media (max-width: 600px) {
   .drawer-shell {
     padding: 20px 16px;
+  }
+}
+
+@media (max-width: 400px) {
+  .header-actions {
+    gap: 4px !important;
+  }
+  .mobile-menu-btn {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 10px !important;
+  }
+  .premium-github-btn {
+    font-size: 0.95rem !important;
+    padding: 0 12px !important;
   }
 }
 </style>

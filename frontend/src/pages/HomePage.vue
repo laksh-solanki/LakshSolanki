@@ -418,7 +418,7 @@ const premiumStackNodes = [
 }
 
 .hero-title {
-  font-size: clamp(2.4rem, 4.5vw, 4rem);
+  font-size: clamp(1.95rem, 4.5vw, 4rem);
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.03em;
@@ -435,7 +435,7 @@ const premiumStackNodes = [
 
 .hero-role {
   font-family: "Space Grotesk", sans-serif;
-  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  font-size: clamp(1rem, 2vw, 1.45rem);
   font-weight: 600;
   color: var(--portfolio-secondary, #AA5E7A);
 }
@@ -945,6 +945,15 @@ const premiumStackNodes = [
   .cta-banner-btn-outline {
     width: 100% !important;
     justify-content: center;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero-title {
+    font-size: 1.85rem;
+  }
+  .hero-role {
+    font-size: 0.95rem;
   }
 }
 </style>

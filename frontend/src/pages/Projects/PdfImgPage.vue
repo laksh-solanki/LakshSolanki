@@ -447,7 +447,7 @@ onUnmounted(() => {
                 <div class="text-h5 font-weight-bold">Drag and drop PDF file here</div>
                 <div class="text-body-1 text-medium-emphasis">or click anywhere in this container to browse</div>
 
-                <div class="d-flex align-center ga-2 mt-2">
+                <div class="d-flex flex-wrap justify-center ga-2 mt-2">
                   <span class="feature-chip">All Pages</span>
                   <span class="feature-chip">High Resolution</span>
                   <span class="feature-chip">Instant Extraction</span>

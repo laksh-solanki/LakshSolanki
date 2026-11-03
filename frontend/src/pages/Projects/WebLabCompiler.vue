@@ -566,7 +566,7 @@ onUnmounted(() => {
 
 @media (max-width: 960px) {
   .editor-pane {
-    height: 280px;
+    height: 280px !important;
   }
 
   .preview-frame {
@@ -576,7 +576,7 @@ onUnmounted(() => {
 
 @media (max-width: 600px) {
   .editor-pane {
-    height: 240px;
+    height: 240px !important;
   }
 
   .preview-stage {

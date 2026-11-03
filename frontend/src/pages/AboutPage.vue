@@ -589,11 +589,12 @@ const copyEmail = async () => {
 
 .ap-hero__headline {
   font-family: "Space Grotesk", sans-serif;
-  font-size: clamp(2.4rem, 4vw, 3.8rem);
+  font-size: clamp(1.85rem, 5vw, 3.8rem);
   font-weight: 800;
   line-height: 1.08;
   letter-spacing: -0.03em;
   color: var(--ap-ink);
+  overflow-wrap: break-word;
 }
 
 .ap-hero__accent {
@@ -1123,6 +1124,10 @@ const copyEmail = async () => {
 }
 
 @media (max-width: 600px) {
+  .ap-container {
+    padding-inline: var(--page-gutter-tight, 12px) !important;
+  }
+
   .ap-hero__bento {
     grid-template-columns: 1fr;
   }
@@ -1178,6 +1183,16 @@ const copyEmail = async () => {
 
   .ap-profile-card {
     padding: 20px 16px;
+  }
+
+  .ap-process-wrap {
+    padding: 18px 14px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .ap-hero__headline {
+    font-size: 1.7rem;
   }
 }
 </style>

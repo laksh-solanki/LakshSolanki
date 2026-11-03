@@ -14,23 +14,12 @@ const categories = ["All", "Productivity", "Document & Image", "AI & Language", 
 
 const projects = ref([
   {
-    id: 13,
-    title: "LifeFlow Planner",
-    category: "Everyday Productivity",
-    description:
-      "Minimal day planner with smart task capture, voice input, local offline persistence, and built-in focus timer blocks.",
-    image: getMediaUrl("project_img/Project-9.svg"),
-    icon: "mdi-calendar-check-outline",
-    link: "/projects/lifeflow-planner",
-    tags: ["Smart Planner", "Voice", "Offline"],
-  },
-  {
     id: 1,
     title: "Certificate Generator",
     category: "Developer Utility",
     description:
       "Form-based certificate creation with live preview and one-click PDF export for course completion workflows.",
-    image: getMediaUrl("project_img/Project-1.png"),
+    image: getMediaUrl("project_img/Project-1.svg"),
     icon: "mdi-certificate-outline",
     link: "/projects/certificate-gen",
     tags: ["Vue", "Vuetify", "HTML2PDF"],
@@ -129,7 +118,7 @@ const projects = ref([
     category: "Developer Tooling",
     description:
       "Visual API design studio with OpenAPI/Swagger generation, endpoint modeling, request/response schemas, mock server export, and collaborative documentation templates.",
-    image: getMediaUrl("project_img/Project-6.svg"),
+    image: getMediaUrl("project_img/Project-12.svg"),
     icon: "mdi-blueprint",
     link: "/projects/api-blueprint",
     tags: ["OpenAPI", "API Design", "Documentation"],
@@ -144,7 +133,10 @@ const filteredProjects = computed(() => {
     let matchesCategory = true;
     if (cat !== "All") {
       if (cat === "Productivity") {
-        matchesCategory = p.category === "Productivity Tool" || p.category === "Everyday Productivity";
+        matchesCategory =
+          p.category === "Productivity Tool" ||
+          p.category === "Everyday Productivity" ||
+          p.tags.includes("Productivity");
       } else if (cat === "Document & Image") {
         matchesCategory = p.category === "Document Tooling" || p.category === "Image Utility";
       } else if (cat === "AI & Language") {
@@ -155,6 +147,7 @@ const filteredProjects = computed(() => {
           p.category === "Developer Utility" ||
           p.category === "All-in-One Utility" ||
           p.category === "Developer Tooling" ||
+          p.category === "Frontend Engineering" ||
           p.category === "Web API Experiment";
       }
     }
@@ -452,14 +445,10 @@ const currentProjectTitle = computed(() => {
   line-height: 1.6;
 }
 
-.project-tag-row {
-  min-height: 30px;
-}
-
 .project-tag {
   display: inline-block;
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: 16px;
   font-size: 0.74rem;
   font-weight: 600;
   background: rgba(170, 94, 122, 0.08);
@@ -502,8 +491,24 @@ const currentProjectTitle = computed(() => {
     display: none !important;
   }
 
+  .breadcrumb-bar :deep(.v-btn) {
+    max-width: 100%;
+  }
+
+  .breadcrumb-bar :deep(.v-btn__content) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .project-card-body {
     min-height: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-card {
+    padding: 18px 14px !important;
   }
 }
 </style>

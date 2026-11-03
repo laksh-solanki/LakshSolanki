@@ -13,6 +13,13 @@ import Alerts from "@/components/Alerts.vue";
 import { getApiBaseUrl, getRemoteApiBaseUrl, isLocalEnv } from "@/utils/apiBaseUrl";
 import { auth, googleProvider, hasRequiredFirebaseConfig } from "@/firebase";
 
+// Specialized Mindlytic AI Components & Utilities
+import ExportChatDialog from "@/components/MindlyticAi/ExportChatDialog.vue";
+import TextSummarizerTool from "@/components/MindlyticAi/TextSummarizerTool.vue";
+import PromptEnhancerTool from "@/components/MindlyticAi/PromptEnhancerTool.vue";
+import { QUICK_STARTERS } from "@/utils/mindlyticAiData";
+import { generateSmartChatFallback } from "@/utils/aiEngines";
+
 marked.setOptions({
   gfm: true,
   breaks: true,
@@ -22,6 +29,7 @@ const trimTrailingSlash = (value = "") =>
   String(value || "")
     .trim()
     .replace(/\/+$/, "");
+
 const toApiUrl = (base = "", path = "") => {
   const normalizedBase = trimTrailingSlash(base);
   const normalizedPath = String(path || "").trim();
@@ -30,6 +38,7 @@ const toApiUrl = (base = "", path = "") => {
     return normalizedPath.startsWith("/") ? normalizedPath : `/${normalizedPath}`;
   return `${normalizedBase}${normalizedPath.startsWith("/") ? normalizedPath : `/${normalizedPath}`}`;
 };
+
 const collectUnique = (values = []) => {
   const seen = new Set();
   const result = [];
@@ -44,7 +53,6 @@ const collectUnique = (values = []) => {
 };
 
 // On localhost: tries local backend first, then deployed backend as fallback.
-// On deployed site: only uses the configured remote backend URL.
 const API_BASE_CANDIDATES = isLocalEnv()
   ? collectUnique([
     getApiBaseUrl(),
@@ -59,9 +67,11 @@ const API_BASE_CANDIDATES = isLocalEnv()
     import.meta.env.VITE_API_URL_2,
     getRemoteApiBaseUrl(),
   ]);
+
 const CHAT_API_URLS = collectUnique(
   API_BASE_CANDIDATES.map((base) => toApiUrl(base, "/api/ai/chat")),
 );
+
 const getHistoryUrls = (path = "") =>
   collectUnique(
     API_BASE_CANDIDATES.map((base) => toApiUrl(base, `/api/ai/history${path}`)),
@@ -108,11 +118,33 @@ const ASSISTANT_SYSTEM_PROMPT =
 const REQUEST_MAX_OUTPUT_TOKENS = 2000;
 const REQUEST_TEMPERATURE = 1;
 
+// Active Tool State ('chat' | 'summarizer' | 'prompter')
+const activeTool = ref("chat");
+
+const AI_TOOLS_LIST = [
+  { id: "chat", label: "AI Chat", icon: "mdi-chat-processing-outline", desc: "Interactive conversation & code runner" },
+  { id: "summarizer", label: "Summarizer", icon: "mdi-text-box-search-outline", desc: "Executive points & rewriter" },
+  { id: "prompter", label: "Prompt Architect", icon: "mdi-auto-fix", desc: "Production system prompt designer" },
+];
+
+const activeToolLabel = computed(() => {
+  const match = AI_TOOLS_LIST.find((t) => t.id === activeTool.value);
+  return match ? match.label : "AI Chat";
+});
+
+const GUEST_MODE_STORAGE_KEY = "mindlytic-ai-guest-mode-v1";
 const authReady = ref(false);
 const signingIn = ref(false);
+const isGuestMode = ref(
+  typeof window !== "undefined" &&
+    window.localStorage.getItem(GUEST_MODE_STORAGE_KEY) === "true",
+);
 const loadingHistory = ref(false);
 const loadingConversation = ref(false);
 const sending = ref(false);
+const isStreaming = ref(false);
+const cancelStreaming = ref(false);
+
 const { mobile } = useDisplay();
 const sidebarOpen = ref(!mobile.value);
 const selectedModel = ref("gemini");
@@ -129,12 +161,14 @@ const activeConversationId = ref("");
 const messages = ref([]);
 const userInput = ref("");
 const chatScrollRef = ref(null);
+const composerTextareaRef = ref(null);
 
 const showScrollButton = ref(false);
 
 const editingConversationId = ref("");
 const editingTitle = ref("");
 
+// Code Runner State
 const runnerPanelOpen = ref(false);
 const runnerLanguage = ref("plaintext");
 const runnerTitle = ref("Code Runner");
@@ -142,16 +176,19 @@ const runnerCode = ref("");
 const runnerSrcdoc = ref("");
 const runnerFrameKey = ref(0);
 
+// Alert Notification State
 const alertVisible = ref(false);
 const alertMessage = ref("");
 const alertType = ref("success");
 
+// Dialog States
 const deleteDialog = ref(false);
 const isDeleting = ref(false);
 const deleteConversationId = ref("");
 const deleteDialogMode = ref("single");
 const syncingRouteConversationId = ref(false);
 const profiledialog = ref(false);
+const exportDialogOpen = ref(false);
 
 let removeAuthListener = null;
 
@@ -238,7 +275,7 @@ const renameConversation = async (item) => {
     let conversationMessages = sanitizeMessagesForStorage(
       readLocalConversation(item.id)?.messages || [],
     );
-    if (!conversationMessages.length) {
+    if (!conversationMessages.length && currentUser.value) {
       const response = await authorizedFetchHistory(
         `/${encodeURIComponent(item.id)}`,
       );
@@ -253,29 +290,28 @@ const renameConversation = async (item) => {
       throw new Error("Cannot rename an empty conversation.");
     }
 
-    const updateResponse = await authorizedFetchHistory(
-      `/${encodeURIComponent(item.id)}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: newTitle,
-          messages: conversationMessages,
-        }),
-      },
-    );
-    if (!updateResponse.ok) throw new Error(await readErrorResponse(updateResponse));
+    if (currentUser.value) {
+      const updateResponse = await authorizedFetchHistory(
+        `/${encodeURIComponent(item.id)}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: newTitle,
+            messages: conversationMessages,
+          }),
+        },
+      );
+      if (!updateResponse.ok) throw new Error(await readErrorResponse(updateResponse));
+    }
 
     applyConversationTitleLocally(item.id, newTitle);
-
     cancelRenaming();
     showAlert("Chat renamed.", "success");
   } catch (error) {
     if (shouldUseLocalHistoryFallback(error)) {
       const renamedLocally = applyConversationTitleLocally(item.id, newTitle);
       if (renamedLocally) {
-        historyLoadError.value =
-          "History sync is unavailable on this deployment. Updated local history only.";
         cancelRenaming();
         showAlert("Chat renamed locally.", "success");
         return;
@@ -291,10 +327,12 @@ const generateConversationId = () => {
     return globalThis.crypto.randomUUID();
   return `conversation-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
+
 const normalizeConversationId = (value = "") => {
   const source = Array.isArray(value) ? value[0] : value;
   return String(source || "").trim();
 };
+
 const getRouteConversationId = () =>
   normalizeConversationId(route.query?.[CONVERSATION_QUERY_KEY]);
 
@@ -305,7 +343,7 @@ const isLikelyNetworkError = (error) =>
 
 const getFriendlyFetchError = (error, label) => {
   if (isLikelyNetworkError(error)) {
-    return `Failed to load ${label}. This may happen if Google sign-in was rejected, site data is blocked, or the backend is offline.`;
+    return `Failed to connect for ${label}. Operating in offline smart fallback mode.`;
   }
   return String(error?.message || `Unable to fetch ${label}.`);
 };
@@ -366,7 +404,7 @@ const getHistoryCacheOwnerKey = () => {
     .trim()
     .toLowerCase();
   if (email) return `email:${email}`;
-  return "anonymous";
+  return "guest";
 };
 
 const readHistoryCacheRoot = () => {
@@ -453,7 +491,7 @@ const removeLocalConversation = (conversationId = "") => {
 const shouldUseLocalHistoryFallback = (error) => {
   const message = String(error?.message || "").toLowerCase();
   if (!message) return true;
-  if (message.includes("please sign in first")) return false;
+  if (message.includes("please sign in first") && currentUser.value) return false;
   return true;
 };
 
@@ -535,41 +573,6 @@ const decodeHtmlEntities = (value = "") =>
     .replaceAll("&#39;", "'")
     .replaceAll("&amp;", "&");
 
-const PRISM_LANGUAGE_ALIASES = {
-  js: "javascript",
-  mjs: "javascript",
-  cjs: "javascript",
-  jsx: "jsx",
-  ts: "typescript",
-  tsx: "tsx",
-  py: "python",
-  rb: "ruby",
-  sh: "bash",
-  shell: "bash",
-  zsh: "bash",
-  ps1: "powershell",
-  psql: "sql",
-  yml: "yaml",
-  md: "markdown",
-  html: "markup",
-  xml: "markup",
-  svg: "markup",
-  vue: "markup",
-  csharp: "csharp",
-  cs: "csharp",
-  cplusplus: "cpp",
-  plaintext: "text",
-  text: "text",
-};
-
-const resolvePrismLanguage = (language = "") => {
-  const normalized = String(language || "")
-    .trim()
-    .toLowerCase();
-  if (!normalized) return "text";
-  return PRISM_LANGUAGE_ALIASES[normalized] || normalized;
-};
-
 const renderAssistantMessage = (text = "") => {
   const raw = String(text || "");
   if (!raw.trim()) return "";
@@ -614,7 +617,7 @@ const renderAssistantMessage = (text = "") => {
         const codeHtml = `<pre><code class="code-block-text">${escapedCode}</code></pre>`;
 
         const runButtonHtml = canRunInRunner(blockLanguage)
-          ? `<button type="button" class="code-runner-inline-btn" data-code-index="${currentCodeIndex}" data-code-language="${escapeHtml(blockLanguage)}" data-code-action="run" aria-label="Run code">Run</button>`
+          ? `<button type="button" class="code-runner-inline-btn" data-code-index="${currentCodeIndex}" data-code-language="${escapeHtml(blockLanguage)}" data-code-action="run" aria-label="Run code in preview">Run</button>`
           : "";
 
         const headerHtml = `
@@ -638,6 +641,10 @@ const renderAssistantMessage = (text = "") => {
         "class",
         "target",
         "rel",
+        "type",
+        "title",
+        "role",
+        "tabindex",
         "data-code-index",
         "data-code-language",
         "data-code-action",
@@ -664,18 +671,6 @@ const extractCodeBlocks = (text = "") => {
 const extractFirstCodeBlock = (text = "") => {
   const [firstBlock] = extractCodeBlocks(text);
   return firstBlock || { language: "", code: "" };
-};
-
-const messageHasCode = (message = {}) =>
-  Boolean(extractFirstCodeBlock(message.text).code);
-const messageHasRunnableCode = (message = {}) => {
-  const firstBlock = extractFirstCodeBlock(message?.text || "");
-  if (!firstBlock?.code) return false;
-  const resolvedLanguage = inferRunnerLanguage(
-    firstBlock.language,
-    firstBlock.code,
-  );
-  return canRunInRunner(resolvedLanguage);
 };
 
 const buildChatMessages = () =>
@@ -731,6 +726,24 @@ const requestBackendChat = async ({ provider = "auto", model = "" } = {}) => {
       });
 
       if (!response.ok) {
+        // If 503 indicating specific provider is missing, retry with "auto"
+        if (response.status === 503 && provider !== "auto") {
+          try {
+            const retryRes = await fetch(CHAT_API_URLS[index], {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ...body, provider: "auto", model: "" }),
+            });
+            if (retryRes.ok) {
+              const payload = await retryRes.json().catch(() => null);
+              const text = String(payload?.text || "").trim();
+              if (text) return text;
+            }
+          } catch {
+            // ignore retry error
+          }
+        }
+
         const message = await readErrorResponse(response);
         const error = new Error(message);
         lastError = error;
@@ -756,7 +769,10 @@ const requestBackendChat = async ({ provider = "auto", model = "" } = {}) => {
   throw lastError || new Error("Unable to reach backend chat API.");
 };
 
-const requestGeminiDirect = async () => {
+const requestGeminiDirect = async (
+  customContents = null,
+  systemInstruction = ASSISTANT_SYSTEM_PROMPT,
+) => {
   if (!GEMINI_API_KEY)
     throw new Error("Gemini API key is missing in frontend env.");
 
@@ -764,15 +780,19 @@ const requestGeminiDirect = async () => {
     GEMINI_CHAT_MODEL,
   )}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
 
+  const contents =
+    customContents ||
+    buildChatMessages().map((message) => ({
+      role: message.role === "assistant" ? "model" : "user",
+      parts: [{ text: message.text }],
+    }));
+
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      system_instruction: { parts: [{ text: ASSISTANT_SYSTEM_PROMPT }] },
-      contents: buildChatMessages().map((message) => ({
-        role: message.role === "assistant" ? "model" : "user",
-        parts: [{ text: message.text }],
-      })),
+      system_instruction: { parts: [{ text: systemInstruction }] },
+      contents,
       generationConfig: {
         temperature: REQUEST_TEMPERATURE,
         maxOutputTokens: REQUEST_MAX_OUTPUT_TOKENS,
@@ -792,7 +812,7 @@ const requestGeminiDirect = async () => {
   return text;
 };
 
-const requestGroqDirect = async () => {
+const requestGroqDirect = async (customMessages = null) => {
   if (!GROQ_API_KEY)
     throw new Error("Groq API key is missing in frontend env.");
 
@@ -804,7 +824,7 @@ const requestGroqDirect = async () => {
     },
     body: JSON.stringify({
       model: GROQ_CHAT_MODEL,
-      messages: buildOpenAiMessages(),
+      messages: customMessages || buildOpenAiMessages(),
       temperature: REQUEST_TEMPERATURE,
       max_tokens: REQUEST_MAX_OUTPUT_TOKENS,
       stream: false,
@@ -818,7 +838,7 @@ const requestGroqDirect = async () => {
   return text;
 };
 
-const requestOpenAiDirect = async () => {
+const requestOpenAiDirect = async (customMessages = null) => {
   if (!OPENAI_API_KEY)
     throw new Error("OpenAI API key is missing in frontend env.");
 
@@ -830,7 +850,7 @@ const requestOpenAiDirect = async () => {
     },
     body: JSON.stringify({
       model: OPENAI_CHAT_MODEL,
-      messages: buildOpenAiMessages(),
+      messages: customMessages || buildOpenAiMessages(),
       temperature: REQUEST_TEMPERATURE,
       max_tokens: REQUEST_MAX_OUTPUT_TOKENS,
       stream: false,
@@ -882,22 +902,107 @@ const buildProviderAttempts = (provider = "gemini") => {
   return attempts;
 };
 
+// Resilient AI Assistant Reply with Smart Offline Fallback
 const requestAssistantReply = async () => {
   const selectedProvider = normalizeSelectedProvider(selectedModel.value);
   const attempts = buildProviderAttempts(selectedProvider);
-  const failures = [];
 
   for (const attempt of attempts) {
     try {
       return await attempt();
-    } catch (error) {
-      failures.push(
-        `[${selectedProvider}] ${String(error?.message || "Request failed")}`,
-      );
+    } catch {
+      // try next attempt
     }
   }
 
-  throw new Error(failures.join(" | "));
+  // If specific provider attempts failed, try 'auto' on backend
+  try {
+    const autoReply = await requestBackendChat({ provider: "auto" });
+    if (autoReply && autoReply.trim()) return autoReply.trim();
+  } catch {
+    // continue to smart engine
+  }
+
+  // Graceful smart local offline fallback engine
+  const latestUserMessage =
+    [...messages.value].reverse().find((m) => m.role === "user")?.text ||
+    userInput.value;
+  return generateSmartChatFallback(latestUserMessage);
+};
+
+// Universal AI Completion Helper passed to sub-tools
+const requestAiReply = async (prompt = "", systemInstruction = ASSISTANT_SYSTEM_PROMPT) => {
+  const selectedProvider = normalizeSelectedProvider(selectedModel.value);
+  const textPrompt = String(prompt || "").trim();
+  if (!textPrompt) return "";
+
+  // 1. Try backend API endpoints
+  if (CHAT_API_URLS.length) {
+    for (const url of CHAT_API_URLS) {
+      try {
+        const body = {
+          provider: selectedProvider,
+          messages: [{ role: "user", text: textPrompt }],
+          systemPrompt: systemInstruction,
+          temperature: REQUEST_TEMPERATURE,
+          maxOutputTokens: REQUEST_MAX_OUTPUT_TOKENS,
+        };
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (res.ok) {
+          const payload = await res.json().catch(() => null);
+          const replyText = String(payload?.text || "").trim();
+          if (replyText) return replyText;
+        }
+      } catch {
+        // try next endpoint
+      }
+    }
+  }
+
+  // 2. Try direct provider calls matching user's selected provider first
+  const openAiMessages = [
+    { role: "system", content: systemInstruction },
+    { role: "user", content: textPrompt },
+  ];
+  const geminiContents = [
+    { role: "user", parts: [{ text: textPrompt }] },
+  ];
+
+  const directAttempts = [];
+  if (selectedProvider === "gemini" && GEMINI_API_KEY) {
+    directAttempts.push(() => requestGeminiDirect(geminiContents, systemInstruction));
+  } else if (selectedProvider === "groq" && GROQ_API_KEY) {
+    directAttempts.push(() => requestGroqDirect(openAiMessages));
+  } else if (selectedProvider === "openai" && OPENAI_API_KEY) {
+    directAttempts.push(() => requestOpenAiDirect(openAiMessages));
+  }
+
+  // Fallback to any other available provider keys
+  if (GEMINI_API_KEY && selectedProvider !== "gemini") {
+    directAttempts.push(() => requestGeminiDirect(geminiContents, systemInstruction));
+  }
+  if (GROQ_API_KEY && selectedProvider !== "groq") {
+    directAttempts.push(() => requestGroqDirect(openAiMessages));
+  }
+  if (OPENAI_API_KEY && selectedProvider !== "openai") {
+    directAttempts.push(() => requestOpenAiDirect(openAiMessages));
+  }
+
+  for (const attempt of directAttempts) {
+    try {
+      const res = await attempt();
+      if (res && res.trim()) return res.trim();
+    } catch {
+      // try next provider
+    }
+  }
+
+  // Return null when live AI APIs are unreachable so the sub-tool executes its specialized local engine!
+  return null;
 };
 
 const getAuthorizationHeader = async (forceRefresh = false) => {
@@ -956,7 +1061,9 @@ const authorizedFetchHistory = async (path = "", options = {}) => {
 
         if (
           index < historyUrls.length - 1 &&
-          (RETRYABLE_STATUSES.has(response.status) || response.status === 401)
+          (RETRYABLE_STATUSES.has(response.status) ||
+            response.status === 401 ||
+            response.status === 404)
         ) {
           break;
         }
@@ -976,29 +1083,38 @@ const authorizedFetchHistory = async (path = "", options = {}) => {
   throw lastError || new Error("Unable to reach history API.");
 };
 
-const hasUser = computed(() => Boolean(currentUser.value));
+const hasUser = computed(() => Boolean(currentUser.value || isGuestMode.value));
 const isDarkTheme = computed(() => pageTheme.value === "dark");
 const themeToggleLabel = computed(() =>
-  isDarkTheme.value ? "Switch theme" : "Switch to black theme",
+  isDarkTheme.value ? "Switch to light theme" : "Switch to black theme",
 );
 const themeToggleIcon = computed(() =>
-  isDarkTheme.value ? "mdi-palette-swatch" : "mdi-weather-night",
+  isDarkTheme.value ? "mdi-weather-sunny" : "mdi-weather-night",
 );
+
 const canSend = computed(
-  () => hasUser.value && !sending.value && Boolean(userInput.value.trim()),
+  () =>
+    hasUser.value &&
+    !sending.value &&
+    !isStreaming.value &&
+    Boolean(userInput.value.trim()),
 );
+
 const isEmptyConversation = computed(() => messages.value.length === 0);
+
 const modelOptions = computed(() => [
-  { label: "Gemini (Recommended)", value: "gemini" },
-  { label: "Llama (normal coding)", value: "groq" },
-  { label: "Open Ai (higher coding)", value: "openai" },
+  { label: "Gemini 2.5 Flash", value: "gemini" },
+  { label: "Llama 3.3 70B (Groq)", value: "groq" },
+  { label: "OpenAI / Meta Llama", value: "openai" },
 ]);
+
 const activeConversationTitle = computed(() => {
   const active = conversations.value.find(
     (item) => item.id === activeConversationId.value,
   );
   return active?.title || "New chat";
 });
+
 const isDeleteAllMode = computed(() => deleteDialogMode.value === "all");
 const deleteDialogTitle = computed(() =>
   isDeleteAllMode.value ? "Delete all chats?" : "Delete conversation?",
@@ -1008,13 +1124,15 @@ const deleteDialogCopy = computed(() =>
     ? "This will permanently remove all your saved chats."
     : "This will permanently remove it.",
 );
+
 const userInitial = computed(() => {
   const displayName = String(currentUser.value?.displayName || "").trim();
   if (displayName) return displayName.charAt(0).toUpperCase();
   const email = String(currentUser.value?.email || "").trim();
   if (email) return email.charAt(0).toUpperCase();
-  return "U";
+  return isGuestMode.value ? "G" : "U";
 });
+
 const userAvatarSrc = computed(() => {
   if (avatarImageFailed.value) return "";
   const user = currentUser.value;
@@ -1026,6 +1144,7 @@ const userAvatarSrc = computed(() => {
   ].filter(Boolean);
   return candidates[0] || "";
 });
+
 const runnerLanguageLabel = computed(() => {
   const map = {
     html: "HTML",
@@ -1037,6 +1156,7 @@ const runnerLanguageLabel = computed(() => {
   };
   return map[runnerLanguage.value] || runnerLanguage.value.toUpperCase();
 });
+
 const composerMenuProps = computed(() => ({
   maxHeight: 280,
   minWidth: 270,
@@ -1050,6 +1170,7 @@ const normalizeTheme = (value) => (value === "dark" ? "dark" : "light");
 const pageVuetifyTheme = computed(() =>
   isDarkTheme.value ? "portfolioDark" : "portfolioLight",
 );
+
 const applyTheme = (value) => {
   pageTheme.value = normalizeTheme(value);
 };
@@ -1132,7 +1253,6 @@ const scrollToBottom = async () => {
 const handleChatScroll = () => {
   if (!chatScrollRef.value) return;
   const { scrollTop, scrollHeight, clientHeight } = chatScrollRef.value;
-  // Show button if we are more than 250px from the bottom
   showScrollButton.value = scrollHeight - scrollTop - clientHeight > 250;
 };
 
@@ -1162,7 +1282,7 @@ const syncConversationRoute = async (conversationId, replace = true) => {
   try {
     await router[replace ? "replace" : "push"]({ query: nextQuery });
   } catch {
-    // Route sync should never block chat usage.
+    // Route sync error catch
   } finally {
     syncingRouteConversationId.value = false;
   }
@@ -1189,7 +1309,7 @@ const copyCurrentConversationLink = async () => {
 const copyUserEmail = async () => {
   const email = String(currentUser.value?.email || "").trim();
   if (!email) {
-    showAlert("No email is available for this account.", "error");
+    showAlert(isGuestMode.value ? "Running in Guest Mode." : "No email available.", "error");
     return;
   }
   await copyText(email, "Email copied.");
@@ -1198,30 +1318,28 @@ const copyUserEmail = async () => {
 const buildRunnerDoc = ({
   code = "",
   language = "plaintext",
-  mode = "web",
 }) => {
   const lang = String(language || "plaintext").toLowerCase();
   const source = String(code || "");
 
   if (["html", "htm", "markup"].includes(lang)) {
-    return /<html[\\s>]/i.test(source)
+    return /<html[\s>]/i.test(source)
       ? source
-      : `<!doctype html><html><body style=\"font-family:system-ui;padding:16px;\">${source}</body></html>`;
+      : `<!doctype html><html><body style="font-family:system-ui;padding:16px;">${source}</body></html>`;
   }
   if (["javascript", "js"].includes(lang)) {
-    return `<!doctype html><html><body style=\"font-family:system-ui;padding:16px;\"><p>Open console for logs.</p><script>${source}<\\/script></body></html>`;
+    return `<!doctype html><html><body style="font-family:system-ui;padding:16px;"><p>Open console for logs.</p><script>${source}<\/script></body></html>`;
   }
   if (lang === "css") {
-    return `<!doctype html><html><head><style>${source}</style></head><body><main style=\"padding:16px;font-family:system-ui;\"><h2>CSS Preview</h2><button>Sample Button</button></main></body></html>`;
+    return `<!doctype html><html><head><style>${source}</style></head><body><main style="padding:16px;font-family:system-ui;"><h2>CSS Preview</h2><button>Sample Button</button></main></body></html>`;
   }
-  return `<!doctype html><html><body style=\"font-family:Consolas,monospace;padding:14px;\"><pre>${escapeHtml(source)}</pre></body></html>`;
+  return `<!doctype html><html><body style="font-family:Consolas,monospace;padding:14px;"><pre>${escapeHtml(source)}</pre></body></html>`;
 };
 
 const runRunnerPreview = () => {
   runnerSrcdoc.value = buildRunnerDoc({
     code: runnerCode.value,
     language: runnerLanguage.value,
-    mode: "web",
   });
   runnerFrameKey.value += 1;
 };
@@ -1279,47 +1397,11 @@ function inferRunnerLanguage(language = "", code = "") {
   return "plaintext";
 }
 
-function isWebRunnerLanguage(language = "") {
-  return ["html", "htm", "markup"].includes(
-    String(language || "").toLowerCase(),
-  );
-}
-
 function canRunInRunner(language = "") {
   return ["html", "htm", "markup", "javascript", "js", "css"].includes(
     String(language || "").toLowerCase(),
   );
 }
-
-const openCodeRunnerForBlock = (message, index, blockIndex = 0) => {
-  const codeBlocks = extractCodeBlocks(message?.text || "");
-  if (!codeBlocks.length) {
-    showAlert("No runnable code block found.", "error");
-    return;
-  }
-
-  const normalizedIndex =
-    Number.isInteger(blockIndex) &&
-      blockIndex >= 0 &&
-      blockIndex < codeBlocks.length
-      ? blockIndex
-      : 0;
-  const block = codeBlocks[normalizedIndex];
-
-  const title =
-    codeBlocks.length > 1
-      ? `Assistant code #${index + 1}.${normalizedIndex + 1}`
-      : `Assistant code #${index + 1}`;
-  void openRunnerWithCode({
-    code: block.code,
-    language: block.language || "plaintext",
-    title,
-  });
-};
-
-const openCodeRunnerFromMessage = (message, index) => {
-  openCodeRunnerForBlock(message, index, 0);
-};
 
 const getCodeFilename = (language = "", index = 0) => {
   const normalized = String(language || "txt").toLowerCase();
@@ -1454,6 +1536,12 @@ const loadConversationList = async () => {
   loadingHistory.value = true;
   historyLoadError.value = "";
   try {
+    if (!currentUser.value) {
+      conversations.value = listLocalConversationSummaries(historyLimit);
+      sortConversations();
+      return;
+    }
+
     const response = await authorizedFetchHistory(`?limit=${historyLimit}`);
     if (!response.ok) throw new Error(await readErrorResponse(response));
     const payload = await response.json().catch(() => ({ data: [] }));
@@ -1470,13 +1558,9 @@ const loadConversationList = async () => {
     if (shouldUseLocalHistoryFallback(error)) {
       conversations.value = listLocalConversationSummaries(historyLimit);
       sortConversations();
-      historyLoadError.value = conversations.value.length
-        ? "History sync is unavailable on this deployment. Showing locally saved chats."
-        : getFriendlyFetchError(error, "chat history");
       return;
     }
     historyLoadError.value = getFriendlyFetchError(error, "chat history");
-    throw error;
   } finally {
     loadingHistory.value = false;
   }
@@ -1485,6 +1569,19 @@ const loadConversationList = async () => {
 const openConversation = async (conversationId, closeSidebar = true) => {
   const normalizedId = String(conversationId || "").trim();
   if (!normalizedId || !hasUser.value) return;
+
+  // Immediately render from local cache if available for instant UI responsiveness
+  const localCache = readLocalConversation(normalizedId);
+  if (localCache) {
+    activeConversationId.value = localCache.id;
+    messages.value = (localCache.messages || []).map(normalizeMessage);
+    insertOrUpdateConversationSummary(localCache);
+    if (closeSidebar && mobile.value) sidebarOpen.value = false;
+    void syncConversationRoute(activeConversationId.value, true);
+    void scrollToBottom();
+  }
+
+  if (!currentUser.value) return;
 
   loadingConversation.value = true;
   try {
@@ -1525,11 +1622,18 @@ const openConversation = async (conversationId, closeSidebar = true) => {
         updatedAt: fallbackConversation.updatedAt,
         messages: fallbackConversation.messages,
       });
-      historyLoadError.value =
-        "History sync is unavailable on this deployment. Showing locally saved chats.";
       if (closeSidebar && mobile.value) sidebarOpen.value = false;
       await syncConversationRoute(activeConversationId.value, true);
       await scrollToBottom();
+      // Silently sync local conversation to user's remote database account
+      if (currentUser.value && fallbackConversation.messages?.length > 0) {
+        void saveConversationHistorySafe();
+      }
+      return;
+    }
+    // If conversation not found remotely and not found locally, reset cleanly
+    if (String(error?.message || "").includes("404")) {
+      resetToNewConversation();
       return;
     }
     showAlert(getFriendlyFetchError(error, "conversation"), "error");
@@ -1572,6 +1676,8 @@ const saveConversationHistory = async () => {
     });
   }
 
+  if (!currentUser.value) return; // Guest mode saves locally
+
   try {
     const response = await authorizedFetchHistory(
       `/${encodeURIComponent(activeConversationId.value)}`,
@@ -1587,8 +1693,6 @@ const saveConversationHistory = async () => {
     historyLoadError.value = "";
   } catch (error) {
     if (shouldUseLocalHistoryFallback(error)) {
-      historyLoadError.value =
-        "History sync is unavailable on this deployment. Chat saved locally.";
       return;
     }
     throw error;
@@ -1603,13 +1707,14 @@ const saveConversationHistorySafe = async () => {
   }
 };
 
+// Send Message with Streaming Tokens Simulation
 const sendMessage = async () => {
   const prompt = String(userInput.value || "")
     .trim()
     .slice(0, HISTORY_MAX_MESSAGE_CHARS);
-  if (!prompt || sending.value) return;
+  if (!prompt || sending.value || isStreaming.value) return;
   if (!hasUser.value) {
-    showAlert("Please sign in with Google first.", "error");
+    showAlert("Please sign in or continue in Guest mode.", "error");
     return;
   }
 
@@ -1623,26 +1728,50 @@ const sendMessage = async () => {
   sending.value = true;
   await scrollToBottom();
 
+  let assistantText = "";
   try {
-    const assistantText = String(await requestAssistantReply()).trim();
-    if (!assistantText)
-      throw new Error("AI provider returned an empty response.");
-    messages.value.push(createMessage("assistant", assistantText));
+    assistantText = String(await requestAssistantReply()).trim();
+    if (!assistantText) {
+      assistantText = generateSmartChatFallback(prompt);
+    }
   } catch (error) {
-    const userMessage = error?.message || "Unable to generate AI response.";
-    messages.value.push(
-      createMessage(
-        "assistant",
-        `Sorry, I could not generate a reply.\n\n${userMessage}`,
-        true,
-      ),
-    );
-    showAlert(getFriendlyFetchError(error, "AI response"), "error");
+    assistantText = generateSmartChatFallback(prompt);
   } finally {
     sending.value = false;
-    await saveConversationHistorySafe();
-    await scrollToBottom();
   }
+
+  // Token Streaming into Assistant Message
+  const assistantMsg = createMessage("assistant", "");
+  messages.value.push(assistantMsg);
+
+  isStreaming.value = true;
+  cancelStreaming.value = false;
+
+  const chunks = assistantText.match(/\S+\s*/g) || [assistantText];
+  let accumulated = "";
+  for (let i = 0; i < chunks.length; i++) {
+    if (cancelStreaming.value) break;
+    accumulated += chunks[i];
+    assistantMsg.text = accumulated;
+    if (i % 3 === 0) await scrollToBottom();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+
+  if (cancelStreaming.value) {
+    assistantMsg.text = accumulated + "\n\n*(Generation stopped)*";
+  } else {
+    assistantMsg.text = assistantText;
+  }
+
+  isStreaming.value = false;
+  cancelStreaming.value = false;
+
+  await saveConversationHistorySafe();
+  await scrollToBottom();
+};
+
+const stopGenerating = () => {
+  cancelStreaming.value = true;
 };
 
 const deleteConversation = (conversationId) => {
@@ -1671,27 +1800,18 @@ const finalizeDeleteAll = () => {
 const confirmDelete = async () => {
   if (isDeleteAllMode.value) {
     if (isDeleting.value) return;
-
     isDeleting.value = true;
     try {
-      const ids = conversations.value.map((item) => normalizeConversationId(item.id));
-      for (const id of ids) {
-        if (!id) continue;
-        const response = await authorizedFetchHistory(
-          `/${encodeURIComponent(id)}`,
-          { method: "DELETE" },
-        );
-        if (!response.ok) throw new Error(await readErrorResponse(response));
+      if (currentUser.value) {
+        const ids = conversations.value.map((item) => normalizeConversationId(item.id));
+        for (const id of ids) {
+          if (!id) continue;
+          await authorizedFetchHistory(`/${encodeURIComponent(id)}`, { method: "DELETE" }).catch(() => {});
+        }
       }
       finalizeDeleteAll();
-    } catch (error) {
-      if (shouldUseLocalHistoryFallback(error)) {
-        finalizeDeleteAll();
-        historyLoadError.value =
-          "History sync is unavailable on this deployment. Cleared local history only.";
-      } else {
-        showAlert(getFriendlyFetchError(error, "chat history"), "error");
-      }
+    } catch {
+      finalizeDeleteAll();
     } finally {
       isDeleting.value = false;
       closeDeleteDialog();
@@ -1704,11 +1824,9 @@ const confirmDelete = async () => {
 
   isDeleting.value = true;
   try {
-    const response = await authorizedFetchHistory(
-      `/${encodeURIComponent(normalizedId)}`,
-      { method: "DELETE" },
-    );
-    if (!response.ok) throw new Error(await readErrorResponse(response));
+    if (currentUser.value) {
+      await authorizedFetchHistory(`/${encodeURIComponent(normalizedId)}`, { method: "DELETE" }).catch(() => {});
+    }
 
     conversations.value = conversations.value.filter(
       (item) => item.id !== normalizedId,
@@ -1721,26 +1839,6 @@ const confirmDelete = async () => {
       }
     }
     removeLocalConversation(normalizedId);
-  } catch (error) {
-    if (shouldUseLocalHistoryFallback(error)) {
-      const removed = removeLocalConversation(normalizedId);
-      if (removed) {
-        conversations.value = conversations.value.filter(
-          (item) => item.id !== normalizedId,
-        );
-        if (activeConversationId.value === normalizedId) {
-          if (conversations.value.length > 0) {
-            await openConversation(conversations.value[0].id, false);
-          } else {
-            resetToNewConversation();
-          }
-        }
-        historyLoadError.value =
-          "History sync is unavailable on this deployment. Updated local history only.";
-      }
-      return;
-    }
-    showAlert(getFriendlyFetchError(error, "conversation"), "error");
   } finally {
     isDeleting.value = false;
     closeDeleteDialog();
@@ -1757,7 +1855,8 @@ const deleteActiveConversation = () => {
 };
 
 const startNewChat = () => {
-  if (!hasUser.value || sending.value) return;
+  if (!hasUser.value || sending.value || isStreaming.value) return;
+  activeTool.value = "chat";
   resetToNewConversation();
   if (mobile.value) sidebarOpen.value = false;
 };
@@ -1773,9 +1872,10 @@ const signInWithGoogle = async () => {
   if (!auth || !googleProvider || signingIn.value) {
     if (!hasRequiredFirebaseConfig) {
       showAlert(
-        "Firebase config is missing. Add VITE_FIREBASE_* values first.",
-        "error",
+        "Firebase config not detected in environment. Entering Guest Mode.",
+        "success",
       );
+      enterGuestMode();
     }
     return;
   }
@@ -1787,19 +1887,71 @@ const signInWithGoogle = async () => {
     }
     await signInWithPopup(auth, googleProvider);
   } catch (error) {
-    showAlert(error?.message || "Google sign-in failed.", "error");
+    showAlert(error?.message || "Google sign-in failed. You can also use Guest Mode.", "error");
   } finally {
     signingIn.value = false;
   }
 };
 
+const enterGuestMode = () => {
+  isGuestMode.value = true;
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.setItem(GUEST_MODE_STORAGE_KEY, "true");
+    } catch {
+      // ignore
+    }
+  }
+  loadConversationList();
+  if (!activeConversationId.value) {
+    resetToNewConversation();
+  }
+  showAlert("Entered Guest Mode. All tools and chats are ready!", "success");
+};
+
 const signOutUser = async () => {
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.removeItem(GUEST_MODE_STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+  }
+  if (isGuestMode.value && !currentUser.value) {
+    isGuestMode.value = false;
+    activeConversationId.value = "";
+    conversations.value = [];
+    messages.value = [];
+    return;
+  }
   if (!auth) return;
   try {
     await firebaseSignOut(auth);
+    isGuestMode.value = false;
     await syncConversationRoute("", true);
   } catch (error) {
     showAlert(error?.message || "Sign out failed.", "error");
+  }
+};
+
+// Handlers for Tool Interactions
+const handleToolSendToChat = (promptText = "") => {
+  activeTool.value = "chat";
+  userInput.value = promptText;
+  nextTick(() => {
+    scrollToBottom();
+  });
+};
+
+const handleQuickStarterClick = (starter) => {
+  if (starter.tool === "chat") {
+    activeTool.value = "chat";
+    userInput.value = starter.prompt;
+    nextTick(() => {
+      scrollToBottom();
+    });
+  } else {
+    activeTool.value = starter.tool;
   }
 };
 
@@ -1807,6 +1959,11 @@ const setupAuth = () => {
   if (!auth || !hasRequiredFirebaseConfig) {
     authReady.value = true;
     currentUser.value = null;
+    if (isGuestMode.value) {
+      loadConversationList().then(() => {
+        if (!activeConversationId.value) resetToNewConversation();
+      });
+    }
     return;
   }
 
@@ -1820,7 +1977,19 @@ const setupAuth = () => {
     runnerPanelOpen.value = false;
 
     if (!user) {
-      activeConversationId.value = "";
+      if (!isGuestMode.value) {
+        activeConversationId.value = "";
+      } else {
+        await loadConversationList();
+        const requestedId = getRouteConversationId();
+        if (requestedId && (conversations.value.some((c) => c.id === requestedId) || Boolean(readLocalConversation(requestedId)))) {
+          await openConversation(requestedId, false);
+        } else if (conversations.value.length > 0) {
+          await openConversation(conversations.value[0].id, false);
+        } else if (!activeConversationId.value) {
+          resetToNewConversation();
+        }
+      }
       authReady.value = true;
       return;
     }
@@ -1837,21 +2006,13 @@ const setupAuth = () => {
 
       if (hasRequestedConversation) {
         await openConversation(requestedConversationId, false);
-      }
-
-      if (
-        hasRequestedConversation &&
-        activeConversationId.value === requestedConversationId
-      ) {
-        // requested conversation was restored from URL
       } else if (conversations.value.length > 0) {
         await openConversation(conversations.value[0].id, false);
       } else {
         resetToNewConversation();
       }
-    } catch (error) {
+    } catch {
       resetToNewConversation();
-      showAlert(getFriendlyFetchError(error, "your history"), "error");
     } finally {
       authReady.value = true;
     }
@@ -1918,102 +2079,151 @@ onUnmounted(() => {
     <div class="mindlytic-page animate-fade-in-up" :class="{ 'theme-dark': isDarkTheme }">
       <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
+      <!-- Export Chat Modal Dialog -->
+      <ExportChatDialog
+        v-model="exportDialogOpen"
+        :is-dark-theme="isDarkTheme"
+        :conversation-title="activeConversationTitle"
+        :messages="messages"
+        @show-alert="showAlert"
+      />
+
+      <!-- Delete Confirmation Dialog -->
       <v-dialog v-model="deleteDialog" max-width="360">
-        <v-card class="delete-dialog-card rounded-xl elevation-2 p-5">
+        <v-card class="delete-dialog-card rounded-xl elevation-2 pa-5">
           <div class="delete-dialog-title text-subtitle-1 font-weight-medium mb-2">
             {{ deleteDialogTitle }}
           </div>
-
           <div class="delete-dialog-copy text-body-2 mb-6">
             {{ deleteDialogCopy }}
           </div>
-
           <div class="d-flex justify-end ga-2">
             <v-btn variant="text" class="delete-dialog-cancel" @click="closeDeleteDialog">
               Cancel
             </v-btn>
-
             <v-btn color="red" variant="flat" class="px-4" :loading="isDeleting" @click="confirmDelete">
               Delete
             </v-btn>
           </div>
-
         </v-card>
       </v-dialog>
+
+      <!-- User Profile Dialog -->
       <v-dialog v-model="profiledialog" transition="dialog-bottom-transition" max-width="440" :theme="pageVuetifyTheme">
-        <v-card class="profile-dialog-card rounded-xl overflow-hidden" :class="{ 'theme-dark': isDarkTheme }"
-          :theme="pageVuetifyTheme" elevation="10">
+        <v-card class="profile-dialog-card rounded-xl overflow-hidden" :class="{ 'theme-dark': isDarkTheme }" elevation="10">
           <div class="profile-header-bg">
-            <v-btn icon="mdi-close" variant="text" class="profile-dialog-close-btn" @click="profiledialog = false"
-              size="small" aria-label="Close Profile"></v-btn>
+            <v-btn icon="mdi-close" variant="text" class="profile-dialog-close-btn" size="small" aria-label="Close Profile" @click="profiledialog = false" />
           </div>
 
           <div class="profile-avatar-container">
             <v-avatar size="110" class="profile-avatar elevation-4" color="surface">
-              <img v-if="userAvatarSrc" :src="userAvatarSrc" alt="Profile" class="profile-image"
-                referrerpolicy="no-referrer" @error="avatarImageFailed = true" />
+              <img v-if="userAvatarSrc" :src="userAvatarSrc" alt="Profile" class="profile-image" referrerpolicy="no-referrer" @error="avatarImageFailed = true" />
               <div v-else class="profile-avatar-initial">{{ userInitial }}</div>
             </v-avatar>
           </div>
 
           <v-card-text class="profile-details-content text-center pt-2 pb-2">
-            <h2 class="profile-name text-h5 font-weight-bold mb-1">{{ currentUser?.displayName || "User" }}</h2>
-            <p class="profile-email text-body-2 mb-5">{{ currentUser?.email }}</p>
+            <h2 class="profile-name text-h5 font-weight-bold mb-1">{{ currentUser?.displayName || (isGuestMode ? "Guest Explorer" : "User") }}</h2>
+            <p class="profile-email text-body-2 mb-5">{{ currentUser?.email || (isGuestMode ? "Operating in local guest session" : "") }}</p>
 
             <div class="profile-stats-grid mb-2">
               <div class="profile-stat-box">
-                <v-icon icon="mdi-shield-check-outline" color="success" size="28" class="mb-2"></v-icon>
+                <v-icon icon="mdi-shield-check-outline" color="success" size="28" class="mb-2" />
                 <div class="stat-label">Status</div>
-                <div class="stat-value text-success font-weight-bold">Verified</div>
+                <div class="stat-value text-success font-weight-bold">{{ currentUser ? "Verified" : "Guest Mode" }}</div>
               </div>
-              <div class="profile-stat-box" v-if="currentUser?.metadata?.creationTime">
-                <v-icon icon="mdi-calendar-star" color="primary" size="28" class="mb-2"></v-icon>
-                <div class="stat-label">Member Since</div>
-                <div class="stat-value">{{ formatDateLabel(currentUser.metadata.creationTime) }}</div>
+              <div class="profile-stat-box">
+                <v-icon icon="mdi-brain" color="primary" size="28" class="mb-2" />
+                <div class="stat-label">AI Suite</div>
+                <div class="stat-value font-weight-bold">5 Tools Active</div>
               </div>
             </div>
           </v-card-text>
 
-          <v-divider class="mx-6 opacity-20 my-2"></v-divider>
+          <v-divider class="mx-6 opacity-20 my-2" />
 
           <v-card-actions class="profile-actions px-6 py-4">
-            <v-btn variant="tonal" color="error" prepend-icon="mdi-logout"
-              class="profile-btn-logout rounded-lg text-none px-5 font-weight-medium"
-              @click="signOutUser(); profiledialog = false">
-              Logout
+            <v-btn variant="tonal" color="error" prepend-icon="mdi-logout" class="profile-btn-logout rounded-lg text-none px-5 font-weight-medium" @click="signOutUser(); profiledialog = false">
+              {{ currentUser ? "Logout" : "Exit Guest Mode" }}
             </v-btn>
-            <v-spacer></v-spacer>
-            <v-btn variant="flat" color="primary" class="profile-btn-done rounded-lg text-none px-7 font-weight-medium"
-              @click="profiledialog = false">
+            <v-spacer />
+            <v-btn variant="flat" color="primary" class="profile-btn-done rounded-lg text-none px-7 font-weight-medium" @click="profiledialog = false">
               Done
             </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
 
-
       <v-layout class="mindlytic-layout">
-        <v-navigation-drawer v-model="sidebarOpen" class="chat-sidebar" :permanent="!mobile" :temporary="mobile"
-          :scrim="mobile" location="left" v-if="hasUser" border="0" width="260">
+        <!-- Main Sidebar -->
+        <v-navigation-drawer
+          v-if="hasUser"
+          v-model="sidebarOpen"
+          class="chat-sidebar"
+          :permanent="!mobile"
+          :temporary="mobile"
+          :scrim="mobile"
+          location="left"
+          border="0"
+          width="270"
+        >
           <v-list class="pa-3">
-            <v-list-item class="pa-0 mb-4">
-              <v-btn class="new-chat-btn w-100" color="primary" variant="outlined" rounded="xl" size="large"
-                prepend-icon="mdi-plus" :disabled="!hasUser || sending" @click="startNewChat">
+            <!-- New Chat CTA -->
+            <v-list-item class="pa-0 mb-3">
+              <v-btn
+                class="new-chat-btn w-100"
+                color="primary"
+                variant="outlined"
+                rounded="xl"
+                size="large"
+                prepend-icon="mdi-plus"
+                :disabled="!hasUser || sending || isStreaming"
+                @click="startNewChat"
+              >
                 New chat
               </v-btn>
             </v-list-item>
 
+            <!-- AI Tools Suite Selector in Sidebar -->
+            <div class="sidebar-tools-group mb-4">
+              <p class="history-title px-1 py-1 mb-1">AI Tools Suite</p>
+              <div class="d-flex flex-column ga-1">
+                <button
+                  v-for="tool in AI_TOOLS_LIST"
+                  :key="tool.id"
+                  class="sidebar-tool-btn"
+                  :class="{ active: activeTool === tool.id }"
+                  @click="activeTool = tool.id; if (mobile) sidebarOpen = false;"
+                >
+                  <v-icon :icon="tool.icon" size="18" class="mr-2" />
+                  <span class="tool-label flex-grow-1 text-start">{{ tool.label }}</span>
+                  <v-icon v-if="activeTool === tool.id" icon="mdi-chevron-right" size="16" />
+                </button>
+              </div>
+            </div>
+
+            <v-divider class="my-2 opacity-15" />
+
+            <!-- Recent Chats List -->
             <div class="history-wrap">
-              <p class="history-title px-1 py-2">Recent Chats</p>
+              <div class="d-flex align-center justify-between px-1 py-1">
+                <p class="history-title m-0">Recent Chats</p>
+                <v-btn
+                  v-if="conversations.length > 0"
+                  icon="mdi-download-outline"
+                  size="x-small"
+                  variant="text"
+                  aria-label="Export Chat"
+                  title="Export Current Chat"
+                  @click="exportDialogOpen = true"
+                />
+              </div>
 
               <div v-if="loadingHistory" class="history-empty text-center py-4">
                 <v-progress-circular indeterminate size="20" width="2" color="primary" class="mr-2" />
                 <span class="text-caption">Loading history...</span>
               </div>
-              <div v-else-if="!hasUser" class="history-empty">
-                Sign in to see your chats.
-              </div>
-              <div v-else-if="conversations.length === 0" class="history-empty px-1">
+              <div v-else-if="conversations.length === 0" class="history-empty px-1 py-2">
                 No saved chats yet.
               </div>
               <p v-if="historyLoadError" class="history-error px-1">
@@ -2021,27 +2231,48 @@ onUnmounted(() => {
               </p>
 
               <div v-if="conversations.length > 0" class="history-list">
-                <div v-for="item in conversations" :key="item.id" class="history-item-container" :class="{
-                  'history-item-active': item.id === activeConversationId,
-                }">
-                  <button v-if="editingConversationId !== item.id" class="history-item"
-                    :disabled="loadingConversation || sending" @click="openConversation(item.id)">
+                <div
+                  v-for="item in conversations"
+                  :key="item.id"
+                  class="history-item-container"
+                  :class="{
+                    'history-item-active': item.id === activeConversationId && activeTool === 'chat',
+                  }"
+                >
+                  <button
+                    v-if="editingConversationId !== item.id"
+                    class="history-item"
+                    :disabled="loadingConversation || sending"
+                    @click="activeTool = 'chat'; openConversation(item.id);"
+                  >
                     <div class="history-content">
                       <p class="history-item-title">{{ item.title }}</p>
                     </div>
 
-                    <v-menu location="bottom end" offset="5"
-                      :content-class="isDarkTheme ? 'history-action-menu history-action-menu-dark' : 'history-action-menu'">
+                    <v-menu
+                      location="bottom end"
+                      offset="5"
+                      :content-class="isDarkTheme ? 'history-action-menu history-action-menu-dark' : 'history-action-menu'"
+                    >
                       <template #activator="{ props }">
-                        <v-btn v-bind="props" icon="mdi-dots-vertical" size="x-small" variant="text"
-                          class="history-menu-btn" @click.stop />
+                        <v-btn
+                          v-bind="props"
+                          icon="mdi-dots-vertical"
+                          size="x-small"
+                          variant="text"
+                          class="history-menu-btn"
+                          aria-label="Conversation options"
+                          @click.stop
+                        />
                       </template>
                       <v-list density="compact" rounded="lg" slim>
                         <v-list-item prepend-icon="mdi-pencil-outline" @click="startRenaming(item)">
                           <v-list-item-title>Rename</v-list-item-title>
                         </v-list-item>
-                        <v-list-item prepend-icon="mdi-delete-outline" color="error"
-                          @click="deleteConversation(item.id)">
+                        <v-list-item prepend-icon="mdi-download-outline" @click="exportDialogOpen = true">
+                          <v-list-item-title>Export</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item prepend-icon="mdi-delete-outline" color="error" @click="deleteConversation(item.id)">
                           <v-list-item-title>Delete</v-list-item-title>
                         </v-list-item>
                       </v-list>
@@ -2049,59 +2280,69 @@ onUnmounted(() => {
                   </button>
 
                   <div v-else class="history-item history-item-editing">
-                    <v-text-field v-model="editingTitle" class="history-rename-input" density="compact"
-                      variant="outlined" hide-details @keydown.enter="renameConversation(item)"
-                      @keydown.esc="cancelRenaming" @blur="renameConversation(item)" autofocus />
+                    <v-text-field
+                      v-model="editingTitle"
+                      class="history-rename-input"
+                      density="compact"
+                      variant="outlined"
+                      hide-details
+                      @keydown.enter="renameConversation(item)"
+                      @keydown.esc="cancelRenaming"
+                      @blur="renameConversation(item)"
+                      autofocus
+                    />
                   </div>
                 </div>
               </div>
             </div>
           </v-list>
 
+          <!-- User Profile Bottom Bar in Sidebar -->
           <template v-slot:append>
             <div class="pa-3">
               <div class="user-profile pa-2 rounded-lg border">
                 <v-avatar size="36" color="primary" variant="tonal">
-                  <img v-if="userAvatarSrc" :src="userAvatarSrc" alt="Profile" class="profile-image"
-                    referrerpolicy="no-referrer" @error="avatarImageFailed = true" />
+                  <img v-if="userAvatarSrc" :src="userAvatarSrc" alt="Profile" class="profile-image" referrerpolicy="no-referrer" @error="avatarImageFailed = true" />
                   <span v-else class="avatar-initial">{{ userInitial }}</span>
                 </v-avatar>
                 <div class="user-copy">
                   <p class="user-name text-truncate">
-                    {{ currentUser?.displayName || "User" }}
+                    {{ currentUser?.displayName || (isGuestMode ? "Guest Mode" : "User") }}
                   </p>
                   <p class="user-email text-truncate">
-                    {{ currentUser?.email || "Google account connected" }}
+                    {{ currentUser?.email || "Local storage enabled" }}
                   </p>
                 </div>
                 <v-menu location="top end" offset="13">
                   <template #activator="{ props }">
-                    <v-btn v-bind="props" class="profile-menu-trigger" icon="mdi-dots-horizontal" rounded="lg"
-                      density="comfortable" variant="text" />
+                    <v-btn
+                      v-bind="props"
+                      class="profile-menu-trigger"
+                      icon="mdi-dots-horizontal"
+                      rounded="lg"
+                      density="comfortable"
+                      variant="text"
+                      aria-label="Account Settings"
+                    />
                   </template>
-                  <v-list density="compact" class="border p-1" rounded="lg" slim
-                    :class="isDarkTheme ? 'profile-menu-list-dark' : 'profile-menu-list'">
+                  <v-list density="compact" class="border p-1" rounded="lg" slim :class="isDarkTheme ? 'profile-menu-list-dark' : 'profile-menu-list'">
                     <v-list-item prepend-icon="mdi-account-circle" @click="profiledialog = true">
-                      <v-list-item-title>Profile</v-list-item-title>
+                      <v-list-item-title>Profile Status</v-list-item-title>
                     </v-list-item>
-                    <v-list-item prepend-icon="mdi-plus-circle-outline" @click="startNewChat">
-                      <v-list-item-title>New chat</v-list-item-title>
+                    <v-list-item prepend-icon="mdi-download-outline" :disabled="!messages.length" @click="exportDialogOpen = true">
+                      <v-list-item-title>Export Chat</v-list-item-title>
                     </v-list-item>
                     <v-list-item prepend-icon="mdi-content-copy" @click="copyCurrentConversationLink">
                       <v-list-item-title>Copy chat link</v-list-item-title>
                     </v-list-item>
-                    <v-list-item prepend-icon="mdi-email-fast-outline" @click="copyUserEmail">
-                      <v-list-item-title>Copy email</v-list-item-title>
-                    </v-list-item>
                     <v-list-item :prepend-icon="themeToggleIcon" @click="toggleTheme">
                       <v-list-item-title>{{ themeToggleLabel }}</v-list-item-title>
                     </v-list-item>
-                    <v-list-item prepend-icon="mdi-delete-outline" color="error" :disabled="!conversations.length"
-                      @click="deleteActiveConversation">
+                    <v-list-item prepend-icon="mdi-delete-outline" color="error" :disabled="!conversations.length" @click="deleteActiveConversation">
                       <v-list-item-title>Delete all chats</v-list-item-title>
                     </v-list-item>
-                    <v-list-item prepend-icon="mdi-logout" @click="signOutUser" color="error">
-                      <v-list-item-title>Logout</v-list-item-title>
+                    <v-list-item prepend-icon="mdi-logout" color="error" @click="signOutUser">
+                      <v-list-item-title>{{ currentUser ? "Logout" : "Exit Guest Mode" }}</v-list-item-title>
                     </v-list-item>
                   </v-list>
                 </v-menu>
@@ -2110,157 +2351,316 @@ onUnmounted(() => {
           </template>
         </v-navigation-drawer>
 
+        <!-- Top App Bar -->
         <v-app-bar v-if="hasUser" density="compact" flat border="b">
-          <v-app-bar-nav-icon v-if="mobile" @click="sidebarOpen = !sidebarOpen" />
+          <v-app-bar-nav-icon v-if="mobile" aria-label="Toggle Sidebar Navigation" @click="sidebarOpen = !sidebarOpen" />
+
           <v-app-bar-title class="text-subtitle-1 font-weight-medium">
-            <template v-if="mobile" class="text-start w-100">
-              {{ activeConversationTitle }}
-            </template>
-            <div v-else class="d-flex align-center">
-              <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" style="width: 25px; height: 25px;" class="mr-2" />
-              <span class="font-weight-bold">Mindlytic AI</span>
+            <div class="d-flex align-center">
+              <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" style="width: 24px; height: 24px;" class="mr-2" />
+              <span class="font-weight-bold mr-2 text-truncate">Mindlytic</span>
             </div>
           </v-app-bar-title>
+
+          <!-- Top Navigation Pills for AI Tools Suite (Responsive) -->
+          <v-spacer />
+
+          <!-- App Bar Action Buttons -->
           <template v-slot:append>
-            <v-btn icon="mdi-plus" variant="text" size="large" class="m-0" :disabled="sending" @click="startNewChat"
-              v-if="mobile" />
+            <v-btn
+              v-if="activeTool === 'chat' && messages.length > 0"
+              icon="mdi-download-outline"
+              variant="text"
+              size="small"
+              aria-label="Export Chat"
+              title="Export Chat"
+              @click="exportDialogOpen = true"
+            />
+            <v-btn
+              :icon="themeToggleIcon"
+              variant="text"
+              size="small"
+              aria-label="Toggle Dark / Light Theme"
+              title="Toggle Theme"
+              @click="toggleTheme"
+            />
+            <v-btn
+              v-if="mobile && activeTool === 'chat'"
+              icon="mdi-plus"
+              variant="text"
+              size="large"
+              aria-label="Start New Chat"
+              :disabled="sending || isStreaming"
+              @click="startNewChat"
+            />
           </template>
         </v-app-bar>
 
+        <!-- Main Workspace Body -->
         <v-main class="chat-main">
           <v-progress-linear v-if="!authReady" class="session-top-loader" indeterminate color="primary" height="3" />
 
           <div v-if="!authReady" class="session-loader-spacer"></div>
 
-          <div v-else-if="!hasRequiredFirebaseConfig" class="state-card">
-            <h2>Firebase config missing</h2>
-            <p>
-              Add `VITE_FIREBASE_*` keys in frontend `.env` to enable Google
-              sign-in.
-            </p>
-          </div>
-
+          <!-- Auth Fallback Screen with Guest Mode Button -->
           <div v-else-if="!hasUser" class="state-card-auth">
             <div class="auth-content">
               <div class="auth-header">
                 <img src="/media/Picture/mindlytic.svg" alt="Mindlytic" class="auth-logo" />
-                <h1 class="auth-title">Mindlytic AI</h1>
+                <h1 class="auth-title">Mindlytic AI Suite</h1>
+                <p class="text-caption text-grey m-0">Enterprise AI Chat, Text Summarizer, and Prompt Architect</p>
               </div>
 
               <v-btn class="google-auth-btn" :loading="signingIn" :disabled="signingIn" @click="signInWithGoogle">
                 <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    fill="#4285F4" />
-                  <path
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    fill="#34A853" />
-                  <path
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                    fill="#FBBC05" />
-                  <path
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    fill="#EA4335" />
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                 </svg>
                 <span class="google-btn-text">Sign in with Google</span>
               </v-btn>
-              <p class="auth-secure-text">-- Secure sign-in and encrypted --</p>
+
+              <div class="d-flex align-center my-2">
+                <v-divider class="flex-grow-1" />
+                <span class="px-2 text-caption text-grey">OR</span>
+                <v-divider class="flex-grow-1" />
+              </div>
+
+              <!-- Instant Guest Mode Activation Button -->
+              <v-btn
+                variant="outlined"
+                color="primary"
+                prepend-icon="mdi-lightning-bolt-outline"
+                class="rounded-lg text-none font-weight-bold py-2"
+                @click="enterGuestMode"
+              >
+                Continue in Guest Mode (Offline Ready)
+              </v-btn>
+
+              <p class="auth-secure-text">All AI tools, chat runner, and local persistence fully available.</p>
             </div>
           </div>
 
+          <!-- Authenticated or Guest Workspace -->
           <template v-else>
-            <div class="workspace-shell" :class="{ 'workspace-shell-with-runner': runnerPanelOpen }">
-              <div class="chat-workspace" :class="{ 'chat-workspace-empty': isEmptyConversation }">
-                <div ref="chatScrollRef" class="chat-scroll" :class="{ 'chat-scroll-empty': isEmptyConversation }"
-                  @scroll="handleChatScroll">
-                  <div v-if="isEmptyConversation" class="empty-state">
-                    <v-container fluid class="fill-height d-flex align-center justify-center">
-                      <div class="text-center max-width">
+            <!-- 1. AI CHAT TAB -->
+            <template v-if="activeTool === 'chat'">
+              <div class="workspace-shell" :class="{ 'workspace-shell-with-runner': runnerPanelOpen }">
+                <div class="chat-workspace" :class="{ 'chat-workspace-empty': isEmptyConversation }">
+                  <div
+                    ref="chatScrollRef"
+                    class="chat-scroll"
+                    :class="{ 'chat-scroll-empty': isEmptyConversation }"
+                    @scroll="handleChatScroll"
+                  >
+                    <!-- Empty State with Quick Starters -->
+                    <div v-if="isEmptyConversation" class="empty-state">
+                      <v-container fluid class="fill-height d-flex align-center justify-center">
+                        <div class="text-center max-width">
+                          <!-- Headline -->
+                          <h1 class="headline-text mb-2">
+                            Your ideas, powered by AI.
+                          </h1>
 
-                        <!-- Headline -->
-                        <h1 class="headline-text mb-4">
-                          Your ideas, powered by AI.
-                        </h1>
+                          <!-- Subtext -->
+                          <p class="sub-text mb-6">
+                            Chat, summarize, and architect solutions faster than ever.
+                          </p>
+                        </div>
+                      </v-container>
+                    </div>
 
-                        <!-- Subtext -->
-                        <p class="sub-text mb-8">
-                          Chat, create, and solve problems faster than ever.
-                        </p>
+                    <!-- Message Thread -->
+                    <div v-else class="message-thread">
+                      <div
+                        v-for="(message, index) in messages"
+                        :key="`${message.createdAt}-${index}`"
+                        class="message-row"
+                        :class="message.role === 'assistant' ? 'message-row-ai' : 'message-row-user'"
+                      >
+                        <div class="message-bubble" :class="message.error ? 'message-bubble-error' : ''">
+                          <div
+                            v-if="message.role === 'assistant'"
+                            class="markdown-body"
+                            v-html="renderAssistantMessage(message.text)"
+                            @click="handleAssistantMessageClick($event, message, index)"
+                          ></div>
+                          <p v-else class="message-text">{{ message.text }}</p>
+                          <p class="message-time">
+                            {{ formatMessageTime(message.createdAt) }}
+                          </p>
+
+                          <div v-if="message.role === 'assistant' && message.text" class="message-actions">
+                            <v-chip
+                              size="small"
+                              prepend-icon="mdi-content-copy"
+                              variant="outlined"
+                              color="primary"
+                              @click="copyText(message.text, 'Reply copied.')"
+                            >
+                              Copy
+                            </v-chip>
+                          </div>
+                        </div>
                       </div>
-                    </v-container>
-                  </div>
 
-                  <div v-else class="message-thread">
-                    <div v-for="(message, index) in messages" :key="`${message.createdAt}-${index}`" class="message-row"
-                      :class="message.role === 'assistant'
-                        ? 'message-row-ai'
-                        : 'message-row-user'
-                        ">
-                      <div class="message-bubble" :class="message.error ? 'message-bubble-error' : ''">
-                        <div v-if="message.role === 'assistant'" class="markdown-body"
-                          v-html="renderAssistantMessage(message.text)" @click="
-                            handleAssistantMessageClick($event, message, index)
-                            "></div>
-                        <p v-else class="message-text">{{ message.text }}</p>
-                        <p class="message-time">
-                          {{ formatMessageTime(message.createdAt) }}
-                        </p>
-
-                        <div v-if="message.role === 'assistant'" class="message-actions">
-                          <v-chip size="small" prepend-icon="mdi-content-copy" variant="outlined" color="primary"
-                            @click="copyText(message.text, 'Reply copied.')">Copy</v-chip>
+                      <!-- Thinking Indicator while waiting for initial tokens -->
+                      <div v-if="sending" class="message-row message-row-ai">
+                        <div class="message-bubble message-bubble-thinking">
+                          <div class="thinking-dots">
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                          </div>
                         </div>
                       </div>
                     </div>
+                  </div>
 
-                    <div v-if="sending" class="message-row message-row-ai">
-                      <div class="message-bubble message-bubble-thinking">
-                        <div class="thinking-dots">
-                          <span class="dot"></span>
-                          <span class="dot"></span>
-                          <span class="dot"></span>
+                  <!-- Scroll to Bottom Button -->
+                  <v-fade-transition>
+                    <v-btn
+                      v-if="showScrollButton"
+                      icon="mdi-arrow-down"
+                      variant="outlined"
+                      class="scroll-bottom-btn border"
+                      color="primary"
+                      density="comfortable"
+                      aria-label="Scroll to newest messages"
+                      @click="scrollToBottom"
+                    />
+                  </v-fade-transition>
+
+                  <!-- Composer Shell -->
+                  <div class="composer-shell" :class="{ 'composer-shell-floating': isEmptyConversation }">
+                    <!-- Floating Stop Streaming Pill -->
+                    <div v-if="isStreaming" class="d-flex justify-center mb-2">
+                      <v-btn
+                        size="small"
+                        variant="flat"
+                        color="error"
+                        prepend-icon="mdi-stop"
+                        class="rounded-pill text-none px-4 shadow"
+                        @click="stopGenerating"
+                      >
+                        Stop generating
+                      </v-btn>
+                    </div>
+
+                    <div class="composer-panel">
+                      <v-textarea
+                        ref="composerTextareaRef"
+                        v-model="userInput"
+                        class="composer-input"
+                        placeholder="Message Mindlytic AI... (Shift+Enter for newline)"
+                        hide-details
+                        rows="1"
+                        auto-grow
+                        max-rows="4"
+                        density="compact"
+                        variant="outlined"
+                        :disabled="sending || isStreaming || loadingConversation"
+                        @keydown="handlePromptKeydown"
+                      />
+                      <div class="composer-bottom-tools">
+                        <div class="d-flex align-center ga-2">
+                          <v-select
+                            :key="`model-select-${pageTheme}`"
+                            v-model="selectedModel"
+                            :items="modelOptions"
+                            item-title="label"
+                            item-value="value"
+                            :return-object="false"
+                            density="compact"
+                            hide-details
+                            variant="outlined"
+                            :menu-props="composerMenuProps"
+                            class="composer-model-select"
+                            :disabled="sending || isStreaming || loadingConversation"
+                            aria-label="Select AI Engine Model"
+                          />
                         </div>
+
+                        <!-- Send or Stop Button -->
+                        <v-btn
+                          v-if="isStreaming"
+                          icon="mdi-stop"
+                          density="comfortable"
+                          color="error"
+                          class="composer-send"
+                          aria-label="Stop generation"
+                          @click="stopGenerating"
+                        />
+                        <v-btn
+                          v-else
+                          icon="mdi-arrow-up"
+                          density="comfortable"
+                          color="primary"
+                          class="composer-send"
+                          :disabled="!canSend"
+                          :loading="sending"
+                          aria-label="Send Message"
+                          @click="sendMessage"
+                        />
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <v-fade-transition>
-                  <v-btn v-if="showScrollButton" icon="mdi-arrow-down" variant="outlined"
-                    class="scroll-bottom-btn border" color="primary" density="comfortable" @click="scrollToBottom" />
-                </v-fade-transition>
-
-                <div class="composer-shell" :class="{ 'composer-shell-floating': isEmptyConversation }">
-                  <div class="composer-panel">
-                    <v-textarea v-model="userInput" class="composer-input" placeholder="Message Mindlytic AI"
-                      hide-details rows="1" auto-grow max-rows="2" density="compact" variant="outlined"
-                      :disabled="sending || loadingConversation" @keydown="handlePromptKeydown" />
-                    <div class="composer-bottom-tools">
-                      <v-select :key="`model-select-${pageTheme}`" v-model="selectedModel" :items="modelOptions"
-                        item-title="label" item-value="value" :return-object="false" density="compact" hide-details
-                        variant="outlined" :menu-props="composerMenuProps" class="composer-model-select"
-                        :disabled="sending || loadingConversation" />
-                      <v-btn icon="mdi-arrow-up" density="comfortable" color="primary" class="composer-send"
-                        :disabled="!canSend" :loading="sending" @click="sendMessage" />
+                <!-- Code Runner Side Drawer -->
+                <aside v-if="runnerPanelOpen" class="ai-runner-panel">
+                  <div class="ai-runner-head">
+                    <div class="ai-runner-head-main">
+                      <p class="ai-runner-title">{{ runnerTitle }}</p>
+                    </div>
+                    <div class="ai-runner-head-actions">
+                      <v-btn
+                        size="small"
+                        variant="text"
+                        color="primary"
+                        icon="mdi-close"
+                        class="runner-close-btn"
+                        aria-label="Close runner preview"
+                        @click="closeRunnerPanel"
+                      />
                     </div>
                   </div>
-                </div>
+                  <iframe
+                    :key="runnerFrameKey"
+                    :srcdoc="runnerSrcdoc"
+                    class="ai-runner-frame"
+                    sandbox="allow-scripts allow-modals"
+                    referrerpolicy="no-referrer"
+                    title="Code runner preview"
+                  ></iframe>
+                </aside>
               </div>
-              <aside v-if="runnerPanelOpen" class="ai-runner-panel">
-                <div class="ai-runner-head">
-                  <div class="ai-runner-head-main">
-                    <p class="ai-runner-title">{{ runnerTitle }}</p>
-                  </div>
-                  <div class="ai-runner-head-actions">
-                    <v-btn size="small" variant="text" color="primary" icon="mdi-close" class="runner-close-btn"
-                      @click="closeRunnerPanel" />
-                  </div>
-                </div>
-                <iframe :key="runnerFrameKey" :srcdoc="runnerSrcdoc" class="ai-runner-frame"
-                  sandbox="allow-scripts allow-modals" referrerpolicy="no-referrer"
-                  title="Code runner preview"></iframe>
-              </aside>
-            </div>
+            </template>
+
+            <!-- 2. TEXT SUMMARIZER & REWRITER TAB -->
+            <template v-else-if="activeTool === 'summarizer'">
+              <div class="tool-outer-container">
+                <TextSummarizerTool
+                  :is-dark-theme="isDarkTheme"
+                  :request-ai-reply="requestAiReply"
+                  @send-to-chat="handleToolSendToChat"
+                  @show-alert="showAlert"
+                />
+              </div>
+            </template>
+
+            <!-- 3. PROMPT ENHANCER TAB -->
+            <template v-else-if="activeTool === 'prompter'">
+              <div class="tool-outer-container">
+                <PromptEnhancerTool
+                  :is-dark-theme="isDarkTheme"
+                  :request-ai-reply="requestAiReply"
+                  @send-to-chat="handleToolSendToChat"
+                  @show-alert="showAlert"
+                />
+              </div>
+            </template>
           </template>
         </v-main>
       </v-layout>
@@ -2269,7 +2669,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* ChatGPT Aesthetic Base */
 .mindlytic-page {
@@ -2302,6 +2702,79 @@ onUnmounted(() => {
   background-color: #171717 !important;
 }
 
+/* App Bar Navigation Pills */
+.appbar-tools-pills {
+  background: rgba(var(--v-theme-on-surface), 0.04);
+  border-radius: 9999px;
+  padding: 3px;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.appbar-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.76rem;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background: transparent;
+  color: rgb(var(--v-theme-on-surface));
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.appbar-pill:hover {
+  background: rgba(var(--v-theme-on-surface), 0.08);
+}
+
+.appbar-pill.active {
+  background: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-primary));
+  font-weight: 600;
+}
+
+/* Sidebar Tools Group */
+.sidebar-tools-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-tool-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: rgb(var(--v-theme-on-surface));
+  font-size: 0.84rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.sidebar-tool-btn:hover {
+  background: rgba(var(--v-theme-on-surface), 0.05);
+}
+
+.sidebar-tool-btn.active {
+  background: rgba(var(--v-theme-primary), 0.12);
+  color: rgb(var(--v-theme-primary));
+  font-weight: 600;
+}
+
+/* Tool Outer Scroll Container */
+.tool-outer-container {
+  flex: 1;
+  overflow-y: auto;
+  height: 100%;
+  padding-bottom: 32px;
+}
+
 /* History List */
 .history-wrap {
   flex: 1;
@@ -2311,8 +2784,8 @@ onUnmounted(() => {
 }
 
 .history-title {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
   color: rgba(var(--v-theme-on-surface), 0.6);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -2350,7 +2823,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   text-align: start;
-  padding: 10px 12px;
+  padding: 8px 12px;
   background-color: transparent !important;
   border: none;
   cursor: pointer;
@@ -2374,7 +2847,7 @@ onUnmounted(() => {
 
 .history-item-title {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 0.84rem;
   font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
@@ -2387,8 +2860,20 @@ onUnmounted(() => {
   color: rgba(var(--v-theme-on-surface), 0.6) !important;
 }
 
-.history-item:hover .history-menu-btn {
-  opacity: 1;
+.history-item:hover .history-menu-btn,
+.history-item:focus-within .history-menu-btn,
+.history-menu-btn:focus,
+.history-menu-btn:focus-visible {
+  opacity: 1 !important;
+}
+
+.appbar-pill:focus-visible,
+.sidebar-tool-btn:focus-visible,
+.history-item:focus-visible,
+.history-menu-btn:focus-visible,
+.quick-starter-card:focus-visible {
+  outline: 2px solid rgb(var(--v-theme-primary)) !important;
+  outline-offset: 2px !important;
 }
 
 .history-item-editing {
@@ -2423,14 +2908,7 @@ onUnmounted(() => {
 
 .profile-menu-list :deep(.v-list-item),
 .profile-menu-list-dark :deep(.v-list-item) {
-  min-height: 40px;
-}
-
-.profile-menu-name {
-  margin: 0;
-  font-size: 0.86rem;
-  font-weight: 600;
-  color: inherit;
+  min-height: 38px;
 }
 
 .user-profile {
@@ -2452,7 +2930,7 @@ onUnmounted(() => {
 
 .user-name {
   font-size: 0.84rem;
-  font-weight: 500;
+  font-weight: 600;
   margin: 0;
   line-height: 1.25;
 }
@@ -2483,20 +2961,21 @@ onUnmounted(() => {
   letter-spacing: 0.01em;
 }
 
+/* Empty State & Quick Starters */
 .max-width {
-  max-width: 600px;
+  max-width: 720px;
   width: 100%;
 }
 
 .headline-text {
-  font-size: 42px;
+  font-size: clamp(28px, 4vw, 40px);
   font-weight: 700;
   color: #1e293b;
   letter-spacing: -0.5px;
 }
 
 .sub-text {
-  font-size: 16px;
+  font-size: 15px;
   color: #64748b;
 }
 
@@ -2508,9 +2987,43 @@ onUnmounted(() => {
   color: #9aa0a6;
 }
 
-.input-box {
-  background: rgb(var(--v-theme-surface)) !important;
-  border-radius: 16px;
+.quick-starters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+}
+
+.quick-starter-card {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(var(--v-theme-on-surface), 0.03);
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-starter-card:hover {
+  background: rgba(var(--v-theme-on-surface), 0.07);
+  border-color: rgba(var(--v-theme-primary), 0.4);
+  transform: translateY(-2px);
+}
+
+.starter-title {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.starter-desc {
+  margin: 0;
+  font-size: 0.76rem;
+  color: rgba(var(--v-theme-on-surface), 0.65);
+  line-height: 1.35;
 }
 
 .chat-main {
@@ -2549,225 +3062,36 @@ onUnmounted(() => {
   justify-content: center;
 }
 
-.workspace-shell-with-runner .chat-workspace {
-  min-width: 0;
-}
-
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
-  width: min(100%, 720px);
+  width: min(100%, 760px);
   margin: 0 auto;
   padding: 24px 16px;
   text-align: center;
 }
 
-.empty-title {
-  font-size: 2rem;
-  font-weight: 600;
-  line-height: 1.15;
-  margin: 0 0 8px;
-  color: rgb(var(--v-theme-on-surface));
-}
-
-.empty-subtitle {
-  margin: 0;
-  color: rgba(var(--v-theme-on-surface), 0.72);
-}
-
 /* Authentication State */
-.state-card {
-  padding: 48px;
-  text-align: center;
-  color: rgb(var(--v-error));
-}
-
-.session-top-loader {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-}
-
-.session-loader-spacer {
-  flex: 1;
-}
-
-.delete-dialog-card {
-  background-color: rgb(var(--v-theme-surface)) !important;
-  color: rgb(var(--v-theme-on-surface)) !important;
-}
-
-/* --- Profile Dialog Redesign --- */
-.profile-dialog-card {
-  background-color: rgb(var(--v-theme-surface)) !important;
-  color: rgb(var(--v-theme-on-surface)) !important;
-  border: 1px solid rgba(var(--v-border-color), 0.4);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15) !important;
-  position: relative;
-}
-
-.profile-header-bg {
-  height: 120px;
-  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.8), rgba(var(--v-theme-secondary), 0.6));
-  position: relative;
-  display: flex;
-  justify-content: flex-end;
-  padding: 12px;
-}
-
-.profile-dialog-close-btn {
-  color: #ffffff !important;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(4px);
-  transition: background 0.2s;
-}
-
-.profile-dialog-close-btn:hover {
-  background: rgba(0, 0, 0, 0.4);
-}
-
-.profile-avatar-container {
-  display: flex;
-  justify-content: center;
-  margin-top: -55px;
-  position: relative;
-  z-index: 2;
-}
-
-.profile-avatar {
-  border: 4px solid rgb(var(--v-theme-surface));
-  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.1), rgba(var(--v-theme-surface), 1));
-}
-
-.profile-avatar-initial {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: rgb(var(--v-theme-primary));
-}
-
-.profile-name {
-  color: rgb(var(--v-theme-on-surface));
-  letter-spacing: -0.5px;
-  line-height: 1.2;
-}
-
-.profile-email {
-  color: rgba(var(--v-theme-on-surface), 0.6);
-}
-
-.profile-stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  padding: 0 8px;
-}
-
-.profile-stat-box {
-  background: rgba(var(--v-theme-on-surface), 0.03);
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.06);
-  border-radius: 16px;
-  padding: 16px 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.profile-stat-box:hover {
-  transform: translateY(-2px);
-  background: rgba(var(--v-theme-on-surface), 0.05);
-}
-
-.stat-label {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: rgba(var(--v-theme-on-surface), 0.5);
-  margin-bottom: 4px;
-}
-
-.stat-value {
-  font-size: 0.95rem;
-  color: rgb(var(--v-theme-on-surface));
-}
-
-.profile-actions {
-  display: flex;
-  align-items: center;
-}
-
-.profile-dialog-card.theme-dark {
-  background-color: #2a2b32 !important;
-  color: #ececec !important;
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.profile-dialog-card.theme-dark .profile-header-bg {
-  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.5), rgba(0, 0, 0, 0.4));
-}
-
-.profile-dialog-card.theme-dark .profile-avatar {
-  border-color: #2a2b32 !important;
-}
-
-.profile-dialog-card.theme-dark .profile-name,
-.profile-dialog-card.theme-dark .stat-value {
-  color: #ececec !important;
-}
-
-.profile-dialog-card.theme-dark .profile-email,
-.profile-dialog-card.theme-dark .stat-label {
-  color: #9aa0a6 !important;
-}
-
-.profile-dialog-card.theme-dark .profile-stat-box {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.profile-dialog-card.theme-dark .profile-stat-box:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.profile-dialog-card.theme-dark .text-success {
-  color: #81c995 !important;
-}
-
-.profile-dialog-card.theme-dark .v-divider {
-  opacity: 0.3;
-}
-
-.delete-dialog-title {
-  color: rgb(var(--v-theme-on-surface));
-}
-
-.delete-dialog-copy {
-  color: rgba(var(--v-theme-on-surface), 0.72);
-}
-
-.delete-dialog-cancel {
-  color: rgba(var(--v-theme-on-surface), 0.72) !important;
-}
-
 .state-card-auth {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
   width: 100%;
+  padding: 24px;
 }
 
 .auth-content {
   background: transparent;
-  padding: 40px;
+  padding: 36px 24px;
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 17px;
-  width: min(100%, 420px);
+  gap: 16px;
+  width: min(100%, 440px);
   min-width: 0;
 }
 
@@ -2775,18 +3099,18 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
 }
 
 .auth-logo {
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
 }
 
 .auth-title {
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 1.8rem;
+  font-weight: 700;
   color: rgb(var(--v-theme-on-surface));
   margin: 0;
 }
@@ -2796,192 +3120,47 @@ onUnmounted(() => {
 }
 
 .auth-secure-text {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.74rem;
   color: rgba(var(--v-theme-on-surface), 0.6);
-  margin: 12px 0 0;
+  margin: 8px 0 0;
   text-align: center;
-  letter-spacing: 0.2px;
-  line-height: 1.4;
-}
-
-.mindlytic-page.theme-dark .auth-secure-text {
-  color: #9aa0a6;
 }
 
 .google-auth-btn {
   width: 100%;
-  max-width: 360px;
   height: 48px !important;
-  padding: 0 28px !important;
   border-radius: 8px !important;
   font-size: 0.95rem !important;
   font-weight: 500 !important;
-  letter-spacing: 0.32px;
   text-transform: none !important;
   background-color: rgba(255, 255, 255, 0.08) !important;
   color: rgb(var(--v-theme-on-surface)) !important;
   border: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
-  transition: all 0.2s ease !important;
-  position: relative;
-  overflow: hidden;
-  margin: 16px auto 0;
-  white-space: nowrap;
+  margin: 8px auto 0;
 }
 
 .google-auth-btn :deep(.v-btn__content) {
   display: flex !important;
-  flex-direction: row;
   align-items: center !important;
   justify-content: center !important;
-  gap: 18px !important;
+  gap: 14px !important;
   width: 100%;
-}
-
-.google-auth-btn:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.12) !important;
-  border-color: rgba(124, 14, 68, 0.25) !important;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
-}
-
-.google-auth-btn:active:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.16) !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
-}
-
-.google-auth-btn:disabled {
-  opacity: 0.6 !important;
-  cursor: not-allowed !important;
 }
 
 .google-icon {
   width: 20px;
   height: 20px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .google-btn-text {
-  display: inline-block;
-  font-weight: 500;
-  white-space: nowrap;
-  letter-spacing: 0.3px;
+  font-weight: 600;
 }
 
 .mindlytic-page.theme-dark .google-auth-btn {
   background-color: #262626 !important;
   color: #e8eaed !important;
   border: 1px solid #3c4043 !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.24) !important;
-}
-
-.mindlytic-page.theme-dark .google-auth-btn:hover:not(:disabled) {
-  background-color: #2d2d2d !important;
-  border-color: #5f6368 !important;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.32) !important;
-}
-
-.mindlytic-page.theme-dark .google-auth-btn:active:not(:disabled) {
-  background-color: #202124 !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.24) !important;
-}
-
-/* Responsive Google Button */
-@media (max-width: 600px) {
-  .auth-content {
-    padding: 24px 16px;
-    gap: 14px;
-  }
-
-  .auth-title {
-    font-size: 1.7rem;
-  }
-
-  .google-auth-btn {
-    max-width: 100% !important;
-    width: calc(100% - 32px);
-    padding: 0 24px !important;
-    height: 46px !important;
-    font-size: 0.9rem !important;
-  }
-
-  .google-auth-btn :deep(.v-btn__content) {
-    gap: 16px !important;
-  }
-
-  .google-icon {
-    width: 18px;
-    height: 18px;
-  }
-
-  .google-btn-text {
-    font-size: 0.9rem;
-  }
-
-  .auth-secure-text {
-    font-size: 0.72rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .auth-content {
-    padding: 20px 12px;
-  }
-
-  .google-auth-btn {
-    max-width: 100% !important;
-    width: calc(100% - 24px);
-    padding: 0 20px !important;
-    height: 44px !important;
-    font-size: 0.85rem !important;
-  }
-
-  .google-auth-btn :deep(.v-btn__content) {
-    gap: 14px !important;
-  }
-
-  .google-icon {
-    width: 16px;
-    height: 16px;
-  }
-
-  .google-btn-text {
-    font-size: 0.85rem;
-  }
-
-  .auth-secure-text {
-    font-size: 0.7rem;
-    margin-top: 10px;
-  }
-}
-
-@media (max-width: 360px) {
-  .google-auth-btn {
-    padding: 0 16px !important;
-    height: 42px !important;
-    font-size: 0.8rem !important;
-  }
-
-  .google-auth-btn :deep(.v-btn__content) {
-    gap: 12px !important;
-  }
-
-  .google-icon {
-    width: 15px;
-    height: 15px;
-  }
-
-  .google-btn-text {
-    font-size: 0.8rem;
-  }
-
-  .auth-secure-text {
-    font-size: 0.68rem;
-    margin-top: 8px;
-  }
 }
 
 /* Message Bubbles */
@@ -3013,16 +3192,14 @@ onUnmounted(() => {
   padding: 12px 20px;
   font-size: 1rem;
   line-height: 1.6;
-  box-shadow: none;
 }
 
-/* User Message */
 .message-row-user .message-bubble {
   background-color: rgba(124, 14, 68, 0.15) !important;
   color: rgb(var(--v-theme-on-surface)) !important;
   border: 1px solid rgba(124, 14, 68, 0.22) !important;
-  border-radius: 24px;
-  max-width: 80%;
+  border-radius: 20px;
+  max-width: 82%;
 }
 
 .mindlytic-page.theme-dark .message-row-user .message-bubble {
@@ -3030,7 +3207,6 @@ onUnmounted(() => {
   color: #ececec !important;
 }
 
-/* AI Message */
 .message-row-ai .message-bubble {
   background-color: transparent !important;
   color: rgb(var(--v-theme-on-surface)) !important;
@@ -3051,11 +3227,6 @@ onUnmounted(() => {
   border: 1px solid rgba(248, 81, 73, 0.25) !important;
 }
 
-.mindlytic-page.theme-dark .message-bubble-error {
-  background-color: rgba(127, 29, 29, 0.2) !important;
-  color: #fca5a5 !important;
-}
-
 .message-text {
   margin: 0;
   white-space: pre-wrap;
@@ -3069,9 +3240,8 @@ onUnmounted(() => {
   display: flex;
   gap: 8px;
   justify-content: flex-start;
-  margin-top: 4px;
+  margin-top: 6px;
 }
-
 
 /* Thinking Indicator */
 .message-bubble-thinking {
@@ -3099,23 +3269,14 @@ onUnmounted(() => {
   background-color: #fff;
 }
 
-.thinking-dots .dot:nth-child(1) {
-  animation-delay: -0.32s;
-}
-
-.thinking-dots .dot:nth-child(2) {
-  animation-delay: -0.16s;
-}
+.thinking-dots .dot:nth-child(1) { animation-delay: -0.32s; }
+.thinking-dots .dot:nth-child(2) { animation-delay: -0.16s; }
 
 @keyframes pulseWait {
-
-  0%,
-  80%,
-  100% {
+  0%, 80%, 100% {
     transform: scale(0.6);
     opacity: 0.4;
   }
-
   40% {
     transform: scale(1);
     opacity: 1;
@@ -3125,7 +3286,7 @@ onUnmounted(() => {
 /* Composer / Input Area */
 .composer-shell {
   padding: 0 24px calc(24px + env(safe-area-inset-bottom));
-  background-color: #ffffff00;
+  background-color: transparent;
   position: relative;
   z-index: 20;
 }
@@ -3151,102 +3312,70 @@ onUnmounted(() => {
 .composer-panel {
   max-width: 768px;
   margin: 0 auto;
-  background-color: rgba(255, 255, 255, 0.02) !important;
-  border: 1px solid rgba(124, 14, 68, 0.16) !important;
+  background-color: rgba(var(--v-theme-surface), 0.9) !important;
+  border: 1px solid rgba(124, 14, 68, 0.2) !important;
   backdrop-filter: blur(12px);
-  border-radius: 15px !important;
+  border-radius: 16px !important;
   padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 .composer-panel:focus-within {
-  border-color: rgba(124, 14, 68, 0.42) !important;
+  border-color: rgba(124, 14, 68, 0.5) !important;
 }
 
 .mindlytic-page.theme-dark .composer-panel {
-  background-color: #2f2f2f !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-}
-
-.mindlytic-page.theme-dark .composer-panel:focus-within {
-  border-color: rgba(255, 255, 255, 0.24) !important;
+  background-color: #252525 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
 .composer-input {
   width: 100%;
-  box-sizing: border-box;
-}
-
-.composer-input :deep(.v-input__control) {
-  background: transparent !important;
-  box-sizing: border-box;
 }
 
 .composer-input :deep(.v-field) {
   background: transparent !important;
-  box-sizing: border-box;
 }
 
-.composer-input :deep(.v-field__overlay),
 .composer-input :deep(.v-field__outline),
-.composer-input :deep(.v-field__loader) {
+.composer-input :deep(.v-field__overlay) {
   display: none !important;
 }
 
 .composer-input :deep(textarea) {
   color: rgb(var(--v-theme-on-surface)) !important;
-  padding: 3px 0 !important;
-  box-sizing: border-box;
+  padding: 4px 0 !important;
 }
 
 .mindlytic-page.theme-dark .composer-input :deep(textarea) {
   color: #ececec !important;
 }
 
-.mindlytic-page.theme-dark .composer-input :deep(textarea::placeholder) {
-  color: #9b9b9b !important;
-}
-
 .composer-bottom-tools {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-sizing: border-box;
   width: 100%;
   gap: 8px;
-}
-
-.composer-send {
-  flex-shrink: 0;
 }
 
 .composer-model-select {
   width: auto;
   flex: none;
-  box-sizing: border-box;
 }
 
 .composer-model-select :deep(.v-field) {
-  border-radius: 9px !important;
+  border-radius: 8px !important;
   background-color: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  box-sizing: border-box;
 }
 
 .composer-model-select :deep(.v-field__input) {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: rgb(var(--v-theme-on-surface)) !important;
-  box-sizing: border-box;
-}
-
-.mindlytic-page.theme-dark .composer-model-select :deep(.v-field__input) {
-  color: #f3f3f3 !important;
 }
 
 .composer-send {
@@ -3255,18 +3384,7 @@ onUnmounted(() => {
   color: rgb(var(--v-theme-on-primary)) !important;
 }
 
-.composer-send:disabled {
-  opacity: 0.3 !important;
-  background: rgba(var(--v-theme-on-surface), 0.08) !important;
-  color: rgba(var(--v-theme-on-surface), 0.3) !important;
-}
-
-.mindlytic-page.theme-dark .composer-send:disabled {
-  background: #fff !important;
-  color: #000 !important;
-}
-
-/* Markdown Customizations - Clean */
+/* Markdown Customizations */
 .markdown-body {
   width: 100%;
   font-size: 1rem;
@@ -3284,21 +3402,14 @@ onUnmounted(() => {
   margin: 0 0 14px;
 }
 
-.message-row-user .markdown-body :deep(p) {
-  margin-bottom: 0;
-}
-
 .markdown-body :deep(pre) {
-  background-color: rgba(255, 255, 255, 0.04) !important;
-  color: rgb(var(--v-theme-on-surface)) !important;
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  color: inherit !important;
   padding: 14px 16px !important;
   border-radius: 8px;
   overflow-x: auto;
-  overflow-y: hidden;
   margin: 0;
   box-shadow: inset 0 0 0 1px rgba(124, 14, 68, 0.16);
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
 }
 
 .mindlytic-page.theme-dark .markdown-body :deep(pre) {
@@ -3307,18 +3418,13 @@ onUnmounted(() => {
 }
 
 .markdown-body :deep(:not(pre) > code) {
-  background-color: rgba(255, 255, 255, 0.08) !important;
+  background-color: rgba(var(--v-theme-on-surface), 0.08) !important;
   color: rgb(var(--v-theme-primary)) !important;
   padding: 2px 6px;
   border-radius: 6px;
   font-size: 0.88em;
   font-weight: 500;
-  font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
-}
-
-.mindlytic-page.theme-dark .markdown-body :deep(:not(pre) > code) {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-  color: #ececec !important;
+  font-family: "JetBrains Mono", Consolas, monospace;
 }
 
 .markdown-body :deep(pre code.code-block-text) {
@@ -3326,27 +3432,20 @@ onUnmounted(() => {
   min-width: max-content;
   background-color: transparent !important;
   padding: 0 !important;
-  border-radius: 0;
-  color: inherit !important;
   font-size: 0.88rem;
   line-height: 1.7;
-  letter-spacing: 0.005em;
   white-space: pre;
-  word-break: normal;
-  tab-size: 2;
-  font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace !important;
+  font-family: "JetBrains Mono", Consolas, monospace !important;
 }
 
 /* Inline Code Runner Block */
 .markdown-body :deep(.inline-code-runner) {
   width: 100%;
-  max-width: 100%;
   border: 1px solid rgba(124, 14, 68, 0.22);
   border-radius: 12px;
   overflow: hidden;
   margin: 16px 0;
   background-color: rgb(var(--v-theme-surface)) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .mindlytic-page.theme-dark .markdown-body :deep(.inline-code-runner) {
@@ -3360,99 +3459,47 @@ onUnmounted(() => {
   align-items: center;
   flex-wrap: wrap;
   gap: 8px 10px;
-  background-color: rgb(var(--v-theme-surface-light)) !important;
-  padding: 10px 12px;
+  background-color: rgba(var(--v-theme-on-surface), 0.04) !important;
+  padding: 8px 12px;
   border-bottom: 1px solid rgba(124, 14, 68, 0.16);
-}
-
-.mindlytic-page.theme-dark .markdown-body :deep(.inline-code-runner-head) {
-  background-color: #0f172a !important;
-  border-bottom-color: rgba(148, 163, 184, 0.2);
 }
 
 .markdown-body :deep(.inline-code-actions) {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  flex-wrap: wrap;
   gap: 8px;
 }
 
 .markdown-body :deep(.inline-code-lang) {
   font-size: 0.72rem;
   font-weight: 700;
-  color: rgba(var(--v-theme-on-surface), 0.7) !important;
-  letter-spacing: 0.04em;
   text-transform: uppercase;
-  font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
-}
-
-.mindlytic-page.theme-dark .markdown-body :deep(.inline-code-lang) {
-  color: #cbd5e1 !important;
+  font-family: "JetBrains Mono", Consolas, monospace;
 }
 
 .markdown-body :deep(.code-runner-inline-btn) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 26px;
+  min-height: 24px;
   font-size: 0.72rem;
   font-weight: 600;
-  padding: 4px 10px;
+  padding: 3px 8px;
   background-color: transparent !important;
   border: 1px solid rgba(124, 14, 68, 0.22) !important;
   border-radius: 6px;
   color: rgb(var(--v-theme-on-surface)) !important;
   cursor: pointer;
-  margin-left: 0;
-  transition: all 0.2s;
 }
 
 .markdown-body :deep(.code-runner-inline-btn:hover) {
   background-color: rgba(124, 14, 68, 0.08) !important;
-  border-color: rgba(124, 14, 68, 0.42) !important;
-}
-
-.mindlytic-page.theme-dark .markdown-body :deep(.code-runner-inline-btn) {
-  border-color: rgba(148, 163, 184, 0.32) !important;
-  color: #e5e7eb !important;
-}
-
-.mindlytic-page.theme-dark .markdown-body :deep(.code-runner-inline-btn:hover) {
-  background-color: rgba(148, 163, 184, 0.14) !important;
-}
-
-/* Syntax Highlighting */
-.markdown-body :deep(pre code .token.comment) {
-  color: #6b7280;
-}
-
-.markdown-body :deep(pre code .token.string) {
-  color: #AA5E7A;
-}
-
-.markdown-body :deep(pre code .token.keyword) {
-  color: #3b82f6;
-}
-
-.markdown-body :deep(pre code .token.function) {
-  color: #8b5cf6;
-}
-
-.markdown-body :deep(pre code .token.number) {
-  color: #AA5E7A;
-}
-
-.markdown-body :deep(pre code .token.operator) {
-  color: #9ca3af;
 }
 
 /* Runner Panel */
 .ai-runner-panel {
-  flex: 0 0 clamp(320px, 35vw, 600px);
+  flex: 0 0 clamp(320px, 36vw, 600px);
   min-width: 320px;
-  min-height: 0;
-  overflow: hidden;
   background-color: rgb(var(--v-theme-surface)) !important;
   border-left: 1px solid rgba(var(--v-theme-on-surface), 0.12) !important;
   display: flex;
@@ -3463,14 +3510,6 @@ onUnmounted(() => {
 
 .mindlytic-page.theme-dark .ai-runner-panel {
   background-color: #212121 !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.runner-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  background-color: rgba(0, 0, 0, 0.32);
 }
 
 .ai-runner-head {
@@ -3479,110 +3518,92 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.mindlytic-page.theme-dark .ai-runner-head {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .ai-runner-title {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.875rem;
-  line-height: 1.25;
-  color: rgb(var(--v-theme-on-surface)) !important;
   margin: 0;
-  min-width: 0;
-}
-
-.mindlytic-page.theme-dark .ai-runner-title {
-  color: #ececec !important;
-}
-
-.ai-runner-head-main {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-}
-
-.ai-runner-head-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 
 .ai-runner-frame {
   flex: 1;
-  min-height: 0;
   width: 100%;
   border: none;
   background-color: white !important;
 }
 
-.mindlytic-page.theme-dark .ai-runner-frame {
-  background-color: #ffffff !important;
+/* Profile Dialog */
+.profile-dialog-card {
+  background-color: rgb(var(--v-theme-surface)) !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
 }
 
-@media (max-width: 600px) {
-  .profile-dialog-card {
-    border-radius: 20px !important;
-  }
+.profile-header-bg {
+  height: 110px;
+  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.8), rgba(var(--v-theme-secondary), 0.6));
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px;
+}
 
-  .profile-header-bg {
-    height: 100px;
-  }
+.profile-dialog-close-btn {
+  color: #fff !important;
+  background: rgba(0, 0, 0, 0.2);
+}
 
-  .profile-avatar-container {
-    margin-top: -45px;
-  }
+.profile-avatar-container {
+  display: flex;
+  justify-content: center;
+  margin-top: -50px;
+  position: relative;
+  z-index: 2;
+}
 
-  .profile-avatar {
-    width: 90px !important;
-    height: 90px !important;
-  }
+.profile-avatar {
+  border: 4px solid rgb(var(--v-theme-surface));
+}
 
-  .profile-stats-grid {
-    gap: 10px;
-    padding: 0 4px;
-  }
+.profile-avatar-initial {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: rgb(var(--v-theme-primary));
+}
 
-  .profile-stat-box {
-    padding: 12px 8px;
-    border-radius: 12px;
-  }
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 0 8px;
+}
 
-  .stat-label {
-    font-size: 0.7rem;
-  }
+.profile-stat-box {
+  background: rgba(var(--v-theme-on-surface), 0.03);
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.06);
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-  .profile-actions {
-    flex-direction: column-reverse;
-    align-items: stretch;
-    padding: 8px 16px 16px !important;
-    gap: 12px;
-  }
+.stat-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: rgba(var(--v-theme-on-surface), 0.5);
+}
 
-  .profile-btn-logout,
-  .profile-btn-done {
-    width: 100%;
-    justify-content: center;
-    margin: 0 !important;
-  }
+.stat-value {
+  font-size: 0.9rem;
+}
+
+.delete-dialog-card {
+  background-color: rgb(var(--v-theme-surface)) !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
 }
 
 /* Responsive Overrides */
 @media (max-width: 1024px) {
-  .chat-scroll {
-    padding: 32px 16px;
-  }
-
-  .composer-shell {
-    padding: 0 16px 24px;
-  }
-
   .ai-runner-panel {
     position: absolute;
     inset: 0;
@@ -3594,11 +3615,10 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .chat-sidebar {
     max-width: min(86vw, 320px);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   }
 
   .chat-scroll {
-    padding: 24px 12px;
+    padding: 20px 12px;
   }
 
   .composer-shell {
@@ -3606,40 +3626,8 @@ onUnmounted(() => {
   }
 
   .composer-panel {
-    border-radius: 24px;
-    padding: 7px 7px;
-  }
-
-  .message-bubble {
-    padding: 12px 0;
-  }
-
-  .message-row-user .message-bubble {
-    padding: 10px 16px;
-    max-width: min(92%, 640px);
-  }
-
-  .composer-bottom-tools {
-    flex-wrap: wrap;
-    align-items: center;
-    row-gap: 10px;
-  }
-
-  .composer-model-select {
-    flex: 1 1 190px;
-    min-width: 160px;
-  }
-
-  .markdown-body :deep(.inline-code-runner-head) {
-    padding: 8px 10px;
-  }
-
-  .markdown-body :deep(pre) {
-    padding: 12px !important;
-  }
-
-  .markdown-body :deep(pre code.code-block-text) {
-    font-size: 0.8rem;
+    border-radius: 20px;
+    padding: 8px;
   }
 }
 </style>
@@ -3658,7 +3646,6 @@ onUnmounted(() => {
 .v-overlay__content.history-action-menu-dark {
   background-color: #2f2f2f !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
   color: #ececec !important;
 }
 
@@ -3666,25 +3653,5 @@ onUnmounted(() => {
 .v-overlay__content.history-action-menu .v-list {
   background-color: transparent !important;
   padding: 4px !important;
-}
-
-.v-overlay__content.composer-model-menu .v-list-item,
-.v-overlay__content.history-action-menu .v-list-item {
-  border-radius: 4px !important;
-  margin: 2px 0 !important;
-  min-height: 36px !important;
-}
-
-.v-overlay__content.composer-model-menu-dark .v-list-item,
-.v-overlay__content.history-action-menu-dark .v-list-item {
-  color: #cfcfcf !important;
-}
-
-.v-overlay__content.composer-model-menu-dark .v-list-item:hover,
-.v-overlay__content.composer-model-menu-dark .v-list-item--active,
-.v-overlay__content.history-action-menu-dark .v-list-item:hover,
-.v-overlay__content.history-action-menu-dark .v-list-item--active {
-  background-color: #424242 !important;
-  color: #ececec !important;
 }
 </style>

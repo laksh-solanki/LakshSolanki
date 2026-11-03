@@ -717,6 +717,8 @@ const goBack = () => window.history.back();
   font-size: 0.86rem;
   line-height: 1.6;
   white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .code-block :deep(.empty-hint) {
@@ -732,7 +734,7 @@ const goBack = () => window.history.back();
 
 .status-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 10px;
 }
 

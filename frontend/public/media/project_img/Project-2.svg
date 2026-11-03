@@ -1,177 +1,119 @@
 <svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="p2-bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FAF3F0" />
-      <stop offset="0.65" stop-color="#F5E4DC" />
-      <stop offset="1" stop-color="#EED3C5" />
+      <stop offset="0%" stop-color="#FAF3F0" />
+      <stop offset="100%" stop-color="#F2DACE" />
     </linearGradient>
-    <radialGradient id="p2-glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 120) scale(320 320)">
-      <stop stop-color="#D49A9A" stop-opacity="0.32" />
-      <stop offset="1" stop-color="#D49A9A" stop-opacity="0" />
-    </radialGradient>
-    <radialGradient id="p2-glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(120 620) scale(300 240)">
-      <stop stop-color="#AA5E7A" stop-opacity="0.22" />
-      <stop offset="1" stop-color="#AA5E7A" stop-opacity="0" />
-    </radialGradient>
-    <linearGradient id="p2-primaryGrad" x1="0" y1="0" x2="1" y2="0">
-      <stop stop-color="#7C0E44" />
-      <stop offset="1" stop-color="#931A56" />
+    <linearGradient id="p2-wine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C0E44" />
+      <stop offset="100%" stop-color="#AA5E7A" />
     </linearGradient>
-    <linearGradient id="p2-pdfGrad" x1="0" y1="0" x2="0" y2="100%">
-      <stop stop-color="#D32F2F" />
-      <stop offset="1" stop-color="#7C0E44" />
+    <linearGradient id="p2-pdf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E11D48" />
+      <stop offset="100%" stop-color="#BE123C" />
     </linearGradient>
-    <filter id="p2-shadow" x="70" y="46" width="1060" height="585" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="0" dy="16" stdDeviation="30" flood-color="#7C0E44" flood-opacity="0.08" />
+    <filter id="p2-shadow" x="60" y="40" width="1080" height="595" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="28" flood-color="#7C0E44" flood-opacity="0.08" />
     </filter>
   </defs>
 
-  <!-- Background Canvas -->
+  <!-- Background -->
   <rect width="1200" height="675" fill="url(#p2-bg)" />
-  <circle cx="1080" cy="120" r="260" fill="url(#p2-glowA)" />
-  <circle cx="120" cy="620" r="240" fill="url(#p2-glowB)" />
+  <circle cx="1080" cy="120" r="260" fill="#D49A9A" fill-opacity="0.25" />
+  <circle cx="120" cy="560" r="220" fill="#AA5E7A" fill-opacity="0.18" />
 
-  <!-- Main Container -->
+  <!-- Main Shell Container -->
   <g filter="url(#p2-shadow)">
-    <rect x="110" y="76" width="980" height="522" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
+    <rect x="110" y="70" width="980" height="535" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
   </g>
 
-  <!-- Left: Mode 1 - Image to PDF Pipeline -->
-  <rect x="150" y="118" width="440" height="438" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+  <!-- Header -->
+  <circle cx="160" cy="115" r="6" fill="#7C0E44" />
+  <circle cx="178" cy="115" r="6" fill="#AA5E7A" />
+  <circle cx="196" cy="115" r="6" fill="#D49A9A" />
+  <text x="222" y="122" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="22" font-weight="800" letter-spacing="-0.02em">
+    PDF &amp; IMAGE STUDIO
+  </text>
+  <text x="490" y="121" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="14" font-weight="500">
+    Two-Way Batch Image to PDF &amp; Page Extraction
+  </text>
 
-  <!-- Header Bar -->
-  <circle cx="178" cy="144" r="6" fill="#7C0E44" />
-  <circle cx="196" cy="144" r="6" fill="#AA5E7A" />
-  <circle cx="214" cy="144" r="6" fill="#D49A9A" />
-  <text x="236" y="149" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="14" font-weight="700">Image → PDF Atelier</text>
-
-  <!-- Mode Badge -->
-  <rect x="440" y="132" width="130" height="24" rx="12" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
-  <text x="456" y="148" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">BATCH IMPORT</text>
-  <line x1="150" y1="166" x2="590" y2="166" stroke="rgba(124, 14, 68, 0.08)" stroke-width="1" />
-
-  <!-- Image Queue Item 1 -->
-  <rect x="176" y="184" width="388" height="64" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
-  <!-- Thumbnail badge -->
-  <rect x="192" y="196" width="40" height="40" rx="8" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.15)" />
-  <circle cx="204" cy="208" r="4" fill="#AA5E7A" />
-  <path d="M196 230L206 218L216 226L224 216L230 224V232H196V230Z" fill="#7C0E44" opacity="0.7" />
-  <text x="244" y="212" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700">hero_banner.jpg</text>
-  <text x="244" y="228" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="12">1920 × 1080 • 2.4 MB • Fit Cover</text>
-  <rect x="496" y="202" width="56" height="26" rx="8" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.15)" />
-  <text x="506" y="219" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">PAGE 1</text>
-
-  <!-- Image Queue Item 2 -->
-  <rect x="176" y="258" width="388" height="64" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
-  <!-- Thumbnail badge -->
-  <rect x="192" y="270" width="40" height="40" rx="8" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.15)" />
-  <circle cx="204" cy="282" r="4" fill="#AA5E7A" />
-  <path d="M196 304L208 290L218 298L226 288L230 294V306H196V304Z" fill="#AA5E7A" opacity="0.7" />
-  <text x="244" y="286" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700">architecture_chart.png</text>
-  <text x="244" y="302" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="12">2400 × 1600 • 1.9 MB • Fit Contain</text>
-  <rect x="496" y="276" width="56" height="26" rx="8" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.15)" />
-  <text x="505" y="293" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">PAGE 2</text>
-
-  <!-- Conversion Flow Arrow & Config Pill -->
-  <g transform="translate(370, 332)">
-    <circle cx="0" cy="14" r="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-    <path d="M-4 10L0 18L4 10" stroke="#7C0E44" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-  </g>
-  <text x="244" y="348" fill="#7E636E" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="600">A4 Document • Margins: Compact • Lossless</text>
-
-  <!-- Compiled PDF Output Card -->
-  <rect x="176" y="364" width="388" height="92" rx="16" fill="#FFFFFF" stroke="#7C0E44" stroke-width="2" />
-  <!-- PDF Badge -->
-  <rect x="194" y="380" width="48" height="60" rx="10" fill="url(#p2-pdfGrad)" />
-  <path d="M208 394H222M208 402H228M208 410H220" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
-  <text x="206" y="430" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="10" font-weight="800">PDF</text>
-  <text x="254" y="402" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="15" font-weight="800">compiled_portfolio.pdf</text>
-  <text x="254" y="420" fill="#4E3842" font-family="'Manrope', sans-serif" font-size="12">Multi-page document ready • 4.3 MB</text>
-  <rect x="430" y="394" width="120" height="32" rx="10" fill="url(#p2-primaryGrad)" />
-  <text x="444" y="415" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">DOWNLOAD</text>
-
-  <!-- Bottom Pills -->
-  <rect x="176" y="474" width="116" height="28" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="189" y="493" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">DRAG REORDER</text>
-
-  <rect x="302" y="474" width="124" height="28" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="316" y="493" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">PAGE PRESETS</text>
-
-  <rect x="436" y="474" width="128" height="28" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="448" y="493" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">ZERO DATA LEAK</text>
-
-  <!-- Right Top: Studio Identity Card -->
-  <rect x="614" y="118" width="436" height="216" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+  <!-- Left Card: Image Collection (JPG / PNG) -->
+  <rect x="160" y="165" width="360" height="395" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
   
-  <!-- Swap Badge Icon -->
-  <rect x="640" y="142" width="56" height="56" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" stroke-width="1.5" />
-  <g transform="translate(650, 152)">
-    <!-- Image symbol -->
-    <rect x="2" y="4" width="16" height="14" rx="3" fill="#FAF3F0" stroke="#7C0E44" stroke-width="1.5" />
-    <circle cx="7" cy="8" r="1.5" fill="#AA5E7A" />
-    <path d="M4 16L9 11L14 15" stroke="#7C0E44" stroke-width="1.2" stroke-linecap="round" />
-    <!-- PDF symbol -->
-    <rect x="18" y="14" width="16" height="18" rx="3" fill="url(#p2-pdfGrad)" />
-    <path d="M22 20H28M22 24H30" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round" />
-    <!-- Bidirectional swap arrows -->
-    <path d="M8 26H18M15 23L18 26L15 29" stroke="#7C0E44" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-    <path d="M28 6H20M23 3L20 6L23 9" stroke="#AA5E7A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- Stacked Image visual -->
+  <g transform="translate(195, 205)">
+    <!-- Back card 2 -->
+    <rect x="24" y="-12" width="240" height="170" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
+    <!-- Back card 1 -->
+    <rect x="12" y="-6" width="240" height="170" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
+    <!-- Front card -->
+    <rect x="0" y="0" width="240" height="170" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.2)" stroke-width="1.5" />
+    
+    <!-- Photo Graphic inside front card -->
+    <rect x="14" y="14" width="212" height="142" rx="10" fill="#FCECE6" />
+    <circle cx="56" cy="52" r="16" fill="#AA5E7A" opacity="0.6" />
+    <!-- Mountain peaks -->
+    <path d="M26 135 L86 65 L140 120 L176 84 L216 135 Z" fill="#7C0E44" opacity="0.85" />
+    <path d="M110 135 L156 90 L206 135 Z" fill="#AA5E7A" opacity="0.6" />
   </g>
 
-  <text x="712" y="172" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="25" font-weight="800" letter-spacing="-0.02em">PDF &amp; IMAGE STUDIO</text>
-  <text x="712" y="194" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">BI-DIRECTIONAL CONVERTER</text>
+  <text x="340" y="435" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="18" font-weight="700">
+    IMAGE BATCH
+  </text>
+  <text x="340" y="465" text-anchor="middle" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="13">
+    PNG, JPG, WebP formats
+  </text>
+  <rect x="250" y="495" width="180" height="38" rx="19" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
+  <text x="340" y="519" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700" letter-spacing="0.04em">
+    IMPORT IMAGES
+  </text>
 
-  <text x="640" y="232" fill="#4E3842" font-family="'Manrope', -apple-system, sans-serif" font-size="14" font-weight="500">Batch merge images into formatted, high-DPI PDFs</text>
-  <text x="640" y="254" fill="#4E3842" font-family="'Manrope', -apple-system, sans-serif" font-size="14" font-weight="500">or extract crystal-clear image pages from PDF documents.</text>
+  <!-- Center Conversion Flow Indicator -->
+  <g transform="translate(600, 362)">
+    <circle cx="0" cy="0" r="32" fill="url(#p2-wine)" />
+    <!-- Double conversion arrow -->
+    <path d="M-12 -6 L12 -6 M6 -12 L12 -6 L6 0" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M12 6 L-12 6 M-6 0 L-12 6 L-6 12" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
 
-  <!-- Tags -->
-  <rect x="640" y="284" width="118" height="30" rx="15" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="654" y="304" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">IMAGE ⇄ PDF</text>
+  <!-- Right Card: PDF Document Output -->
+  <rect x="680" y="165" width="360" height="395" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
 
-  <rect x="768" y="284" width="118" height="30" rx="15" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="784" y="304" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">PDF.JS ENGINE</text>
+  <!-- PDF Document Visual with folded corner -->
+  <g transform="translate(740, 205)">
+    <!-- Back page -->
+    <rect x="14" y="-8" width="210" height="175" rx="12" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
+    <!-- Main page -->
+    <path d="M0 12 C0 5.37 5.37 0 12 0 H160 L210 50 V175 C210 181.63 204.63 187 198 187 H12 C5.37 187 0 181.63 0 175 Z" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.2)" stroke-width="1.5" />
+    <!-- Folded corner tab -->
+    <path d="M160 0 V42 C160 46.42 163.58 50 168 50 H210 Z" fill="#F2DACE" stroke="rgba(124, 14, 68, 0.2)" stroke-width="1.5" />
+    
+    <!-- Red PDF Tag -->
+    <rect x="22" y="32" width="60" height="26" rx="6" fill="url(#p2-pdf)" />
+    <text x="52" y="49" text-anchor="middle" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="800">
+      PDF
+    </text>
 
-  <rect x="896" y="284" width="130" height="30" rx="15" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="910" y="304" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">LOCAL &amp; PRIVATE</text>
+    <!-- Simulated document lines -->
+    <rect x="22" y="74" width="130" height="8" rx="4" fill="#E8D5CD" />
+    <rect x="22" y="94" width="165" height="6" rx="3" fill="#F2DACE" />
+    <rect x="22" y="110" width="150" height="6" rx="3" fill="#F2DACE" />
+    <rect x="22" y="126" width="110" height="6" rx="3" fill="#F2DACE" />
 
-  <!-- Right Bottom: Mode 2 - PDF to Image Extractor -->
-  <rect x="614" y="350" width="436" height="206" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+    <!-- Stamp icon -->
+    <circle cx="165" cy="145" r="18" fill="#FCECE6" stroke="rgba(124, 14, 68, 0.2)" stroke-width="1" />
+    <path d="M158 145 L163 150 L173 140" stroke="#7C0E44" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
 
-  <text x="640" y="380" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="15" font-weight="700">PDF → Image Page Extractor</text>
-
-  <!-- Source PDF File Row -->
-  <rect x="640" y="394" width="384" height="46" rx="12" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
-  <!-- Mini PDF Icon -->
-  <rect x="652" y="403" width="22" height="28" rx="4" fill="url(#p2-pdfGrad)" />
-  <text x="655" y="422" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="8" font-weight="800">PDF</text>
-  <text x="686" y="422" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">quarterly_report.pdf</text>
-  <text x="840" y="422" fill="#7E636E" font-family="'Space Grotesk', sans-serif" font-size="12">8 Pages</text>
-  <rect x="918" y="403" width="94" height="28" rx="8" fill="url(#p2-primaryGrad)" />
-  <text x="928" y="421" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="10" font-weight="700">EXTRACT</text>
-
-  <!-- Extracted Page Previews -->
-  <!-- Page 1 preview -->
-  <rect x="640" y="450" width="118" height="88" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
-  <rect x="648" y="456" width="102" height="54" rx="6" fill="#FAF3F0" />
-  <line x1="656" y1="466" x2="720" y2="466" stroke="#7C0E44" stroke-width="2" stroke-linecap="round" />
-  <line x1="656" y1="474" x2="740" y2="474" stroke="#AA5E7A" stroke-width="1.5" stroke-linecap="round" />
-  <line x1="656" y1="482" x2="710" y2="482" stroke="#AA5E7A" stroke-width="1.5" stroke-linecap="round" />
-  <text x="670" y="526" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">Page 1.png</text>
-
-  <!-- Page 2 preview -->
-  <rect x="772" y="450" width="118" height="88" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
-  <rect x="780" y="456" width="102" height="54" rx="6" fill="#FAF3F0" />
-  <!-- Bar chart visual -->
-  <rect x="792" y="482" width="10" height="20" rx="2" fill="#D49A9A" />
-  <rect x="806" y="472" width="10" height="30" rx="2" fill="#AA5E7A" />
-  <rect x="820" y="464" width="10" height="38" rx="2" fill="#7C0E44" />
-  <rect x="834" y="476" width="10" height="26" rx="2" fill="#AA5E7A" />
-  <text x="802" y="526" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">Page 2.png</text>
-
-  <!-- Page 3 preview -->
-  <rect x="906" y="450" width="118" height="88" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
-  <rect x="914" y="456" width="102" height="54" rx="6" fill="#FAF3F0" />
-  <circle cx="965" cy="483" r="14" fill="#FFFFFF" stroke="#7C0E44" stroke-width="1.5" />
-  <path d="M965 473V483L973 487" stroke="#AA5E7A" stroke-width="1.5" stroke-linecap="round" />
-  <text x="936" y="526" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">Page 3.png</text>
+  <text x="860" y="435" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="18" font-weight="700">
+    EXPORTED DOCUMENT
+  </text>
+  <text x="860" y="465" text-anchor="middle" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="13">
+    High-Res Multi-Page PDF
+  </text>
+  <rect x="770" y="495" width="180" height="38" rx="19" fill="#7C0E44" />
+  <text x="860" y="519" text-anchor="middle" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700" letter-spacing="0.04em">
+    DOWNLOAD PDF
+  </text>
 </svg>

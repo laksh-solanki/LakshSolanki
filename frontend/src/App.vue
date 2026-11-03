@@ -55,8 +55,7 @@ onMounted(() => {
 .lab-page,
 .certificate-page,
 .mindlytic-page,
-.blueprint-page,
-.lifeflow-page {
+.blueprint-page {
   background: var(--portfolio-bg, #F2DACE) !important;
 }
 
@@ -67,8 +66,7 @@ onMounted(() => {
 .lab-page .hero-shell,
 .certificate-page .hero-shell,
 .mindlytic-page .hero-shell,
-.blueprint-page .hero-shell,
-.lifeflow-page .hero-shell {
+.blueprint-page .hero-shell {
   background: var(--portfolio-surface-soft, #FAF3F0) !important;
   border-bottom: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.12)) !important;
 }
@@ -87,9 +85,7 @@ onMounted(() => {
 .certificate-page > .v-container,
 .certificate-page .hero-shell > .v-container,
 .blueprint-page > .v-container,
-.blueprint-page .hero-shell > .v-container,
-.lifeflow-page > .v-container,
-.lifeflow-page .hero-shell > .v-container {
+.blueprint-page .hero-shell > .v-container {
   max-width: none !important;
   width: 100% !important;
   padding-left: clamp(14px, 2vw, 28px) !important;
@@ -107,8 +103,7 @@ onMounted(() => {
 .lab-page .side-panel,
 .certificate-page .form-shell,
 .certificate-page .side-panel,
-.blueprint-page .tool-shell,
-.lifeflow-page .minimal-shell {
+.blueprint-page .tool-shell {
   background: var(--portfolio-surface, #FFFFFF) !important;
   border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.12)) !important;
   box-shadow: var(--portfolio-shadow, 0 8px 24px rgba(124, 14, 68, 0.06)) !important;
@@ -122,8 +117,7 @@ onMounted(() => {
   .forge-page .hero-stats,
   .lab-page .hero-stats,
   .certificate-page .hero-stats,
-  .blueprint-page .hero-stats,
-  .lifeflow-page .hero-stats {
+  .blueprint-page .hero-stats {
     display: none !important;
   }
 }

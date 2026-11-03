@@ -1,0 +1,87 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="p1-bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FAF3F0" />
+      <stop offset="100%" stop-color="#F2DACE" />
+    </linearGradient>
+    <linearGradient id="p1-gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D97706" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#B45309" />
+    </linearGradient>
+    <linearGradient id="p1-wine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C0E44" />
+      <stop offset="100%" stop-color="#AA5E7A" />
+    </linearGradient>
+    <filter id="p1-shadow" x="80" y="40" width="1040" height="595" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="28" flood-color="#7C0E44" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="675" fill="url(#p1-bg)" />
+  <circle cx="1060" cy="110" r="260" fill="#D49A9A" fill-opacity="0.25" />
+  <circle cx="140" cy="560" r="220" fill="#AA5E7A" fill-opacity="0.18" />
+
+  <!-- Certificate Canvas -->
+  <g filter="url(#p1-shadow)">
+    <rect x="150" y="60" width="900" height="555" rx="20" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" stroke-width="2" />
+    <!-- Inner Ornate Border -->
+    <rect x="175" y="85" width="850" height="505" rx="14" fill="none" stroke="rgba(124, 14, 68, 0.25)" stroke-width="1.5" stroke-dasharray="6 4" />
+    <rect x="185" y="95" width="830" height="485" rx="10" fill="none" stroke="rgba(217, 119, 6, 0.35)" stroke-width="1" />
+  </g>
+
+  <!-- Corner Accents -->
+  <path d="M195 125 V105 H215" stroke="#7C0E44" stroke-width="3" stroke-linecap="round" />
+  <path d="M1005 125 V105 H985" stroke="#7C0E44" stroke-width="3" stroke-linecap="round" />
+  <path d="M195 550 V570 H215" stroke="#7C0E44" stroke-width="3" stroke-linecap="round" />
+  <path d="M1005 550 V570 H985" stroke="#7C0E44" stroke-width="3" stroke-linecap="round" />
+
+  <!-- Certificate Badge / Rosette Seal -->
+  <g transform="translate(600, 165)">
+    <!-- Rosette Ribbons -->
+    <path d="M-22 36 L-34 92 L-10 82 L12 92 L2 36 Z" fill="#7C0E44" opacity="0.9" />
+    <path d="M-8 38 L-14 96 L8 88 L26 96 L16 38 Z" fill="#AA5E7A" opacity="0.8" />
+    <!-- Outer scalloped circle -->
+    <circle cx="0" cy="0" r="44" fill="url(#p1-wine)" />
+    <circle cx="0" cy="0" r="37" fill="#FAF3F0" />
+    <circle cx="0" cy="0" r="33" fill="url(#p1-wine)" />
+    <!-- Star Icon in Center -->
+    <path d="M0 -16 L4.5 -5 L16 -4 L7.5 4 L10 15 L0 9.5 L-10 15 L-7.5 4 L-16 -4 L-4.5 -5 Z" fill="url(#p1-gold)" />
+  </g>
+
+  <!-- Typography & Layout -->
+  <text x="600" y="295" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="28" font-weight="800" letter-spacing="0.12em">
+    CERTIFICATE OF ACHIEVEMENT
+  </text>
+  <text x="600" y="325" text-anchor="middle" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="15" font-weight="500">
+    PROUDLY PRESENTED FOR OUTSTANDING PERFORMANCE
+  </text>
+
+  <!-- Recipient Name Block -->
+  <line x1="330" y1="395" x2="870" y2="395" stroke="#7C0E44" stroke-width="2" stroke-linecap="round" />
+  <text x="600" y="380" text-anchor="middle" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="26" font-weight="700">
+    Alex Morgan
+  </text>
+
+  <!-- Description Line -->
+  <text x="600" y="430" text-anchor="middle" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="14">
+    Has successfully completed the advanced engineering curriculum &amp; practical assessment.
+  </text>
+
+  <!-- Footer Elements: Date, Gold Stamp, Signature -->
+  <!-- Left: Issue Date -->
+  <line x1="260" y1="520" x2="420" y2="520" stroke="rgba(124, 14, 68, 0.3)" stroke-width="1.5" />
+  <text x="340" y="510" text-anchor="middle" fill="#7E636E" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="600">November 2026</text>
+  <text x="340" y="540" text-anchor="middle" fill="#AA5E7A" font-family="'Manrope', sans-serif" font-size="12" font-weight="600">DATE ISSUED</text>
+
+  <!-- Center: Golden Verifiable Pill -->
+  <rect x="525" y="495" width="150" height="36" rx="18" fill="#FAF3F0" stroke="url(#p1-gold)" stroke-width="1.5" />
+  <circle cx="545" cy="513" r="5" fill="#D97706" />
+  <text x="560" y="518" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700" letter-spacing="0.04em">VERIFIED PDF</text>
+
+  <!-- Right: Signature -->
+  <path d="M780 512 Q810 490 840 514 T900 500" stroke="#7C0E44" stroke-width="2.5" fill="none" stroke-linecap="round" />
+  <line x1="770" y1="520" x2="930" y2="520" stroke="rgba(124, 14, 68, 0.3)" stroke-width="1.5" />
+  <text x="850" y="540" text-anchor="middle" fill="#AA5E7A" font-family="'Manrope', sans-serif" font-size="12" font-weight="600">AUTHORIZED SIGNATURE</text>
+</svg>

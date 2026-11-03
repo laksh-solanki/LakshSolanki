@@ -21,7 +21,6 @@ const spaRoutes = [
   "/projects/translate-studio",
   "/projects/passport-cutter",
   "/projects/api-blueprint",
-  "/projects/lifeflow-planner",
   "/notfound",
 ];
 

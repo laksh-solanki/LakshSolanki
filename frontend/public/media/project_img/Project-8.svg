@@ -1,80 +1,121 @@
-<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="p8-bg" x1="0" y1="0" x2="1200" y2="720" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FAF3F0" />
-      <stop offset="0.65" stop-color="#F5E4DC" />
-      <stop offset="1" stop-color="#EED3C5" />
+    <linearGradient id="p8-bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FAF3F0" />
+      <stop offset="100%" stop-color="#F2DACE" />
     </linearGradient>
-    <radialGradient id="p8-glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 120) scale(340 340)">
-      <stop stop-color="#D49A9A" stop-opacity="0.32" />
-      <stop offset="1" stop-color="#D49A9A" stop-opacity="0" />
-    </radialGradient>
-    <radialGradient id="p8-glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(120 640) scale(300 240)">
-      <stop stop-color="#AA5E7A" stop-opacity="0.22" />
-      <stop offset="1" stop-color="#AA5E7A" stop-opacity="0" />
-    </radialGradient>
-    <filter id="p8-shadow" x="70" y="46" width="1060" height="628" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="0" dy="16" stdDeviation="30" flood-color="#7C0E44" flood-opacity="0.08" />
+    <linearGradient id="p8-wine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C0E44" />
+      <stop offset="100%" stop-color="#AA5E7A" />
+    </linearGradient>
+    <filter id="p8-shadow" x="60" y="40" width="1080" height="595" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="28" flood-color="#7C0E44" flood-opacity="0.08" />
     </filter>
   </defs>
 
-  <!-- Canvas Background -->
-  <rect width="1200" height="720" fill="url(#p8-bg)" />
-  <circle cx="1080" cy="120" r="280" fill="url(#p8-glowA)" />
-  <circle cx="120" cy="640" r="250" fill="url(#p8-glowB)" />
+  <!-- Background -->
+  <rect width="1200" height="675" fill="url(#p8-bg)" />
+  <circle cx="1080" cy="120" r="260" fill="#D49A9A" fill-opacity="0.25" />
+  <circle cx="120" cy="560" r="220" fill="#AA5E7A" fill-opacity="0.18" />
 
-  <!-- Main Container -->
+  <!-- Main Shell -->
   <g filter="url(#p8-shadow)">
-    <rect x="110" y="66" width="980" height="588" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
+    <rect x="110" y="70" width="980" height="535" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
   </g>
 
-  <!-- Header Block -->
-  <text x="150" y="128" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="30" font-weight="800" letter-spacing="-0.02em">DEV UTILITY HUB</text>
-  <text x="150" y="160" fill="#4E3842" font-family="'Manrope', -apple-system, sans-serif" font-size="16" font-weight="500">Unified developer toolset for encoders, generators, case converters &amp; security tokens.</text>
+  <!-- Header -->
+  <circle cx="160" cy="115" r="6" fill="#7C0E44" />
+  <circle cx="178" cy="115" r="6" fill="#AA5E7A" />
+  <circle cx="196" cy="115" r="6" fill="#D49A9A" />
+  <text x="222" y="122" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="22" font-weight="800" letter-spacing="-0.02em">
+    DEV UTILITY HUB
+  </text>
+  <text x="440" y="121" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="14" font-weight="500">
+    Unified Swiss-Army Toolbox • Encoders, Keys, Hashes &amp; Formatters
+  </text>
 
-  <!-- 4 Modular Tool Tiles -->
+  <!-- 4 Modular Utility Cards Grid -->
 
-  <!-- Tile 1: Base64 / URL -->
-  <rect x="150" y="196" width="425" height="196" rx="18" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
-  <rect x="176" y="222" width="40" height="40" rx="10" fill="#7C0E44" />
-  <text x="187" y="248" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="18" font-weight="700">64</text>
-  <text x="230" y="246" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="17" font-weight="700">Base64 &amp; URL Encoder</text>
-  <text x="176" y="292" fill="#7E636E" font-family="'JetBrains Mono', Consolas, monospace" font-size="14">SGVsbG8gV29ybGQh...</text>
-  <rect x="176" y="322" width="104" height="30" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="194" y="342" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">ENCODE</text>
-  <rect x="292" y="322" width="104" height="30" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="310" y="342" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">DECODE</text>
+  <!-- Tile 1: Base64 & URL (Top-Left) -->
+  <g transform="translate(160, 165)">
+    <rect width="425" height="180" rx="18" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
+    <!-- Icon Box -->
+    <rect x="24" y="24" width="48" height="48" rx="12" fill="url(#p8-wine)" />
+    <text x="48" y="55" text-anchor="middle" fill="#FFFFFF" font-family="'JetBrains Mono', monospace" font-size="18" font-weight="800">64</text>
+    
+    <text x="88" y="44" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="18" font-weight="800">Base64 &amp; URL Codec</text>
+    <text x="88" y="66" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="13">Bi-directional string encoding</text>
 
-  <!-- Tile 2: Password Generator -->
-  <rect x="625" y="196" width="425" height="196" rx="18" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
-  <rect x="651" y="222" width="40" height="40" rx="10" fill="#AA5E7A" />
-  <path d="M667 248V240C667 235.582 670.582 232 675 232C679.418 232 683 235.582 683 240V248M664 248H686C687.105 248 688 248.895 688 250V258C688 259.105 687.105 260 686 260H664C662.895 260 662 259.105 662 258V250C662 248.895 662.895 248 664 248Z" stroke="#FFFFFF" stroke-width="2" />
-  <text x="705" y="246" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="17" font-weight="700">Password &amp; Entropy</text>
-  <text x="651" y="292" fill="#7C0E44" font-family="'JetBrains Mono', Consolas, monospace" font-size="15" font-weight="700">k9#Px!8Lm@92Q$vR</text>
-  <rect x="651" y="322" width="130" height="30" rx="8" fill="#7C0E44" />
-  <text x="668" y="342" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">GENERATE</text>
-  <text x="800" y="342" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">128-bit Entropy</text>
+    <!-- Sample pill -->
+    <rect x="24" y="92" width="377" height="34" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+    <text x="38" y="114" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="13">SGVsbG8gV29ybGQh...</text>
 
-  <!-- Tile 3: UUID v4 -->
-  <rect x="150" y="416" width="425" height="196" rx="18" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
-  <rect x="176" y="442" width="40" height="40" rx="10" fill="#7C0E44" />
-  <text x="184" y="468" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700">UUID</text>
-  <text x="230" y="466" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="17" font-weight="700">UUID v4 Generator</text>
-  <text x="176" y="512" fill="#7E636E" font-family="'JetBrains Mono', Consolas, monospace" font-size="13">e4d909c2-9014-4c8d-bf84-...</text>
-  <rect x="176" y="542" width="120" height="30" rx="8" fill="#7C0E44" />
-  <text x="194" y="562" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">NEW UUID</text>
-  <text x="314" y="562" fill="#7E636E" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="600">RFC 4122 Compliant</text>
+    <!-- Action Tags -->
+    <rect x="24" y="136" width="80" height="24" rx="6" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
+    <text x="64" y="152" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">ENCODE</text>
+    <rect x="114" y="136" width="80" height="24" rx="6" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
+    <text x="154" y="152" text-anchor="middle" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">DECODE</text>
+  </g>
 
-  <!-- Tile 4: Case Converter -->
-  <rect x="625" y="416" width="425" height="196" rx="18" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
-  <rect x="651" y="442" width="40" height="40" rx="10" fill="#D49A9A" />
-  <text x="659" y="468" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="15" font-weight="800">Aa</text>
-  <text x="705" y="466" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="17" font-weight="700">Text Case Transformer</text>
-  <text x="651" y="512" fill="#7E636E" font-family="'JetBrains Mono', Consolas, monospace" font-size="13">camelCase • kebab-case • CONST</text>
-  <rect x="651" y="542" width="100" height="30" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="670" y="562" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">CAMEL</text>
-  <rect x="763" y="542" width="100" height="30" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="784" y="562" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">KEBAB</text>
-  <rect x="875" y="542" width="100" height="30" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="898" y="562" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">SNAKE</text>
+  <!-- Tile 2: Password Generator (Top-Right) -->
+  <g transform="translate(615, 165)">
+    <rect width="425" height="180" rx="18" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
+    <!-- Icon Box -->
+    <rect x="24" y="24" width="48" height="48" rx="12" fill="#7C0E44" />
+    <!-- Lock Path -->
+    <path d="M42 46V41C42 37.68 44.68 35 48 35C51.32 35 54 37.68 54 41V46M39 46H57C58.1 46 59 46.9 59 48V56C59 57.1 58.1 58 57 58H39C37.9 58 37 57.1 37 56V48C37 46.9 37.9 46 39 46Z" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
+    
+    <text x="88" y="44" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="18" font-weight="800">Password &amp; Entropy</text>
+    <text x="88" y="66" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="13">Cryptographic secure tokens</text>
+
+    <!-- Sample pill -->
+    <rect x="24" y="92" width="377" height="34" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+    <text x="38" y="114" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="700">k9#Px!8Lm@92Q$vR</text>
+
+    <rect x="24" y="136" width="100" height="24" rx="6" fill="#7C0E44" />
+    <text x="74" y="152" text-anchor="middle" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">GENERATE</text>
+    <text x="140" y="152" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">128-BIT ENTROPY</text>
+  </g>
+
+  <!-- Tile 3: UUID v4 (Bottom-Left) -->
+  <g transform="translate(160, 370)">
+    <rect width="425" height="180" rx="18" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
+    <!-- Icon Box -->
+    <rect x="24" y="24" width="48" height="48" rx="12" fill="#AA5E7A" />
+    <!-- Zap Lightning icon -->
+    <path d="M50 32 L40 45 H49 L46 58 L56 44 H47 Z" fill="#FFFFFF" />
+
+    <text x="88" y="44" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="18" font-weight="800">UUID v4 Generator</text>
+    <text x="88" y="66" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="13">RFC 4122 compliant identifiers</text>
+
+    <!-- Sample pill -->
+    <rect x="24" y="92" width="377" height="34" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+    <text x="38" y="114" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="13">e4d909c2-9014-4c8d-bf84-...</text>
+
+    <rect x="24" y="136" width="100" height="24" rx="6" fill="#AA5E7A" />
+    <text x="74" y="152" text-anchor="middle" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">NEW UUID</text>
+    <text x="140" y="152" fill="#7E636E" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">BATCH SUPPORT</text>
+  </g>
+
+  <!-- Tile 4: Case Converter (Bottom-Right) -->
+  <g transform="translate(615, 370)">
+    <rect width="425" height="180" rx="18" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
+    <!-- Icon Box -->
+    <rect x="24" y="24" width="48" height="48" rx="12" fill="url(#p8-wine)" />
+    <text x="48" y="55" text-anchor="middle" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="18" font-weight="800">Aa</text>
+
+    <text x="88" y="44" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="18" font-weight="800">Text Case Transformer</text>
+    <text x="88" y="66" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="13">Format variable &amp; code casing</text>
+
+    <!-- Sample pill -->
+    <rect x="24" y="92" width="377" height="34" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+    <text x="38" y="114" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="13">camelCase • kebab-case • CONST</text>
+
+    <rect x="24" y="136" width="80" height="24" rx="6" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
+    <text x="64" y="152" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">CAMEL</text>
+    <rect x="114" y="136" width="80" height="24" rx="6" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
+    <text x="154" y="152" text-anchor="middle" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">KEBAB</text>
+    <rect x="204" y="136" width="80" height="24" rx="6" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
+    <text x="244" y="152" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">SNAKE</text>
+  </g>
 </svg>

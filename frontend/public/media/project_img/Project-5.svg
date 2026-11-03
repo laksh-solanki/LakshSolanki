@@ -1,167 +1,125 @@
 <svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="p5-bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FAF3F0" />
-      <stop offset="0.65" stop-color="#F5E4DC" />
-      <stop offset="1" stop-color="#EED3C5" />
+      <stop offset="0%" stop-color="#FAF3F0" />
+      <stop offset="100%" stop-color="#F2DACE" />
     </linearGradient>
-    <radialGradient id="p5-glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 120) scale(320 320)">
-      <stop stop-color="#D49A9A" stop-opacity="0.32" />
-      <stop offset="1" stop-color="#D49A9A" stop-opacity="0" />
-    </radialGradient>
-    <radialGradient id="p5-glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(120 620) scale(300 240)">
-      <stop stop-color="#AA5E7A" stop-opacity="0.22" />
-      <stop offset="1" stop-color="#AA5E7A" stop-opacity="0" />
-    </radialGradient>
-    <linearGradient id="p5-logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="p5-wine" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#7C0E44" />
-      <stop offset="50%" stop-color="#AA5E7A" />
-      <stop offset="100%" stop-color="#D49A9A" />
+      <stop offset="100%" stop-color="#AA5E7A" />
     </linearGradient>
-    <linearGradient id="p5-btnGrad" x1="0" y1="0" x2="1" y2="0">
-      <stop stop-color="#7C0E44" />
-      <stop offset="1" stop-color="#931A56" />
+    <linearGradient id="p5-spark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C0E44" />
+      <stop offset="50%" stop-color="#D97706" />
+      <stop offset="100%" stop-color="#AA5E7A" />
     </linearGradient>
-    <filter id="p5-shadow" x="70" y="46" width="1060" height="585" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="0" dy="16" stdDeviation="30" flood-color="#7C0E44" flood-opacity="0.08" />
+    <filter id="p5-shadow" x="60" y="40" width="1080" height="595" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="28" flood-color="#7C0E44" flood-opacity="0.08" />
     </filter>
   </defs>
 
-  <!-- Background Canvas -->
+  <!-- Background -->
   <rect width="1200" height="675" fill="url(#p5-bg)" />
-  <circle cx="1080" cy="120" r="260" fill="url(#p5-glowA)" />
-  <circle cx="120" cy="620" r="240" fill="url(#p5-glowB)" />
+  <circle cx="1080" cy="120" r="260" fill="#D49A9A" fill-opacity="0.25" />
+  <circle cx="120" cy="560" r="220" fill="#AA5E7A" fill-opacity="0.18" />
 
-  <!-- Main Studio Card -->
+  <!-- Main Shell -->
   <g filter="url(#p5-shadow)">
-    <rect x="110" y="76" width="980" height="522" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
+    <rect x="110" y="70" width="980" height="535" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
   </g>
 
-  <!-- Left: AI Chat Window -->
-  <rect x="150" y="118" width="470" height="438" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+  <!-- Window Header -->
+  <circle cx="160" cy="115" r="6" fill="#7C0E44" />
+  <circle cx="178" cy="115" r="6" fill="#AA5E7A" />
+  <circle cx="196" cy="115" r="6" fill="#D49A9A" />
+  <text x="222" y="122" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="22" font-weight="800" letter-spacing="-0.02em">
+    MINDLYTIC AI
+  </text>
+  <text x="400" y="121" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="14" font-weight="500">
+    Conversational AI Assistant • Gemini API • Markdown &amp; Code Highlighting
+  </text>
 
-  <!-- Chat Header Bar -->
-  <circle cx="178" cy="144" r="6" fill="#7C0E44" />
-  <circle cx="196" cy="144" r="6" fill="#AA5E7A" />
-  <circle cx="214" cy="144" r="6" fill="#D49A9A" />
-  <text x="236" y="149" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="14" font-weight="700">Mindlytic AI Chat</text>
+  <!-- Left: Interactive Chat Stream -->
+  <rect x="160" y="165" width="500" height="395" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
 
-  <!-- Model Badge -->
-  <rect x="472" y="132" width="130" height="24" rx="12" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
-  <circle cx="486" cy="144" r="3.5" fill="#2E7D32" />
-  <text x="495" y="148" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">GEMINI FLASH</text>
-  <line x1="150" y1="166" x2="620" y2="166" stroke="rgba(124, 14, 68, 0.08)" stroke-width="1" />
-
-  <!-- User Prompt Message -->
-  <rect x="220" y="184" width="382" height="48" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
-  <text x="236" y="202" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">YOU</text>
-  <text x="236" y="220" fill="#231219" font-family="'Manrope', -apple-system, sans-serif" font-size="13" font-weight="600">Explain attention mechanism &amp; write a Vue composable.</text>
-
-  <!-- Assistant Response -->
-  <g transform="translate(170, 246)">
-    <rect width="32" height="32" rx="10" fill="#7C0E44" />
-    <path d="M16 9C16 12 14 13.5 12 13.5C14 13.5 16 15 16 18C16 15 18 13.5 20 13.5C18 13.5 16 12 16 9Z" fill="#FFFFFF" />
-  </g>
-  <text x="212" y="260" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">MINDLYTIC AI</text>
-  <text x="212" y="278" fill="#4E3842" font-family="'Manrope', sans-serif" font-size="13">Dynamic attention affinity calculation with cached tensors:</text>
-
-  <!-- Syntax Highlighted Code Box -->
-  <rect x="170" y="296" width="432" height="196" rx="14" fill="#1A1116" stroke="rgba(124, 14, 68, 0.15)" stroke-width="1" />
-  
-  <!-- Code block header -->
-  <rect x="170" y="296" width="432" height="28" rx="14" fill="#25161F" />
-  <text x="188" y="315" fill="#D49A9A" font-family="'JetBrains Mono', Consolas, monospace" font-size="11" font-weight="600">useAttention.js</text>
-  <text x="566" y="315" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">JS</text>
-
-  <!-- Code content -->
-  <text x="188" y="348" fill="#AA5E7A" font-family="'JetBrains Mono', Consolas, monospace" font-size="13" font-weight="600">export function</text>
-  <text x="312" y="348" fill="#FFFFFF" font-family="'JetBrains Mono', Consolas, monospace" font-size="13" font-weight="600">useAttention(tokens) {</text>
-
-  <text x="206" y="374" fill="#AA5E7A" font-family="'JetBrains Mono', Consolas, monospace" font-size="13" font-weight="600">const</text>
-  <text x="252" y="374" fill="#FFFFFF" font-family="'JetBrains Mono', Consolas, monospace" font-size="13">scores =</text>
-  <text x="320" y="374" fill="#D49A9A" font-family="'JetBrains Mono', Consolas, monospace" font-size="13">matmul(Q, K.T)</text>
-  <text x="444" y="374" fill="#FFFFFF" font-family="'JetBrains Mono', Consolas, monospace" font-size="13">/ Math.sqrt(d);</text>
-
-  <text x="206" y="400" fill="#AA5E7A" font-family="'JetBrains Mono', Consolas, monospace" font-size="13" font-weight="600">const</text>
-  <text x="252" y="400" fill="#FFFFFF" font-family="'JetBrains Mono', Consolas, monospace" font-size="13">weights =</text>
-  <text x="330" y="400" fill="#D49A9A" font-family="'JetBrains Mono', Consolas, monospace" font-size="13">computed</text>
-  <text x="402" y="400" fill="#FFFFFF" font-family="'JetBrains Mono', Consolas, monospace" font-size="13">(() =&gt; softmax(scores));</text>
-
-  <text x="206" y="426" fill="#AA5E7A" font-family="'JetBrains Mono', Consolas, monospace" font-size="13" font-weight="600">return</text>
-  <text x="260" y="426" fill="#FFFFFF" font-family="'JetBrains Mono', Consolas, monospace" font-size="13">{ weights, context: matmul(weights.value, V) };</text>
-
-  <text x="188" y="452" fill="#FFFFFF" font-family="'JetBrains Mono', Consolas, monospace" font-size="13">}</text>
-
-  <!-- Interactive Action Badges -->
-  <rect x="170" y="506" width="104" height="28" rx="8" fill="url(#p5-btnGrad)" />
-  <text x="187" y="525" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">COPY CODE</text>
-
-  <rect x="284" y="506" width="118" height="28" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="298" y="525" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">MARKDOWN GFM</text>
-
-  <rect x="412" y="506" width="90" height="28" rx="8" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="424" y="525" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">142 TOK/S</text>
-
-  <!-- Right Top: Overview Card -->
-  <rect x="646" y="118" width="404" height="240" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
-  
-  <!-- Logo Badge & Title -->
-  <rect x="674" y="142" width="56" height="56" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" stroke-width="1.5" />
-  <!-- Scaled Mindlytic Brand Symbol -->
-  <g transform="translate(681, 149) scale(0.42)">
-    <!-- Neural M-curve -->
-    <path d="M30 65 C30 35, 35 25, 45 25 C50 25, 50 45, 50 45 C50 45, 50 25, 55 25 C65 25, 70 35, 70 65" 
-          fill="none" 
-          stroke="url(#p5-logoGrad)" 
-          stroke-width="11" 
-          stroke-linecap="round" 
-          stroke-linejoin="round" />
-    <!-- AI Flare -->
-    <path d="M82 18 C82 21 79 23 77 23 C79 23 82 25 82 28 C82 25 85 23 87 23 C85 23 82 21 82 18Z" 
-          fill="#7C0E44" />
-    <rect x="36" y="74" width="28" height="5" rx="2.5" fill="#AA5E7A" opacity="0.85" />
+  <!-- User Message Bubble -->
+  <g transform="translate(190, 195)">
+    <rect x="0" y="0" width="440" height="60" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
+    <!-- User Avatar -->
+    <circle cx="30" cy="30" r="14" fill="#7C0E44" />
+    <text x="30" y="35" text-anchor="middle" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">U</text>
+    <text x="56" y="27" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">PROMPT</text>
+    <text x="56" y="47" fill="#231219" font-family="'Manrope', sans-serif" font-size="14" font-weight="600">Explain async queue handling in Node.js</text>
   </g>
 
-  <text x="746" y="172" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="26" font-weight="800" letter-spacing="-0.02em">MINDLYTIC AI</text>
-  <text x="746" y="194" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">INTELLIGENT LLM INTERFACE</text>
+  <!-- AI Response Message Bubble -->
+  <g transform="translate(190, 275)">
+    <rect x="0" y="0" width="440" height="255" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" stroke-width="1.5" />
+    
+    <!-- AI Sparkle Icon -->
+    <circle cx="30" cy="30" r="14" fill="url(#p5-wine)" />
+    <path d="M30 22 L32 28 L38 30 L32 32 L30 38 L28 32 L22 30 L28 28 Z" fill="#FFFFFF" />
 
-  <text x="674" y="232" fill="#4E3842" font-family="'Manrope', -apple-system, sans-serif" font-size="14" font-weight="500">Prompt-driven workspace with streaming AI chat,</text>
-  <text x="674" y="254" fill="#4E3842" font-family="'Manrope', -apple-system, sans-serif" font-size="14" font-weight="500">markdown tables, syntax highlighting &amp; clipboard tools.</text>
+    <text x="56" y="27" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="800">MINDLYTIC AI</text>
+    <text x="56" y="52" fill="#231219" font-family="'Manrope', sans-serif" font-size="14" font-weight="600">Here is how asynchronous job workers process tasks:</text>
 
-  <!-- Model Providers Tags -->
-  <rect x="674" y="284" width="108" height="30" rx="15" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="688" y="304" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">GEMINI API</text>
+    <!-- Code Block Inside AI message -->
+    <rect x="20" y="72" width="400" height="110" rx="10" fill="#231219" />
+    <!-- Code Window Dots -->
+    <circle cx="36" cy="88" r="3.5" fill="#EF4444" />
+    <circle cx="48" cy="88" r="3.5" fill="#F59E0B" />
+    <circle cx="60" cy="88" r="3.5" fill="#10B981" />
+    
+    <!-- Code lines -->
+    <text x="36" y="116" fill="#D49A9A" font-family="'JetBrains Mono', monospace" font-size="12">const queue = new JobQueue();</text>
+    <text x="36" y="138" fill="#FAF3F0" font-family="'JetBrains Mono', monospace" font-size="12">await queue.process(async (task) =&gt; {</text>
+    <text x="56" y="160" fill="#10B981" font-family="'JetBrains Mono', monospace" font-size="12">  return handleWork(task.payload);</text>
+    <text x="36" y="174" fill="#FAF3F0" font-family="'JetBrains Mono', monospace" font-size="12">});</text>
 
-  <rect x="792" y="284" width="112" height="30" rx="15" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="806" y="304" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">GROQ SPEED</text>
+    <!-- Response metadata pills -->
+    <rect x="20" y="200" width="110" height="28" rx="8" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.15)" />
+    <text x="75" y="218" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">GEMINI FLASH</text>
 
-  <rect x="914" y="284" width="110" height="30" rx="15" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="926" y="304" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">NVIDIA NIM</text>
+    <rect x="140" y="200" width="90" height="28" rx="8" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.15)" />
+    <text x="185" y="218" text-anchor="middle" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="700">STREAMING</text>
+  </g>
 
-  <!-- Right Bottom: Metrics & Input Bar -->
-  <rect x="646" y="374" width="404" height="182" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+  <!-- Right: Mindlytic Intelligence Node & Features -->
+  <rect x="690" y="165" width="350" height="395" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
 
-  <text x="674" y="408" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="15" font-weight="700">Performance &amp; Engine Stats</text>
+  <!-- Center AI Node Graphic -->
+  <g transform="translate(865, 255)">
+    <circle cx="0" cy="0" r="54" fill="url(#p5-wine)" />
+    <circle cx="0" cy="0" r="42" fill="#FAF3F0" />
+    <!-- Radiant 4-point AI Star -->
+    <path d="M0 -30 Q0 0 30 0 Q0 0 0 30 Q0 0 -30 0 Q0 0 0 -30 Z" fill="url(#p5-wine)" />
+    <!-- Mini accent satellites -->
+    <circle cx="28" cy="-28" r="6" fill="#D97706" />
+    <circle cx="-28" cy="28" r="5" fill="#AA5E7A" />
+  </g>
 
-  <!-- Metric 1: Latency -->
-  <rect x="674" y="424" width="106" height="52" rx="12" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
-  <text x="688" y="445" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="10" font-weight="700">FIRST TOKEN</text>
-  <text x="688" y="465" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="16" font-weight="800">120 ms</text>
+  <text x="865" y="345" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="20" font-weight="800">
+    NEURAL LLM ENGINE
+  </text>
+  <text x="865" y="375" text-anchor="middle" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="13">
+    Real-Time Markdown &amp; Code Syntax
+  </text>
 
-  <!-- Metric 2: Context Window -->
-  <rect x="790" y="424" width="118" height="52" rx="12" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
-  <text x="804" y="445" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="10" font-weight="700">CONTEXT LIMIT</text>
-  <text x="804" y="465" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="16" font-weight="800">128k Tokens</text>
+  <!-- Quick Action Prompt Pill -->
+  <g transform="translate(720, 415)">
+    <rect x="0" y="0" width="290" height="46" rx="23" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
+    <text x="20" y="28" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="13">Ask anything to AI...</text>
+    <!-- Send Arrow -->
+    <circle cx="260" cy="23" r="16" fill="url(#p5-wine)" />
+    <path d="M255 23 H265 M262 19 L266 23 L262 27" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
 
-  <!-- Metric 3: Sync -->
-  <rect x="918" y="424" width="106" height="52" rx="12" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
-  <text x="932" y="445" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="10" font-weight="700">STORAGE</text>
-  <text x="932" y="465" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="16" font-weight="800">Firebase</text>
+  <!-- Feature Pills -->
+  <g transform="translate(720, 485)">
+    <rect x="0" y="0" width="135" height="34" rx="17" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
+    <text x="67" y="22" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">FAST STREAM</text>
 
-  <!-- Interactive Input Simulation -->
-  <rect x="674" y="492" width="350" height="46" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="694" y="521" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="13">Ask anything or enter a prompt...</text>
-  <!-- Send Button -->
-  <rect x="982" y="498" width="34" height="34" rx="10" fill="url(#p5-btnGrad)" />
-  <path d="M994 515L1004 510L994 505V509L1000 510L994 511V515Z" fill="#FFFFFF" />
+    <rect x="150" y="0" width="140" height="34" rx="17" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
+    <text x="220" y="22" text-anchor="middle" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">CODE EXPORT</text>
+  </g>
 </svg>

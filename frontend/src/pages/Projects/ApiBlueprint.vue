@@ -307,13 +307,13 @@ const exportMarkdown = () => {
             </div>
 
             <v-row>
-              <v-col cols="12" md="6">
+              <v-col cols="12" sm="6" md="6">
                 <v-text-field v-model="apiName" label="API Name" variant="outlined" density="comfortable" />
               </v-col>
-              <v-col cols="12" md="3">
+              <v-col cols="12" sm="3" md="3">
                 <v-text-field v-model="apiVersion" label="Version" variant="outlined" density="comfortable" />
               </v-col>
-              <v-col cols="12" md="3">
+              <v-col cols="12" sm="3" md="3">
                 <v-text-field v-model="apiBasePath" label="Base Path" variant="outlined" density="comfortable" />
               </v-col>
               <v-col cols="12">
@@ -334,11 +334,11 @@ const exportMarkdown = () => {
             <v-window v-model="activeTab">
               <v-window-item value="endpoints">
                 <v-row>
-                  <v-col cols="12" md="6">
+                  <v-col cols="12" sm="4" md="4">
                     <v-select v-model="currentEndpoint.method" :items="['GET', 'POST', 'PUT', 'PATCH', 'DELETE']"
                       label="HTTP Method" variant="outlined" density="comfortable" />
                   </v-col>
-                  <v-col cols="12" md="6">
+                  <v-col cols="12" sm="8" md="8">
                     <v-text-field v-model="currentEndpoint.path" label="Path (e.g., /users/:id)" variant="outlined"
                       density="comfortable" />
                   </v-col>
@@ -391,22 +391,22 @@ const exportMarkdown = () => {
                       </v-table>
                     </div>
                     <v-row>
-                      <v-col cols="12" md="3">
+                      <v-col cols="12" sm="6" md="3">
                         <v-text-field v-model="paramInput.name" label="Name" variant="outlined" density="compact"
                           hide-details />
                       </v-col>
-                      <v-col cols="12" md="2">
+                      <v-col cols="6" sm="3" md="2">
                         <v-select v-model="paramInput.in" :items="['path', 'query', 'header']" label="In"
                           variant="outlined" density="compact" hide-details />
                       </v-col>
-                      <v-col cols="12" md="2">
+                      <v-col cols="6" sm="3" md="2">
                         <v-select v-model="paramInput.type" :items="['string', 'number', 'boolean', 'integer']"
                           label="Type" variant="outlined" density="compact" hide-details />
                       </v-col>
-                      <v-col cols="12" md="3">
+                      <v-col cols="6" sm="6" md="3">
                         <v-checkbox v-model="paramInput.required" label="Required" density="compact" hide-details />
                       </v-col>
-                      <v-col cols="12" md="2">
+                      <v-col cols="6" sm="6" md="2">
                         <v-btn color="primary" variant="tonal" block @click="addParameter">Add</v-btn>
                       </v-col>
                     </v-row>
@@ -442,21 +442,21 @@ const exportMarkdown = () => {
                       </v-table>
                     </div>
                     <v-row>
-                      <v-col cols="12" md="3">
+                      <v-col cols="12" sm="4" md="3">
                         <v-text-field v-model="responseInput.status" label="Status Code" variant="outlined"
                           density="compact" hide-details />
                       </v-col>
-                      <v-col cols="12" md="6">
+                      <v-col cols="12" sm="8" md="6">
                         <v-text-field v-model="responseInput.description" label="Description" variant="outlined"
                           density="compact" hide-details />
                       </v-col>
-                      <v-col cols="12" md="3">
+                      <v-col cols="12" sm="12" md="3">
                         <v-btn color="primary" variant="tonal" block @click="addResponse">Add Response</v-btn>
                       </v-col>
                     </v-row>
                   </v-col>
 
-                  <v-col cols="12" class="pt-4">
+                  <v-col cols="12" class="pt-4 d-flex flex-wrap ga-2">
                     <v-btn color="primary" variant="flat" rounded="lg" @click="addEndpoint">
                       {{ currentEndpoint.id ? "Update Endpoint" : "Add Endpoint" }}
                     </v-btn>
@@ -552,6 +552,11 @@ const exportMarkdown = () => {
   background: rgba(255, 255, 255, 0.05) !important;
   border-color: rgba(124, 14, 68, 0.25) !important;
   transform: translateY(-2px);
+}
+
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 600px) {

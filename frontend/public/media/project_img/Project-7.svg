@@ -1,78 +1,99 @@
 <svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="p7-bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FAF3F0" />
-      <stop offset="0.65" stop-color="#F5E4DC" />
-      <stop offset="1" stop-color="#EED3C5" />
+      <stop offset="0%" stop-color="#FAF3F0" />
+      <stop offset="100%" stop-color="#F2DACE" />
     </linearGradient>
-    <radialGradient id="p7-glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 120) scale(320 320)">
-      <stop stop-color="#D49A9A" stop-opacity="0.3" />
-      <stop offset="1" stop-color="#D49A9A" stop-opacity="0" />
-    </radialGradient>
-    <radialGradient id="p7-glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(120 620) scale(300 240)">
-      <stop stop-color="#AA5E7A" stop-opacity="0.22" />
-      <stop offset="1" stop-color="#AA5E7A" stop-opacity="0" />
-    </radialGradient>
-    <filter id="p7-shadow" x="70" y="46" width="1060" height="585" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="0" dy="16" stdDeviation="30" flood-color="#7C0E44" flood-opacity="0.08" />
+    <linearGradient id="p7-wine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C0E44" />
+      <stop offset="100%" stop-color="#AA5E7A" />
+    </linearGradient>
+    <filter id="p7-shadow" x="60" y="40" width="1080" height="595" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="28" flood-color="#7C0E44" flood-opacity="0.08" />
     </filter>
   </defs>
 
-  <!-- Background Canvas -->
+  <!-- Background -->
   <rect width="1200" height="675" fill="url(#p7-bg)" />
-  <circle cx="1080" cy="120" r="260" fill="url(#p7-glowA)" />
-  <circle cx="120" cy="620" r="240" fill="url(#p7-glowB)" />
+  <circle cx="1080" cy="120" r="260" fill="#D49A9A" fill-opacity="0.25" />
+  <circle cx="120" cy="560" r="220" fill="#AA5E7A" fill-opacity="0.18" />
 
-  <!-- Main Container -->
+  <!-- Main Shell -->
   <g filter="url(#p7-shadow)">
-    <rect x="110" y="76" width="980" height="522" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
+    <rect x="110" y="70" width="980" height="535" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
   </g>
 
-  <!-- Left: Source Editor Window -->
-  <rect x="150" y="118" width="410" height="438" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
-  <circle cx="180" cy="144" r="6" fill="#7C0E44" />
-  <circle cx="198" cy="144" r="6" fill="#AA5E7A" />
-  <circle cx="216" cy="144" r="6" fill="#D49A9A" />
-  <line x1="150" y1="166" x2="560" y2="166" stroke="rgba(124, 14, 68, 0.08)" stroke-width="1" />
+  <!-- Header -->
+  <circle cx="160" cy="115" r="6" fill="#7C0E44" />
+  <circle cx="178" cy="115" r="6" fill="#AA5E7A" />
+  <circle cx="196" cy="115" r="6" fill="#D49A9A" />
+  <text x="222" y="122" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="22" font-weight="800" letter-spacing="-0.02em">
+    WEB LAB COMPILER
+  </text>
+  <text x="475" y="121" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="14" font-weight="500">
+    In-Browser Live HTML / CSS / JS Sandbox &amp; Runtime Metrics
+  </text>
 
-  <!-- Code text -->
-  <text x="180" y="210" fill="#7C0E44" font-family="'JetBrains Mono', Consolas, monospace" font-size="20" font-weight="700">&lt;main&gt;</text>
-  <text x="206" y="248" fill="#AA5E7A" font-family="'JetBrains Mono', Consolas, monospace" font-size="18">&lt;h1 class="hero"&gt;</text>
-  <text x="232" y="284" fill="#231219" font-family="'JetBrains Mono', Consolas, monospace" font-size="18" font-weight="600">Web Lab Live</text>
-  <text x="206" y="320" fill="#AA5E7A" font-family="'JetBrains Mono', Consolas, monospace" font-size="18">&lt;/h1&gt;</text>
+  <!-- Left: Source Code Window -->
+  <rect x="160" y="165" width="425" height="395" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
+
+  <rect x="185" y="190" width="375" height="34" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+  <text x="205" y="212" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">index.html + script.js</text>
   
-  <text x="206" y="360" fill="#AA5E7A" font-family="'JetBrains Mono', Consolas, monospace" font-size="18">&lt;script&gt;</text>
-  <text x="232" y="396" fill="#7C0E44" font-family="'JetBrains Mono', Consolas, monospace" font-size="17" font-weight="600">const run = () =&gt; true;</text>
-  <text x="206" y="432" fill="#AA5E7A" font-family="'JetBrains Mono', Consolas, monospace" font-size="18">&lt;/script&gt;</text>
-  <text x="180" y="470" fill="#7C0E44" font-family="'JetBrains Mono', Consolas, monospace" font-size="20" font-weight="700">&lt;/main&gt;</text>
+  <rect x="475" y="196" width="75" height="22" rx="11" fill="url(#p7-wine)" />
+  <text x="512" y="211" text-anchor="middle" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="10" font-weight="800">RUNNING</text>
 
-  <!-- Right Top: Live Viewport -->
-  <rect x="586" y="118" width="464" height="240" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
-  <circle cx="616" cy="144" r="6" fill="#AA5E7A" />
-  <circle cx="634" cy="144" r="6" fill="#D49A9A" />
-  <line x1="586" y1="166" x2="1050" y2="166" stroke="rgba(124, 14, 68, 0.08)" stroke-width="1" />
+  <!-- Code Area -->
+  <rect x="185" y="235" width="375" height="245" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+  <text x="210" y="275" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="15" font-weight="700">&lt;div class="card"&gt;</text>
+  <text x="230" y="307" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="14">&lt;h2&gt;Live Component&lt;/h2&gt;</text>
+  <text x="230" y="339" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="14">&lt;button id="btn"&gt;</text>
+  <text x="250" y="371" fill="#0D9488" font-family="'JetBrains Mono', monospace" font-size="14">Click to Compute</text>
+  <text x="230" y="403" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="14">&lt;/button&gt;</text>
+  <text x="210" y="435" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="15" font-weight="700">&lt;/div&gt;</text>
+  
+  <!-- Run Button at bottom left -->
+  <rect x="185" y="495" width="160" height="42" rx="21" fill="url(#p7-wine)" />
+  <polygon points="215,508 215,524 230,516" fill="#FFFFFF" />
+  <text x="240" y="522" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">COMPILE &amp; RUN</text>
 
-  <text x="616" y="210" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="24" font-weight="800">WEB LAB COMPILER</text>
-  <text x="616" y="240" fill="#4E3842" font-family="'Manrope', sans-serif" font-size="15">Instant in-browser preview with zero build latency.</text>
+  <!-- Right: Live Output Viewport -->
+  <rect x="615" y="165" width="425" height="395" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
 
-  <!-- Interactive Demo Button inside viewport -->
-  <rect x="616" y="270" width="160" height="42" rx="12" fill="#7C0E44" />
-  <text x="652" y="296" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">COMPILE &amp; RUN</text>
+  <rect x="640" y="190" width="375" height="34" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+  <!-- Browser URL bar -->
+  <circle cx="658" cy="207" r="4" fill="#7C0E44" />
+  <text x="674" y="212" fill="#7E636E" font-family="'JetBrains Mono', monospace" font-size="11">localhost:3000/preview</text>
 
-  <!-- Right Bottom: Telemetry Console -->
-  <rect x="586" y="378" width="464" height="178" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+  <!-- Rendered UI Container -->
+  <rect x="640" y="235" width="375" height="205" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+  
+  <!-- Rendered Card Component inside browser -->
+  <g transform="translate(675, 260)">
+    <rect x="0" y="0" width="305" height="155" rx="12" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.15)" stroke-width="1.5" />
+    <circle cx="28" cy="28" r="12" fill="url(#p7-wine)" />
+    <text x="50" y="34" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="16" font-weight="800">Live Component</text>
+    <rect x="20" y="55" width="265" height="6" rx="3" fill="#E8D5CD" />
+    <rect x="20" y="69" width="200" height="6" rx="3" fill="#E8D5CD" />
+    
+    <!-- Rendered button -->
+    <rect x="20" y="95" width="160" height="36" rx="18" fill="url(#p7-wine)" />
+    <text x="100" y="118" text-anchor="middle" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">CLICK TO COMPUTE</text>
+  </g>
 
-  <text x="616" y="416" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="15" font-weight="700">Runtime Telemetry</text>
+  <!-- Runtime Telemetry Pills at bottom right -->
+  <g transform="translate(640, 460)">
+    <rect x="0" y="0" width="115" height="34" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
+    <text x="57" y="22" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">FPS: 60</text>
 
-  <!-- Telemetry Pills -->
-  <rect x="616" y="438" width="128" height="34" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
-  <text x="632" y="460" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">FPS: 60.0</text>
+    <rect x="130" y="0" width="115" height="34" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
+    <text x="187" y="22" text-anchor="middle" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">LATENCY: 2ms</text>
 
-  <rect x="756" y="438" width="128" height="34" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
-  <text x="772" y="460" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">MEM: 12MB</text>
+    <rect x="260" y="0" width="115" height="34" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
+    <text x="317" y="22" text-anchor="middle" fill="#0D9488" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">MEMORY: 8MB</text>
+  </g>
 
-  <rect x="896" y="438" width="128" height="34" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" />
-  <text x="914" y="460" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">TIME: 4ms</text>
-
-  <text x="616" y="520" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="14">Sandbox active • Secure iframe isolation verified</text>
+  <text x="827" y="525" text-anchor="middle" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="13">
+    Isolated Iframe Sandbox • Zero Latency
+  </text>
 </svg>

@@ -1,78 +1,111 @@
-<svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="p10-bg" x1="0" y1="0" x2="1200" y2="700" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FAF3F0" />
-      <stop offset="0.65" stop-color="#F5E4DC" />
-      <stop offset="1" stop-color="#EED3C5" />
+    <linearGradient id="p10-bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FAF3F0" />
+      <stop offset="100%" stop-color="#F2DACE" />
     </linearGradient>
-    <radialGradient id="p10-glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 120) scale(340 340)">
-      <stop stop-color="#D49A9A" stop-opacity="0.32" />
-      <stop offset="1" stop-color="#D49A9A" stop-opacity="0" />
-    </radialGradient>
-    <radialGradient id="p10-glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(120 620) scale(300 240)">
-      <stop stop-color="#AA5E7A" stop-opacity="0.22" />
-      <stop offset="1" stop-color="#AA5E7A" stop-opacity="0" />
-    </radialGradient>
-    <linearGradient id="p10-portrait" x1="0" y1="0" x2="0" y2="100%">
-      <stop stop-color="#7C0E44" />
-      <stop offset="1" stop-color="#52072D" />
+    <linearGradient id="p10-wine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C0E44" />
+      <stop offset="100%" stop-color="#AA5E7A" />
     </linearGradient>
-    <filter id="p10-shadow" x="70" y="46" width="1060" height="608" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="0" dy="16" stdDeviation="30" flood-color="#7C0E44" flood-opacity="0.08" />
+    <filter id="p10-shadow" x="60" y="40" width="1080" height="595" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="28" flood-color="#7C0E44" flood-opacity="0.08" />
     </filter>
   </defs>
 
-  <!-- Background Canvas -->
-  <rect width="1200" height="700" fill="url(#p10-bg)" />
-  <circle cx="1080" cy="120" r="280" fill="url(#p10-glowA)" />
-  <circle cx="120" cy="620" r="240" fill="url(#p10-glowB)" />
+  <!-- Background -->
+  <rect width="1200" height="675" fill="url(#p10-bg)" />
+  <circle cx="1080" cy="120" r="260" fill="#D49A9A" fill-opacity="0.25" />
+  <circle cx="120" cy="560" r="220" fill="#AA5E7A" fill-opacity="0.18" />
 
-  <!-- Main Container -->
+  <!-- Main Shell -->
   <g filter="url(#p10-shadow)">
-    <rect x="110" y="70" width="980" height="560" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
+    <rect x="110" y="70" width="980" height="535" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
   </g>
 
   <!-- Header -->
-  <text x="150" y="132" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="30" font-weight="800" letter-spacing="-0.02em">PASSPORT PHOTO CUTTER</text>
-  <text x="150" y="164" fill="#4E3842" font-family="'Manrope', -apple-system, sans-serif" font-size="16" font-weight="500">Auto background removal, standard 35 × 45 mm canvas fitting &amp; print border guides.</text>
+  <circle cx="160" cy="115" r="6" fill="#7C0E44" />
+  <circle cx="178" cy="115" r="6" fill="#AA5E7A" />
+  <circle cx="196" cy="115" r="6" fill="#D49A9A" />
+  <text x="222" y="122" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="22" font-weight="800" letter-spacing="-0.02em">
+    PASSPORT CUTTER
+  </text>
+  <text x="445" y="121" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="14" font-weight="500">
+    Auto Background Removal • Standard 35 × 45 mm Canvas • Print Guides
+  </text>
 
-  <!-- Workflow Stage -->
-  <rect x="150" y="196" width="900" height="392" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+  <!-- Left: Raw Photo Frame with Crop Overlay -->
+  <rect x="160" y="165" width="370" height="395" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
 
-  <!-- Step 1: Upload Card -->
-  <rect x="190" y="236" width="290" height="312" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" stroke-width="1.5" />
-  <text x="216" y="272" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700">1. RAW UPLOAD</text>
+  <text x="345" y="205" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="16" font-weight="800">
+    1. CROP &amp; DETECT
+  </text>
 
-  <!-- Silhouette in raw frame -->
-  <circle cx="335" cy="350" r="44" fill="#D49A9A" />
-  <path d="M260 480C260 430 294 400 335 400C376 400 410 430 410 480H260Z" fill="#AA5E7A" />
+  <!-- Raw Photo Canvas with Silhouette -->
+  <g transform="translate(235, 230)">
+    <rect x="0" y="0" width="220" height="270" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" stroke-width="1.5" />
+    
+    <!-- Busy background simulated -->
+    <rect x="10" y="10" width="200" height="250" rx="10" fill="#FCECE6" />
+    
+    <!-- User Head & Shoulders Silhouette -->
+    <circle cx="110" cy="95" r="40" fill="#AA5E7A" />
+    <path d="M45 220 C45 160 75 140 110 140 C145 140 175 160 175 220 Z" fill="#7C0E44" />
 
-  <!-- Crop overlay guidelines -->
-  <rect x="235" y="295" width="200" height="230" fill="none" stroke="#7C0E44" stroke-width="2" stroke-dasharray="6 6" rx="10" />
+    <!-- Dashed Crop Box with Corner Guides -->
+    <rect x="25" y="25" width="170" height="220" rx="8" fill="none" stroke="#7C0E44" stroke-width="2" stroke-dasharray="6 4" />
+    <!-- 4 Solid Corner L-brackets -->
+    <path d="M25 45 V25 H45" stroke="#7C0E44" stroke-width="3.5" stroke-linecap="round" />
+    <path d="M195 45 V25 H175" stroke="#7C0E44" stroke-width="3.5" stroke-linecap="round" />
+    <path d="M25 225 V245 H45" stroke="#7C0E44" stroke-width="3.5" stroke-linecap="round" />
+    <path d="M195 225 V245 H175" stroke="#7C0E44" stroke-width="3.5" stroke-linecap="round" />
+  </g>
 
-  <!-- Transition Arrow Badge -->
-  <circle cx="530" cy="392" r="34" fill="#7C0E44" />
-  <path d="M518 392H542M536 384L544 392L536 400" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+  <text x="345" y="535" text-anchor="middle" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="13">
+    AI Auto-Face Alignment
+  </text>
 
-  <!-- Step 2: Formatted Passport Output -->
-  <rect x="580" y="236" width="430" height="312" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.15)" stroke-width="1.5" />
-  <text x="606" y="272" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700">2. EXPORT READY (35 × 45 mm)</text>
+  <!-- Center Arrow Transition Circle -->
+  <g transform="translate(575, 362)">
+    <circle cx="0" cy="0" r="30" fill="url(#p10-wine)" />
+    <!-- Arrow Right -->
+    <path d="M-8 0 H8 M2 -6 L8 0 L2 6" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
 
-  <!-- Passport Card Preview -->
-  <rect x="606" y="295" width="180" height="230" rx="8" fill="#FAF3F0" stroke="#7C0E44" stroke-width="2" />
-  <circle cx="696" cy="360" r="38" fill="#AA5E7A" />
-  <path d="M632 485C632 440 660 412 696 412C732 412 760 440 760 485H632Z" fill="url(#p10-portrait)" />
+  <!-- Right: Pristine Export-Ready Passport Photo -->
+  <rect x="620" y="165" width="420" height="395" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
 
-  <!-- Spec details on right side of card -->
-  <rect x="814" y="295" width="170" height="36" rx="10" fill="#FAF3F0" />
-  <text x="828" y="318" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">35 mm × 45 mm</text>
+  <text x="830" y="205" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="16" font-weight="800">
+    2. PRINT-READY CANVAS
+  </text>
 
-  <rect x="814" y="343" width="170" height="36" rx="10" fill="#FAF3F0" />
-  <text x="828" y="366" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">White Background</text>
+  <!-- Passport Card Display -->
+  <g transform="translate(660, 230)">
+    <!-- Crisp Passport Canvas -->
+    <rect x="0" y="0" width="200" height="255" rx="8" fill="#FFFFFF" stroke="#7C0E44" stroke-width="2" />
+    
+    <!-- Pure White Background with Pure Portrait -->
+    <circle cx="100" cy="85" r="38" fill="#7C0E44" />
+    <path d="M40 215 C40 155 70 135 100 135 C130 135 160 155 160 215 Z" fill="url(#p10-wine)" />
 
-  <rect x="814" y="391" width="170" height="36" rx="10" fill="#FAF3F0" />
-  <text x="828" y="414" fill="#7E636E" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">300 DPI Print Spec</text>
+    <!-- Dimension Pill on Top Right of passport photo -->
+    <rect x="60" y="225" width="80" height="20" rx="10" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.2)" />
+    <text x="100" y="239" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="10" font-weight="800">35 × 45 MM</text>
+  </g>
 
-  <rect x="814" y="465" width="170" height="48" rx="14" fill="#7C0E44" />
-  <text x="842" y="495" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700">DOWNLOAD</text>
+  <!-- Specs on the Right side of card -->
+  <g transform="translate(880, 245)">
+    <rect x="0" y="0" width="135" height="38" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
+    <text x="67" y="24" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">WHITE BG</text>
+
+    <rect x="0" y="52" width="135" height="38" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
+    <text x="67" y="76" text-anchor="middle" fill="#AA5E7A" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">300 DPI</text>
+
+    <rect x="0" y="104" width="135" height="38" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" />
+    <text x="67" y="128" text-anchor="middle" fill="#0D9488" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">BORDER AID</text>
+
+    <!-- Download Button -->
+    <rect x="0" y="175" width="135" height="42" rx="21" fill="url(#p10-wine)" />
+    <text x="67" y="201" text-anchor="middle" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">EXPORT</text>
+  </g>
 </svg>

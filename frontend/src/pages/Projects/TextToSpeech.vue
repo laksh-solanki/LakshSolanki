@@ -904,7 +904,7 @@ onUnmounted(() => {
             </div>
 
             <v-row>
-              <v-col cols="12" md="6">
+              <v-col cols="12" sm="6" md="6">
                 <v-select v-model="selectedLanguage" :items="languageOptions" item-title="label" item-value="value"
                   label="Language" variant="solo-filled" rounded="lg" hide-details class="mb-3"
                   :disabled="isPlaying"></v-select>
@@ -913,13 +913,13 @@ onUnmounted(() => {
                   prepend-inner-icon="mdi-magnify" hide-details :disabled="isPlaying"></v-text-field>
               </v-col>
 
-              <v-col cols="12" md="6">
+              <v-col cols="12" sm="6" md="6">
                 <v-select v-model="selectedVoiceKey" :items="filteredVoices" item-title="label" item-value="key"
                   label="Select Voice" variant="solo-filled" rounded="lg" :loading="isLoadingVoices"
                   :disabled="isLoadingVoices || isPlaying"></v-select>
               </v-col>
 
-              <v-col cols="12" md="4">
+              <v-col cols="12" sm="4" md="4">
                 <v-slider v-model="rate" label="Rate" min="0.5" max="2" step="0.05" thumb-label color="primary"
                   :disabled="isPlaying">
                   <template #append>
@@ -928,7 +928,7 @@ onUnmounted(() => {
                 </v-slider>
               </v-col>
 
-              <v-col cols="12" md="4">
+              <v-col cols="12" sm="4" md="4">
                 <v-slider v-model="pitch" label="Pitch" min="0" max="2" step="0.05" thumb-label color="primary"
                   :disabled="isPlaying">
                   <template #append>
@@ -937,7 +937,7 @@ onUnmounted(() => {
                 </v-slider>
               </v-col>
 
-              <v-col cols="12" md="4">
+              <v-col cols="12" sm="4" md="4">
                 <v-slider v-model="volume" label="Volume" min="0" max="1" step="0.05" thumb-label color="primary"
                   :disabled="isPlaying">
                   <template #append>
@@ -1189,6 +1189,8 @@ onUnmounted(() => {
   font-size: 1.02rem;
   color: var(--portfolio-ink);
   min-height: 90px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .word-highlight {

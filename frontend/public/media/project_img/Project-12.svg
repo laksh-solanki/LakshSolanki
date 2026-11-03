@@ -1,0 +1,135 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="p12-bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FAF3F0" />
+      <stop offset="100%" stop-color="#F2DACE" />
+    </linearGradient>
+    <linearGradient id="p12-wine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C0E44" />
+      <stop offset="100%" stop-color="#AA5E7A" />
+    </linearGradient>
+    <filter id="p12-shadow" x="60" y="40" width="1080" height="595" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="28" flood-color="#7C0E44" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="675" fill="url(#p12-bg)" />
+  <circle cx="1080" cy="120" r="260" fill="#D49A9A" fill-opacity="0.25" />
+  <circle cx="120" cy="560" r="220" fill="#AA5E7A" fill-opacity="0.18" />
+
+  <!-- Main Shell -->
+  <g filter="url(#p12-shadow)">
+    <rect x="110" y="70" width="980" height="535" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
+  </g>
+
+  <!-- Header -->
+  <circle cx="160" cy="115" r="6" fill="#7C0E44" />
+  <circle cx="178" cy="115" r="6" fill="#AA5E7A" />
+  <circle cx="196" cy="115" r="6" fill="#D49A9A" />
+  <text x="222" y="122" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="22" font-weight="800" letter-spacing="-0.02em">
+    API BLUEPRINT DESIGNER
+  </text>
+  <text x="515" y="121" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="14" font-weight="500">
+    Visual OpenAPI 3.1 Modeling • Endpoints, Schemas &amp; Mock Servers
+  </text>
+
+  <!-- Left: Endpoints Tree Console -->
+  <rect x="160" y="165" width="440" height="395" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
+
+  <text x="185" y="205" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="16" font-weight="800">
+    API ENDPOINTS
+  </text>
+
+  <!-- Endpoint 1: GET /users -->
+  <g transform="translate(185, 225)">
+    <rect width="390" height="56" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+    <!-- GET Badge -->
+    <rect x="12" y="13" width="60" height="30" rx="8" fill="#DCFCE7" />
+    <text x="42" y="33" text-anchor="middle" fill="#15803D" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="800">GET</text>
+    <text x="86" y="34" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="600">/api/v1/users</text>
+    <circle cx="360" cy="28" r="4" fill="#15803D" />
+  </g>
+
+  <!-- Endpoint 2: POST /auth/login -->
+  <g transform="translate(185, 295)">
+    <rect width="390" height="56" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+    <!-- POST Badge -->
+    <rect x="12" y="13" width="60" height="30" rx="8" fill="#DBEAFE" />
+    <text x="42" y="33" text-anchor="middle" fill="#1D4ED8" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="800">POST</text>
+    <text x="86" y="34" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="600">/api/v1/auth/login</text>
+    <circle cx="360" cy="28" r="4" fill="#1D4ED8" />
+  </g>
+
+  <!-- Endpoint 3: PUT /profile -->
+  <g transform="translate(185, 365)">
+    <rect width="390" height="56" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+    <!-- PUT Badge -->
+    <rect x="12" y="13" width="60" height="30" rx="8" fill="#FEF3C7" />
+    <text x="42" y="33" text-anchor="middle" fill="#B45309" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="800">PUT</text>
+    <text x="86" y="34" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="600">/api/v1/profile</text>
+    <circle cx="360" cy="28" r="4" fill="#B45309" />
+  </g>
+
+  <!-- Endpoint 4: DELETE /session -->
+  <g transform="translate(185, 435)">
+    <rect width="390" height="56" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+    <!-- DELETE Badge -->
+    <rect x="12" y="13" width="60" height="30" rx="8" fill="#FEE2E2" />
+    <text x="42" y="33" text-anchor="middle" fill="#B91C1C" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="800">DEL</text>
+    <text x="86" y="34" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="600">/api/v1/session</text>
+    <circle cx="360" cy="28" r="4" fill="#B91C1C" />
+  </g>
+
+  <rect x="185" y="505" width="130" height="36" rx="18" fill="url(#p12-wine)" />
+  <text x="250" y="528" text-anchor="middle" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">+ NEW ROUTE</text>
+
+  <!-- Right: Visual Schema Model Node -->
+  <rect x="630" y="165" width="410" height="395" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
+
+  <text x="655" y="205" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="16" font-weight="800">
+    SCHEMA MODELER
+  </text>
+
+  <!-- Schema Card (UserObject) -->
+  <g transform="translate(655, 225)">
+    <rect width="360" height="235" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
+    
+    <!-- Schema Header -->
+    <rect width="360" height="42" rx="16" fill="#FAF3F0" />
+    <rect y="26" width="360" height="16" fill="#FAF3F0" />
+    <text x="18" y="27" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="800">UserResponse (Object)</text>
+    <rect x="260" y="10" width="85" height="22" rx="11" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.2)" />
+    <text x="302" y="25" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="10" font-weight="700">OPENAPI 3.1</text>
+
+    <!-- Schema Properties -->
+    <text x="20" y="70" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="600">id</text>
+    <text x="180" y="70" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="13">string (uuid)</text>
+
+    <line x1="20" y1="85" x2="340" y2="85" stroke="rgba(124, 14, 68, 0.08)" />
+
+    <text x="20" y="110" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="600">email</text>
+    <text x="180" y="110" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="13">string (email)</text>
+
+    <line x1="20" y1="125" x2="340" y2="125" stroke="rgba(124, 14, 68, 0.08)" />
+
+    <text x="20" y="150" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="600">role</text>
+    <text x="180" y="150" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="13">enum ["admin", "user"]</text>
+
+    <line x1="20" y1="165" x2="340" y2="165" stroke="rgba(124, 14, 68, 0.08)" />
+
+    <text x="20" y="190" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="600">created_at</text>
+    <text x="180" y="190" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="13">date-time</text>
+
+    <line x1="20" y1="205" x2="340" y2="205" stroke="rgba(124, 14, 68, 0.08)" />
+  </g>
+
+  <!-- Right Actions -->
+  <g transform="translate(655, 480)">
+    <rect x="0" y="0" width="170" height="42" rx="21" fill="url(#p12-wine)" />
+    <text x="85" y="26" text-anchor="middle" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">EXPORT SWAGGER</text>
+
+    <rect x="185" y="0" width="170" height="42" rx="21" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.2)" stroke-width="1.5" />
+    <text x="270" y="26" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">RUN MOCK SERVER</text>
+  </g>
+</svg>

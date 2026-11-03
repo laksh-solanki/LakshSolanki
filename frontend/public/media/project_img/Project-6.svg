@@ -1,100 +1,126 @@
 <svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="p6-bg" x1="0" y1="0" x2="1200" y2="675" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FAF3F0" />
-      <stop offset="0.65" stop-color="#F5E4DC" />
-      <stop offset="1" stop-color="#EED3C5" />
+      <stop offset="0%" stop-color="#FAF3F0" />
+      <stop offset="100%" stop-color="#F2DACE" />
     </linearGradient>
-    <radialGradient id="p6-glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 120) scale(320 320)">
-      <stop stop-color="#D49A9A" stop-opacity="0.3" />
-      <stop offset="1" stop-color="#D49A9A" stop-opacity="0" />
-    </radialGradient>
-    <radialGradient id="p6-glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(120 620) scale(300 240)">
-      <stop stop-color="#AA5E7A" stop-opacity="0.22" />
-      <stop offset="1" stop-color="#AA5E7A" stop-opacity="0" />
-    </radialGradient>
-    <filter id="p6-shadow" x="70" y="46" width="1060" height="585" filterUnits="userSpaceOnUse">
-      <feDropShadow dx="0" dy="16" stdDeviation="30" flood-color="#7C0E44" flood-opacity="0.08" />
+    <linearGradient id="p6-wine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C0E44" />
+      <stop offset="100%" stop-color="#AA5E7A" />
+    </linearGradient>
+    <filter id="p6-shadow" x="60" y="40" width="1080" height="595" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="16" stdDeviation="28" flood-color="#7C0E44" flood-opacity="0.08" />
     </filter>
   </defs>
 
   <!-- Background -->
   <rect width="1200" height="675" fill="url(#p6-bg)" />
-  <circle cx="1080" cy="120" r="260" fill="url(#p6-glowA)" />
-  <circle cx="120" cy="620" r="240" fill="url(#p6-glowB)" />
+  <circle cx="1080" cy="120" r="260" fill="#D49A9A" fill-opacity="0.25" />
+  <circle cx="120" cy="560" r="220" fill="#AA5E7A" fill-opacity="0.18" />
 
-  <!-- Main Studio Card -->
+  <!-- Main Shell -->
   <g filter="url(#p6-shadow)">
-    <rect x="110" y="76" width="980" height="522" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
+    <rect x="110" y="70" width="980" height="535" rx="28" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.12)" stroke-width="2" />
   </g>
 
-  <!-- Left: Code Studio Window -->
-  <rect x="150" y="118" width="430" height="438" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+  <!-- Header -->
+  <circle cx="160" cy="115" r="6" fill="#7C0E44" />
+  <circle cx="178" cy="115" r="6" fill="#AA5E7A" />
+  <circle cx="196" cy="115" r="6" fill="#D49A9A" />
+  <text x="222" y="122" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="22" font-weight="800" letter-spacing="-0.02em">
+    JSON FORGE STUDIO
+  </text>
+  <text x="470" y="121" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="14" font-weight="500">
+    Schema Validation • Formatter &amp; Minifier • Deep Tree Diff
+  </text>
+
+  <!-- Left: Syntax Highlighted JSON Editor -->
+  <rect x="160" y="165" width="480" height="395" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
+
+  <!-- Editor Window Top -->
+  <rect x="185" y="190" width="430" height="34" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+  <text x="205" y="212" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700">payload.json</text>
+  <rect x="520" y="196" width="85" height="22" rx="11" fill="#DCFCE7" stroke="#86EFAC" />
+  <text x="562" y="211" text-anchor="middle" fill="#15803D" font-family="'Space Grotesk', sans-serif" font-size="10" font-weight="800">VALID JSON</text>
+
+  <!-- JSON Code Body -->
+  <rect x="185" y="235" width="430" height="300" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
   
-  <!-- Window Header Dots -->
-  <circle cx="180" cy="144" r="6" fill="#7C0E44" />
-  <circle cx="198" cy="144" r="6" fill="#AA5E7A" />
-  <circle cx="216" cy="144" r="6" fill="#D49A9A" />
-  <line x1="150" y1="166" x2="580" y2="166" stroke="rgba(124, 14, 68, 0.08)" stroke-width="1" />
+  <!-- Line Numbers column -->
+  <rect x="185" y="235" width="42" height="300" rx="14" fill="#FAF3F0" />
+  <text x="206" y="272" text-anchor="middle" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="13">1</text>
+  <text x="206" y="304" text-anchor="middle" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="13">2</text>
+  <text x="206" y="336" text-anchor="middle" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="13">3</text>
+  <text x="206" y="368" text-anchor="middle" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="13">4</text>
+  <text x="206" y="400" text-anchor="middle" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="13">5</text>
+  <text x="206" y="432" text-anchor="middle" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="13">6</text>
+  <text x="206" y="464" text-anchor="middle" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="13">7</text>
+  <text x="206" y="496" text-anchor="middle" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="13">8</text>
 
-  <!-- Formatted JSON Code -->
-  <text x="180" y="210" fill="#7C0E44" font-size="22" font-family="'JetBrains Mono', Consolas, monospace" font-weight="700">{</text>
-  <text x="206" y="246" fill="#7C0E44" font-size="18" font-family="'JetBrains Mono', Consolas, monospace" font-weight="600">"service"</text>
-  <text x="312" y="246" fill="#231219" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">: </text>
-  <text x="334" y="246" fill="#AA5E7A" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">"JSON Forge"</text>
-  <text x="460" y="246" fill="#7C0E44" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">,</text>
+  <!-- Code text with syntax highlight colors -->
+  <text x="245" y="272" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="16" font-weight="700">{</text>
+  
+  <text x="265" y="304" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="700">"status"</text>
+  <text x="335" y="304" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="14">: </text>
+  <text x="350" y="304" fill="#0D9488" font-family="'JetBrains Mono', monospace" font-size="14">"success"</text>
+  <text x="425" y="304" fill="#7E636E" font-family="'JetBrains Mono', monospace" font-size="14">,</text>
 
-  <text x="206" y="284" fill="#7C0E44" font-size="18" font-family="'JetBrains Mono', Consolas, monospace" font-weight="600">"schema"</text>
-  <text x="296" y="284" fill="#231219" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">: </text>
-  <text x="318" y="284" fill="#AA5E7A" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">"OpenAPI 3.1"</text>
-  <text x="450" y="284" fill="#7C0E44" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">,</text>
+  <text x="265" y="336" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="700">"version"</text>
+  <text x="345" y="336" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="14">: </text>
+  <text x="360" y="336" fill="#D97706" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="700">2.4</text>
+  <text x="388" y="336" fill="#7E636E" font-family="'JetBrains Mono', monospace" font-size="14">,</text>
 
-  <text x="206" y="322" fill="#7C0E44" font-size="18" font-family="'JetBrains Mono', Consolas, monospace" font-weight="600">"features"</text>
-  <text x="312" y="322" fill="#231219" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">: [</text>
-  <text x="230" y="354" fill="#AA5E7A" font-size="17" font-family="'JetBrains Mono', Consolas, monospace">"validate"</text>
-  <text x="330" y="354" fill="#7C0E44" font-size="17" font-family="'JetBrains Mono', Consolas, monospace">, </text>
-  <text x="348" y="354" fill="#AA5E7A" font-size="17" font-family="'JetBrains Mono', Consolas, monospace">"diff"</text>
-  <text x="408" y="354" fill="#7C0E44" font-size="17" font-family="'JetBrains Mono', Consolas, monospace">, </text>
-  <text x="426" y="354" fill="#AA5E7A" font-size="17" font-family="'JetBrains Mono', Consolas, monospace">"minify"</text>
-  <text x="206" y="386" fill="#231219" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">],</text>
+  <text x="265" y="368" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="700">"minify"</text>
+  <text x="330" y="368" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="14">: </text>
+  <text x="345" y="368" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="700">true</text>
+  <text x="385" y="368" fill="#7E636E" font-family="'JetBrains Mono', monospace" font-size="14">,</text>
 
-  <text x="206" y="424" fill="#7C0E44" font-size="18" font-family="'JetBrains Mono', Consolas, monospace" font-weight="600">"verified"</text>
-  <text x="312" y="424" fill="#231219" font-size="18" font-family="'JetBrains Mono', Consolas, monospace">: </text>
-  <text x="334" y="424" fill="#7C0E44" font-size="18" font-family="'JetBrains Mono', Consolas, monospace" font-weight="700">true</text>
+  <text x="265" y="400" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="700">"tokens"</text>
+  <text x="330" y="400" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="14">: [</text>
+  <text x="350" y="400" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="14">"diff"</text>
+  <text x="390" y="400" fill="#7E636E" font-family="'JetBrains Mono', monospace" font-size="14">, </text>
+  <text x="405" y="400" fill="#AA5E7A" font-family="'JetBrains Mono', monospace" font-size="14">"sort"</text>
+  <text x="445" y="400" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="14">],</text>
 
-  <text x="180" y="462" fill="#7C0E44" font-size="22" font-family="'JetBrains Mono', Consolas, monospace" font-weight="700">}</text>
+  <text x="265" y="432" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="700">"sizeKb"</text>
+  <text x="335" y="432" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="14">: </text>
+  <text x="350" y="432" fill="#D97706" font-family="'JetBrains Mono', monospace" font-size="14" font-weight="700">14.8</text>
 
-  <!-- Right Top: Overview Panel -->
-  <rect x="606" y="118" width="444" height="210" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
-  <text x="638" y="168" fill="#7C0E44" font-family="'Space Grotesk', -apple-system, sans-serif" font-size="28" font-weight="800" letter-spacing="-0.02em">JSON FORGE STUDIO</text>
-  <text x="638" y="204" fill="#4E3842" font-family="'Manrope', -apple-system, sans-serif" font-size="16" font-weight="500">Validation, syntax formatting, minify &amp; schema diffing.</text>
-  <text x="638" y="230" fill="#7E636E" font-family="'Manrope', -apple-system, sans-serif" font-size="15">Engineered for clean, zero-defect API payloads.</text>
+  <text x="245" y="464" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="16" font-weight="700">}</text>
 
-  <!-- Tags -->
-  <rect x="638" y="262" width="108" height="32" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="657" y="283" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">VALIDATOR</text>
+  <!-- Right: Clean Tree Explorer & Tool Actions -->
+  <rect x="670" y="165" width="370" height="395" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.12)" stroke-width="1.5" />
 
-  <rect x="758" y="262" width="96" height="32" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="781" y="283" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">FORMAT</text>
+  <!-- Curly Braces Hero Icon -->
+  <g transform="translate(710, 205)">
+    <rect x="0" y="0" width="60" height="60" rx="16" fill="url(#p6-wine)" />
+    <text x="30" y="41" text-anchor="middle" fill="#FFFFFF" font-family="'JetBrains Mono', monospace" font-size="28" font-weight="800">{ }</text>
+  </g>
 
-  <rect x="866" y="262" width="112" height="32" rx="16" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.18)" />
-  <text x="888" y="283" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="12" font-weight="700">DEEP DIFF</text>
+  <text x="785" y="232" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="18" font-weight="800">STRUCTURE TREE</text>
+  <text x="785" y="255" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="13">Interactive Object Hierarchy</text>
 
-  <!-- Right Bottom: Action Panel -->
-  <rect x="606" y="346" width="444" height="210" rx="20" fill="#FAF3F0" stroke="rgba(124, 14, 68, 0.1)" stroke-width="1.5" />
+  <!-- Tree Explorer Nodes -->
+  <g transform="translate(710, 290)">
+    <!-- Node 1 -->
+    <rect x="0" y="0" width="290" height="38" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+    <text x="18" y="24" fill="#7C0E44" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700">▼ root : object [5 keys]</text>
 
-  <text x="638" y="394" fill="#231219" font-family="'Space Grotesk', sans-serif" font-size="16" font-weight="700">Engine Tools</text>
+    <!-- Node 2 (indented) -->
+    <rect x="20" y="46" width="270" height="38" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+    <text x="38" y="70" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="13">• status : string</text>
 
-  <!-- Action Buttons -->
-  <rect x="638" y="420" width="124" height="48" rx="14" fill="#7C0E44" />
-  <text x="662" y="450" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700" letter-spacing="0.04em">VALIDATE</text>
+    <!-- Node 3 (indented) -->
+    <rect x="20" y="92" width="270" height="38" rx="10" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.1)" />
+    <text x="38" y="116" fill="#231219" font-family="'JetBrains Mono', monospace" font-size="13">• tokens : array [2 items]</text>
+  </g>
 
-  <rect x="774" y="420" width="124" height="48" rx="14" fill="#AA5E7A" />
-  <text x="803" y="450" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700" letter-spacing="0.04em">FORMAT</text>
+  <!-- Action Buttons at Bottom -->
+  <g transform="translate(710, 475)">
+    <rect x="0" y="0" width="135" height="44" rx="22" fill="url(#p6-wine)" />
+    <text x="67" y="27" text-anchor="middle" fill="#FFFFFF" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">FORMAT</text>
 
-  <rect x="910" y="420" width="108" height="48" rx="14" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.2)" stroke-width="1.5" />
-  <text x="946" y="450" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="700" letter-spacing="0.04em">DIFF</text>
-
-  <!-- Bottom Metric -->
-  <text x="638" y="520" fill="#7E636E" font-family="'Manrope', sans-serif" font-size="14">Output: 100% compliant JSON • Zero parser warnings</text>
+    <rect x="150" y="0" width="140" height="44" rx="22" fill="#FFFFFF" stroke="rgba(124, 14, 68, 0.2)" stroke-width="1.5" />
+    <text x="220" y="27" text-anchor="middle" fill="#7C0E44" font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="700">MINIFY</text>
+  </g>
 </svg>

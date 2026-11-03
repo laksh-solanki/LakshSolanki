@@ -56,4 +56,31 @@ const logoSrc = getMediaUrl("Picture/LS.svg");
 .brand-name .accent {
   color: var(--portfolio-primary, #7C0E44) !important;
 }
+
+@media (max-width: 400px) {
+  .logo-wrap {
+    gap: 6px;
+  }
+  .logo-glyph {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .brand-name {
+    font-size: 1.05rem !important;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 340px) {
+  .logo-wrap {
+    gap: 5px;
+  }
+  .logo-glyph {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  .brand-name {
+    font-size: 0.92rem !important;
+  }
+}
 </style>
