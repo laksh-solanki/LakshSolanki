@@ -10,3 +10,6 @@ Thumbs.db
 .idea/
 .vscode/
 mindlytic-frontend/public/lib/webviewer/
+.agents
+.pytest_cache
+.vscode

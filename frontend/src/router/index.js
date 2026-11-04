@@ -92,6 +92,17 @@ const routes = [
     ],
   },
   {
+    path: "/v/:id",
+    name: "PdfLanding",
+    component: () => import("@/pages/PdfLandingPage.vue"),
+    props: true,
+    meta: { title: "LakshSolanki | View PDF" },
+  },
+  {
+    path: "/v",
+    redirect: "/projects/pdf-image-studio?mode=pdf-to-qr",
+  },
+  {
     path: "/notfound",
     name: "NotFound",
     component: () => import("@/pages/NotFoundPage.vue"),

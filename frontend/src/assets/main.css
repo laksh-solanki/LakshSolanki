@@ -162,7 +162,7 @@ kbd {
   border-radius: 12px !important;
   background: var(--portfolio-field-bg) !important;
   border-color: var(--portfolio-border-color) !important;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  transition: border-color 0.2s ease !important;
 }
 
 .v-field:hover {
@@ -171,7 +171,66 @@ kbd {
 
 .v-field--focused {
   border-color: var(--portfolio-primary) !important;
-  box-shadow: 0 0 0 3px rgba(124, 14, 68, 0.1) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Remove focus shadow and outline from all buttons, dropdowns, and inputs across the entire site */
+button:focus,
+button:focus-visible,
+button:active,
+[type="button"]:focus,
+[type="button"]:focus-visible,
+[type="button"]:active,
+[type="submit"]:focus,
+[type="submit"]:focus-visible,
+[type="submit"]:active,
+[type="reset"]:focus,
+[type="reset"]:focus-visible,
+[type="reset"]:active,
+[role="button"]:focus,
+[role="button"]:focus-visible,
+[role="button"]:active,
+.v-btn:focus,
+.v-btn:focus-visible,
+.v-btn:active,
+.v-btn--focused,
+.v-btn--active,
+input:focus,
+input:focus-visible,
+input:active,
+textarea:focus,
+textarea:focus-visible,
+textarea:active,
+select:focus,
+select:focus-visible,
+select:active,
+[contenteditable]:focus,
+[contenteditable]:focus-visible,
+[contenteditable]:active,
+.v-field:focus,
+.v-field:focus-visible,
+.v-field:focus-within,
+.v-field--focused,
+.v-field--active,
+.v-field__input:focus,
+.v-field__input:focus-visible,
+.v-field__outline:focus,
+.v-input:focus,
+.v-input:focus-within,
+.v-input--is-focused,
+.v-input--is-focused .v-field,
+.v-select:focus,
+.v-select:focus-visible,
+.v-select:focus-within,
+.v-select--active-menu,
+.v-select--active-menu .v-field,
+.v-autocomplete--active-menu,
+.v-autocomplete--active-menu .v-field,
+.v-combobox--active-menu,
+.v-combobox--active-menu .v-field {
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .v-field__input,

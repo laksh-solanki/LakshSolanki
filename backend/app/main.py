@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+from collections import defaultdict, deque
 from contextlib import asynccontextmanager
-
 import re
+import threading
 import time
 from typing import Any, Literal
+import uuid
 
 import httpx
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
+from fastapi import Depends, FastAPI, File, Header, HTTPException, Query, Request, Response, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -112,7 +114,8 @@ app.add_middleware(
     allow_origins=list(settings.cors_origins),
     allow_credentials=False,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization", "X-Admin-Key"],
+    allow_headers=["Content-Type", "Authorization", "X-Admin-Key", "Accept", "Range"],
+    expose_headers=["Content-Disposition", "Content-Length", "Retry-After"],
 )
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 
@@ -512,11 +515,234 @@ def delete_ai_history(
     return JSONResponse(content={"message": "Conversation removed successfully"})
 
 
+# ---------------------------------------------------------------------------
+# PDF to QR Code Generator: Endpoints & Rate Limiter
+# ---------------------------------------------------------------------------
+MAX_PDF_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
+ALLOWED_PDF_MIME_TYPES = {
+    "application/pdf",
+    "application/x-pdf",
+    "application/acrobat",
+    "applications/vnd.pdf",
+    "text/pdf",
+}
+UUID4_PATTERN = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
+
+
+def is_valid_uuid4(value: str) -> bool:
+    return bool(UUID4_PATTERN.fullmatch(str(value or "").strip()))
+
+
+def get_client_ip(request: Request) -> str:
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        first = forwarded.split(",")[0].strip()
+        if first:
+            return first
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip and real_ip.strip():
+        return real_ip.strip()
+    if request.client and request.client.host:
+        return request.client.host.strip()
+    return "unknown"
+
+
+class SlidingWindowRateLimiter:
+    """Thread-safe sliding-window rate limiter per client IP."""
+
+    def __init__(self, limit: int = 10, window_seconds: float = 60.0) -> None:
+        self.limit = limit
+        self.window_seconds = window_seconds
+        self._history: dict[str, deque[float]] = defaultdict(deque)
+        self._lock = threading.Lock()
+
+    def check(self, key: str) -> tuple[bool, int, int]:
+        """
+        Check if key is within rate limit.
+        Returns: (allowed: bool, remaining: int, retry_after: int)
+        """
+        now = time.monotonic()
+        cutoff = now - self.window_seconds
+        with self._lock:
+            timestamps = self._history[key]
+            while timestamps and timestamps[0] <= cutoff:
+                timestamps.popleft()
+            if len(timestamps) < self.limit:
+                timestamps.append(now)
+                return True, self.limit - len(timestamps), 0
+            oldest = timestamps[0]
+            retry_after = max(1, int(oldest + self.window_seconds - now))
+            return False, 0, retry_after
+
+    def reset(self, key: str | None = None) -> None:
+        with self._lock:
+            if key is None:
+                self._history.clear()
+            else:
+                self._history.pop(key, None)
+
+
+pdf_upload_rate_limiter = SlidingWindowRateLimiter(limit=10, window_seconds=60.0)
+
+
+def reset_upload_rate_limits() -> None:
+    pdf_upload_rate_limiter.reset()
+
+
+@app.post("/api/pdf/upload")
+async def upload_pdf(request: Request, file: UploadFile = File(...)) -> JSONResponse:
+    # 1. Rate Limiting Check (10 uploads/min per IP)
+    client_ip = get_client_ip(request)
+    allowed, _, retry_after = pdf_upload_rate_limiter.check(client_ip)
+    if not allowed:
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "Upload rate limit exceeded. Please wait a minute."},
+            headers={"Retry-After": str(retry_after)},
+        )
+
+    # 2. MIME type verification
+    content_type = (file.content_type or "").lower().strip()
+    if content_type and content_type not in ALLOWED_PDF_MIME_TYPES:
+        raise HTTPException(status_code=400, detail="Invalid PDF format or corrupted file.")
+
+    # 3. Stream-safe chunked reading with 10 MB limit
+    chunks: list[bytes] = []
+    total_size = 0
+    chunk_size = 64 * 1024
+    try:
+        while True:
+            chunk = await file.read(chunk_size)
+            if not chunk:
+                break
+            total_size += len(chunk)
+            if total_size > MAX_PDF_SIZE_BYTES:
+                raise HTTPException(status_code=413, detail="File size exceeds 10 MB limit.")
+            chunks.append(chunk)
+    finally:
+        await file.close()
+
+    content = b"".join(chunks)
+
+    # 4. Binary Magic Byte & EOF Integrity Validation
+    if len(content) < 10 or not content.startswith(b"%PDF-"):
+        raise HTTPException(status_code=400, detail="Invalid PDF format or corrupted file.")
+    tail = content[-2048:]
+    if b"%%EOF" not in tail:
+        raise HTTPException(status_code=400, detail="Invalid PDF format or corrupted file.")
+
+    # 5. Cryptographic ID generation & filename sanitization
+    doc_id = str(uuid.uuid4())
+    filename = file.filename or "document.pdf"
+
+    # 6. Store document via repository
+    stored = repositories.add_pdf_upload(
+        doc_id=doc_id,
+        filename=filename,
+        content=content,
+        size=len(content),
+        ttl_hours=24,
+    )
+
+    # 7. Return contract response
+    return JSONResponse(
+        status_code=200,
+        content={
+            "status": "success",
+            "id": doc_id,
+            "filename": stored.get("filename", filename),
+            "size": len(content),
+            "url": f"/v/{doc_id}",
+            "expires_at": stored.get("expires_at") or stored.get("expiresAt"),
+        },
+    )
+
+
+@app.get("/api/pdf/{id}")
+def view_pdf(id: str) -> Response:
+    if not is_valid_uuid4(id):
+        raise HTTPException(status_code=400, detail="Invalid document ID format.")
+    doc = repositories.get_pdf_upload(id)
+    if doc is None:
+        raise HTTPException(status_code=404, detail="Document not found or expired.")
+    binary = bytes(doc.get("content", b""))
+    filename = str(doc.get("filename", "document.pdf"))
+    content_type = str(doc.get("contentType", "application/pdf"))
+    return Response(
+        content=binary,
+        media_type=content_type,
+        headers={
+            "Content-Disposition": f'inline; filename="{filename}"',
+            "Content-Length": str(len(binary)),
+            "Cache-Control": "public, max-age=3600",
+        },
+    )
+
+
+@app.get("/api/pdf/{id}/file")
+@app.get("/api/pdf/{id}/download")
+def download_pdf(id: str) -> Response:
+    if not is_valid_uuid4(id):
+        raise HTTPException(status_code=400, detail="Invalid document ID format.")
+    doc = repositories.get_pdf_upload(id)
+    if doc is None:
+        raise HTTPException(status_code=404, detail="Document not found or expired.")
+    binary = bytes(doc.get("content", b""))
+    filename = str(doc.get("filename", "document.pdf"))
+    content_type = str(doc.get("contentType", "application/pdf"))
+    return Response(
+        content=binary,
+        media_type=content_type,
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Length": str(len(binary)),
+            "Cache-Control": "public, max-age=3600",
+        },
+    )
+
+
+@app.get("/api/pdf/{id}/metadata")
+def get_pdf_metadata(id: str) -> JSONResponse:
+    if not is_valid_uuid4(id):
+        raise HTTPException(status_code=400, detail="Invalid document ID format.")
+    meta = repositories.get_pdf_metadata(id)
+    if meta is None:
+        raise HTTPException(status_code=404, detail="Document not found or expired.")
+    return JSONResponse(
+        status_code=200,
+        content={
+            "id": meta["id"],
+            "filename": meta.get("filename", "document.pdf"),
+            "size": meta.get("size", 0),
+            "created_at": meta.get("created_at") or meta.get("createdAt"),
+            "expires_at": meta.get("expires_at") or meta.get("expiresAt"),
+            "createdAt": meta.get("createdAt") or meta.get("created_at"),
+            "expiresAt": meta.get("expiresAt") or meta.get("expires_at"),
+        },
+        headers={"Cache-Control": "public, max-age=60"},
+    )
+
+
+@app.delete("/api/pdf/{id}")
+def delete_pdf(id: str) -> JSONResponse:
+    if not is_valid_uuid4(id):
+        raise HTTPException(status_code=400, detail="Invalid document ID format.")
+    removed = repositories.remove_pdf_upload(id)
+    if not removed:
+        raise HTTPException(status_code=404, detail="Document not found or already deleted.")
+    return JSONResponse(
+        status_code=200,
+        content={"status": "deleted", "id": id},
+    )
+
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(_: Request, exc: HTTPException) -> JSONResponse:
     if exc.status_code in {401, 503} and isinstance(exc.detail, dict):
-        return JSONResponse(status_code=exc.status_code, content=exc.detail)
+        return JSONResponse(status_code=exc.status_code, content=exc.detail, headers=exc.headers)
     if exc.status_code in {401, 503} and isinstance(exc.detail, str):
-        return JSONResponse(status_code=exc.status_code, content={"error": exc.detail})
-    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+        return JSONResponse(status_code=exc.status_code, content={"error": exc.detail}, headers=exc.headers)
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail}, headers=exc.headers)

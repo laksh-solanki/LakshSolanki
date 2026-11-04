@@ -49,11 +49,6 @@ const IMAGE_FIT_OPTIONS = [
   ...FIT_OPTIONS,
 ];
 
-const OUTPUT_FORMATS = [
-  { title: "Premium JPEG", value: "JPEG" },
-  { title: "Lossless PNG", value: "PNG" },
-];
-
 const BACKGROUND_SWATCHES = [
   { title: "Gallery white", value: "#ffffff" },
   { title: "Warm ivory", value: "#f7f3ea" },
@@ -701,7 +696,7 @@ onUnmounted(() => {
             <!-- Studio Mode Navigation (List-wise in Side Bar) -->
             <div class="studio-mode-nav" :class="{ 'mb-4': images.length }">
               <div class="d-flex align-center justify-space-between mb-3">
-                <p class="panel-kicker mb-0">Conversion Mode</p>
+                <p class="panel-kicker mb-0 mt-0">Conversion Mode</p>
                 <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold">
                   Image → PDF
                 </v-chip>
@@ -734,6 +729,21 @@ onUnmounted(() => {
                   <div class="mode-btn-content text-left">
                     <div class="mode-btn-title">PDF to Image</div>
                     <div class="mode-btn-subtitle">Extract pages to JPG / PNG</div>
+                  </div>
+                  <v-icon size="16" class="mode-btn-chevron">mdi-chevron-right</v-icon>
+                </button>
+
+                <button
+                  type="button"
+                  class="mode-list-btn"
+                  @click="switchTab('pdf-to-qr')"
+                >
+                  <div class="mode-btn-icon">
+                    <v-icon size="20">mdi-qrcode</v-icon>
+                  </div>
+                  <div class="mode-btn-content text-left">
+                    <div class="mode-btn-title">PDF to QR</div>
+                    <div class="mode-btn-subtitle">Shareable QR link & preview</div>
                   </div>
                   <v-icon size="16" class="mode-btn-chevron">mdi-chevron-right</v-icon>
                 </button>
@@ -784,16 +794,15 @@ onUnmounted(() => {
           >
             <div class="d-flex align-center justify-space-between ga-3 mb-4">
               <div>
-                <p class="panel-kicker mb-1">Production Tools</p>
-                <h3 class="text-h6 font-weight-bold mb-0">Export controls</h3>
+                <h3 class="text-h6 font-weight-bold my-0">Export controls</h3>
               </div>
               <v-icon
                 icon="mdi-tune-vertical"
                 color="secondary"
-                size="28"
+                size="24"
               ></v-icon>
             </div>
-
+            <v-divider></v-divider>
             <div class="control-grid">
               <v-select
                 v-model="pdfSettings.pagePreset"
@@ -803,6 +812,7 @@ onUnmounted(() => {
                 label="Page preset"
                 variant="outlined"
                 density="comfortable"
+                class="mt-3"
                 rounded="lg"
                 hide-details
                 prepend-inner-icon="mdi-file-document-outline"
@@ -832,18 +842,6 @@ onUnmounted(() => {
                 prepend-inner-icon="mdi-image-filter-center-focus"
               ></v-select>
 
-              <v-select
-                v-model="pdfSettings.outputFormat"
-                :items="OUTPUT_FORMATS"
-                item-title="title"
-                item-value="value"
-                label="Image engine"
-                variant="outlined"
-                density="comfortable"
-                rounded="lg"
-                hide-details
-                prepend-inner-icon="mdi-shield-check-outline"
-              ></v-select>
             </div>
 
             <div class="slider-control mt-4">
@@ -939,11 +937,7 @@ onUnmounted(() => {
           >
             <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
               <div>
-                <p class="panel-kicker mb-1">Batch Importer</p>
-                <h2 class="text-h5 font-weight-bold mb-1">Upload image files</h2>
-                <p class="text-caption text-medium-emphasis mb-0">
-                  Drop or select JPG, PNG, GIF, or WebP images to compile into a single styled PDF
-                </p>
+                <h2 class="text-h5 font-weight-bold my-0">Upload image files</h2>
               </div>
             </div>
 
@@ -993,22 +987,11 @@ onUnmounted(() => {
                   class="d-flex align-center justify-space-between flex-wrap ga-3 mb-5"
                 >
                   <div>
-                    <p class="panel-kicker mb-1">Page Queue</p>
-                    <h3 class="text-h6 font-weight-bold mb-0">
+                    <h3 class="text-h6 font-weight-bold my-0">
                       Image pages ({{ images.length }})
                     </h3>
                   </div>
                   <div class="d-flex align-center ga-2 flex-wrap">
-                    <v-btn
-                      variant="tonal"
-                      color="primary"
-                      rounded="lg"
-                      prepend-icon="mdi-plus"
-                      class="text-none font-weight-bold"
-                      @click="triggerFileInput"
-                    >
-                      Add More Images
-                    </v-btn>
                     <v-btn
                       @click="toggleAllImagesOrientation"
                       :icon="
@@ -1022,6 +1005,16 @@ onUnmounted(() => {
                       size="small"
                       :aria-label="`Switch all images to ${allImagesOrientation === 'p' ? 'landscape' : 'portrait'} orientation`"
                     ></v-btn>
+                     <v-btn
+                      variant="tonal"
+                      color="primary"
+                      rounded="lg"
+                      prepend-icon="mdi-plus"
+                      class="text-none font-weight-bold"
+                      @click="triggerFileInput"
+                    >
+                      Add More Images
+                    </v-btn>
                     <v-btn
                       variant="tonal"
                       color="primary"
@@ -1034,11 +1027,10 @@ onUnmounted(() => {
                     </v-btn>
                     <v-btn
                       variant="tonal"
-                      color="secondary"
+                      color="primary"
                       rounded="lg"
                       prepend-icon="mdi-swap-horizontal"
                       @click="reverseImages"
-                      class="text-none"
                     >
                       Reverse
                     </v-btn>
@@ -1082,14 +1074,6 @@ onUnmounted(() => {
                     Download again
                   </v-btn>
                 </div>
-
-                <div class="queue-strip mb-4">
-                  <span>{{ selectedPagePreset.title }}</span>
-                  <span>{{ layoutModeLabel }}</span>
-                  <span>{{ pdfSettings.marginMm }} mm margin</span>
-                  <span>{{ outputFormatLabel }}</span>
-                </div>
-
                 <v-row>
                   <v-col
                     v-for="(image, index) in images"

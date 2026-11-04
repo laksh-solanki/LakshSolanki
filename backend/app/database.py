@@ -4,6 +4,7 @@ import time
 from dataclasses import dataclass
 
 from pymongo import ASCENDING, DESCENDING, MongoClient
+from pymongo.collection import Collection
 from pymongo.database import Database
 from pymongo.errors import PyMongoError
 
@@ -89,6 +90,11 @@ class DatabaseManager:
             self._connect()
         return self.db
 
+    @property
+    def pdf_uploads(self) -> Collection | None:
+        db = self.ensure_connected()
+        return db["pdf_uploads"] if db is not None else None
+
     def _ensure_indexes(self) -> None:
         if self.db is None:
             return
@@ -134,6 +140,16 @@ class DatabaseManager:
                 [("ownerUid", ASCENDING), ("id", ASCENDING)],
                 unique=True,
                 name="uq_ai_conversations_owner_id",
+            )
+            self.db["pdf_uploads"].create_index(
+                [("id", ASCENDING)],
+                unique=True,
+                name="uq_pdf_uploads_id",
+            )
+            self.db["pdf_uploads"].create_index(
+                [("expiresAt", ASCENDING)],
+                expireAfterSeconds=0,
+                name="ttl_pdf_uploads_expires_at",
             )
         except PyMongoError:
             # Matching the JS backend: index issues should not prevent the app from starting.
