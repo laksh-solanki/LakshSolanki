@@ -12,7 +12,8 @@
     "dev": "vite",
     "build": "vite build && node scripts/create-spa-route-pages.mjs",
     "preview": "vite preview",
-    "preview:dist": "vite preview --host"
+    "preview:dist": "vite preview --host",
+    "icons:generate": "node scripts/generate_icons.mjs"
   },
   "dependencies": {
     "@fontsource/jetbrains-mono": "^5.2.8",

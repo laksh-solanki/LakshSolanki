@@ -22,7 +22,8 @@ const resolveMdiSvgIcon = (icon) => {
     return icon.slice(4);
   }
 
-  return iconMap[icon] ?? iconMap["mdi-help-circle-outline"] ?? "";
+  const normalized = icon.startsWith("mdi-") ? icon : `mdi-${icon}`;
+  return iconMap[normalized] ?? iconMap[icon] ?? iconMap["mdi-help-circle-outline"] ?? "";
 };
 
 const mdiSvgCompat = {

@@ -222,7 +222,7 @@ const processUpload = async (file) => {
           reject(
             new Error(
               respData?.detail ||
-                "Upload rate limit exceeded. Please wait a minute before retrying.",
+              "Upload rate limit exceeded. Please wait a minute before retrying.",
             ),
           );
         } else if (xhr.status === 400) {
@@ -420,7 +420,7 @@ const confirmDeleteDocument = async () => {
       try {
         const errJson = await res.json();
         errMsg = errJson.detail || errMsg;
-      } catch {}
+      } catch { }
       throw new Error(errMsg);
     }
 
@@ -580,496 +580,327 @@ const downloadSvg = async () => {
   <div class="tool-page">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
-    <v-container class="py-8 py-md-12">
-      <v-row density="comfortable" align="start">
-        <!-- Left Sidebar: Mode Navigation, Document Status & QR Customizer -->
-        <v-col cols="12" md="4" lg="3">
-          <v-card class="tool-shell p-5" rounded="xl" elevation="0">
-            <!-- Studio Mode Navigation -->
-            <div class="studio-mode-nav" :class="{ 'mb-4': uploadedDoc }">
-              <div class="d-flex align-center justify-space-between mb-3">
-                <p class="panel-kicker mb-0 mt-0">Conversion Mode</p>
-                <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold">
-                  PDF → QR
-                </v-chip>
-              </div>
+    <v-row density="comfortable" align="start">
+      <!-- Left Sidebar: Mode Navigation, Document Status & QR Customizer -->
+      <v-col cols="12" md="4" lg="3">
+        <v-card class="tool-shell p-5" rounded="xl" elevation="0">
+          <!-- Studio Mode Navigation -->
+          <div class="studio-mode-nav" :class="{ 'mb-4': uploadedDoc }">
+            <div class="d-flex align-center justify-space-between mb-3">
+              <p class="panel-kicker mb-0 mt-0">Conversion Mode</p>
+              <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold">
+                PDF → QR
+              </v-chip>
+            </div>
 
-              <div class="mode-list-container d-flex flex-column ga-2">
-                <button
-                  type="button"
-                  class="mode-list-btn"
-                  @click="switchTab('img-to-pdf')"
-                >
-                  <div class="mode-btn-icon">
-                    <v-icon size="20">mdi-image-multiple-outline</v-icon>
-                  </div>
-                  <div class="mode-btn-content text-left">
-                    <div class="mode-btn-title">Image to PDF</div>
-                    <div class="mode-btn-subtitle">Batch images into single PDF</div>
-                  </div>
-                  <v-icon size="16" class="mode-btn-chevron">mdi-chevron-right</v-icon>
-                </button>
+            <div class="mode-list-container d-flex flex-column ga-2">
+              <button type="button" class="mode-list-btn" @click="switchTab('img-to-pdf')">
+                <div class="mode-btn-icon">
+                  <v-icon size="20">mdi-image-multiple-outline</v-icon>
+                </div>
+                <div class="mode-btn-content text-left">
+                  <div class="mode-btn-title">Image to PDF</div>
+                  <div class="mode-btn-subtitle">Batch images into single PDF</div>
+                </div>
+                <v-icon size="16" class="mode-btn-chevron">mdi-chevron-right</v-icon>
+              </button>
 
-                <button
-                  type="button"
-                  class="mode-list-btn"
-                  @click="switchTab('pdf-to-img')"
-                >
-                  <div class="mode-btn-icon">
-                    <v-icon size="20">mdi-file-pdf-box</v-icon>
-                  </div>
-                  <div class="mode-btn-content text-left">
-                    <div class="mode-btn-title">PDF to Image</div>
-                    <div class="mode-btn-subtitle">Extract pages to JPG / PNG</div>
-                  </div>
-                  <v-icon size="16" class="mode-btn-chevron">mdi-chevron-right</v-icon>
-                </button>
+              <button type="button" class="mode-list-btn" @click="switchTab('pdf-to-img')">
+                <div class="mode-btn-icon">
+                  <v-icon size="20">mdi-file-pdf-box</v-icon>
+                </div>
+                <div class="mode-btn-content text-left">
+                  <div class="mode-btn-title">PDF to Image</div>
+                  <div class="mode-btn-subtitle">Extract pages to JPG / PNG</div>
+                </div>
+                <v-icon size="16" class="mode-btn-chevron">mdi-chevron-right</v-icon>
+              </button>
 
-                <button
-                  type="button"
-                  class="mode-list-btn is-active"
-                  @click="switchTab('pdf-to-qr')"
-                >
-                  <div class="mode-btn-icon">
-                    <v-icon size="20">mdi-qrcode</v-icon>
+              <button type="button" class="mode-list-btn is-active" @click="switchTab('pdf-to-qr')">
+                <div class="mode-btn-icon">
+                  <v-icon size="20">mdi-qrcode</v-icon>
+                </div>
+                <div class="mode-btn-content text-left">
+                  <div class="mode-btn-title">PDF to QR</div>
+                  <div class="mode-btn-subtitle">Shareable QR link & preview</div>
+                </div>
+                <v-icon size="16" class="mode-btn-chevron">mdi-check</v-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Hidden File Input for PDF Upload -->
+          <input ref="fileInput" type="file" accept="application/pdf" @change="handleFileSelect" class="d-none" />
+
+          <!-- Hidden File Input for Center Logo -->
+          <input ref="logoFileInput" type="file" accept="image/*" @change="handleLogoUpload" class="d-none" />
+
+          <!-- Active Document Info Bar & Stats -->
+          <template v-if="uploadedDoc">
+            <div class="compact-upload-bar d-flex align-center justify-space-between p-3 rounded-lg mb-3">
+              <div class="d-flex align-center ga-2 min-w-0">
+                <v-icon color="primary" size="22">mdi-file-pdf-box</v-icon>
+                <div class="min-w-0">
+                  <div class="text-body-2 font-weight-bold text-truncate">
+                    {{ truncateFilename(uploadedDoc.filename, 24) }}
                   </div>
-                  <div class="mode-btn-content text-left">
-                    <div class="mode-btn-title">PDF to QR</div>
-                    <div class="mode-btn-subtitle">Shareable QR link & preview</div>
+                  <div class="text-caption text-medium-emphasis">
+                    {{ formatFileSize(uploadedDoc.size) }} • Active
                   </div>
-                  <v-icon size="16" class="mode-btn-chevron">mdi-check</v-icon>
-                </button>
+                </div>
               </div>
             </div>
 
-            <!-- Hidden File Input for PDF Upload -->
-            <input
-              ref="fileInput"
-              type="file"
-              accept="application/pdf"
-              @change="handleFileSelect"
-              class="d-none"
-            />
+            <v-btn block variant="tonal" color="primary" rounded="lg" prepend-icon="mdi-swap-horizontal"
+              class="text-none font-weight-bold mb-3" @click="triggerFileInput">
+              Change PDF Document
+            </v-btn>
 
-            <!-- Hidden File Input for Center Logo -->
-            <input
-              ref="logoFileInput"
-              type="file"
-              accept="image/*"
-              @change="handleLogoUpload"
-              class="d-none"
-            />
-
-            <!-- Active Document Info Bar & Stats -->
-            <template v-if="uploadedDoc">
-              <div class="compact-upload-bar d-flex align-center justify-space-between p-3 rounded-lg mb-3">
-                <div class="d-flex align-center ga-2 min-w-0">
-                  <v-icon color="primary" size="22">mdi-file-pdf-box</v-icon>
-                  <div class="min-w-0">
-                    <div class="text-body-2 font-weight-bold text-truncate">
-                      {{ truncateFilename(uploadedDoc.filename, 24) }}
-                    </div>
-                    <div class="text-caption text-medium-emphasis">
-                      {{ formatFileSize(uploadedDoc.size) }} • Active
-                    </div>
-                  </div>
-                </div>
+            <div class="studio-stats mt-4">
+              <div class="studio-stat">
+                <span>File Size</span>
+                <strong>{{ formatFileSize(uploadedDoc.size) }}</strong>
               </div>
+              <div class="studio-stat">
+                <span>Retention</span>
+                <strong>24 Hours</strong>
+              </div>
+              <div class="studio-stat">
+                <span>Contrast Ratio</span>
+                <strong>{{ contrastEvaluation.ratio }}:1</strong>
+              </div>
+              <div class="studio-stat">
+                <span>QR Status</span>
+                <strong class="text-success">Active</strong>
+              </div>
+            </div>
+          </template>
+        </v-card>
 
-              <v-btn
-                block
-                variant="tonal"
-                color="primary"
-                rounded="lg"
-                prepend-icon="mdi-swap-horizontal"
-                class="text-none font-weight-bold mb-3"
-                @click="triggerFileInput"
-              >
-                Change PDF Document
-              </v-btn>
+        <!-- Production Tools: QR Customizer Card -->
+        <v-card v-if="uploadedDoc" class="tool-shell control-panel p-5 mt-4" rounded="xl" elevation="0">
+          <div class="d-flex align-center justify-space-between ga-3 mb-4">
+            <div>
+              <p class="panel-kicker mb-1">Production Tools</p>
+              <h3 class="text-h6 font-weight-bold mb-0">QR Customizer</h3>
+            </div>
+            <v-icon icon="mdi-tune-vertical" color="secondary" size="24" />
+          </div>
 
-              <div class="studio-stats mt-4">
-                <div class="studio-stat">
-                  <span>File Size</span>
-                  <strong>{{ formatFileSize(uploadedDoc.size) }}</strong>
-                </div>
-                <div class="studio-stat">
-                  <span>Retention</span>
-                  <strong>24 Hours</strong>
-                </div>
-                <div class="studio-stat">
-                  <span>Contrast Ratio</span>
-                  <strong>{{ contrastEvaluation.ratio }}:1</strong>
-                </div>
-                <div class="studio-stat">
-                  <span>QR Status</span>
-                  <strong class="text-success">Active</strong>
-                </div>
+          <!-- Contrast Warning Banner if < 3.0:1 -->
+          <div v-if="contrastEvaluation.isWarning" class="mb-4">
+            <v-alert type="warning" variant="tonal" density="compact" rounded="lg" class="text-caption">
+              <strong>Low Contrast ({{ contrastEvaluation.ratio }}:1):</strong>
+              {{ contrastEvaluation.warningMessage }}
+            </v-alert>
+          </div>
+
+          <!-- Palette Presets -->
+          <div class="mb-3">
+            <span class="control-label d-block mb-2">Palette Presets</span>
+            <div class="d-flex flex-wrap ga-2">
+              <v-chip v-for="p in COLOR_PRESETS" :key="p.name" size="small" variant="outlined" class="cursor-pointer"
+                @click="qrSettings.fgColor = p.fg; qrSettings.bgColor = p.bg;">
+                {{ p.name }}
+              </v-chip>
+            </div>
+          </div>
+
+          <!-- Color Inputs -->
+          <div class="mb-3">
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="control-label">Foreground (Dark)</span>
+              <input v-model="qrSettings.fgColor" type="color" class="color-picker-input" />
+            </div>
+            <v-text-field v-model="qrSettings.fgColor" variant="outlined" density="compact" rounded="lg"
+              prepend-inner-icon="mdi-pencil-outline" hide-details class="mb-3" />
+
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="control-label">Background (Light)</span>
+              <input v-model="qrSettings.bgColor" type="color" class="color-picker-input" />
+            </div>
+            <v-text-field v-model="qrSettings.bgColor" variant="outlined" density="compact" rounded="lg"
+              prepend-inner-icon="mdi-pencil-outline" hide-details />
+          </div>
+
+          <!-- Size Slider -->
+          <div class="slider-control mt-4">
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="control-label">Display Size</span>
+              <strong>{{ qrSettings.size }} px</strong>
+            </div>
+            <v-slider v-model="qrSettings.size" :min="200" :max="600" :step="20" color="primary" hide-details />
+          </div>
+
+          <!-- Center Logo Options -->
+          <div class="mt-4">
+            <div class="d-flex align-center justify-space-between mb-2">
+              <span class="control-label">Center Logo Badge</span>
+              <v-switch v-model="qrSettings.includeLogo" color="primary" hide-details density="compact" />
+            </div>
+
+            <template v-if="qrSettings.includeLogo">
+              <div class="d-flex align-center ga-2 mt-2">
+                <v-btn size="small" variant="tonal" color="primary" rounded="lg" prepend-icon="mdi-cloud-upload-outline"
+                  class="text-none flex-1" @click="triggerLogoInput">
+                  {{ qrSettings.logoUrl ? "Change Logo" : "Upload Logo" }}
+                </v-btn>
+                <v-btn v-if="qrSettings.logoUrl" size="small" variant="text" color="error" rounded="lg" icon="mdi-close"
+                  @click="removeLogo" />
+              </div>
+              <div class="text-caption text-medium-emphasis mt-1">
+                {{ qrSettings.logoUrl ? "Custom image badge active" : "Default PDF badge active" }}
               </div>
             </template>
-          </v-card>
+          </div>
 
-          <!-- Production Tools: QR Customizer Card -->
-          <v-card
-            v-if="uploadedDoc"
-            class="tool-shell control-panel p-5 mt-4"
-            rounded="xl"
-            elevation="0"
-          >
-            <div class="d-flex align-center justify-space-between ga-3 mb-4">
-              <div>
-                <p class="panel-kicker mb-1">Production Tools</p>
-                <h3 class="text-h6 font-weight-bold mb-0">QR Customizer</h3>
-              </div>
-              <v-icon icon="mdi-tune-vertical" color="secondary" size="24" />
+          <!-- Reset to Defaults Button -->
+          <v-btn block variant="outlined" color="primary" rounded="lg" prepend-icon="mdi-refresh"
+            class="text-none font-weight-bold mt-5" @click="resetQrDefaults">
+            Reset to Defaults
+          </v-btn>
+        </v-card>
+      </v-col>
+
+      <!-- Right Main Workspace -->
+      <v-col cols="12" md="8" lg="9">
+        <!-- Upload Dropzone (When No Document Loaded) -->
+        <v-card v-if="!uploadedDoc" class="tool-shell p-6 p-md-8" rounded="xl" elevation="0">
+          <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-6">
+            <div>
+              <h2 class="text-h5 font-weight-bold my-0">Drop your PDF here</h2>
+              <p class="text-body-2 text-medium-emphasis mb-0">
+                Instantly convert PDF files into customizable, scannable QR codes.
+              </p>
             </div>
+          </div>
 
-            <!-- Contrast Warning Banner if < 3.0:1 -->
-            <div v-if="contrastEvaluation.isWarning" class="mb-4">
-              <v-alert
-                type="warning"
-                variant="tonal"
-                density="compact"
-                rounded="lg"
-                class="text-caption"
-              >
-                <strong>Low Contrast ({{ contrastEvaluation.ratio }}:1):</strong>
-                {{ contrastEvaluation.warningMessage }}
-              </v-alert>
+          <v-sheet :class="['upload-zone', 'upload-zone-lg', { 'drag-over': isDragging }]" rounded="xl" border
+            @click="triggerFileInput" @dragenter.prevent="isDragging = true" @dragover.prevent
+            @dragleave.prevent="isDragging = false" @drop="handleDrop">
+            <div class="d-flex flex-column align-center ga-4 justify-center text-center py-10 py-md-16">
+              <v-icon size="80" color="primary" icon="mdi-cloud-upload-outline" />
+              <div class="text-h5 font-weight-bold">Drag and drop PDF file here</div>
+              <div class="text-body-1 text-medium-emphasis">
+                or click anywhere in this container to browse (up to 10 MB)
+              </div>
+
+              <div class="d-flex flex-wrap justify-center ga-2 mt-2">
+                <span class="feature-chip">24h Auto-Retention</span>
+                <span class="feature-chip">Level 'H' Error Correction</span>
+                <span class="feature-chip">Vector SVG &amp; High-Res PNG</span>
+              </div>
+
+              <v-btn color="primary" variant="flat" rounded="xl" prepend-icon="mdi-file-pdf-box"
+                class="text-none font-weight-bold px-6 mt-4" @click.stop="triggerFileInput">
+                Choose PDF File
+              </v-btn>
             </div>
+          </v-sheet>
 
-            <!-- Palette Presets -->
-            <div class="mb-3">
-              <span class="control-label d-block mb-2">Palette Presets</span>
-              <div class="d-flex flex-wrap ga-2">
-                <v-chip
-                  v-for="p in COLOR_PRESETS"
-                  :key="p.name"
-                  size="small"
-                  variant="outlined"
-                  class="cursor-pointer"
-                  @click="qrSettings.fgColor = p.fg; qrSettings.bgColor = p.bg;"
-                >
-                  {{ p.name }}
-                </v-chip>
-              </div>
+          <div v-if="isUploading" class="progress-shell mt-5">
+            <div class="d-flex justify-space-between align-center mb-2">
+              <span class="text-body-2 font-weight-medium">{{ uploadStatus }}</span>
+              <span class="text-caption font-weight-bold">{{ uploadProgress }}%</span>
             </div>
+            <v-progress-linear :model-value="uploadProgress" color="primary" rounded height="8" />
+          </div>
+        </v-card>
 
-            <!-- Color Inputs -->
-            <div class="mb-3">
-              <div class="d-flex align-center justify-space-between mb-1">
-                <span class="control-label">Foreground (Dark)</span>
-                <input
-                  v-model="qrSettings.fgColor"
-                  type="color"
-                  class="color-picker-input"
-                />
-              </div>
-              <v-text-field
-                v-model="qrSettings.fgColor"
-                variant="outlined"
-                density="compact"
-                rounded="lg"
-                prepend-inner-icon="mdi-pencil-outline"
-                hide-details
-                class="mb-3"
-              />
-
-              <div class="d-flex align-center justify-space-between mb-1">
-                <span class="control-label">Background (Light)</span>
-                <input
-                  v-model="qrSettings.bgColor"
-                  type="color"
-                  class="color-picker-input"
-                />
-              </div>
-              <v-text-field
-                v-model="qrSettings.bgColor"
-                variant="outlined"
-                density="compact"
-                rounded="lg"
-                prepend-inner-icon="mdi-pencil-outline"
-                hide-details
-              />
+        <!-- Active Workspace (When Document Loaded) -->
+        <v-card v-else class="tool-shell p-6 p-md-8" rounded="xl" elevation="0">
+          <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-6">
+            <div>
+              <h2 class="text-h5 font-weight-bold my-0 text-truncate">
+                {{ uploadedDoc.filename }}
+              </h2>
+              <span class="text-caption text-medium-emphasis">
+                Expires in 24 hours • Public URL active
+              </span>
             </div>
-
-            <!-- Size Slider -->
-            <div class="slider-control mt-4">
-              <div class="d-flex align-center justify-space-between mb-1">
-                <span class="control-label">Display Size</span>
-                <strong>{{ qrSettings.size }} px</strong>
-              </div>
-              <v-slider
-                v-model="qrSettings.size"
-                :min="200"
-                :max="600"
-                :step="20"
-                color="primary"
-                hide-details
-              />
+            <div class="d-flex align-center ga-2 flex-wrap">
+              <v-btn variant="outlined" color="primary" rounded="lg" prepend-icon="mdi-open-in-new"
+                class="text-none font-weight-bold" :href="publicUrl" target="_blank">
+                Open Landing Page
+              </v-btn>
+              <v-btn variant="tonal" color="error" rounded="lg" prepend-icon="mdi-delete-outline"
+                class="text-none font-weight-bold" @click="deleteDialogOpen = true">
+                Delete PDF
+              </v-btn>
             </div>
+          </div>
 
-            <!-- Center Logo Options -->
-            <div class="mt-4">
-              <div class="d-flex align-center justify-space-between mb-2">
-                <span class="control-label">Center Logo Badge</span>
-                <v-switch
-                  v-model="qrSettings.includeLogo"
-                  color="primary"
-                  hide-details
-                  density="compact"
-                />
+          <!-- Two-Column Preview & Live QR Actions -->
+          <v-row density="comfortable">
+            <!-- Left Sub-column: Document Page 1 Thumbnail -->
+            <v-col cols="12" md="6">
+              <div class="subpanel-shell p-4 rounded-xl h-100 d-flex flex-column">
+                <div class="d-flex align-center justify-space-between mb-3">
+                  <span class="text-subtitle-2 font-weight-bold">
+                    Document Preview (Page 1)
+                  </span>
+                  <v-chip size="x-small" color="primary" variant="tonal">
+                    Page 1 of {{ totalPages }}
+                  </v-chip>
+                </div>
+                <div class="canvas-wrapper d-flex align-center justify-center p-3 rounded-lg flex-grow-1">
+                  <canvas ref="pdfCanvasRef" class="pdf-preview-canvas" />
+                </div>
               </div>
+            </v-col>
 
-              <template v-if="qrSettings.includeLogo">
-                <div class="d-flex align-center ga-2 mt-2">
-                  <v-btn
-                    size="small"
-                    variant="tonal"
-                    color="primary"
-                    rounded="lg"
-                    prepend-icon="mdi-cloud-upload-outline"
-                    class="text-none flex-1"
-                    @click="triggerLogoInput"
-                  >
-                    {{ qrSettings.logoUrl ? "Change Logo" : "Upload Logo" }}
+            <!-- Right Sub-column: Live Scannable QR & Actions -->
+            <v-col cols="12" md="6">
+              <div class="subpanel-shell p-4 rounded-xl d-flex flex-column align-center h-100">
+                <div class="w-100 d-flex align-center justify-space-between mb-3">
+                  <span class="text-subtitle-2 font-weight-bold">
+                    Live Scannable QR Code
+                  </span>
+                  <v-chip size="x-small" :color="contrastEvaluation.isWarning ? 'warning' : 'success'" variant="tonal"
+                    class="font-weight-bold">
+                    {{ contrastEvaluation.ratio }}:1 Contrast
+                  </v-chip>
+                </div>
+
+                <div class="qr-canvas-wrapper d-flex align-center justify-center p-4 rounded-xl mb-4">
+                  <canvas ref="qrCanvasRef" class="qr-preview-canvas" />
+                </div>
+
+                <!-- Public Sharing URL Box with Copy Button -->
+                <div class="w-100 copy-link-box p-2 rounded-lg d-flex align-center justify-space-between ga-2 mb-4">
+                  <span class="text-caption text-truncate ml-2 user-select-all font-mono">
+                    {{ publicUrl }}
+                  </span>
+                  <v-btn size="small" color="primary" variant="flat" rounded="lg"
+                    :prepend-icon="isCopied ? 'mdi-check' : 'mdi-content-copy'"
+                    class="text-none font-weight-bold flex-shrink-0" @click="copyPublicLink">
+                    {{ isCopied ? "Copied!" : "Copy Link" }}
                   </v-btn>
-                  <v-btn
-                    v-if="qrSettings.logoUrl"
-                    size="small"
-                    variant="text"
-                    color="error"
-                    rounded="lg"
-                    icon="mdi-close"
-                    @click="removeLogo"
-                  />
-                </div>
-                <div class="text-caption text-medium-emphasis mt-1">
-                  {{ qrSettings.logoUrl ? "Custom image badge active" : "Default PDF badge active" }}
-                </div>
-              </template>
-            </div>
-
-            <!-- Reset to Defaults Button -->
-            <v-btn
-              block
-              variant="outlined"
-              color="primary"
-              rounded="lg"
-              prepend-icon="mdi-refresh"
-              class="text-none font-weight-bold mt-5"
-              @click="resetQrDefaults"
-            >
-              Reset to Defaults
-            </v-btn>
-          </v-card>
-        </v-col>
-
-        <!-- Right Main Workspace -->
-        <v-col cols="12" md="8" lg="9">
-          <!-- Upload Dropzone (When No Document Loaded) -->
-          <v-card
-            v-if="!uploadedDoc"
-            class="tool-shell p-6 p-md-8"
-            rounded="xl"
-            elevation="0"
-          >
-            <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-6">
-              <div>
-                <h2 class="text-h5 font-weight-bold my-0">Drop your PDF here</h2>
-                <p class="text-body-2 text-medium-emphasis mb-0">
-                  Instantly convert PDF files into customizable, scannable QR codes.
-                </p>
-              </div>
-            </div>
-
-            <v-sheet
-              :class="['upload-zone', 'upload-zone-lg', { 'drag-over': isDragging }]"
-              rounded="xl"
-              border
-              @click="triggerFileInput"
-              @dragenter.prevent="isDragging = true"
-              @dragover.prevent
-              @dragleave.prevent="isDragging = false"
-              @drop="handleDrop"
-            >
-              <div class="d-flex flex-column align-center ga-4 justify-center text-center py-10 py-md-16">
-                <v-icon size="80" color="primary" icon="mdi-cloud-upload-outline" />
-                <div class="text-h5 font-weight-bold">Drag and drop PDF file here</div>
-                <div class="text-body-1 text-medium-emphasis">
-                  or click anywhere in this container to browse (up to 10 MB)
                 </div>
 
-                <div class="d-flex flex-wrap justify-center ga-2 mt-2">
-                  <span class="feature-chip">24h Auto-Retention</span>
-                  <span class="feature-chip">Level 'H' Error Correction</span>
-                  <span class="feature-chip">Vector SVG &amp; High-Res PNG</span>
-                </div>
-
-                <v-btn
-                  color="primary"
-                  variant="flat"
-                  rounded="xl"
-                  prepend-icon="mdi-file-pdf-box"
-                  class="text-none font-weight-bold px-6 mt-4"
-                  @click.stop="triggerFileInput"
-                >
-                  Choose PDF File
-                </v-btn>
-              </div>
-            </v-sheet>
-
-            <div v-if="isUploading" class="progress-shell mt-5">
-              <div class="d-flex justify-space-between align-center mb-2">
-                <span class="text-body-2 font-weight-medium">{{ uploadStatus }}</span>
-                <span class="text-caption font-weight-bold">{{ uploadProgress }}%</span>
-              </div>
-              <v-progress-linear
-                :model-value="uploadProgress"
-                color="primary"
-                rounded
-                height="8"
-              />
-            </div>
-          </v-card>
-
-          <!-- Active Workspace (When Document Loaded) -->
-          <v-card v-else class="tool-shell p-6 p-md-8" rounded="xl" elevation="0">
-            <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-6">
-              <div>
-                <h2 class="text-h5 font-weight-bold my-0 text-truncate">
-                  {{ uploadedDoc.filename }}
-                </h2>
-                <span class="text-caption text-medium-emphasis">
-                  Expires in 24 hours • Public URL active
-                </span>
-              </div>
-              <div class="d-flex align-center ga-2 flex-wrap">
-                <v-btn
-                  variant="outlined"
-                  color="primary"
-                  rounded="lg"
-                  prepend-icon="mdi-open-in-new"
-                  class="text-none font-weight-bold"
-                  :href="publicUrl"
-                  target="_blank"
-                >
-                  Open Landing Page
-                </v-btn>
-                <v-btn
-                  variant="tonal"
-                  color="error"
-                  rounded="lg"
-                  prepend-icon="mdi-delete-outline"
-                  class="text-none font-weight-bold"
-                  @click="deleteDialogOpen = true"
-                >
-                  Delete PDF
-                </v-btn>
-              </div>
-            </div>
-
-            <!-- Two-Column Preview & Live QR Actions -->
-            <v-row density="comfortable">
-              <!-- Left Sub-column: Document Page 1 Thumbnail -->
-              <v-col cols="12" md="6">
-                <div class="subpanel-shell p-4 rounded-xl h-100 d-flex flex-column">
-                  <div class="d-flex align-center justify-space-between mb-3">
-                    <span class="text-subtitle-2 font-weight-bold">
-                      Document Preview (Page 1)
-                    </span>
-                    <v-chip size="x-small" color="primary" variant="tonal">
-                      Page 1 of {{ totalPages }}
-                    </v-chip>
-                  </div>
-                  <div class="canvas-wrapper d-flex align-center justify-center p-3 rounded-lg flex-grow-1">
-                    <canvas ref="pdfCanvasRef" class="pdf-preview-canvas" />
-                  </div>
-                </div>
-              </v-col>
-
-              <!-- Right Sub-column: Live Scannable QR & Actions -->
-              <v-col cols="12" md="6">
-                <div class="subpanel-shell p-4 rounded-xl d-flex flex-column align-center h-100">
-                  <div class="w-100 d-flex align-center justify-space-between mb-3">
-                    <span class="text-subtitle-2 font-weight-bold">
-                      Live Scannable QR Code
-                    </span>
-                    <v-chip
-                      size="x-small"
-                      :color="contrastEvaluation.isWarning ? 'warning' : 'success'"
-                      variant="tonal"
-                      class="font-weight-bold"
-                    >
-                      {{ contrastEvaluation.ratio }}:1 Contrast
-                    </v-chip>
-                  </div>
-
-                  <div class="qr-canvas-wrapper d-flex align-center justify-center p-4 rounded-xl mb-4">
-                    <canvas ref="qrCanvasRef" class="qr-preview-canvas" />
-                  </div>
-
-                  <!-- Public Sharing URL Box with Copy Button -->
-                  <div class="w-100 copy-link-box p-2 rounded-lg d-flex align-center justify-space-between ga-2 mb-4">
-                    <span class="text-caption text-truncate ml-2 user-select-all font-mono">
-                      {{ publicUrl }}
-                    </span>
-                    <v-btn
-                      size="small"
-                      color="primary"
-                      variant="flat"
-                      rounded="lg"
-                      :prepend-icon="isCopied ? 'mdi-check' : 'mdi-content-copy'"
-                      class="text-none font-weight-bold flex-shrink-0"
-                      @click="copyPublicLink"
-                    >
-                      {{ isCopied ? "Copied!" : "Copy Link" }}
+                <!-- Multi-Format Export Downloads -->
+                <div class="w-100 d-flex flex-column ga-2 mt-auto">
+                  <div class="d-flex ga-2">
+                    <v-btn variant="tonal" color="primary" rounded="lg" prepend-icon="mdi-download"
+                      class="text-none font-weight-bold flex-1" @click="downloadPngStandard">
+                      PNG (Standard)
+                    </v-btn>
+                    <v-btn variant="tonal" color="primary" rounded="lg" prepend-icon="mdi-svg"
+                      class="text-none font-weight-bold flex-1" @click="downloadSvg">
+                      Vector SVG
                     </v-btn>
                   </div>
-
-                  <!-- Multi-Format Export Downloads -->
-                  <div class="w-100 d-flex flex-column ga-2 mt-auto">
-                    <div class="d-flex ga-2">
-                      <v-btn
-                        variant="tonal"
-                        color="primary"
-                        rounded="lg"
-                        prepend-icon="mdi-download"
-                        class="text-none font-weight-bold flex-1"
-                        @click="downloadPngStandard"
-                      >
-                        PNG (Standard)
-                      </v-btn>
-                      <v-btn
-                        variant="tonal"
-                        color="primary"
-                        rounded="lg"
-                        prepend-icon="mdi-svg"
-                        class="text-none font-weight-bold flex-1"
-                        @click="downloadSvg"
-                      >
-                        Vector SVG
-                      </v-btn>
-                    </div>
-                    <v-btn
-                      block
-                      variant="flat"
-                      color="primary"
-                      rounded="lg"
-                      prepend-icon="mdi-download"
-                      class="text-none font-weight-bold"
-                      @click="downloadPngHighRes"
-                    >
-                      High-Res PNG (2000px)
-                    </v-btn>
-                  </div>
+                  <v-btn block variant="flat" color="primary" rounded="lg" prepend-icon="mdi-download"
+                    class="text-none font-weight-bold" @click="downloadPngHighRes">
+                    High-Res PNG (2000px)
+                  </v-btn>
                 </div>
-              </v-col>
-            </v-row>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+              </div>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
 
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="deleteDialogOpen" max-width="480">
@@ -1090,23 +921,12 @@ const downloadSvg = async () => {
         </p>
 
         <div class="d-flex justify-end ga-2">
-          <v-btn
-            variant="outlined"
-            rounded="lg"
-            class="text-none"
-            :disabled="isDeleting"
-            @click="deleteDialogOpen = false"
-          >
+          <v-btn variant="outlined" rounded="lg" class="text-none" :disabled="isDeleting"
+            @click="deleteDialogOpen = false">
             Cancel
           </v-btn>
-          <v-btn
-            color="error"
-            variant="flat"
-            rounded="lg"
-            class="text-none font-weight-bold"
-            :loading="isDeleting"
-            @click="confirmDeleteDocument"
-          >
+          <v-btn color="error" variant="flat" rounded="lg" class="text-none font-weight-bold" :loading="isDeleting"
+            @click="confirmDeleteDocument">
             Delete Document
           </v-btn>
         </div>

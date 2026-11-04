@@ -217,6 +217,15 @@ const searchItems = [
     path: "/projects/passport-cutter",
     icon: "mdi-image-filter-center-focus",
     keywords: ["passport", "photo", "background", "remove bg", "border", "image"],
+  },
+  {
+    id: "blueprint",
+    title: "API Blueprint Designer",
+    description: "Visual API design studio with OpenAPI/Swagger generation",
+    category: "Tools",
+    path: "/projects/api-blueprint",
+    icon: "mdi-floor-plan",
+    keywords: ["api", "blueprint", "openapi", "swagger", "endpoints", "rest"],
   }
 ];
 

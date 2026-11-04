@@ -71,7 +71,7 @@ const activeHeight = computed(() => (isLandscape.value ? 794 : 1123));
 
 const activeTemplateTitle = computed(() => {
   const match = TEMPLATE_OPTIONS.find((t) => t.id === form.template);
-  return match ? `${match.title} - Certificate Preview` : "Certificate Preview";
+  return match ? `${match.title}` : "Certificate Preview";
 });
 
 const onCourseSelected = (selectedCourse) => {
@@ -320,258 +320,140 @@ const generatePdf = async () => {
   <div class="certificate-page">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
-    <v-container class="py-8 py-md-12">
-      <v-row class="ga-0" align="start">
-        <v-col cols="12" lg="8" class="pr-lg-6 mb-8 mb-lg-0">
-          <v-card class="form-shell p-5 p-md-7" rounded="xl" elevation="0">
-            <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
+    <v-row class="ga-0" align="start">
+      <v-col cols="12" lg="8" class="pr-lg-6 mb-8 mb-lg-0">
+        <v-card class="form-shell p-8" rounded="xl" elevation="0">
+          <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
+            <div>
+              <p class="form-kicker mb-1">Fill Certificate Details</p>
+              <h2 class="text-headline-large font-weight-bold mb-1">Generate your certificate</h2>
+            </div>
+          </div>
+
+          <v-form ref="studentForm" @submit.prevent="onFormSubmit">
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field v-model.trim="form.fname" :rules="[(v) => !!v || 'Full Name is required *']"
+                  label="Full Name" name="fname" id="fname" rounded="lg" autocomplete="name" spellcheck="false"
+                  prepend-inner-icon="mdi-account" variant="outlined" messages="Full Name is required*"
+                  class="form-input"></v-text-field>
+              </v-col>
+
+              <v-col cols="12" md="6">
+                <v-select v-model="form.course" :items="courses" :rules="[(v) => !!v || 'Course is required *']"
+                  :label="coursesLoading ? 'Loading courses...' : 'Select Course'" name="course" id="course"
+                  rounded="lg" item-title="name" return-object prepend-inner-icon="mdi-school" variant="outlined" flat
+                  class="form-input" @update:model-value="onCourseSelected" messages="Course is required*"></v-select>
+              </v-col>
+            </v-row>
+
+            <v-expand-transition>
+              <div v-show="showAddCourse" class="add-course-panel mt-2 mb-4">
+                <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-4">
+                  <div>
+                    <h3 class="text-h6 font-weight-bold my-1">Add a new course</h3>
+                  </div>
+                </div>
+
+                <v-row>
+                  <v-col cols="12" md="6">
+                    <v-text-field v-model.trim="newCourse.name" label="Course Name" placeholder="Enter course name"
+                      rounded="lg" prepend-inner-icon="mdi-book-education-outline" variant="solo-filled" flat
+                      class="form-input" hide-details></v-text-field>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-text-field v-model.trim="newCourse.category" label="Category" placeholder="Software Development"
+                      rounded="lg" prepend-inner-icon="mdi-shape-outline" variant="solo-filled" flat class="form-input"
+                      hide-details></v-text-field>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-select v-model="newCourse.level" :items="COURSE_LEVELS" label="Level" rounded="lg"
+                      prepend-inner-icon="mdi-ladder" variant="solo-filled" flat class="form-input"
+                      hide-details></v-select>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-text-field v-model="newCourse.durationHours" label="Duration Hours" placeholder="24"
+                      type="number" min="1" rounded="lg" prepend-inner-icon="mdi-timer-outline" variant="solo-filled"
+                      flat class="form-input mb-2" hide-details></v-text-field>
+                  </v-col>
+                </v-row>
+
+                <div class="d-flex align-center flex-wrap ga-3 mt-2">
+                  <v-btn color="primary" rounded="xl" class="text-none px-6" prepend-icon="mdi-plus"
+                    :loading="savingCourse" @click="addCourse">
+                    Save Course
+                  </v-btn>
+                </div>
+              </div>
+            </v-expand-transition>
+
+            <div class="d-flex align-center flex-wrap ga-3 mt-4">
+              <v-btn type="submit" :loading="loading" prepend-icon="mdi-crop-portrait" color="primary" size="large"
+                rounded="xl" class="text-none px-6">
+                Choose Certificate Style
+              </v-btn>
+
+              <v-btn variant="tonal" :prepend-icon="showAddCourse ? 'mdi-minus' : 'mdi-plus'" color="primary"
+                :disabled="coursesLoading" @click="showAddCourse = !showAddCourse" rounded="xl" size="large"
+                :text="showAddCourse ? 'Back' : 'Add Course'">
+              </v-btn>
+            </div>
+          </v-form>
+        </v-card>
+      </v-col>
+
+      <v-col cols="12" lg="4">
+        <v-card class="side-panel p-5" rounded="xl" elevation="0">
+          <p class="form-kicker mb-3">Quick Guide</p>
+
+          <div class="step-list">
+            <article class="step-item">
+              <span class="step-index">01</span>
               <div>
-                <p class="form-kicker mb-1">Fill Certificate Details</p>
-                <h2 class="text-h5 font-weight-bold mb-1">Generate your certificate</h2>
+                <p class="step-title mb-1">Enter student name</p>
+                <p class="step-copy mb-0">Type the exact name for the certificate.</p>
               </div>
-            </div>
+            </article>
 
-            <v-form ref="studentForm" @submit.prevent="onFormSubmit">
-              <v-row>
-                <v-col cols="12" md="6">
-                  <v-text-field
-                    v-model.trim="form.fname"
-                    :rules="[(v) => !!v || 'Full Name is required']"
-                    label="Full Name"
-                    name="fname"
-                    id="fname"
-                    rounded="lg"
-                    autocomplete="name"
-                    spellcheck="false"
-                    prepend-inner-icon="mdi-account"
-                    variant="outlined"
-                    flat
-                    class="form-input"
-                  ></v-text-field>
-                </v-col>
-
-                <v-col cols="12" md="6">
-                  <v-select
-                    v-model="form.course"
-                    :items="courses"
-                    :rules="[(v) => !!v || 'Course is required']"
-                    :label="coursesLoading ? 'Loading courses...' : 'Select Course'"
-                    name="course"
-                    id="course"
-                    rounded="lg"
-                    item-title="name"
-                    return-object
-                    prepend-inner-icon="mdi-school"
-                    variant="outlined"
-                    flat
-                    class="form-input"
-                    @update:model-value="onCourseSelected"
-                  ></v-select>
-                </v-col>
-              </v-row>
-
-              <v-expand-transition>
-                <div v-show="showAddCourse" class="add-course-panel mt-2 mb-4">
-                  <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-4">
-                    <div>
-                      <p class="form-kicker mb-1">Course Collection</p>
-                      <h3 class="text-h6 font-weight-bold mb-1">Add a new course</h3>
-                      <p class="text-body-2 text-medium-emphasis mb-0">
-                        This saves the course directly to your MongoDB `courses` collection.
-                      </p>
-                    </div>
-                    <v-chip color="primary" variant="tonal" size="small">MongoDB</v-chip>
-                  </div>
-
-                  <v-row>
-                    <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model.trim="newCourse.name"
-                        label="Course Name"
-                        placeholder="Enter course name"
-                        rounded="lg"
-                        prepend-inner-icon="mdi-book-education-outline"
-                        variant="solo-filled"
-                        flat
-                        class="form-input"
-                      ></v-text-field>
-                    </v-col>
-
-                    <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model.trim="newCourse.category"
-                        label="Category"
-                        placeholder="Software Development"
-                        rounded="lg"
-                        prepend-inner-icon="mdi-shape-outline"
-                        variant="solo-filled"
-                        flat
-                        class="form-input"
-                      ></v-text-field>
-                    </v-col>
-
-                    <v-col cols="12" md="6">
-                      <v-select
-                        v-model="newCourse.level"
-                        :items="COURSE_LEVELS"
-                        label="Level"
-                        rounded="lg"
-                        prepend-inner-icon="mdi-ladder"
-                        variant="solo-filled"
-                        flat
-                        class="form-input"
-                      ></v-select>
-                    </v-col>
-
-                    <v-col cols="12" md="6">
-                      <v-text-field
-                        v-model="newCourse.durationHours"
-                        label="Duration Hours"
-                        placeholder="24"
-                        type="number"
-                        min="1"
-                        rounded="lg"
-                        prepend-inner-icon="mdi-timer-outline"
-                        variant="solo-filled"
-                        flat
-                        class="form-input"
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-
-                  <div class="d-flex align-center flex-wrap ga-3 mt-2">
-                    <v-btn
-                      color="primary"
-                      rounded="xl"
-                      class="text-none px-6"
-                      prepend-icon="mdi-plus"
-                      :loading="savingCourse"
-                      @click="addCourse"
-                    >
-                      Save Course
-                    </v-btn>
-                  </div>
-                </div>
-              </v-expand-transition>
-
-              <div class="d-flex align-center flex-wrap ga-3 mt-4">
-                <v-btn
-                  type="submit"
-                  :loading="loading"
-                  prepend-icon="mdi-palette-outline"
-                  color="primary"
-                  size="large"
-                  rounded="xl"
-                  class="text-none px-6"
-                >
-                  Choose Certificate Style
-                </v-btn>
-
-                <v-btn
-                  variant="tonal"
-                  :icon="showAddCourse ? 'mdi-minus' : 'mdi-plus'"
-                  color="primary"
-                  :disabled="coursesLoading"
-                  @click="showAddCourse = !showAddCourse"
-                >
-                </v-btn>
+            <article class="step-item">
+              <span class="step-index">02</span>
+              <div>
+                <p class="step-title mb-1">Pick completed course</p>
+                <p class="step-copy mb-0">Select from the database or add a new course.</p>
               </div>
-            </v-form>
-          </v-card>
+            </article>
 
-          <v-alert
-            class="mt-5 rounded-xl note-alert"
-            color="primary"
-            variant="tonal"
-            border="start"
-            icon="mdi-information-outline"
-          >
-            Enter your full name and select a course to browse certificate designs, preview in high resolution, and download a print-ready PDF.
-          </v-alert>
-        </v-col>
-
-        <v-col cols="12" lg="4">
-          <v-card class="side-panel p-5" rounded="xl" elevation="0">
-            <p class="form-kicker mb-1">Quick Guide</p>
-            <h3 class="text-h6 font-weight-bold mb-3">3-step process</h3>
-
-            <div class="step-list">
-              <article class="step-item">
-                <span class="step-index">01</span>
-                <div>
-                  <p class="step-title mb-1">Enter student name</p>
-                  <p class="step-copy mb-0">Type the exact name for the certificate.</p>
-                </div>
-              </article>
-
-              <article class="step-item">
-                <span class="step-index">02</span>
-                <div>
-                  <p class="step-title mb-1">Pick completed course</p>
-                  <p class="step-copy mb-0">Select from the database or add a new course.</p>
-                </div>
-              </article>
-
-              <article class="step-item">
-                <span class="step-index">03</span>
-                <div>
-                  <p class="step-title mb-1">Choose style & download</p>
-                  <p class="step-copy mb-0">Pick any certificate thumbnail, preview the design, and download as PDF.</p>
-                </div>
-              </article>
-            </div>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+            <article class="step-item">
+              <span class="step-index">03</span>
+              <div>
+                <p class="step-title mb-1">Choose style & download</p>
+                <p class="step-copy mb-0">Pick any certificate thumbnail, preview the design, and download as PDF.</p>
+              </div>
+            </article>
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
 
     <!-- DIALOG 1: CERTIFICATE STYLE SELECTOR WITH THUMBNAILS -->
-    <v-dialog v-model="styleDialog" max-width="980" scrollable>
-      <v-card class="style-dialog-card p-4 p-md-6" rounded="xl">
-        <div class="d-flex align-center justify-space-between flex-wrap ga-2 mb-3">
-          <div>
-            <p class="form-kicker mb-1">Choose Design</p>
-            <h2 class="text-h5 font-weight-bold mb-0">Select Certificate Style</h2>
-          </div>
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            density="comfortable"
-            @click="styleDialog = false"
-          ></v-btn>
-        </div>
+    <v-dialog v-model="styleDialog" max-width="980" :fullscreen="$vuetify.display.xs" scrollable>
+      <v-card class="style-dialog-card p-4 p-md-6" rounded="lg">
+        <v-card-title class="d-flex align-center justify-space-between flex-wrap mb-3">
+          <h4 class="font-weight-bold my-0">Select Certificate Style</h4>
+          <v-btn icon="mdi-close" variant="outlined" density="compact" size="large"
+            @click="styleDialog = false"></v-btn>
+        </v-card-title>
 
-        <p class="text-body-2 text-medium-emphasis mb-5">
-          Select a certificate template to preview and download for
-          <strong class="text-high-emphasis">{{ form.fname || "Student" }}</strong>
-          (<span class="text-high-emphasis">{{ form.course?.name || "Selected Course" }}</span>).
-        </p>
-
-        <v-row class="ga-0">
-          <v-col
-            v-for="tmpl in TEMPLATE_OPTIONS"
-            :key="tmpl.id"
-            cols="12"
-            sm="6"
-            md="6"
-            lg="3"
-            class="p-2"
-          >
-            <div
-              class="style-choice-card"
-              :class="{ 'is-selected': form.template === tmpl.id }"
-              @click="selectStyleAndPreview(tmpl.id)"
-              role="button"
-              tabindex="0"
-            >
+        <v-row class="ga-2">
+          <v-col v-for="tmpl in TEMPLATE_OPTIONS" :key="tmpl.id" cols="12" sm="6" md="6" lg="4" class="p-2">
+            <div class="style-choice-card" :class="{ 'is-selected': form.template === tmpl.id }"
+              @click="selectStyleAndPreview(tmpl.id)" role="button" tabindex="0">
               <div class="card-thumb-frame" :class="tmpl.orientation">
                 <img :src="tmpl.thumbnail" :alt="tmpl.title" />
-                <v-chip
-                  size="x-small"
-                  class="card-badge"
-                  color="primary"
-                  variant="flat"
-                >
+                <v-chip size="x-small" class="card-badge" color="primary" variant="flat">
                   {{ tmpl.badge }}
                 </v-chip>
                 <div v-if="form.template === tmpl.id" class="card-selected-tag">
@@ -584,14 +466,8 @@ const generatePdf = async () => {
                   <h3 class="card-title text-subtitle-1 font-weight-bold mb-0">{{ tmpl.title }}</h3>
                 </div>
                 <p class="card-desc text-body-2 text-medium-emphasis mb-3">{{ tmpl.description }}</p>
-                <v-btn
-                  color="primary"
-                  variant="tonal"
-                  size="small"
-                  rounded="lg"
-                  class="w-100 text-none"
-                  prepend-icon="mdi-eye-outline"
-                >
+                <v-btn color="primary" variant="tonal" size="small" rounded="lg" class="w-100 text-none"
+                  prepend-icon="mdi-eye-outline">
                   Select & Preview
                 </v-btn>
               </div>
@@ -602,48 +478,24 @@ const generatePdf = async () => {
     </v-dialog>
 
     <!-- DIALOG 2: CERTIFICATE PREVIEW & DOWNLOAD -->
-    <PhotoZoomDialog
-      v-model="certificateDialog"
-      content-mode="custom"
-      hide-trigger
-      :dialog-title="activeTemplateTitle"
-      :max-width="1420"
-      :content-width="activeWidth"
-      :content-height="activeHeight"
-    >
+    <PhotoZoomDialog v-model="certificateDialog" content-mode="custom" hide-trigger :fullscreen="$vuetify.display.xs"
+      :dialog-title="activeTemplateTitle" :max-width="1420" :content-width="activeWidth" :content-height="activeHeight">
       <template #toolbar-actions>
-        <v-btn
-          variant="outlined"
-          color="primary"
-          rounded="lg"
-          class="text-none px-2 px-sm-3 mr-1 mr-sm-2 text-caption text-sm-button"
-          prepend-icon="mdi-palette-outline"
-          size="small"
-          @click="openStyleDialogFromPreview"
-        >
+        <v-btn variant="outlined" color="primary" rounded="lg" class="text-none px-3 px-sm-3 mr-1 mr-sm-2 text-caption"
+          prepend-icon="mdi-palette-outline" size="small" @click="openStyleDialogFromPreview">
           <span class="d-none d-sm-inline">Change Style</span>
           <span class="d-inline d-sm-none">Style</span>
         </v-btn>
-        <v-btn
-          @click="generatePdf"
-          prepend-icon="mdi-download"
-          :loading="loading"
-          variant="flat"
-          color="primary"
-          rounded="lg"
-          class="text-none px-2 px-sm-4 text-caption text-sm-button"
-          size="small"
-        >
+        <v-btn @click="generatePdf" prepend-icon="mdi-download" :loading="loading" variant="flat" color="primary"
+          rounded="lg" class="text-none px-3 px-sm-4 text-caption text-sm-button" size="small">
           <span class="d-none d-sm-inline">Download PDF</span>
           <span class="d-inline d-sm-none">PDF</span>
         </v-btn>
       </template>
 
       <div class="certificate-sheet-container">
-        <div
-          class="certificate-sheet certificate-sheet--preview"
-          :class="[isLandscape ? 'sheet--landscape' : 'sheet--portrait']"
-        >
+        <div class="certificate-sheet certificate-sheet--preview"
+          :class="[isLandscape ? 'sheet--landscape' : 'sheet--portrait']">
           <Certificate :form="form" />
         </div>
       </div>
@@ -651,11 +503,8 @@ const generatePdf = async () => {
 
     <!-- Hidden Export Sheet for High-Res Canvas PDF Generation -->
     <div class="certificate-export-root" aria-hidden="true">
-      <div
-        ref="pdfSection"
-        class="certificate-sheet certificate-sheet--export"
-        :class="[isLandscape ? 'sheet--landscape' : 'sheet--portrait']"
-      >
+      <div ref="pdfSection" class="certificate-sheet certificate-sheet--export"
+        :class="[isLandscape ? 'sheet--landscape' : 'sheet--portrait']">
         <Certificate :form="form" />
       </div>
     </div>
@@ -906,11 +755,6 @@ const generatePdf = async () => {
 }
 
 @media (max-width: 480px) {
-  .certificate-page .form-shell,
-  .certificate-page .side-panel {
-    padding: 18px 14px !important;
-  }
-
   .style-dialog-card {
     padding: 16px 12px !important;
   }

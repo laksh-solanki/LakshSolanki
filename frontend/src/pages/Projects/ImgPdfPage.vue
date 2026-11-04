@@ -357,9 +357,9 @@ const hexToRgb = (hex) => {
   const value =
     normalized.length === 3
       ? normalized
-          .split("")
-          .map((char) => char + char)
-          .join("")
+        .split("")
+        .map((char) => char + char)
+        .join("")
       : normalized;
   const parsed = Number.parseInt(value, 16);
   return {
@@ -688,545 +688,310 @@ onUnmounted(() => {
   <div class="tool-page">
     <Alerts v-model="alertVisible" :message="alertMessage" :type="alertType" />
 
-    <v-container class="py-8 py-md-12">
-      <v-row density="comfortable" align="start">
-        <!-- Left Sidebar: Links + Conversion Mode (clean sidebar) -->
-        <v-col cols="12" md="4" lg="3">
-          <v-card class="tool-shell p-5" rounded="xl" elevation="0">
-            <!-- Studio Mode Navigation (List-wise in Side Bar) -->
-            <div class="studio-mode-nav" :class="{ 'mb-4': images.length }">
-              <div class="d-flex align-center justify-space-between mb-3">
-                <p class="panel-kicker mb-0 mt-0">Conversion Mode</p>
-                <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold">
-                  Image → PDF
-                </v-chip>
-              </div>
-
-              <div class="mode-list-container d-flex flex-column ga-2">
-                <button
-                  type="button"
-                  class="mode-list-btn is-active"
-                  @click="switchTab('img-to-pdf')"
-                >
-                  <div class="mode-btn-icon">
-                    <v-icon size="20">mdi-image-multiple-outline</v-icon>
-                  </div>
-                  <div class="mode-btn-content text-left">
-                    <div class="mode-btn-title">Image to PDF</div>
-                    <div class="mode-btn-subtitle">Batch images into single PDF</div>
-                  </div>
-                  <v-icon size="16" class="mode-btn-chevron">mdi-check</v-icon>
-                </button>
-
-                <button
-                  type="button"
-                  class="mode-list-btn"
-                  @click="switchTab('pdf-to-img')"
-                >
-                  <div class="mode-btn-icon">
-                    <v-icon size="20">mdi-file-pdf-box</v-icon>
-                  </div>
-                  <div class="mode-btn-content text-left">
-                    <div class="mode-btn-title">PDF to Image</div>
-                    <div class="mode-btn-subtitle">Extract pages to JPG / PNG</div>
-                  </div>
-                  <v-icon size="16" class="mode-btn-chevron">mdi-chevron-right</v-icon>
-                </button>
-
-                <button
-                  type="button"
-                  class="mode-list-btn"
-                  @click="switchTab('pdf-to-qr')"
-                >
-                  <div class="mode-btn-icon">
-                    <v-icon size="20">mdi-qrcode</v-icon>
-                  </div>
-                  <div class="mode-btn-content text-left">
-                    <div class="mode-btn-title">PDF to QR</div>
-                    <div class="mode-btn-subtitle">Shareable QR link & preview</div>
-                  </div>
-                  <v-icon size="16" class="mode-btn-chevron">mdi-chevron-right</v-icon>
-                </button>
-              </div>
+    <v-row density="comfortable" align="start">
+      <!-- Left Sidebar: Links + Conversion Mode (clean sidebar) -->
+      <v-col cols="12" md="4" lg="3">
+        <v-card class="tool-shell p-5" rounded="xl" elevation="0">
+          <!-- Studio Mode Navigation (List-wise in Side Bar) -->
+          <div class="studio-mode-nav" :class="{ 'mb-4': images.length }">
+            <div class="d-flex align-center justify-space-between mb-3">
+              <p class="panel-kicker mb-0 mt-0">Conversion Mode</p>
+              <v-chip size="x-small" color="primary" variant="tonal" class="font-weight-bold">
+                Image → PDF
+              </v-chip>
             </div>
 
-            <!-- Permanently mounted hidden input for file picking -->
-            <input
-              ref="fileInput"
-              type="file"
-              multiple
-              accept="image/*"
-              @change="handleFileSelect"
-              class="d-none"
-            />
-
-            <!-- Progress & Stats (when images loaded) -->
-            <div v-if="isConverting" class="progress-shell mt-4">
-              <div class="d-flex justify-space-between align-center mb-2">
-                <span class="text-body-2">{{ conversionStatus }}</span>
-                <span class="text-caption">{{ conversionProgress }}%</span>
-              </div>
-              <v-progress-linear
-                :model-value="conversionProgress"
-                color="primary"
-                rounded
-                height="8"
-              ></v-progress-linear>
-            </div>
-
-            <div v-if="images.length" class="studio-stats mt-4">
-              <div
-                v-for="item in studioStats"
-                :key="item.label"
-                class="studio-stat"
-              >
-                <span>{{ item.label }}</span>
-                <strong>{{ item.value }}</strong>
-              </div>
-            </div>
-          </v-card>
-
-          <v-card
-            v-if="images.length"
-            class="tool-shell control-panel p-5 mt-4"
-            rounded="xl"
-            elevation="0"
-          >
-            <div class="d-flex align-center justify-space-between ga-3 mb-4">
-              <div>
-                <h3 class="text-h6 font-weight-bold my-0">Export controls</h3>
-              </div>
-              <v-icon
-                icon="mdi-tune-vertical"
-                color="secondary"
-                size="24"
-              ></v-icon>
-            </div>
-            <v-divider></v-divider>
-            <div class="control-grid">
-              <v-select
-                v-model="pdfSettings.pagePreset"
-                :items="PAGE_PRESETS"
-                item-title="title"
-                item-value="value"
-                label="Page preset"
-                variant="outlined"
-                density="comfortable"
-                class="mt-3"
-                rounded="lg"
-                hide-details
-                prepend-inner-icon="mdi-file-document-outline"
-              ></v-select>
-
-              <v-text-field
-                v-model.trim="pdfSettings.fileName"
-                label="PDF file name"
-                :placeholder="outputFileName"
-                variant="outlined"
-                density="comfortable"
-                rounded="lg"
-                hide-details
-                prepend-inner-icon="mdi-pencil-outline"
-              ></v-text-field>
-
-              <v-select
-                v-model="pdfSettings.fitMode"
-                :items="FIT_OPTIONS"
-                item-title="title"
-                item-value="value"
-                label="Global image fit"
-                variant="outlined"
-                density="comfortable"
-                rounded="lg"
-                hide-details
-                prepend-inner-icon="mdi-image-filter-center-focus"
-              ></v-select>
-
-            </div>
-
-            <div class="slider-control mt-4">
-              <div class="d-flex align-center justify-space-between mb-1">
-                <span class="control-label">Page margin</span>
-                <strong>{{ pdfSettings.marginMm }} mm</strong>
-              </div>
-              <v-slider
-                v-model="pdfSettings.marginMm"
-                :min="0"
-                :max="30"
-                :step="1"
-                color="primary"
-                hide-details
-              ></v-slider>
-            </div>
-
-            <div
-              v-if="pdfSettings.outputFormat === 'JPEG'"
-              class="slider-control mt-3"
-            >
-              <div class="d-flex align-center justify-space-between mb-1">
-                <span class="control-label">JPEG quality</span>
-                <strong
-                  >{{ Math.round(pdfSettings.imageQuality * 100) }}%</strong
-                >
-              </div>
-              <v-slider
-                v-model="pdfSettings.imageQuality"
-                :min="0.55"
-                :max="1"
-                :step="0.01"
-                color="secondary"
-                hide-details
-              ></v-slider>
-            </div>
-
-            <div class="mt-4">
-              <p class="control-label mb-2">Page background</p>
-              <div class="swatch-row">
-                <button
-                  v-for="swatch in BACKGROUND_SWATCHES"
-                  :key="swatch.value"
-                  type="button"
-                  :class="[
-                    'swatch-btn',
-                    {
-                      'is-active': pdfSettings.backgroundColor === swatch.value,
-                    },
-                  ]"
-                  :style="{ backgroundColor: swatch.value }"
-                  :aria-label="`Use ${swatch.title} background`"
-                  :title="swatch.title"
-                  @click="pdfSettings.backgroundColor = swatch.value"
-                ></button>
-              </div>
-            </div>
-
-            <v-switch
-              v-model="pdfSettings.upscaleImages"
-              color="primary"
-              inset
-              hide-details
-              class="mt-3"
-              label="Upscale smaller images for full-page presentation"
-            ></v-switch>
-
-            <div class="export-brief mt-4">
-              <div>
-                <span>Output</span>
-                <strong>{{ outputFormatLabel }}</strong>
-              </div>
-              <div>
-                <span>Canvas</span>
-                <strong>{{ selectedPagePreset.dimensions }}</strong>
-              </div>
-              <div>
-                <span>Background</span>
-                <strong>{{ selectedBackground.title }}</strong>
-              </div>
-            </div>
-          </v-card>
-        </v-col>
-
-        <!-- Main Right Side Big Container -->
-        <v-col cols="12" md="8" lg="9">
-          <!-- Big Upload Container (Shown when no images yet) -->
-          <v-card
-            v-if="!images.length"
-            class="tool-shell p-6 p-md-8"
-            rounded="xl"
-            elevation="0"
-          >
-            <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
-              <div>
-                <h2 class="text-h5 font-weight-bold my-0">Upload image files</h2>
-              </div>
-            </div>
-
-            <v-sheet
-              :class="['upload-zone upload-zone-lg', { 'drag-over': isDragging }]"
-              rounded="xl"
-              border
-              @click="triggerFileInput"
-              @dragenter.prevent="isDragging = true"
-              @dragover.prevent
-              @dragleave.prevent="isDragging = false"
-              @drop="handleDrop"
-            >
-              <div class="d-flex flex-column align-center ga-4 justify-center text-center py-10">
-                <div class="empty-icon-halo mb-2">
-                  <v-icon size="56" color="primary">mdi-cloud-upload-outline</v-icon>
+            <div class="mode-list-container d-flex flex-column ga-2">
+              <button type="button" class="mode-list-btn is-active" @click="switchTab('img-to-pdf')">
+                <div class="mode-btn-icon">
+                  <v-icon size="20">mdi-image-multiple-outline</v-icon>
                 </div>
-                <div class="text-h5 font-weight-bold">Drag and drop images here</div>
-                <div class="text-body-1 text-medium-emphasis">or click to browse from your device</div>
-
-                <div class="d-flex flex-wrap justify-center ga-2 mt-2">
-                  <span class="feature-chip">JPG</span>
-                  <span class="feature-chip">PNG</span>
-                  <span class="feature-chip">WEBP</span>
-                  <span class="feature-chip">GIF</span>
+                <div class="mode-btn-content text-left">
+                  <div class="mode-btn-title">Image to PDF</div>
+                  <div class="mode-btn-subtitle">Batch images into single PDF</div>
                 </div>
+                <v-icon size="16" class="mode-btn-chevron">mdi-check</v-icon>
+              </button>
 
-                <v-btn
-                  color="primary"
-                  variant="flat"
-                  rounded="xl"
-                  prepend-icon="mdi-plus"
-                  class="text-none font-weight-bold px-6 mt-4"
-                  @click.stop="triggerFileInput"
-                >
-                  Browse Images
-                </v-btn>
+              <button type="button" class="mode-list-btn" @click="switchTab('pdf-to-img')">
+                <div class="mode-btn-icon">
+                  <v-icon size="20">mdi-file-pdf-box</v-icon>
+                </div>
+                <div class="mode-btn-content text-left">
+                  <div class="mode-btn-title">PDF to Image</div>
+                  <div class="mode-btn-subtitle">Extract pages to JPG / PNG</div>
+                </div>
+                <v-icon size="16" class="mode-btn-chevron">mdi-chevron-right</v-icon>
+              </button>
+
+              <button type="button" class="mode-list-btn" @click="switchTab('pdf-to-qr')">
+                <div class="mode-btn-icon">
+                  <v-icon size="20">mdi-qrcode</v-icon>
+                </div>
+                <div class="mode-btn-content text-left">
+                  <div class="mode-btn-title">PDF to QR</div>
+                  <div class="mode-btn-subtitle">Shareable QR link & preview</div>
+                </div>
+                <v-icon size="16" class="mode-btn-chevron">mdi-chevron-right</v-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Permanently mounted hidden input for file picking -->
+          <input ref="fileInput" type="file" multiple accept="image/*" @change="handleFileSelect" class="d-none" />
+
+          <!-- Progress & Stats (when images loaded) -->
+          <div v-if="isConverting" class="progress-shell mt-4">
+            <div class="d-flex justify-space-between align-center mb-2">
+              <span class="text-body-2">{{ conversionStatus }}</span>
+              <span class="text-caption">{{ conversionProgress }}%</span>
+            </div>
+            <v-progress-linear :model-value="conversionProgress" color="primary" rounded height="8"></v-progress-linear>
+          </div>
+
+          <div v-if="images.length" class="studio-stats mt-4">
+            <div v-for="item in studioStats" :key="item.label" class="studio-stat">
+              <span>{{ item.label }}</span>
+              <strong>{{ item.value }}</strong>
+            </div>
+          </div>
+        </v-card>
+
+        <v-card v-if="images.length" class="tool-shell control-panel p-5 mt-4" rounded="xl" elevation="0">
+          <div class="d-flex align-center justify-space-between ga-3 mb-4">
+            <div>
+              <h3 class="text-h6 font-weight-bold my-0">Export controls</h3>
+            </div>
+            <v-icon icon="mdi-tune-vertical" color="secondary" size="24"></v-icon>
+          </div>
+          <v-divider></v-divider>
+          <div class="control-grid">
+            <v-select v-model="pdfSettings.pagePreset" :items="PAGE_PRESETS" item-title="title" item-value="value"
+              label="Page preset" variant="outlined" density="comfortable" class="mt-3" rounded="lg" hide-details
+              prepend-inner-icon="mdi-file-document-outline"></v-select>
+
+            <v-text-field v-model.trim="pdfSettings.fileName" label="PDF file name" :placeholder="outputFileName"
+              variant="outlined" density="comfortable" rounded="lg" hide-details
+              prepend-inner-icon="mdi-pencil-outline"></v-text-field>
+
+            <v-select v-model="pdfSettings.fitMode" :items="FIT_OPTIONS" item-title="title" item-value="value"
+              label="Global image fit" variant="outlined" density="comfortable" rounded="lg" hide-details
+              prepend-inner-icon="mdi-image-filter-center-focus"></v-select>
+
+          </div>
+
+          <div class="slider-control mt-4">
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="control-label">Page margin</span>
+              <strong>{{ pdfSettings.marginMm }} mm</strong>
+            </div>
+            <v-slider v-model="pdfSettings.marginMm" :min="0" :max="30" :step="1" color="primary"
+              hide-details></v-slider>
+          </div>
+
+          <div v-if="pdfSettings.outputFormat === 'JPEG'" class="slider-control mt-3">
+            <div class="d-flex align-center justify-space-between mb-1">
+              <span class="control-label">JPEG quality</span>
+              <strong>{{ Math.round(pdfSettings.imageQuality * 100) }}%</strong>
+            </div>
+            <v-slider v-model="pdfSettings.imageQuality" :min="0.55" :max="1" :step="0.01" color="secondary"
+              hide-details></v-slider>
+          </div>
+
+          <div class="mt-4">
+            <p class="control-label mb-2">Page background</p>
+            <div class="swatch-row">
+              <button v-for="swatch in BACKGROUND_SWATCHES" :key="swatch.value" type="button" :class="[
+                'swatch-btn',
+                {
+                  'is-active': pdfSettings.backgroundColor === swatch.value,
+                },
+              ]" :style="{ backgroundColor: swatch.value }" :aria-label="`Use ${swatch.title} background`"
+                :title="swatch.title" @click="pdfSettings.backgroundColor = swatch.value"></button>
+            </div>
+          </div>
+
+          <v-switch v-model="pdfSettings.upscaleImages" color="primary" inset hide-details class="mt-3"
+            label="Upscale smaller images for full-page presentation"></v-switch>
+
+          <div class="export-brief mt-4">
+            <div>
+              <span>Output</span>
+              <strong>{{ outputFormatLabel }}</strong>
+            </div>
+            <div>
+              <span>Canvas</span>
+              <strong>{{ selectedPagePreset.dimensions }}</strong>
+            </div>
+            <div>
+              <span>Background</span>
+              <strong>{{ selectedBackground.title }}</strong>
+            </div>
+          </div>
+        </v-card>
+      </v-col>
+
+      <!-- Main Right Side Big Container -->
+      <v-col cols="12" md="8" lg="9">
+        <!-- Big Upload Container (Shown when no images yet) -->
+        <v-card v-if="!images.length" class="tool-shell p-6 p-md-8" rounded="xl" elevation="0">
+          <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-5">
+            <div>
+              <h2 class="text-h5 font-weight-bold my-0">Upload image files</h2>
+            </div>
+          </div>
+
+          <v-sheet :class="['upload-zone upload-zone-lg', { 'drag-over': isDragging }]" rounded="xl" border
+            @click="triggerFileInput" @dragenter.prevent="isDragging = true" @dragover.prevent
+            @dragleave.prevent="isDragging = false" @drop="handleDrop">
+            <div class="d-flex flex-column align-center ga-4 justify-center text-center py-10">
+              <div class="empty-icon-halo mb-2">
+                <v-icon size="56" color="primary">mdi-cloud-upload-outline</v-icon>
               </div>
-            </v-sheet>
-          </v-card>
+              <div class="text-h5 font-weight-bold">Drag and drop images here</div>
+              <div class="text-body-1 text-medium-emphasis">or click to browse from your device</div>
 
-          <!-- Uploaded Images Page Queue (Auto-replaces upload zone after selecting images) -->
-          <transition name="slide-up">
-            <div v-if="images.length > 0">
-              <v-card class="tool-shell p-4 p-md-5" rounded="xl" elevation="0">
-                <div
-                  class="d-flex align-center justify-space-between flex-wrap ga-3 mb-5"
-                >
-                  <div>
-                    <h3 class="text-h6 font-weight-bold my-0">
-                      Image pages ({{ images.length }})
-                    </h3>
-                  </div>
-                  <div class="d-flex align-center ga-2 flex-wrap">
-                    <v-btn
-                      @click="toggleAllImagesOrientation"
-                      :icon="
-                        allImagesOrientation === 'p'
-                          ? 'mdi-crop-portrait'
-                          : 'mdi-crop-landscape'
-                      "
-                      color="primary"
-                      variant="tonal"
-                      rounded="lg"
-                      size="small"
-                      :aria-label="`Switch all images to ${allImagesOrientation === 'p' ? 'landscape' : 'portrait'} orientation`"
-                    ></v-btn>
-                     <v-btn
-                      variant="tonal"
-                      color="primary"
-                      rounded="lg"
-                      prepend-icon="mdi-plus"
-                      class="text-none font-weight-bold"
-                      @click="triggerFileInput"
-                    >
-                      Add More Images
-                    </v-btn>
-                    <v-btn
-                      variant="tonal"
-                      color="primary"
-                      rounded="lg"
-                      prepend-icon="mdi-sort-alphabetical-ascending"
-                      @click="sortImagesByName"
-                      class="text-none"
-                    >
-                      Sort
-                    </v-btn>
-                    <v-btn
-                      variant="tonal"
-                      color="primary"
-                      rounded="lg"
-                      prepend-icon="mdi-swap-horizontal"
-                      @click="reverseImages"
-                    >
-                      Reverse
-                    </v-btn>
-                    <v-btn
-                      variant="tonal"
-                      color="error"
-                      rounded="lg"
-                      @click="clearAll"
-                      class="text-none"
-                    >
-                      Clear All
-                    </v-btn>
-                    <v-btn
-                      variant="flat"
-                      color="primary"
-                      rounded="lg"
-                      prepend-icon="mdi-download"
-                      @click="generatePdfWithOrientation"
-                      :disabled="isConverting || images.length === 0"
-                      class="text-none"
-                    >
-                      {{ isConverting ? "Converting..." : "Download PDF" }}
-                    </v-btn>
-                  </div>
+              <div class="d-flex flex-wrap justify-center ga-2 mt-2">
+                <span class="feature-chip">JPG</span>
+                <span class="feature-chip">PNG</span>
+                <span class="feature-chip">WEBP</span>
+                <span class="feature-chip">GIF</span>
+              </div>
+
+              <v-btn color="primary" variant="flat" rounded="xl" prepend-icon="mdi-plus"
+                class="text-none font-weight-bold px-6 mt-4" @click.stop="triggerFileInput">
+                Browse Images
+              </v-btn>
+            </div>
+          </v-sheet>
+        </v-card>
+
+        <!-- Uploaded Images Page Queue (Auto-replaces upload zone after selecting images) -->
+        <transition name="slide-up">
+          <div v-if="images.length > 0">
+            <v-card class="tool-shell p-4 p-md-5" rounded="xl" elevation="0">
+              <div class="d-flex align-center justify-space-between flex-wrap ga-3 mb-5">
+                <div>
+                  <h3 class="text-h6 font-weight-bold my-0">
+                    Image pages ({{ images.length }})
+                  </h3>
                 </div>
-
-                <div v-if="generatedPdfUrl" class="generated-panel mb-4">
-                  <div>
-                    <p class="generated-title mb-1">Latest PDF is ready</p>
-                    <p class="text-caption text-medium-emphasis mb-0">
-                      {{ generatedPdfName }}
-                    </p>
-                  </div>
-                  <v-btn
-                    variant="tonal"
-                    color="primary"
-                    rounded="lg"
-                    prepend-icon="mdi-download"
-                    @click="downloadGeneratedPdf"
-                  >
-                    Download again
+                <div class="d-flex align-center ga-2 flex-wrap">
+                  <v-btn @click="toggleAllImagesOrientation" :icon="allImagesOrientation === 'p'
+                      ? 'mdi-crop-portrait'
+                      : 'mdi-crop-landscape'
+                    " color="primary" variant="tonal" rounded="lg" size="small"
+                    :aria-label="`Switch all images to ${allImagesOrientation === 'p' ? 'landscape' : 'portrait'} orientation`"></v-btn>
+                  <v-btn variant="tonal" color="primary" rounded="lg" prepend-icon="mdi-plus"
+                    class="text-none font-weight-bold" @click="triggerFileInput">
+                    Add More Images
+                  </v-btn>
+                  <v-btn variant="tonal" color="primary" rounded="lg" prepend-icon="mdi-sort-alphabetical-ascending"
+                    @click="sortImagesByName" class="text-none">
+                    Sort
+                  </v-btn>
+                  <v-btn variant="tonal" color="primary" rounded="lg" prepend-icon="mdi-swap-horizontal"
+                    @click="reverseImages">
+                    Reverse
+                  </v-btn>
+                  <v-btn variant="tonal" color="error" rounded="lg" @click="clearAll" class="text-none">
+                    Clear All
+                  </v-btn>
+                  <v-btn variant="flat" color="primary" rounded="lg" prepend-icon="mdi-download"
+                    @click="generatePdfWithOrientation" :disabled="isConverting || images.length === 0"
+                    class="text-none">
+                    {{ isConverting ? "Converting..." : "Download PDF" }}
                   </v-btn>
                 </div>
-                <v-row>
-                  <v-col
-                    v-for="(image, index) in images"
-                    :key="image.id"
-                    cols="12"
-                    sm="6"
-                    md="6"
-                    lg="4"
-                  >
-                    <v-card
-                      class="image-card premium-image-card"
-                      rounded="xl"
-                      elevation="0"
-                    >
-                      <div class="image-card-meta px-3 pt-3">
-                        <v-chip color="primary" variant="tonal" size="small"
-                          >Page {{ index + 1 }}</v-chip
-                        >
-                        <v-chip color="secondary" variant="tonal" size="small">
-                          {{
-                            (image.orientation || "p") === "p"
-                              ? "Portrait"
-                              : "Landscape"
-                          }}
-                        </v-chip>
+              </div>
+
+              <div v-if="generatedPdfUrl" class="generated-panel mb-4">
+                <div>
+                  <p class="generated-title mb-1">Latest PDF is ready</p>
+                  <p class="text-caption text-medium-emphasis mb-0">
+                    {{ generatedPdfName }}
+                  </p>
+                </div>
+                <v-btn variant="tonal" color="primary" rounded="lg" prepend-icon="mdi-download"
+                  @click="downloadGeneratedPdf">
+                  Download again
+                </v-btn>
+              </div>
+              <v-row>
+                <v-col v-for="(image, index) in images" :key="image.id" cols="12" sm="6" md="6" lg="4">
+                  <v-card class="image-card premium-image-card" rounded="xl" elevation="0">
+                    <div class="image-card-meta px-3 pt-3">
+                      <v-chip color="primary" variant="tonal" size="small">Page {{ index + 1 }}</v-chip>
+                      <v-chip color="secondary" variant="tonal" size="small">
+                        {{
+                          (image.orientation || "p") === "p"
+                            ? "Portrait"
+                            : "Landscape"
+                        }}
+                      </v-chip>
+                    </div>
+
+                    <v-card-actions class="d-flex justify-end ga-1 p-2">
+                      <v-btn @click="toggleImageOrientation(index)" :icon="(image.orientation || 'p') === 'p'
+                          ? 'mdi-crop-portrait'
+                          : 'mdi-crop-landscape'
+                        " color="primary" variant="tonal" size="small"
+                        :aria-label="`Switch image ${index + 1} to ${(image.orientation || 'p') === 'p' ? 'landscape' : 'portrait'} orientation`"></v-btn>
+                      <v-btn @click="rotateImage(index)" icon="mdi-rotate-right" size="small" variant="tonal"
+                        color="warning"></v-btn>
+                      <v-btn @click="moveUp(index)" :disabled="index === 0"
+                        :icon="xs ? 'mdi-arrow-up' : 'mdi-arrow-left'" size="small" variant="tonal"
+                        color="primary"></v-btn>
+                      <v-btn @click="moveDown(index)" :disabled="index === images.length - 1"
+                        :icon="xs ? 'mdi-arrow-down' : 'mdi-arrow-right'" size="small" variant="tonal"
+                        color="primary"></v-btn>
+                      <v-btn @click="duplicateImage(index)" icon="mdi-content-copy" size="small" variant="tonal"
+                        color="secondary"></v-btn>
+                      <v-btn @click="removeImage(index)" icon="mdi-close" size="small" variant="tonal"
+                        color="error"></v-btn>
+                    </v-card-actions>
+
+                    <div class="p-2">
+                      <div class="page-preview-frame" :style="{
+                        backgroundColor: pdfSettings.backgroundColor,
+                      }">
+                        <button type="button" class="image-preview-trigger" :aria-label="`Preview ${image.name}`"
+                          @click="openPreviewImage(image)">
+                          <v-img :src="image.url" :alt="image.name" class="rounded-lg image-preview" :cover="false"
+                            :style="{
+                              transform: `rotate(${image.rotation}deg)`,
+                            }"></v-img>
+                        </button>
                       </div>
+                    </div>
 
-                      <v-card-actions class="d-flex justify-end ga-1 p-2">
-                        <v-btn
-                          @click="toggleImageOrientation(index)"
-                          :icon="
-                            (image.orientation || 'p') === 'p'
-                              ? 'mdi-crop-portrait'
-                              : 'mdi-crop-landscape'
-                          "
-                          color="primary"
-                          variant="tonal"
-                          size="small"
-                          :aria-label="`Switch image ${index + 1} to ${(image.orientation || 'p') === 'p' ? 'landscape' : 'portrait'} orientation`"
-                        ></v-btn>
-                        <v-btn
-                          @click="rotateImage(index)"
-                          icon="mdi-rotate-right"
-                          size="small"
-                          variant="tonal"
-                          color="warning"
-                        ></v-btn>
-                        <v-btn
-                          @click="moveUp(index)"
-                          :disabled="index === 0"
-                          :icon="xs ? 'mdi-arrow-up' : 'mdi-arrow-left'"
-                          size="small"
-                          variant="tonal"
-                          color="primary"
-                        ></v-btn>
-                        <v-btn
-                          @click="moveDown(index)"
-                          :disabled="index === images.length - 1"
-                          :icon="xs ? 'mdi-arrow-down' : 'mdi-arrow-right'"
-                          size="small"
-                          variant="tonal"
-                          color="primary"
-                        ></v-btn>
-                        <v-btn
-                          @click="duplicateImage(index)"
-                          icon="mdi-content-copy"
-                          size="small"
-                          variant="tonal"
-                          color="secondary"
-                        ></v-btn>
-                        <v-btn
-                          @click="removeImage(index)"
-                          icon="mdi-close"
-                          size="small"
-                          variant="tonal"
-                          color="error"
-                        ></v-btn>
-                      </v-card-actions>
-
-                      <div class="p-2">
-                        <div
-                          class="page-preview-frame"
-                          :style="{
-                            backgroundColor: pdfSettings.backgroundColor,
-                          }"
-                        >
-                          <button
-                            type="button"
-                            class="image-preview-trigger"
-                            :aria-label="`Preview ${image.name}`"
-                            @click="openPreviewImage(image)"
-                          >
-                            <v-img
-                              :src="image.url"
-                              :alt="image.name"
-                              class="rounded-lg image-preview"
-                              :cover="false"
-                              :style="{
-                                transform: `rotate(${image.rotation}deg)`,
-                              }"
-                            ></v-img>
-                          </button>
-                        </div>
-                      </div>
-
-                      <v-card-text class="pt-1 pb-3">
-                        <p
-                          class="mb-1 text-body-2 text-medium-emphasis text-truncate"
-                        >
-                          {{ image.name }}
-                        </p>
-                        <p class="mb-2 text-caption text-medium-emphasis">
-                          {{ formatFileSize(image.size) }}
-                          <span v-if="image.width && image.height">
-                            | {{ image.width }} x {{ image.height }} px</span
-                          >
-                        </p>
-                        <v-select
-                          v-model="image.fitMode"
-                          :items="IMAGE_FIT_OPTIONS"
-                          item-title="title"
-                          item-value="value"
-                          label="Page fit"
-                          variant="outlined"
-                          density="compact"
-                          rounded="lg"
-                          hide-details
-                          @update:model-value="revokeGeneratedPdf"
-                        ></v-select>
-                      </v-card-text>
-                    </v-card>
-                  </v-col>
-                </v-row>
-              </v-card>
-            </div>
+                    <v-card-text class="pt-1 pb-3">
+                      <p class="mb-1 text-body-2 text-medium-emphasis text-truncate">
+                        {{ image.name }}
+                      </p>
+                      <p class="mb-2 text-caption text-medium-emphasis">
+                        {{ formatFileSize(image.size) }}
+                        <span v-if="image.width && image.height">
+                          | {{ image.width }} x {{ image.height }} px</span>
+                      </p>
+                      <v-select v-model="image.fitMode" :items="IMAGE_FIT_OPTIONS" item-title="title" item-value="value"
+                        label="Page fit" variant="outlined" density="compact" rounded="lg" hide-details
+                        @update:model-value="revokeGeneratedPdf"></v-select>
+                    </v-card-text>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-card>
+          </div>
 
 
-          </transition>
-        </v-col>
-      </v-row>
-    </v-container>
+        </transition>
+      </v-col>
+    </v-row>
 
-    <PhotoZoomDialog
-      v-if="previewImage"
-      :model-value="Boolean(previewImage)"
-      :src="previewImage.url"
-      :alt="previewImage.name"
-      :dialog-title="previewImage.name"
-      hide-trigger
-      trigger-variant="image"
-      :img-cover="false"
-      @update:model-value="(value) => !value && closePreviewImage()"
-    />
+    <PhotoZoomDialog v-if="previewImage" :model-value="Boolean(previewImage)" :src="previewImage.url"
+      :alt="previewImage.name" :dialog-title="previewImage.name" hide-trigger trigger-variant="image" :img-cover="false"
+      @update:model-value="(value) => !value && closePreviewImage()" />
   </div>
 </template>
 
@@ -1397,7 +1162,7 @@ onUnmounted(() => {
 }
 
 .studio-stat,
-.export-brief > div,
+.export-brief>div,
 .generated-panel,
 .queue-strip span {
   border: 1px solid var(--portfolio-border-color);
@@ -1406,7 +1171,7 @@ onUnmounted(() => {
 }
 
 .studio-stat,
-.export-brief > div {
+.export-brief>div {
   border-radius: 14px;
   padding: 12px;
 }
@@ -1612,6 +1377,7 @@ onUnmounted(() => {
 }
 
 @media (max-width: 600px) {
+
   .studio-stats,
   .queue-strip {
     grid-template-columns: 1fr;
@@ -1670,5 +1436,4 @@ onUnmounted(() => {
   cursor: pointer;
   transition: all 0.25s ease;
 }
-
 </style>

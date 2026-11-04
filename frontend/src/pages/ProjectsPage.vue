@@ -10,7 +10,13 @@ const { mobile } = useDisplay();
 const activeCategory = ref("All");
 const searchQuery = ref("");
 
-const categories = ["All", "Productivity", "Document & Image", "AI & Language", "Developer Tools"];
+const categories = [
+  { name: "All", icon: "mdi-view-dashboard" },
+  { name: "Productivity", icon: "mdi-calendar-check-outline" },
+  { name: "Document & Image", icon: "mdi-file-document-outline" },
+  { name: "AI & Language", icon: "mdi-brain" },
+  { name: "Developer Tools", icon: "mdi-code-braces" },
+];
 
 const projects = ref([
   {
@@ -119,7 +125,7 @@ const projects = ref([
     description:
       "Visual API design studio with OpenAPI/Swagger generation, endpoint modeling, request/response schemas, mock server export, and collaborative documentation templates.",
     image: getMediaUrl("project_img/Project-12.svg"),
-    icon: "mdi-blueprint",
+    icon: "mdi-floor-plan",
     link: "/projects/api-blueprint",
     tags: ["OpenAPI", "API Design", "Documentation"],
   },
@@ -205,25 +211,20 @@ const currentProjectTitle = computed(() => {
           <div class="d-flex flex-wrap ga-2 category-chips-row">
             <button
               v-for="cat in categories"
-              :key="cat"
+              :key="cat.name"
               type="button"
-              class="filter-chip"
-              :class="{ 'is-active': activeCategory === cat }"
-              @click="activeCategory = cat"
+              class="filter-chip d-inline-flex align-center ga-1"
+              :class="{ 'is-active': activeCategory === cat.name }"
+              @click="activeCategory = cat.name"
             >
-              {{ cat }}
+              <v-icon :icon="cat.icon" size="16" class="mr-1"></v-icon>
+              <span>{{ cat.name }}</span>
             </button>
           </div>
         </div>
 
         <!-- Filter Response -->
         <div v-if="searchQuery || activeCategory !== 'All'" class="mb-6 d-flex align-center flex-wrap ga-2">
-          <v-chip v-if="searchQuery" color="primary" variant="tonal" size="small" prepend-icon="mdi-magnify">
-            query: "{{ searchQuery }}"
-          </v-chip>
-          <v-chip v-if="activeCategory !== 'All'" color="secondary" variant="tonal" size="small" prepend-icon="mdi-tag-outline">
-            category: {{ activeCategory }}
-          </v-chip>
           <span class="text-caption text-medium-emphasis">Found {{ filteredProjects.length }} project matches</span>
         </div>
 
@@ -236,9 +237,12 @@ const currentProjectTitle = computed(() => {
               </div>
 
               <div class="p-5 d-flex flex-column project-card-body">
-                <p class="text-caption text-primary font-weight-bold text-uppercase mb-1">
-                  {{ project.category }}
-                </p>
+                <div class="d-flex align-center justify-space-between mb-1">
+                  <p class="text-caption text-primary font-weight-bold text-uppercase mb-0">
+                    {{ project.category }}
+                  </p>
+                  <v-icon :icon="project.icon" size="20" color="primary"></v-icon>
+                </div>
                 <h2 class="text-h6 mb-2 font-weight-bold project-title">{{ project.title }}</h2>
                 <p class="muted-copy mb-3 project-description">{{ project.description }}</p>
 
