@@ -35,7 +35,7 @@
     </template>
 
     <v-dialog v-model="dialogOpen" :max-width="maxWidth" :fullscreen="$vuetify.display.xs && fullscreenOnMobile" :scrollable="true">
-      <v-card class="zoom-card border" :class="{ 'is-custom-card': isCustomMode }" rounded="xl">
+      <v-card class="zoom-card border" :class="{ 'is-custom-card': isCustomMode }" :rounded="$vuetify.display.xs && fullscreenOnMobile ? '0' : 'xl'">
         <div class="zoom-toolbar px-4 py-3">
           <p class="zoom-title text-subtitle-2 font-weight-bold m-0">{{ dialogLabel }}</p>
           <div class="d-flex align-center ga-1 flex-wrap justify-end">

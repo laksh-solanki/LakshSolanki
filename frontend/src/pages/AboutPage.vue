@@ -6,7 +6,6 @@
     <section class="ap-hero">
       <div class="ap-container ap-hero__inner">
         <div class="ap-hero__text">
-          <v-chip class="ap-kicker mb-4" variant="tonal" color="primary">About Mindlytic</v-chip>
           <h1 class="ap-hero__headline mb-4">
             Crafting<br />
             <em class="ap-hero__accent">developer-first</em><br />
@@ -35,16 +34,16 @@
           <!-- Profile mini-card inside bento -->
           <div class="ap-bento-profile">
             <PhotoZoomDialog :src="myPhoto" alt="Laksh Solanki" :size="50" avatar-class="ap-bento-avatar" />
-            <div>
+            <div class="ap-bento-profile__details">
               <p class="ap-bento-profile__name">Laksh Solanki</p>
-              <p class="ap-bento-profile__role">Founder, Mindlytic</p>
+              <p class="ap-bento-profile__role">Founder, Developer</p>
             </div>
             <span class="ap-bento-badge">
               <v-chip size="small" color="primary" variant="tonal" text="Open to work" class="font-weight-bold"></v-chip>
             </span>
           </div>
 
-          <v-img :src="aboutPhoto1" cover class="ap-bento-img" alt="Creative workstation visual" />
+          <v-img :src="aboutPhoto1" class="ap-bento-img" alt="Creative workstation visual" />
         </div>
       </div>
     </section>
@@ -57,14 +56,14 @@
           <div class="ap-profile-card">
             <PhotoZoomDialog :src="myPhoto" alt="Laksh Solanki" :size="96" avatar-class="ap-profile-avatar" />
             <h2 class="ap-profile-card__name">Laksh Solanki</h2>
-            <p class="ap-profile-card__title">Senior Full-Stack Engineer</p>
+            <p class="ap-profile-card__title">Senior Full-Stack Developer</p>
             <div class="ap-profile-card__info">
               <div class="ap-info-row"><span class="ap-info-label">Experience</span><strong>4+ years</strong></div>
               <div class="ap-info-row"><span class="ap-info-label">Stack</span><strong>Vue + Node</strong></div>
               <div class="ap-info-row"><span class="ap-info-label">Based in</span><strong>India 🇮🇳</strong></div>
             </div>
             <div class="ap-profile-card__actions">
-              <v-btn class="ap-btn text-none font-weight-bold" href="mailto:lakshsolanki848@gmail.com" size="large" rounded="xl"
+              <v-btn class="ap-btn text-none font-weight-bold" @click="scrollToCollaborate" size="large" rounded="xl"
                 variant="flat" text="Contact me" color="primary" block elevation="0" />
               <v-btn class="ap-btn text-none font-weight-bold" @click="copyEmail" size="large" rounded="xl" variant="outlined"
                 text="Copy Email" color="primary" block elevation="0" />
@@ -72,9 +71,9 @@
             <div class="ap-profile-card__socials">
               <v-btn icon="mdi-github" href="https://github.com/laksh-solanki" target="_blank" variant="outlined"
                 size="large" class="ap-social-btn" color="primary" aria-label="GitHub" />
-              <v-btn icon="mdi-web" href="https://lakshsolanki.onrender.com/" target="_blank" variant="outlined"
-                size="large" class="ap-social-btn" color="primary" aria-label="Website" />
-              <v-btn icon="mdi-linkedin" href="https://www.linkedin.com" target="_blank" variant="outlined" size="large"
+              <v-btn icon="mdi-instagram" href="https://www.instagram.com/laksh_solanki" target="_blank" variant="outlined"
+                size="large" class="ap-social-btn" color="primary" aria-label="Instagram" />
+              <v-btn icon="mdi-linkedin" href="https://www.linkedin.com/in/laksh-solanki" target="_blank" variant="outlined" size="large"
                 class="ap-social-btn" color="primary" aria-label="LinkedIn" />
             </div>
           </div>
@@ -533,6 +532,20 @@ const copyEmail = async () => {
     showAlert("Unable to copy email on this browser.", "error");
   }
 };
+
+const scrollToCollaborate = () => {
+  const target = document.getElementById("collaborate-container");
+  if (target) {
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+  } else {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  }
+  window.dispatchEvent(
+    new CustomEvent("prompt-connect-email", {
+      detail: { message: "Write Your Email to Connect to Me." },
+    })
+  );
+};
 </script>
 
 <style scoped>
@@ -661,14 +674,19 @@ const copyEmail = async () => {
 
 .ap-bento-profile {
   grid-column: span 2;
-  display: flex;
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr) auto;
   align-items: center;
   gap: 14px;
+  padding: 14px 18px;
   background: var(--ap-surface);
   border: 1px solid var(--ap-border);
   border-radius: var(--ap-radius);
-  padding: 14px 18px;
   box-shadow: var(--ap-shadow-sm);
+}
+
+.ap-bento-profile__details {
+  min-width: 0;
 }
 
 .ap-bento-profile__name {
@@ -685,14 +703,15 @@ const copyEmail = async () => {
 }
 
 .ap-bento-badge {
-  margin-left: auto;
+  white-space: nowrap;
 }
 
 .ap-bento-img {
-  grid-column: span 2;
+  grid-column: span 2 !important;
   border-radius: var(--ap-radius);
   border: 1px solid var(--ap-border);
   max-height: 160px;
+  object-fit: cover !important;
   background: var(--ap-surface-soft);
 }
 
@@ -1134,18 +1153,12 @@ const copyEmail = async () => {
 
   .ap-bento-profile,
   .ap-bento-img {
-    grid-column: span 1;
+    grid-column: span 2;
   }
 
   .ap-bento-profile {
-    flex-wrap: wrap;
     gap: 10px;
-    padding: 12px 14px;
-  }
-
-  .ap-bento-badge {
-    margin-left: 0;
-    width: 100%;
+    padding: 12px;
   }
 
   .ap-highlights-grid {

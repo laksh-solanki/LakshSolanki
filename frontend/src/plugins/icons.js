@@ -97,6 +97,7 @@ import {
   mdiImageFilterCenterFocus,
   mdiImageMultipleOutline,
   mdiImageOutline,
+  mdiInstagram,
   mdiInformationOutline,
   mdiLadder,
   mdiLanguageCss3,
@@ -118,6 +119,7 @@ import {
   mdiMenu,
   mdiMenuDown,
   mdiMenuUp,
+  mdiMessageTextOutline,
   mdiMicrophone,
   mdiMicrophoneOutline,
   mdiMinus,
@@ -182,7 +184,7 @@ import {
   mdiWeatherSunny,
   mdiWeb,
   mdiWhiteBalanceSunny,
-  mdiXml
+  mdiXml,
 } from "@mdi/js";
 
 export const iconMap = {
@@ -284,6 +286,7 @@ export const iconMap = {
   "mdi-image-filter-center-focus": mdiImageFilterCenterFocus,
   "mdi-image-multiple-outline": mdiImageMultipleOutline,
   "mdi-image-outline": mdiImageOutline,
+  "mdi-instagram": mdiInstagram,
   "mdi-information-outline": mdiInformationOutline,
   "mdi-ladder": mdiLadder,
   "mdi-language-css3": mdiLanguageCss3,
@@ -310,6 +313,7 @@ export const iconMap = {
   "mdi-minus": mdiMinus,
   "mdi-monitor": mdiMonitor,
   "mdi-monitor-screenshot": mdiMonitorScreenshot,
+  "mdi-message-text-outline": mdiMessageTextOutline,
   "mdi-nodejs": mdiNodejs,
   "mdi-numeric-1-box-multiple-outline": mdiNumeric1BoxMultipleOutline,
   "mdi-open-in-new": mdiOpenInNew,
@@ -369,5 +373,5 @@ export const iconMap = {
   "mdi-weather-sunny": mdiWeatherSunny,
   "mdi-web": mdiWeb,
   "mdi-white-balance-sunny": mdiWhiteBalanceSunny,
-  "mdi-xml": mdiXml
+  "mdi-xml": mdiXml,
 };

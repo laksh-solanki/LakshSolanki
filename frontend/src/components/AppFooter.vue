@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from "vue";
 import mainsvgicon from "@/assets/mainsvgicon.vue";
 import EmailRegisterPopup from "@/components/EmailRegisterPopup.vue";
 
@@ -10,11 +11,34 @@ const quickLinks = [
 
 const services = ["Frontend Architecture", "API Development", "UI Engineering", "Performance Optimization"];
 
-const socialLinks = [
-  { icon: "mdi-github", href: "https://github.com/laksh-solanki", label: "GitHub" },
-  { icon: "mdi-linkedin", href: "https://www.linkedin.com", label: "LinkedIn" },
-  { icon: "mdi-email", href: "mailto:lakshsolanki848@gmail.com", label: "Email" },
-];
+const copied = ref(false);
+let copyTimeout = null;
+
+const copyEmail = async () => {
+  const email = "lakshsolanki848@gmail.com";
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(email);
+    } else {
+      const textArea = document.createElement("textarea");
+      textArea.value = email;
+      textArea.style.position = "fixed";
+      textArea.style.opacity = "0";
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+    }
+    copied.value = true;
+    if (copyTimeout) clearTimeout(copyTimeout);
+    copyTimeout = setTimeout(() => {
+      copied.value = false;
+    }, 2000);
+  } catch (err) {
+    console.error("Failed to copy email:", err);
+  }
+};
+
 </script>
 
 <template>
@@ -25,12 +49,26 @@ const socialLinks = [
         <v-col cols="12" md="4" class="mb-6 mb-md-0">
           <mainsvgicon :size="40" class="mb-4" />
           <p class="text-body-2 footer-copy mb-5 pr-md-6">
-            Building digital products that combine beautiful, minimal design with robust engineering. Focused on creating exceptional, fast, and scalable user experiences.
+            Building digital products that combine beautiful, minimal design with robust engineering. Focused on
+            creating exceptional, fast, and scalable user experiences.
           </p>
-          <div class="d-flex ga-3">
-            <a v-for="social in socialLinks" :key="social.label" :href="social.href" target="_blank"
-               class="social-icon" :aria-label="social.label">
-              <v-icon :icon="social.icon" size="20"></v-icon>
+          <div class="d-flex ga-3"> <a href="https://github.com/laksh-solanki" target="_blank" rel="noopener noreferrer"
+              class="social-icon" aria-label="GitHub">
+              <v-icon icon="mdi-github" size="20"></v-icon>
+            </a>
+            <a href="https://www.linkedin.com/in/laksh-solanki" target="_blank" rel="noopener noreferrer"
+              class="social-icon" aria-label="LinkedIn">
+              <v-icon icon="mdi-linkedin" size="20"></v-icon>
+            </a>
+            <button type="button" class="social-icon" :class="{ 'copied': copied }"
+              :aria-label="copied ? 'Email copied!' : 'Copy email address'"
+              :title="copied ? 'Email copied!' : 'Click to copy email: lakshsolanki848@gmail.com'" @click="copyEmail">
+              <v-icon :icon="copied ? 'mdi-check' : 'mdi-email-outline'" size="20"></v-icon>
+            </button>
+            <a href="https://www.instagram.com/laksh_solanki" target="_blank" rel="noopener noreferrer"
+              class="social-icon" aria-label="Instagram">
+              <v-icon icon="mdi-instagram" size="20"></v-icon>
+
             </a>
           </div>
         </v-col>
@@ -39,8 +77,7 @@ const socialLinks = [
         <v-col cols="6" sm="6" md="2" class="mb-6 mb-md-0">
           <h4 class="footer-heading mb-4">Navigation</h4>
           <div class="d-flex flex-column ga-2 ga-md-3">
-            <router-link v-for="item in quickLinks" :key="item.path" :to="item.path"
-               class="footer-link text-body-2">
+            <router-link v-for="item in quickLinks" :key="item.path" :to="item.path" class="footer-link text-body-2">
               {{ item.title }}
             </router-link>
           </div>
@@ -66,18 +103,11 @@ const socialLinks = [
       <v-divider class="my-6 my-md-8 footer-divider"></v-divider>
 
       <!-- Bottom Bar -->
-      <div class="footer-bottom d-flex flex-column flex-sm-row justify-space-between align-center text-center text-sm-start ga-3">
+      <div
+        class="footer-bottom d-flex flex-column flex-sm-row justify-space-between align-center text-center text-sm-start ga-3">
         <span class="text-caption footer-copyright">
           &copy; {{ new Date().getFullYear() }} Laksh Solanki. All rights reserved.
         </span>
-        <div class="d-flex ga-4 ga-sm-6 align-center flex-wrap justify-center">
-          <span class="text-caption footer-meta d-flex align-center">
-            <v-icon size="x-small" icon="mdi-map-marker-outline" class="mr-1"></v-icon> IST Timezone
-          </span>
-          <span class="text-caption footer-meta d-flex align-center">
-            <v-icon size="x-small" icon="mdi-lightning-bolt-outline" class="mr-1"></v-icon> Fast Response
-          </span>
-        </div>
       </div>
     </v-container>
   </v-footer>
@@ -125,6 +155,9 @@ const socialLinks = [
   border: 1px solid rgba(124, 14, 68, 0.12);
   background: #FFFFFF;
   color: var(--portfolio-primary, #7C0E44);
+  cursor: pointer;
+  padding: 0;
+  outline: none;
   transition: all 0.2s ease;
 }
 
@@ -135,12 +168,9 @@ const socialLinks = [
   box-shadow: 0 4px 12px rgba(124, 14, 68, 0.15);
 }
 
-.footer-divider {
-  border-color: rgba(124, 14, 68, 0.08) !important;
-}
-
-.footer-copyright,
-.footer-meta {
-  color: var(--portfolio-muted, #7E636E);
+.social-icon.copied {
+  background: var(--portfolio-primary, #7C0E44);
+  color: #FFFFFF;
+  border-color: var(--portfolio-primary, #7C0E44);
 }
 </style>

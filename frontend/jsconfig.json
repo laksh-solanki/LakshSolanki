@@ -2,7 +2,6 @@
   "compilerOptions": {
     "allowJs": true,
     "checkJs": false,
-    "baseUrl": ".",
     "lib": [
       "esnext",
       "dom",

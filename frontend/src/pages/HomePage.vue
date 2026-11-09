@@ -159,11 +159,6 @@ const premiumStackNodes = [
       <div class="hero-inner">
         <!-- LEFT: Copy & CTAs -->
         <div class="hero-copy-block">
-          <div class="hero-availability-pill mb-4">
-            <span class="hero-availability-dot"></span>
-            Available for freelance &amp; contracts
-          </div>
-
           <h1 class="hero-title mb-3">
             Hi, I'm <span class="hero-name-accent">Laksh</span>
             <br />
@@ -326,7 +321,7 @@ const premiumStackNodes = [
               <article v-for="item in collaborationSteps" :key="item.step" class="collab-step-item d-flex ga-4 mb-4">
                 <span class="collab-step-number">{{ item.step }}</span>
                 <div>
-                  <h4 class="collab-step-title mb-1">{{ item.title }}</h4>
+                  <h4 class="collab-step-title my-1">{{ item.title }}</h4>
                   <p class="collab-step-desc mb-0">{{ item.description }}</p>
                 </div>
               </article>
@@ -763,7 +758,7 @@ const premiumStackNodes = [
 }
 
 .collab-step-title {
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: var(--portfolio-ink, #231219);
 }
