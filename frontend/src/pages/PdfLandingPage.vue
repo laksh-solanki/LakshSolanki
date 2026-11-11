@@ -1,43 +1,23 @@
 <template>
   <v-container class="pdf-landing-shell py-6 py-md-10 animate-fade-in-up">
     <!-- 1. LOADING STATE -->
-    <v-card
-      v-if="viewState === 'loading'"
-      class="tool-shell p-6 p-md-10 text-center mx-auto"
-      rounded="xl"
-      elevation="0"
-    >
+    <v-card v-if="viewState === 'loading'" class="tool-shell p-6 p-md-10 text-center mx-auto" rounded="xl"
+      elevation="0">
       <div class="loading-wrap py-10">
-        <v-progress-circular
-          indeterminate
-          color="primary"
-          size="56"
-          width="4"
-          class="mb-5"
-        />
+        <v-progress-circular indeterminate color="primary" size="56" width="4" class="mb-5" />
         <h2 class="text-h5 font-weight-bold mb-2 doc-heading">
           Loading Document
         </h2>
         <p class="text-body-1 muted-copy mb-4">
           {{ loadingStatusText }}
         </p>
-        <v-progress-linear
-          indeterminate
-          color="secondary"
-          rounded
-          height="4"
-          class="mx-auto loading-bar"
-        />
+        <v-progress-linear indeterminate color="secondary" rounded height="4" class="mx-auto loading-bar" />
       </div>
     </v-card>
 
     <!-- 2. NOT FOUND / EXPIRED / INVALID UUID STATE (Matches NotFoundPage.vue styling) -->
-    <v-card
-      v-else-if="viewState === 'not_found'"
-      class="minimal-404 section-shell p-8 p-md-12 text-center mx-auto"
-      rounded="xl"
-      elevation="0"
-    >
+    <v-card v-else-if="viewState === 'not_found'" class="minimal-404 section-shell p-8 p-md-12 text-center mx-auto"
+      rounded="xl" elevation="0">
       <v-chip color="secondary" variant="tonal" class="font-weight-bold mb-6">
         Document Expired or Missing
       </v-chip>
@@ -57,69 +37,35 @@
         <div class="radar-circle radar-circle-1" />
         <div class="radar-circle radar-circle-2" />
         <div class="radar-circle radar-circle-3" />
-        <v-icon
-          icon="mdi-file-pdf-box"
-          size="44"
-          color="primary"
-          class="radar-icon"
-        />
+        <v-icon icon="mdi-file-pdf-box" size="44" color="primary" class="radar-icon" />
       </div>
 
       <div class="action-row d-flex flex-wrap ga-3 mb-6 justify-center">
-        <v-btn
-          color="primary"
-          size="large"
-          rounded="xl"
-          class="text-none px-7 font-weight-bold"
-          to="/projects/pdf-image-studio?mode=pdf-to-qr"
-          prepend-icon="mdi-plus"
-          elevation="0"
-        >
+        <v-btn color="primary" size="large" rounded="xl" class="text-none px-7 font-weight-bold"
+          to="/projects/pdf-image-studio?mode=pdf-to-qr" prepend-icon="mdi-plus" elevation="0">
           Generate Your Own QR
         </v-btn>
-        <v-btn
-          variant="outlined"
-          color="primary"
-          size="large"
-          rounded="xl"
-          class="text-none px-7 font-weight-bold"
-          to="/"
-          prepend-icon="mdi-home-variant-outline"
-          elevation="0"
-        >
+        <v-btn variant="outlined" color="primary" size="large" rounded="xl" class="text-none px-7 font-weight-bold"
+          to="/" prepend-icon="mdi-home-variant-outline" elevation="0">
           Return Home
         </v-btn>
       </div>
 
       <div class="quick-links d-flex flex-wrap justify-center ga-2">
-        <v-chip
-          to="/projects/pdf-image-studio"
-          color="primary"
-          variant="tonal"
-          class="text-none"
-          prepend-icon="mdi-file-pdf-box"
-        >
+        <v-chip to="/projects/pdf-image-studio" color="primary" variant="tonal" class="text-none"
+          prepend-icon="mdi-file-pdf-box">
           PDF &amp; Image Studio
         </v-chip>
-        <v-chip
-          to="/projects"
-          color="primary"
-          variant="tonal"
-          class="text-none"
-          prepend-icon="mdi-briefcase-variant-outline"
-        >
+        <v-chip to="/projects" color="primary" variant="tonal" class="text-none"
+          prepend-icon="mdi-briefcase-variant-outline">
           All Projects
         </v-chip>
       </div>
     </v-card>
 
     <!-- 3. ERROR STATE (Network or Server Connectivity Issue) -->
-    <v-card
-      v-else-if="viewState === 'error'"
-      class="tool-shell p-6 p-md-10 text-center mx-auto error-shell"
-      rounded="xl"
-      elevation="0"
-    >
+    <v-card v-else-if="viewState === 'error'" class="tool-shell p-6 p-md-10 text-center mx-auto error-shell"
+      rounded="xl" elevation="0">
       <v-avatar color="error" variant="tonal" size="64" class="mb-4">
         <v-icon icon="mdi-alert-circle" size="36" color="error" />
       </v-avatar>
@@ -130,146 +76,71 @@
         {{ errorMessage }}
       </p>
       <div class="d-flex flex-wrap ga-3 justify-center">
-        <v-btn
-          v-if="canRetry"
-          color="primary"
-          size="large"
-          rounded="xl"
-          class="text-none px-6 font-weight-bold"
-          prepend-icon="mdi-refresh"
-          elevation="0"
-          @click="initDocument"
-        >
+        <v-btn v-if="canRetry" color="primary" size="large" rounded="xl" class="text-none px-6 font-weight-bold"
+          prepend-icon="mdi-refresh" elevation="0" @click="initDocument">
           Retry
         </v-btn>
-        <v-btn
-          variant="outlined"
-          color="primary"
-          size="large"
-          rounded="xl"
-          class="text-none px-6 font-weight-bold"
-          to="/"
-          prepend-icon="mdi-home-variant-outline"
-          elevation="0"
-        >
+        <v-btn variant="outlined" color="primary" size="large" rounded="xl" class="text-none px-6 font-weight-bold"
+          to="/" prepend-icon="mdi-home-variant-outline" elevation="0">
           Return Home
         </v-btn>
       </div>
     </v-card>
 
     <!-- 4. READY STATE (Public Viewer & Download Page) -->
-    <v-card
-      v-else-if="viewState === 'ready'"
-      class="tool-shell p-5 p-md-8 viewer-card"
-      rounded="xl"
-      elevation="0"
-    >
+    <v-card v-else-if="viewState === 'ready'" class="tool-shell p-5 p-md-8 viewer-card" rounded="xl" elevation="0">
       <!-- HEADER ROW -->
       <div class="doc-header-card mb-6">
         <div class="d-flex flex-column flex-md-row justify-space-between align-start align-md-center ga-4">
           <!-- Document Metadata Info -->
           <div class="doc-info-block min-w-0">
             <div class="d-flex align-center ga-2 mb-2 flex-wrap">
-              <v-chip
-                size="small"
-                color="primary"
-                variant="tonal"
-                class="font-weight-bold"
-                to="/projects/pdf-image-studio?mode=pdf-to-qr"
-              >
+              <v-chip size="small" color="primary" variant="tonal" class="font-weight-bold"
+                to="/projects/pdf-image-studio?mode=pdf-to-qr">
                 PDF &amp; Image Studio
               </v-chip>
-              <v-chip
-                v-if="expiryTimeFormatted"
-                size="small"
-                color="secondary"
-                variant="outlined"
-                class="font-weight-medium font-mono"
-              >
+              <v-chip v-if="expiryTimeFormatted" size="small" color="secondary" variant="outlined"
+                class="font-weight-medium font-mono">
                 Expires: {{ expiryTimeFormatted }}
               </v-chip>
             </div>
 
-            <h1
-              class="doc-title text-h5 text-md-h4 font-weight-bold mb-2 text-truncate"
-              :title="metadata.filename"
-            >
+            <h1 class="doc-title text-h5 text-md-h4 font-weight-bold mb-2 text-truncate" :title="metadata.filename">
               {{ metadata.filename }}
             </h1>
 
             <div class="doc-meta-chips d-flex flex-wrap align-center ga-2">
-              <v-chip
-                size="small"
-                variant="flat"
-                color="surface-variant"
-                prepend-icon="mdi-file-pdf-box"
-                class="font-mono text-caption"
-              >
+              <v-chip size="small" variant="flat" color="surface-variant" prepend-icon="mdi-file-pdf-box"
+                class="font-mono text-caption">
                 {{ formatFileSize(metadata.size) }}
               </v-chip>
-              <v-chip
-                v-if="metadata.created_at"
-                size="small"
-                variant="flat"
-                color="surface-variant"
-                prepend-icon="mdi-calendar-check-outline"
-                class="font-mono text-caption"
-              >
+              <v-chip v-if="metadata.created_at" size="small" variant="flat" color="surface-variant"
+                prepend-icon="mdi-calendar-check-outline" class="font-mono text-caption">
                 {{ formatDate(metadata.created_at) }}
               </v-chip>
-              <v-chip
-                v-if="totalPages > 0"
-                size="small"
-                variant="flat"
-                color="surface-variant"
-                class="font-mono text-caption"
-              >
+              <v-chip v-if="totalPages > 0" size="small" variant="flat" color="surface-variant"
+                class="font-mono text-caption">
                 {{ totalPages }} page{{ totalPages > 1 ? 's' : '' }}
               </v-chip>
             </div>
           </div>
 
           <!-- Primary Actions (Prominent Download Button + Secondary Actions) -->
-          <div class="doc-actions-block d-flex flex-column flex-sm-row align-stretch align-sm-center ga-2 w-100 w-md-auto">
-            <v-btn
-              :href="downloadEndpointUrl"
-              download
-              target="_blank"
-              rel="noopener"
-              color="primary"
-              size="large"
-              rounded="xl"
-              class="download-cta-btn text-none px-6 font-weight-bold"
-              prepend-icon="mdi-download"
-              elevation="0"
-            >
+          <div
+            class="doc-actions-block d-flex flex-column flex-sm-row align-stretch align-sm-center ga-2 w-100 w-md-auto">
+            <v-btn :href="downloadEndpointUrl" download target="_blank" rel="noopener" color="primary" size="large"
+              rounded="xl" class="download-cta-btn text-none px-6 font-weight-bold" prepend-icon="mdi-download"
+              elevation="0">
               Download Original PDF
             </v-btn>
 
-            <v-btn
-              variant="outlined"
-              color="primary"
-              size="large"
-              rounded="xl"
-              class="text-none px-4"
-              prepend-icon="mdi-content-copy"
-              elevation="0"
-              @click="copyPublicLink"
-            >
+            <v-btn variant="outlined" color="primary" size="large" rounded="xl" class="text-none px-4"
+              prepend-icon="mdi-content-copy" elevation="0" @click="copyPublicLink">
               Copy Link
             </v-btn>
 
-            <v-btn
-              :href="inlineViewUrl"
-              target="_blank"
-              rel="noopener"
-              variant="text"
-              color="primary"
-              size="large"
-              rounded="xl"
-              class="text-none px-4"
-              prepend-icon="mdi-open-in-new"
-            >
+            <v-btn :href="inlineViewUrl" target="_blank" rel="noopener" variant="text" color="primary" size="large"
+              rounded="xl" class="text-none px-4" prepend-icon="mdi-open-in-new">
               Open
             </v-btn>
           </div>
@@ -280,147 +151,62 @@
       <div class="viewer-toolbar p-3 mb-4 rounded-lg d-flex flex-wrap justify-space-between align-center ga-2">
         <!-- Pagination Controls -->
         <div class="pagination-controls d-flex align-center ga-1">
-          <v-btn
-            size="small"
-            variant="text"
-            rounded="lg"
-            icon="mdi-arrow-left"
-            :disabled="currentPage <= 1 || isRenderingPage"
-            aria-label="Previous Page"
-            @click="prevPage"
-          />
+          <v-btn size="small" variant="text" rounded="lg" icon="mdi-arrow-left"
+            :disabled="currentPage <= 1 || isRenderingPage" aria-label="Previous Page" @click="prevPage" />
           <div class="page-indicator d-flex align-center ga-1 px-2 font-mono text-caption font-weight-bold">
             <span>Page</span>
-            <input
-              v-model="pageInputVal"
-              type="number"
-              min="1"
-              :max="totalPages"
-              class="page-number-input"
-              :disabled="totalPages <= 1 || isRenderingPage"
-              aria-label="Current Page Number"
-              @change="commitPageInput"
-              @keyup.enter="commitPageInput"
-            />
+            <input v-model="pageInputVal" type="number" min="1" :max="totalPages" class="page-number-input"
+              :disabled="totalPages <= 1 || isRenderingPage" aria-label="Current Page Number" @change="commitPageInput"
+              @keyup.enter="commitPageInput" />
             <span class="text-caption font-weight-medium">/ {{ totalPages }}</span>
           </div>
-          <v-btn
-            size="small"
-            variant="text"
-            rounded="lg"
-            icon="mdi-arrow-right"
-            :disabled="currentPage >= totalPages || isRenderingPage"
-            aria-label="Next Page"
-            @click="nextPage"
-          />
+          <v-btn size="small" variant="text" rounded="lg" icon="mdi-arrow-right"
+            :disabled="currentPage >= totalPages || isRenderingPage" aria-label="Next Page" @click="nextPage" />
         </div>
 
         <!-- Zoom Controls: "Fit Width", "100%", "150%" -->
         <div class="zoom-controls d-flex align-center ga-1">
-          <v-btn-toggle
-            :model-value="zoomMode"
-            mandatory
-            density="compact"
-            rounded="lg"
-            color="primary"
-            class="zoom-toggle-group"
-          >
-            <v-btn
-              value="fit"
-              class="text-none text-caption"
-              :disabled="isRenderingPage"
-              @click="setZoom('fit')"
-            >
+          <v-btn-toggle :model-value="zoomMode" mandatory density="compact" rounded="lg" color="primary"
+            class="zoom-toggle-group">
+            <v-btn value="fit" class="text-none text-caption" :disabled="isRenderingPage" @click="setZoom('fit')">
               Fit Width
             </v-btn>
-            <v-btn
-              value="100"
-              class="text-none text-caption"
-              :disabled="isRenderingPage"
-              @click="setZoom('100')"
-            >
+            <v-btn value="100" class="text-none text-caption" :disabled="isRenderingPage" @click="setZoom('100')">
               100%
             </v-btn>
-            <v-btn
-              value="150"
-              class="text-none text-caption"
-              :disabled="isRenderingPage"
-              @click="setZoom('150')"
-            >
+            <v-btn value="150" class="text-none text-caption" :disabled="isRenderingPage" @click="setZoom('150')">
               150%
             </v-btn>
           </v-btn-toggle>
 
-          <v-btn
-            size="small"
-            variant="text"
-            rounded="lg"
-            icon="mdi-magnify-minus-outline"
-            :disabled="isRenderingPage"
-            aria-label="Zoom Out"
-            @click="zoomStep(-0.25)"
-          />
-          <v-btn
-            size="small"
-            variant="text"
-            rounded="lg"
-            icon="mdi-magnify-plus-outline"
-            :disabled="isRenderingPage"
-            aria-label="Zoom In"
-            @click="zoomStep(0.25)"
-          />
+          <v-btn size="small" variant="text" rounded="lg" icon="mdi-magnify-minus-outline" :disabled="isRenderingPage"
+            aria-label="Zoom Out" @click="zoomStep(-0.25)" />
+          <v-btn size="small" variant="text" rounded="lg" icon="mdi-magnify-plus-outline" :disabled="isRenderingPage"
+            aria-label="Zoom In" @click="zoomStep(0.25)" />
         </div>
       </div>
 
       <!-- CANVAS VIEWER VIEWPORT (overflow-x: auto container) -->
-      <div
-        ref="canvasContainerRef"
-        class="canvas-viewport p-2 p-md-4 rounded-xl text-center"
-      >
+      <div ref="canvasContainerRef" class="canvas-viewport p-2 p-md-4 rounded-xl text-center">
         <!-- Canvas Fallback Card (if PDF.js fails to render) -->
-        <div
-          v-if="canvasError"
-          class="pdf-fallback-card text-center pa-8 pa-md-10 mx-auto"
-        >
+        <div v-if="canvasError" class="pdf-fallback-card text-center pa-8 pa-md-10 mx-auto">
           <v-icon icon="mdi-alert-circle" size="48" color="warning" class="mb-3" />
           <h3 class="text-h6 font-weight-bold mb-2">Unable to display preview</h3>
           <p class="text-body-2 muted-copy mb-6 max-w-prose mx-auto">
-            Your browser could not render the canvas preview. You can download the file directly or open it in a new tab.
+            Your browser could not render the canvas preview. You can download the file directly or open it in a new
+            tab.
           </p>
           <div class="d-flex flex-wrap justify-center ga-3">
-            <v-btn
-              color="primary"
-              size="large"
-              rounded="lg"
-              class="text-none font-weight-bold px-6"
-              prepend-icon="mdi-download"
-              :href="downloadEndpointUrl"
-              download
-            >
+            <v-btn color="primary" size="large" rounded="lg" class="text-none font-weight-bold px-6"
+              prepend-icon="mdi-download" :href="downloadEndpointUrl" download>
               Download PDF
             </v-btn>
-            <v-btn
-              variant="outlined"
-              color="primary"
-              size="large"
-              rounded="lg"
-              class="text-none px-6"
-              prepend-icon="mdi-open-in-new"
-              :href="inlineViewUrl"
-              target="_blank"
-              rel="noopener"
-            >
+            <v-btn variant="outlined" color="primary" size="large" rounded="lg" class="text-none px-6"
+              prepend-icon="mdi-open-in-new" :href="inlineViewUrl" target="_blank" rel="noopener">
               Open in New Tab
             </v-btn>
-            <v-btn
-              variant="text"
-              color="primary"
-              size="large"
-              rounded="lg"
-              class="text-none px-4"
-              prepend-icon="mdi-refresh"
-              @click="initDocument"
-            >
+            <v-btn variant="text" color="primary" size="large" rounded="lg" class="text-none px-4"
+              prepend-icon="mdi-refresh" @click="initDocument">
               Retry
             </v-btn>
           </div>
@@ -428,39 +214,24 @@
 
         <!-- Crisp High-DPI Canvas -->
         <div v-show="!canvasError" class="canvas-scroll-wrap">
-          <canvas
-            ref="pdfCanvasRef"
-            class="pdf-canvas elevation-1"
-          />
+          <canvas ref="pdfCanvasRef" class="pdf-canvas elevation-1" />
         </div>
 
-        <div
-          v-if="isRenderingPage"
-          class="canvas-render-overlay d-flex align-center justify-center"
-        >
-          <v-progress-circular
-            indeterminate
-            color="primary"
-            size="36"
-          />
+        <div v-if="isRenderingPage" class="canvas-render-overlay d-flex align-center justify-center">
+          <v-progress-circular indeterminate color="primary" size="36" />
         </div>
       </div>
 
       <!-- FOOTER INFO BAR -->
-      <div class="viewer-footer mt-4 d-flex flex-wrap align-center justify-space-between ga-2 text-caption muted-copy px-2">
+      <div
+        class="viewer-footer mt-4 d-flex flex-wrap align-center justify-space-between ga-2 text-caption muted-copy px-2">
         <span>🔒 Ephemeral storage: files are automatically purged after 24 hours.</span>
         <span>Use <kbd>&larr;</kbd> and <kbd>&rarr;</kbd> keys to change pages</span>
       </div>
     </v-card>
 
     <!-- NOTIFICATION SNACKBAR -->
-    <v-snackbar
-      v-model="snackbarVisible"
-      :timeout="2500"
-      color="primary"
-      location="bottom center"
-      rounded="pill"
-    >
+    <v-snackbar v-model="snackbarVisible" :timeout="2500" color="primary" location="bottom center" rounded="pill">
       {{ snackbarText }}
     </v-snackbar>
   </v-container>
@@ -849,13 +620,13 @@ onBeforeUnmount(() => {
   if (activeRenderTask) {
     try {
       activeRenderTask.cancel();
-    } catch (_e) {}
+    } catch (_e) { }
     activeRenderTask = null;
   }
   if (pdfDocInstance) {
     try {
       pdfDocInstance.destroy();
-    } catch (_e) {}
+    } catch (_e) { }
     pdfDocInstance = null;
   }
 });
@@ -913,11 +684,9 @@ watch(
   font-weight: 800;
   line-height: 0.9;
   letter-spacing: -0.04em;
-  background: linear-gradient(
-    135deg,
-    var(--portfolio-primary, #7c0e44) 0%,
-    var(--portfolio-secondary, #aa5e7a) 100%
-  );
+  background: linear-gradient(135deg,
+      var(--portfolio-primary, #7c0e44) 0%,
+      var(--portfolio-secondary, #aa5e7a) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -981,6 +750,7 @@ watch(
     transform: scale(0.6);
     opacity: 0.9;
   }
+
   100% {
     transform: scale(1.3);
     opacity: 0;
