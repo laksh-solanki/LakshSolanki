@@ -194,29 +194,15 @@ const currentProjectTitle = computed(() => {
         <!-- Search + Categories bar -->
         <div class="d-flex align-center justify-space-between mb-8 flex-wrap ga-4">
           <div class="d-flex align-center flex-grow-1 projects-search-wrap">
-            <v-text-field
-              v-model="searchQuery"
-              density="comfortable"
-              variant="outlined"
-              rounded="xl"
-              placeholder="Search projects by title, tag, or tech..."
-              prepend-inner-icon="mdi-magnify"
-              hide-details
-              color="primary"
-              class="flex-grow-1 clean-search-field"
-              clearable
-            />
+            <v-text-field v-model="searchQuery" density="comfortable" variant="outlined" rounded="xl"
+              placeholder="Search projects by title, tag, or tech..." prepend-inner-icon="mdi-magnify" hide-details
+              color="primary" class="flex-grow-1 clean-search-field" clearable />
           </div>
           <!-- Category Chips -->
           <div class="d-flex flex-wrap ga-2 category-chips-row">
-            <button
-              v-for="cat in categories"
-              :key="cat.name"
-              type="button"
-              class="filter-chip d-inline-flex align-center ga-1"
-              :class="{ 'is-active': activeCategory === cat.name }"
-              @click="activeCategory = cat.name"
-            >
+            <button v-for="cat in categories" :key="cat.name" type="button"
+              class="filter-chip d-inline-flex align-center ga-1" :class="{ 'is-active': activeCategory === cat.name }"
+              @click="activeCategory = cat.name">
               <v-icon :icon="cat.icon" size="16" class="mr-1"></v-icon>
               <span>{{ cat.name }}</span>
             </button>
@@ -263,8 +249,10 @@ const currentProjectTitle = computed(() => {
           <v-col v-if="filteredProjects.length === 0" cols="12" class="text-center py-12">
             <v-icon icon="mdi-magnify-minus" size="56" color="primary" class="mb-3 opacity-60"></v-icon>
             <h3 class="text-h6 font-weight-bold mb-2">No projects match your filter query</h3>
-            <p class="text-caption text-medium-emphasis mb-4">Try clearing active category parameters or keyword spellings.</p>
-            <v-btn color="primary" variant="outlined" rounded="xl" @click="searchQuery = ''; activeCategory = 'All';" class="text-none font-weight-bold">Clear filters</v-btn>
+            <p class="text-caption text-medium-emphasis mb-4">Try clearing active category parameters or keyword
+              spellings.</p>
+            <v-btn color="primary" variant="outlined" rounded="xl" @click="searchQuery = ''; activeCategory = 'All';"
+              class="text-none font-weight-bold">Clear filters</v-btn>
           </v-col>
         </v-row>
       </v-container>
@@ -273,59 +261,31 @@ const currentProjectTitle = computed(() => {
       <v-container class="py-4 py-md-6 active-project-shell animate-fade-in-up" fluid>
         <!-- Breadcrumb header -->
         <div class="breadcrumb-bar d-flex align-center py-3 px-5 mb-6 rounded-xl flex-wrap ga-2">
-          <v-btn to="/projects" variant="text" color="primary" class="text-none font-weight-bold mr-1" rounded="xl" prepend-icon="mdi-arrow-left">
-            Projects
+          <v-btn to="/projects" variant="text" color="primary" class="text-none font-weight-bold mr-1"
+            :text="$vuetify.display.xs ? undefined : 'Projects'" rounded="xl"
+            :size="$vuetify.display.xs ? 'small' : 'default'" :icon="$vuetify.display.xs ? 'mdi-arrow-left' : undefined"
+            :prepend-icon="$vuetify.display.xs ? undefined : 'mdi-arrow-left'">
           </v-btn>
-          <v-divider vertical class="mx-3 opacity-20" style="height: 20px;"></v-divider>
+          <v-divider vertical class="mx-3 opacity-20" style="height: 40px;"></v-divider>
 
           <!-- Dropdown menu to switch between all project tools -->
           <v-menu transition="slide-y-transition">
             <template v-slot:activator="{ props }">
-              <v-btn
-                color="primary"
-                variant="flat"
-                rounded="xl"
-                class="text-none font-weight-bold"
-                v-bind="props"
-                append-icon="mdi-chevron-down"
-              >
+              <v-btn color="primary" variant="flat" rounded="xl" class="text-none font-weight-bold" v-bind="props"
+                append-icon="mdi-chevron-down">
                 {{ currentProjectTitle }}
               </v-btn>
             </template>
-            <v-list class="bg-surface border mt-2" rounded="lg" style="max-height: 400px; overflow-y: auto;">
-              <v-list-item
-                v-for="proj in projects"
-                :key="proj.id"
-                :to="proj.link"
-                color="primary"
-                :active="route.path === proj.link"
-              >
+            <v-list class="bg-surface border mt-2" rounded="lg" style="max-height: 300px; overflow-y: auto;">
+              <v-list-item v-for="proj in projects" :key="proj.id" :to="proj.link" color="primary"
+                :active="route.path === proj.link" class="pa-3">
                 <template v-slot:prepend>
-                  <v-icon :icon="proj.icon" class="mr-2" size="20"></v-icon>
+                  <v-icon :icon="proj.icon" size="20"></v-icon>
                 </template>
                 <v-list-item-title class="font-weight-bold">{{ proj.title }}</v-list-item-title>
               </v-list-item>
             </v-list>
           </v-menu>
-
-          <v-divider vertical class="mx-3 opacity-20 d-none d-md-inline" style="height: 20px;"></v-divider>
-
-          <!-- Quick switch chips for related utilities -->
-          <div class="d-none d-md-flex align-center ga-2">
-            <span class="text-caption text-medium-emphasis mr-1">Quick Switch:</span>
-            <v-btn
-              v-for="quickProj in projects.filter(p => ['PDF & Image Studio', 'Certificate Generator'].includes(p.title))"
-              :key="quickProj.id"
-              :to="quickProj.link"
-              size="small"
-              variant="tonal"
-              rounded="pill"
-              class="text-none font-weight-bold"
-              :color="route.path === quickProj.link ? 'primary' : 'secondary'"
-            >
-              {{ quickProj.title.replace(' Converter', '') }}
-            </v-btn>
-          </div>
         </div>
         <RouterView />
       </v-container>

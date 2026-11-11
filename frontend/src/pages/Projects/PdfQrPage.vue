@@ -769,9 +769,6 @@ const downloadSvg = async () => {
           <div class="d-flex align-start justify-space-between flex-wrap ga-3 mb-6">
             <div>
               <h2 class="text-h5 font-weight-bold my-0">Drop your PDF here</h2>
-              <p class="text-body-2 text-medium-emphasis mb-0">
-                Instantly convert PDF files into customizable, scannable QR codes.
-              </p>
             </div>
           </div>
 
@@ -798,7 +795,7 @@ const downloadSvg = async () => {
             </div>
           </v-sheet>
 
-          <div v-if="isUploading" class="progress-shell mt-5">
+          <div v-if="isUploading" class="progress-shell mt-5 p-2">
             <div class="d-flex justify-space-between align-center mb-2">
               <span class="text-body-2 font-weight-medium">{{ uploadStatus }}</span>
               <span class="text-caption font-weight-bold">{{ uploadProgress }}%</span>
