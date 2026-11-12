@@ -6,10 +6,11 @@ from datetime import datetime, timedelta, timezone
 import re
 from typing import Any
 
+from bson import ObjectId
 from bson.binary import Binary
 from pymongo.collection import Collection
 from pymongo.database import Database
-from pymongo.errors import DuplicateKeyError
+from pymongo.errors import DuplicateKeyError, PyMongoError
 
 from .utils import generate_id, normalize_email, now_iso
 
@@ -55,7 +56,7 @@ def _to_public_document(document: dict[str, Any] | None) -> dict[str, Any] | Non
     public = deepcopy(document)
     object_id = public.pop("_id", None)
     public.pop("normalizedName", None)
-    if object_id is not None:
+    if "id" not in public and object_id is not None:
         public["id"] = _document_id(object_id)
     return public
 
@@ -381,8 +382,15 @@ class Repositories:
     def remove_tts_snippet(self, *, owner_key: str, snippet_id: str) -> bool:
         collection = self._collection("tts_snippets")
         if collection is not None:
-            result = collection.delete_one({"ownerKey": owner_key.strip(), "id": snippet_id.strip()})
-            return result.deleted_count > 0
+            try:
+                safe_id = snippet_id.strip()
+                conditions: list[dict[str, Any]] = [{"id": safe_id}]
+                if ObjectId.is_valid(safe_id):
+                    conditions.append({"_id": ObjectId(safe_id)})
+                result = collection.delete_one({"ownerKey": owner_key.strip(), "$or": conditions})
+                return result.deleted_count > 0
+            except PyMongoError:
+                pass
         before = len(self.memory["tts_snippets"])
         self.memory["tts_snippets"] = [
             item
@@ -395,10 +403,13 @@ class Repositories:
         safe_limit = max(1, min(50, limit))
         collection = self._collection("ai_conversations")
         if collection is not None:
-            return [
-                _to_public_conversation_summary(item)
-                for item in collection.find({"ownerUid": owner_uid.strip()}).sort("updatedAt", -1).limit(safe_limit)
-            ]
+            try:
+                return [
+                    _to_public_conversation_summary(item)
+                    for item in collection.find({"ownerUid": owner_uid.strip()}).sort("updatedAt", -1).limit(safe_limit)
+                ]
+            except PyMongoError:
+                pass
         items = [deepcopy(item) for item in self.memory["ai_conversations"] if item["ownerUid"] == owner_uid.strip()]
         items.sort(key=lambda item: item.get("updatedAt", ""), reverse=True)
         return [_to_public_conversation_summary(item) or {} for item in items[:safe_limit]]
@@ -406,7 +417,16 @@ class Repositories:
     def get_ai_conversation(self, *, owner_uid: str, conversation_id: str) -> dict[str, Any] | None:
         collection = self._collection("ai_conversations")
         if collection is not None:
-            return _to_public_conversation(collection.find_one({"ownerUid": owner_uid.strip(), "id": conversation_id.strip()}))
+            try:
+                safe_id = conversation_id.strip()
+                conditions: list[dict[str, Any]] = [{"id": safe_id}]
+                if ObjectId.is_valid(safe_id):
+                    conditions.append({"_id": ObjectId(safe_id)})
+                return _to_public_conversation(
+                    collection.find_one({"ownerUid": owner_uid.strip(), "$or": conditions})
+                )
+            except PyMongoError:
+                pass
         item = next(
             (
                 item
@@ -500,8 +520,15 @@ class Repositories:
     def remove_ai_conversation(self, *, owner_uid: str, conversation_id: str) -> bool:
         collection = self._collection("ai_conversations")
         if collection is not None:
-            result = collection.delete_one({"ownerUid": owner_uid.strip(), "id": conversation_id.strip()})
-            return result.deleted_count > 0
+            try:
+                safe_id = conversation_id.strip()
+                conditions: list[dict[str, Any]] = [{"id": safe_id}]
+                if ObjectId.is_valid(safe_id):
+                    conditions.append({"_id": ObjectId(safe_id)})
+                result = collection.delete_one({"ownerUid": owner_uid.strip(), "$or": conditions})
+                return result.deleted_count > 0
+            except PyMongoError:
+                pass
         before = len(self.memory["ai_conversations"])
         self.memory["ai_conversations"] = [
             item

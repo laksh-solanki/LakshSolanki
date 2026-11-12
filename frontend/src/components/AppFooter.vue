@@ -65,7 +65,7 @@ const copyEmail = async () => {
               :title="copied ? 'Email copied!' : 'Click to copy email: lakshsolanki848@gmail.com'" @click="copyEmail">
               <v-icon :icon="copied ? 'mdi-check' : 'mdi-email-outline'" size="20"></v-icon>
             </button>
-            <a href="https://www.instagram.com/laksh_solanki" target="_blank" rel="noopener noreferrer"
+            <a href="https://www.instagram.com/_lucky_2912?cplk=MTF4NGE4dHUzMHc2MQ==" target="_blank" rel="noopener noreferrer"
               class="social-icon" aria-label="Instagram">
               <v-icon icon="mdi-instagram" size="20"></v-icon>
 

@@ -166,6 +166,11 @@ def _repository_error_response(exc: RepositoryError) -> JSONResponse:
     return JSONResponse(status_code=exc.status_code, content=payload)
 
 
+@app.exception_handler(RepositoryError)
+async def repository_error_handler(_: Request, exc: RepositoryError) -> JSONResponse:
+    return _repository_error_response(exc)
+
+
 @app.get("/")
 def root() -> dict[str, Any]:
     return {
@@ -187,6 +192,8 @@ def health() -> dict[str, Any]:
 
 @app.get("/ready")
 def ready() -> JSONResponse:
+    if settings.mongodb_uri:
+        db_manager.ensure_connected()
     is_ready = not settings.mongodb_uri or db_manager.status.connected
     return JSONResponse(
         status_code=200 if is_ready else 503,
@@ -266,9 +273,10 @@ def delete_tts_snippet(
     snippet_id: str,
     ownerKey: str = Query(min_length=8, max_length=120),
 ) -> JSONResponse:
-    if not 6 <= len(snippet_id) <= 120:
+    clean_id = snippet_id.strip()
+    if not 6 <= len(clean_id) <= 120:
         return JSONResponse(status_code=400, content={"error": "Invalid request payload."})
-    removed = repositories.remove_tts_snippet(owner_key=ownerKey, snippet_id=snippet_id)
+    removed = repositories.remove_tts_snippet(owner_key=ownerKey, snippet_id=clean_id)
     if not removed:
         return JSONResponse(status_code=404, content={"error": "Snippet not found"})
     return JSONResponse(content={"message": "Snippet removed successfully"})
@@ -331,13 +339,23 @@ def _sanitize_chat_messages(messages: list[ChatMessage]) -> list[dict[str, str]]
 
 
 def _resolve_chat_provider(requested_provider: str | None) -> str:
-    preferred = requested_provider or settings.ai_default_provider or "auto"
-    if preferred == "gemini":
-        return "gemini" if settings.gemini_api_key else ""
-    if preferred == "groq":
-        return "groq" if settings.groq_api_key else ""
-    if preferred == "openai":
-        return "openai" if settings.openai_api_key else ""
+    requested = (requested_provider or "").strip().lower()
+    if requested in {"gemini", "groq", "openai"}:
+        if requested == "gemini":
+            return "gemini" if settings.gemini_api_key else ""
+        if requested == "groq":
+            return "groq" if settings.groq_api_key else ""
+        if requested == "openai":
+            return "openai" if settings.openai_api_key else ""
+
+    default_p = (settings.ai_default_provider or "").strip().lower()
+    if default_p == "gemini" and settings.gemini_api_key:
+        return "gemini"
+    if default_p == "groq" and settings.groq_api_key:
+        return "groq"
+    if default_p == "openai" and settings.openai_api_key:
+        return "openai"
+
     if settings.gemini_api_key:
         return "gemini"
     if settings.groq_api_key:
@@ -349,13 +367,32 @@ def _resolve_chat_provider(requested_provider: str | None) -> str:
 
 def _extract_ai_text(provider: str, payload: dict[str, Any]) -> str:
     if provider == "gemini":
-        parts = payload.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+        candidates = payload.get("candidates") or []
+        if not candidates:
+            feedback = payload.get("promptFeedback") or {}
+            block_reason = feedback.get("blockReason")
+            if block_reason:
+                return f"Content blocked by safety filter: {block_reason}"
+            return ""
+        candidate = candidates[0] or {}
+        content_obj = candidate.get("content") or {}
+        parts = content_obj.get("parts") or []
         return "".join(str(part.get("text", "")) for part in parts).strip()
-    content = payload.get("choices", [{}])[0].get("message", {}).get("content", "")
-    if isinstance(content, str):
+
+    choices = payload.get("choices") or []
+    if not choices:
+        return ""
+    message = choices[0].get("message") or {}
+    content = message.get("content", "")
+    if isinstance(content, str) and content.strip():
         return content.strip()
     if isinstance(content, list):
-        return "".join(str(part.get("text", "")) for part in content).strip()
+        text = "".join(str(part.get("text", "")) for part in content).strip()
+        if text:
+            return text
+    reasoning = message.get("reasoning_content") or message.get("reasoning") or ""
+    if isinstance(reasoning, str) and reasoning.strip():
+        return reasoning.strip()
     return ""
 
 
@@ -396,7 +433,7 @@ async def ai_chat(payload: ChatPayload) -> JSONResponse:
         )
 
     model = (
-        payload.model
+        (payload.model.strip() if payload.model else "")
         or (settings.gemini_chat_model if provider == "gemini" else settings.groq_chat_model if provider == "groq" else settings.openai_chat_model)
         or ""
     ).strip()
@@ -410,18 +447,26 @@ async def ai_chat(payload: ChatPayload) -> JSONResponse:
     try:
         async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT_SECONDS) as client:
             if provider == "gemini":
+                gemini_contents: list[dict[str, Any]] = []
+                for item in messages:
+                    role = "model" if item["role"] == "assistant" else "user"
+                    if gemini_contents and gemini_contents[-1]["role"] == role:
+                        gemini_contents[-1]["parts"].append({"text": item["text"]})
+                    else:
+                        gemini_contents.append({"role": role, "parts": [{"text": item["text"]}]})
+
+                while gemini_contents and gemini_contents[0]["role"] == "model":
+                    gemini_contents.pop(0)
+
+                if not gemini_contents:
+                    return JSONResponse(status_code=400, content={"error": "At least one user message is required."})
+
                 body: dict[str, Any] = {
-                    "contents": [
-                        {
-                            "role": "model" if item["role"] == "assistant" else "user",
-                            "parts": [{"text": item["text"]}],
-                        }
-                        for item in messages
-                    ],
+                    "contents": gemini_contents,
                     "generationConfig": {"temperature": temperature, "maxOutputTokens": max_output_tokens},
                 }
                 if system_prompt:
-                    body["system_instruction"] = {"parts": [{"text": system_prompt}]}
+                    body["systemInstruction"] = {"parts": [{"text": system_prompt}]}
                 response = await client.post(
                     f"{GEMINI_API_BASE}/{model}:generateContent",
                     params={"key": settings.gemini_api_key},
@@ -628,9 +673,9 @@ async def upload_pdf(request: Request, file: UploadFile = File(...)) -> JSONResp
     content = b"".join(chunks)
 
     # 4. Binary Magic Byte & EOF Integrity Validation
-    if len(content) < 10 or not content.startswith(b"%PDF-"):
+    if len(content) < 10 or b"%PDF-" not in content[:1024]:
         raise HTTPException(status_code=400, detail="Invalid PDF format or corrupted file.")
-    tail = content[-2048:]
+    tail = content[-4096:]
     if b"%%EOF" not in tail:
         raise HTTPException(status_code=400, detail="Invalid PDF format or corrupted file.")
 
@@ -661,6 +706,7 @@ async def upload_pdf(request: Request, file: UploadFile = File(...)) -> JSONResp
     )
 
 
+@app.get("/v/{id}")
 @app.get("/api/pdf/{id}")
 def view_pdf(id: str) -> Response:
     if not is_valid_uuid4(id):

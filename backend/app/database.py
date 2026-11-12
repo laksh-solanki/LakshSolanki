@@ -99,62 +99,84 @@ class DatabaseManager:
         if self.db is None:
             return
 
-        try:
-            self.db["courses"].create_index([("name", ASCENDING)], name="idx_course_name")
-            self.db["courses"].create_index(
+        indexes = [
+            ("courses", [("name", ASCENDING)], {"name": "idx_course_name"}),
+            (
+                "courses",
                 [("normalizedName", ASCENDING)],
-                unique=True,
-                partialFilterExpression={"normalizedName": {"$type": "string"}},
-                name="uq_course_normalized_name",
-            )
-            self.db["media"].create_index(
+                {
+                    "unique": True,
+                    "partialFilterExpression": {"normalizedName": {"$type": "string"}},
+                    "name": "uq_course_normalized_name",
+                },
+            ),
+            (
+                "media",
                 [("normalizedKey", ASCENDING)],
-                unique=True,
-                partialFilterExpression={"normalizedKey": {"$type": "string"}},
-                name="uq_media_normalized_key",
-            )
-            self.db["media"].create_index([("type", ASCENDING), ("createdAt", DESCENDING)], name="idx_media_type_created")
-            self.db["subscriptions"].create_index(
+                {
+                    "unique": True,
+                    "partialFilterExpression": {"normalizedKey": {"$type": "string"}},
+                    "name": "uq_media_normalized_key",
+                },
+            ),
+            ("media", [("type", ASCENDING), ("createdAt", DESCENDING)], {"name": "idx_media_type_created"}),
+            (
+                "subscriptions",
                 [("normalizedEmail", ASCENDING)],
-                unique=True,
-                name="uq_subscription_normalized_email",
-            )
-            self.db["subscriptions"].create_index(
+                {"unique": True, "name": "uq_subscription_normalized_email"},
+            ),
+            (
+                "subscriptions",
                 [("status", ASCENDING), ("createdAt", DESCENDING)],
-                name="idx_subscription_status_created",
-            )
-            self.db["tts_snippets"].create_index(
+                {"name": "idx_subscription_status_created"},
+            ),
+            (
+                "tts_snippets",
                 [("ownerKey", ASCENDING), ("createdAt", DESCENDING)],
-                name="idx_tts_snippets_owner_created",
-            )
-            self.db["tts_snippets"].create_index(
+                {"name": "idx_tts_snippets_owner_created"},
+            ),
+            (
+                "tts_snippets",
                 [("ownerKey", ASCENDING), ("normalizedContent", ASCENDING)],
-                unique=True,
-                name="uq_tts_snippets_owner_content",
-            )
-            self.db["ai_conversations"].create_index(
+                {"unique": True, "name": "uq_tts_snippets_owner_content"},
+            ),
+            (
+                "ai_conversations",
                 [("ownerUid", ASCENDING), ("updatedAt", DESCENDING)],
-                name="idx_ai_conversations_owner_updated",
-            )
-            self.db["ai_conversations"].create_index(
+                {"name": "idx_ai_conversations_owner_updated"},
+            ),
+            (
+                "ai_conversations",
                 [("ownerUid", ASCENDING), ("id", ASCENDING)],
-                unique=True,
-                name="uq_ai_conversations_owner_id",
-            )
-            self.db["pdf_uploads"].create_index(
-                [("id", ASCENDING)],
-                unique=True,
-                name="uq_pdf_uploads_id",
-            )
-            self.db["pdf_uploads"].create_index(
+                {"unique": True, "name": "uq_ai_conversations_owner_id"},
+            ),
+            ("pdf_uploads", [("id", ASCENDING)], {"unique": True, "name": "uq_pdf_uploads_id"}),
+            (
+                "pdf_uploads",
                 [("expiresAt", ASCENDING)],
-                expireAfterSeconds=0,
-                name="ttl_pdf_uploads_expires_at",
-            )
-        except PyMongoError:
-            # Matching the JS backend: index issues should not prevent the app from starting.
-            pass
+                {"expireAfterSeconds": 0, "name": "ttl_pdf_uploads_expires_at"},
+            ),
+        ]
+
+        for coll_name, keys, kwargs in indexes:
+            try:
+                self.db[coll_name].create_index(keys, **kwargs)
+            except PyMongoError:
+                pass
 
     def close(self) -> None:
         if self.client is not None:
-            self.client.close()
+            try:
+                self.client.close()
+            except Exception:
+                pass
+        self.client = None
+        self.db = None
+        self._last_connect_attempt = 0.0
+        self.status = DatabaseStatus(
+            mode="memory",
+            enabled=False,
+            connected=False,
+            reason="Database client closed",
+            updatedAt=now_iso(),
+        )
