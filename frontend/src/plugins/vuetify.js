@@ -12,6 +12,7 @@ import {
   VFileUploadItem,
   VFileUploadList,
 } from "vuetify/components";
+import { getInitialTheme } from "@/composables/useAppTheme";
 
 const resolveMdiSvgIcon = (icon) => {
   if (typeof icon !== "string") {
@@ -52,7 +53,7 @@ export default createVuetify({
     VFileUploadList,
   },
   theme: {
-    defaultTheme: "portfolioLight",
+    defaultTheme: getInitialTheme(),
     themes: {
       portfolioLight: {
         dark: false,
@@ -78,26 +79,26 @@ export default createVuetify({
         },
       },
       portfolioDark: {
-        dark: false,
+        dark: true,
         colors: {
-          background: "#F2DACE",
-          surface: "#FFFFFF",
-          "surface-bright": "#FAF3F0",
-          "surface-light": "#FAF3F0",
-          "surface-variant": "#EBD5CA",
-          primary: "#7C0E44",
+          background: "#0F0C0E",
+          surface: "#1A1418",
+          "surface-bright": "#2D1F28",
+          "surface-light": "#241A21",
+          "surface-variant": "#30202B",
+          primary: "#F06292",
           "on-primary": "#FFFFFF",
-          secondary: "#AA5E7A",
+          secondary: "#C77D98",
           "on-secondary": "#FFFFFF",
-          accent: "#D49A9A",
-          "on-accent": "#231219",
-          error: "#A81D37",
-          "on-error": "#FFFFFF",
-          info: "#5C2D46",
-          success: "#7C0E44",
-          warning: "#993B58",
-          "on-background": "#231219",
-          "on-surface": "#231219",
+          accent: "#F4A6B8",
+          "on-accent": "#160B10",
+          error: "#CF6679",
+          "on-error": "#000000",
+          info: "#B88DA6",
+          success: "#66BB6A",
+          warning: "#FFA726",
+          "on-background": "#F7EDF2",
+          "on-surface": "#F7EDF2",
         },
       },
     },

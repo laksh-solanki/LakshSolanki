@@ -5,8 +5,9 @@
       @click="openPalette">
       <v-icon icon="mdi-magnify" :start="!$vuetify.display.smAndDown"
         :class="{ 'm-0': $vuetify.display.smAndDown }"></v-icon>
-      <template v-if="$vuetify.display.mdAndUp">
+      <template v-if="$vuetify.display.mdAndUp" class="d-flex align-center justify-space-around w-100">
         <span class="search-trigger__label">Search...</span>
+        <v-divider vertical class="mx-2" :class="{ 'd-none': $vuetify.display.smAndDown }"></v-divider>
         <kbd class="search-trigger__kbd">Ctrl K</kbd>
       </template>
     </v-btn>
@@ -26,7 +27,7 @@
 
       <main class="palette-body custom-scrollbar">
         <section v-if="!normalizedQuery" class="palette-section">
-          <p class="palette-label">Quick Access</p>
+          <p class="palette-label mt-0">Quick Access</p>
           <div class="quick-grid">
             <button v-for="quick in quickActions" :key="quick.id" class="quick-card" type="button"
               @click="navigateTo(quick.path)">
@@ -35,7 +36,7 @@
             </button>
           </div>
 
-          <p class="palette-label mt-3">Suggestions</p>
+          <p class="palette-label mt-4">Suggestions</p>
           <div class="suggestion-list">
             <button v-for="term in suggestedTerms" :key="term" class="suggestion-chip" type="button"
               @click="applySuggestion(term)">
@@ -68,7 +69,7 @@
         </div>
       </main>
 
-      <footer class="palette-foot d-none d-sm-flex">
+      <footer class="palette-foot d-none d-md-flex">
         <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> Navigate</span>
         <span><kbd>Enter</kbd> Open</span>
         <span><kbd>Esc</kbd> Close</span>
@@ -406,15 +407,15 @@ onUnmounted(() => {
 .search-trigger {
   min-width: 195px;
   justify-content: space-between;
-  border-color: rgba(124, 14, 68, 0.16) !important;
-  background: #FFFFFF !important;
+  border-color: var(--portfolio-border-color, rgba(124, 14, 68, 0.16)) !important;
+  background: var(--portfolio-surface, #FFFFFF) !important;
   color: var(--portfolio-ink, #231219) !important;
-  box-shadow: 0 2px 8px rgba(124, 14, 68, 0.04);
+  box-shadow: var(--portfolio-shadow-sm, 0 2px 8px rgba(124, 14, 68, 0.04));
 }
 
 .search-trigger:hover {
   border-color: var(--portfolio-primary, #7C0E44) !important;
-  background: #FAF3F0 !important;
+  background: var(--portfolio-surface-soft, #FAF3F0) !important;
 }
 
 .search-trigger__label {
@@ -424,7 +425,7 @@ onUnmounted(() => {
 
 .search-trigger__kbd {
   font-size: 0.72rem;
-  border: 1px solid rgba(124, 14, 68, 0.14);
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.14));
   border-radius: 6px;
   padding: 2px 6px;
   color: var(--portfolio-muted, #7E636E);
@@ -445,9 +446,9 @@ onUnmounted(() => {
 
 .palette-shell {
   border-radius: 20px;
-  border: 1px solid rgba(124, 14, 68, 0.14);
-  background: #FFFFFF;
-  box-shadow: 0 16px 40px rgba(124, 14, 68, 0.12);
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.14));
+  background: var(--portfolio-surface, #FFFFFF);
+  box-shadow: var(--portfolio-shadow, 0 16px 40px rgba(124, 14, 68, 0.12));
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -458,9 +459,9 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  border-bottom: 1px solid rgba(124, 14, 68, 0.1);
+  border-bottom: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.1));
   padding: 14px 18px;
-  background: #FFFFFF;
+  background: var(--portfolio-surface, #FFFFFF);
 }
 
 .palette-head__icon {
@@ -482,7 +483,7 @@ onUnmounted(() => {
 }
 
 .palette-close {
-  border: 1px solid rgba(124, 14, 68, 0.12);
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.12));
   background: var(--portfolio-surface-soft, #FAF3F0);
   color: var(--portfolio-ink-soft, #4E3842);
   border-radius: 10px;
@@ -502,25 +503,24 @@ onUnmounted(() => {
 }
 
 .palette-close kbd {
-  border: 1px solid rgba(124, 14, 68, 0.14);
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.14));
   border-radius: 6px;
   display: flex;
   padding: 1px 5px;
-  background: #FFFFFF;
+  background: var(--portfolio-surface, #FFFFFF);
 }
 
 .palette-body {
   overflow-y: auto;
   padding: 16px 18px 12px;
-  background: #FFFFFF;
+  background: var(--portfolio-surface, #FFFFFF);
 }
 
-.palette-section + .palette-section {
+.palette-section+.palette-section {
   margin-top: 14px;
 }
 
 .palette-label {
-  margin: 0px 0 10px;
   font-size: 0.74rem;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -597,7 +597,7 @@ onUnmounted(() => {
   transition: background-color 0.18s ease, border-color 0.18s ease;
 }
 
-.search-hit + .search-hit {
+.search-hit+.search-hit {
   margin-top: 6px;
 }
 
@@ -656,7 +656,6 @@ onUnmounted(() => {
   background: var(--portfolio-surface-soft, #FAF3F0);
   color: var(--portfolio-muted, #7E636E);
   padding: 10px 16px;
-  display: flex;
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
@@ -671,10 +670,11 @@ onUnmounted(() => {
 }
 
 kbd {
-  border: 1px solid rgba(124, 14, 68, 0.14);
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.14));
   border-radius: 6px;
   padding: 2px 6px;
-  background: #FFFFFF;
+  background: var(--portfolio-surface, #FFFFFF);
+  color: var(--portfolio-ink-soft, #4E3842);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -736,6 +736,7 @@ kbd {
     min-width: 130px;
     padding: 0 10px !important;
   }
+
   .search-trigger__kbd {
     display: none;
   }

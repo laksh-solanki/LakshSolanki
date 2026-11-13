@@ -3,7 +3,7 @@
   --page-gutter: clamp(16px, 2.4vw, 32px);
   --page-gutter-tight: clamp(12px, 1.8vw, 24px);
 
-  /* Primary Palette */
+  /* Primary Palette (Light Default) */
   --portfolio-primary: #7C0E44;
   --portfolio-secondary: #AA5E7A;
   --portfolio-accent: #D49A9A;
@@ -32,6 +32,129 @@
   --portfolio-gradient: radial-gradient(circle at 10% 5%, rgba(212, 154, 154, 0.3) 0%, transparent 42%),
     radial-gradient(circle at 92% 85%, rgba(170, 94, 122, 0.18) 0%, transparent 46%),
     #F2DACE;
+
+  /* Header and Navigation variables */
+  --header-bg: rgba(255, 255, 255, 0.9);
+  --header-border: rgba(124, 14, 68, 0.08);
+  --nav-seg-bg: rgba(124, 14, 68, 0.05);
+  --nav-seg-border: rgba(124, 14, 68, 0.09);
+  --nav-seg-hover: rgba(124, 14, 68, 0.06);
+}
+
+/* Light Theme Variables */
+.v-theme--portfolioLight,
+html.theme-light,
+[data-theme="light"] {
+  color-scheme: light;
+  --portfolio-primary: #7C0E44;
+  --portfolio-secondary: #AA5E7A;
+  --portfolio-accent: #D49A9A;
+  --portfolio-bg: #F2DACE;
+  --portfolio-surface: #FFFFFF;
+  --portfolio-surface-soft: #FAF3F0;
+  --portfolio-surface-variant: #EBD5CA;
+  --portfolio-panel-highlight: rgba(255, 255, 255, 0.92);
+  --portfolio-field-bg: #FFFFFF;
+  --portfolio-ink: #231219;
+  --portfolio-ink-soft: #4E3842;
+  --portfolio-muted: #7E636E;
+  --portfolio-border-color: rgba(124, 14, 68, 0.12);
+  --portfolio-border-strong: rgba(124, 14, 68, 0.24);
+  --portfolio-shadow-sm: 0 2px 8px rgba(124, 14, 68, 0.04);
+  --portfolio-shadow: 0 8px 24px rgba(124, 14, 68, 0.06);
+  --portfolio-shadow-hover: 0 12px 32px rgba(124, 14, 68, 0.09);
+  --portfolio-gradient: radial-gradient(circle at 10% 5%, rgba(212, 154, 154, 0.3) 0%, transparent 42%),
+    radial-gradient(circle at 92% 85%, rgba(170, 94, 122, 0.18) 0%, transparent 46%),
+    #F2DACE;
+  --header-bg: rgba(255, 255, 255, 0.9);
+  --header-border: rgba(124, 14, 68, 0.08);
+  --nav-seg-bg: rgba(124, 14, 68, 0.05);
+  --nav-seg-border: rgba(124, 14, 68, 0.09);
+  --nav-seg-hover: rgba(124, 14, 68, 0.06);
+}
+
+/* Dark Theme Variables */
+.v-theme--portfolioDark,
+html.dark,
+html.theme-dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --portfolio-primary: #F06292;
+  --portfolio-secondary: #C77D98;
+  --portfolio-accent: #F4A6B8;
+  --portfolio-bg: #0F0C0E;
+  --portfolio-surface: #1A1418;
+  --portfolio-surface-soft: #241A21;
+  --portfolio-surface-variant: #30202B;
+  --portfolio-panel-highlight: rgba(26, 20, 24, 0.94);
+  --portfolio-field-bg: #22181F;
+  --portfolio-ink: #F7EDF2;
+  --portfolio-ink-soft: #DAC2CD;
+  --portfolio-muted: #A88F9C;
+  --portfolio-border-color: rgba(240, 98, 146, 0.18);
+  --portfolio-border-strong: rgba(240, 98, 146, 0.32);
+  --portfolio-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --portfolio-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --portfolio-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.6);
+  --portfolio-gradient: radial-gradient(circle at 10% 5%, rgba(240, 98, 146, 0.14) 0%, transparent 45%),
+    radial-gradient(circle at 92% 85%, rgba(199, 125, 152, 0.1) 0%, transparent 48%),
+    #0F0C0E;
+  --header-bg: rgba(26, 20, 24, 0.88);
+  --header-border: rgba(240, 98, 146, 0.18);
+  --nav-seg-bg: rgba(240, 98, 146, 0.08);
+  --nav-seg-border: rgba(240, 98, 146, 0.18);
+  --nav-seg-hover: rgba(240, 98, 146, 0.14);
+}
+
+/* Dark mode styling for HomePage elements */
+html.dark .home-shell .hero-pill-item,
+html.dark .home-shell .hero-photo-stage,
+html.dark .home-shell .hero-float-badge,
+html.dark .home-shell .hero-btn-outline,
+html.dark .home-shell .hero-tech-chip,
+html.dark .home-shell .stat-card,
+html.dark .home-shell .stack-node-card,
+html.dark .home-shell .collab-panel,
+html.dark .home-shell .pillar-card {
+  background: var(--portfolio-surface) !important;
+  border-color: var(--portfolio-border-color) !important;
+  color: var(--portfolio-ink) !important;
+}
+
+html.dark .home-shell .collab-step-item {
+  background: var(--portfolio-surface-soft) !important;
+  border-color: var(--portfolio-border-color) !important;
+  color: var(--portfolio-ink) !important;
+}
+
+html.dark .home-shell .hero-photo-backdrop {
+  background: linear-gradient(145deg, var(--portfolio-surface) 0%, var(--portfolio-surface-soft) 100%) !important;
+}
+
+html.dark .home-shell .hero-btn-outline {
+  background: var(--portfolio-surface) !important;
+  color: var(--portfolio-primary) !important;
+  border-color: var(--portfolio-border-strong) !important;
+}
+
+html.dark .app-footer .social-icon {
+  background: var(--portfolio-surface) !important;
+  border-color: var(--portfolio-border-color) !important;
+  color: var(--portfolio-primary) !important;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow-x: hidden !important;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
 }
 
 html,
@@ -40,10 +163,26 @@ body,
 .v-application,
 .v-application__wrap {
   min-height: 100%;
-  overflow-x: clip;
   width: 100%;
   max-width: 100%;
   background: var(--portfolio-bg);
+}
+
+.v-application {
+  overflow-x: hidden !important;
+}
+
+.v-application__wrap {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+}
+
+.v-main {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box;
 }
 
 button,
@@ -117,19 +256,6 @@ kbd {
   min-height: 100dvh;
 }
 
-/* Theme classes compatibility */
-.v-theme--portfolioLight,
-.v-theme--portfolioDark {
-  color-scheme: light;
-  --portfolio-bg: #F2DACE;
-  --portfolio-ink: #231219;
-  --portfolio-ink-soft: #4E3842;
-  --portfolio-muted: #7E636E;
-  --portfolio-panel-highlight: rgba(255, 255, 255, 0.92);
-  --portfolio-field-bg: #FFFFFF;
-  --portfolio-border-color: rgba(124, 14, 68, 0.12);
-  --portfolio-shadow: 0 8px 24px rgba(124, 14, 68, 0.06);
-}
 
 .text-primary {
   color: var(--portfolio-primary) !important;
@@ -315,8 +441,8 @@ select:active,
 
 .hero-chip,
 .about-page .hero-kicker {
-  border: 1px solid rgba(124, 14, 68, 0.18) !important;
-  background: rgba(124, 14, 68, 0.06) !important;
+  border: 1px solid var(--portfolio-border-color) !important;
+  background: var(--nav-seg-bg, rgba(124, 14, 68, 0.06)) !important;
   color: var(--portfolio-primary) !important;
   font-weight: 700 !important;
   letter-spacing: 0.04em !important;
@@ -402,7 +528,7 @@ select:active,
 .process-index,
 .step-index {
   color: var(--portfolio-primary) !important;
-  background: rgba(124, 14, 68, 0.08) !important;
+  background: var(--nav-seg-bg, rgba(124, 14, 68, 0.08)) !important;
   font-weight: 800;
 }
 
@@ -411,13 +537,13 @@ select:active,
 .dev-profile-avatar,
 .luxe-avatar,
 .luxe-step-avatar {
-  border: 2px solid rgba(124, 14, 68, 0.15) !important;
+  border: 2px solid var(--portfolio-border-strong, rgba(124, 14, 68, 0.15)) !important;
   box-shadow: var(--portfolio-shadow-sm) !important;
 }
 
 .strength-card .v-avatar {
-  border: 1px solid rgba(124, 14, 68, 0.14) !important;
-  background: rgba(124, 14, 68, 0.06) !important;
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.14)) !important;
+  background: var(--nav-seg-bg, rgba(124, 14, 68, 0.06)) !important;
 }
 
 .strength-card .v-icon {
@@ -436,7 +562,7 @@ select:active,
 .upload-zone:hover,
 .upload-zone.drag-over {
   border-color: var(--portfolio-primary) !important;
-  background: rgba(124, 14, 68, 0.04) !important;
+  background: var(--nav-seg-hover, rgba(124, 14, 68, 0.04)) !important;
 }
 
 .selected-file {
@@ -541,7 +667,7 @@ kbd {
 
 .destination-item:hover {
   border-color: var(--portfolio-primary) !important;
-  background: rgba(124, 14, 68, 0.04) !important;
+  background: var(--nav-seg-hover, rgba(124, 14, 68, 0.04)) !important;
 }
 
 .zoom-card,
@@ -609,7 +735,7 @@ kbd {
 .ap-highlight-cell:hover,
 .ap-strength-card:hover,
 .minimal-404:hover {
-  border-color: rgba(124, 14, 68, 0.28) !important;
+  border-color: var(--portfolio-border-strong, rgba(124, 14, 68, 0.28)) !important;
   box-shadow: var(--portfolio-shadow-hover) !important;
 }
 

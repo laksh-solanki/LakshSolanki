@@ -551,19 +551,19 @@ const scrollToCollaborate = () => {
 <style scoped>
 /* ─── TOKENS ──────────────────────────────────────── */
 .about-page {
-  --ap-primary: #7C0E44;
-  --ap-secondary: #AA5E7A;
-  --ap-accent: #D49A9A;
-  --ap-bg: #F2DACE;
-  --ap-surface: #FFFFFF;
-  --ap-surface-soft: #FAF3F0;
-  --ap-ink: #231219;
-  --ap-ink-soft: #4E3842;
-  --ap-muted: #7E636E;
-  --ap-border: rgba(124, 14, 68, 0.12);
-  --ap-border-strong: rgba(124, 14, 68, 0.24);
-  --ap-shadow-sm: 0 4px 16px rgba(124, 14, 68, 0.04);
-  --ap-shadow-md: 0 8px 24px rgba(124, 14, 68, 0.06);
+  --ap-primary: var(--portfolio-primary, #7C0E44);
+  --ap-secondary: var(--portfolio-secondary, #AA5E7A);
+  --ap-accent: var(--portfolio-accent, #D49A9A);
+  --ap-bg: var(--portfolio-bg, #F2DACE);
+  --ap-surface: var(--portfolio-surface, #FFFFFF);
+  --ap-surface-soft: var(--portfolio-surface-soft, #FAF3F0);
+  --ap-ink: var(--portfolio-ink, #231219);
+  --ap-ink-soft: var(--portfolio-ink-soft, #4E3842);
+  --ap-muted: var(--portfolio-muted, #7E636E);
+  --ap-border: var(--portfolio-border-color, rgba(124, 14, 68, 0.12));
+  --ap-border-strong: var(--portfolio-border-strong, rgba(124, 14, 68, 0.24));
+  --ap-shadow-sm: var(--portfolio-shadow-sm, 0 4px 16px rgba(124, 14, 68, 0.04));
+  --ap-shadow-md: var(--portfolio-shadow, 0 8px 24px rgba(124, 14, 68, 0.06));
   --ap-radius: 18px;
   color: var(--ap-ink);
 }
@@ -935,7 +935,7 @@ const scrollToCollaborate = () => {
   height: 12px;
   border-radius: 50%;
   background: var(--ap-primary);
-  border: 2px solid #FFFFFF;
+  border: 2px solid var(--ap-surface, #FFFFFF);
   box-shadow: 0 0 0 2px var(--ap-primary);
   margin-top: 4px;
 }
@@ -1028,12 +1028,12 @@ const scrollToCollaborate = () => {
   align-items: center;
   padding: 8px 14px;
   border-radius: 100px;
-  background: #FFFFFF;
-  border: 1px solid rgba(124, 14, 68, 0.14);
+  background: var(--ap-surface, #FFFFFF);
+  border: 1px solid var(--ap-border);
   color: var(--ap-primary);
   font-size: 0.82rem;
   font-weight: 700;
-  box-shadow: 0 4px 14px rgba(124, 14, 68, 0.1);
+  box-shadow: var(--ap-shadow-sm);
 }
 
 .ap-mission-card__text-col {
@@ -1110,8 +1110,8 @@ const scrollToCollaborate = () => {
   height: 36px;
   z-index: 2;
   border: 2px solid var(--ap-border);
-  background: #FFFFFF;
-  box-shadow: 0 2px 6px rgba(124, 14, 68, 0.08);
+  background: var(--ap-surface, #FFFFFF);
+  box-shadow: var(--ap-shadow-sm);
 }
 
 .pipeline-node.is-node-active {

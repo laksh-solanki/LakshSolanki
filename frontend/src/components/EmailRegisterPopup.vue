@@ -123,22 +123,22 @@ const handleSubscribe = async () => {
 .newsletter-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(124, 14, 68, 0.14) !important;
-  background: #FFFFFF !important;
-  box-shadow: 0 4px 16px rgba(124, 14, 68, 0.05) !important;
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.14)) !important;
+  background: var(--portfolio-surface, #FFFFFF) !important;
+  box-shadow: var(--portfolio-shadow-sm, 0 4px 16px rgba(124, 14, 68, 0.05)) !important;
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .newsletter-card.highlight-target {
   border-color: var(--portfolio-primary, #7C0E44) !important;
-  box-shadow: 0 0 0 3px rgba(124, 14, 68, 0.25), 0 8px 24px rgba(124, 14, 68, 0.12) !important;
+  box-shadow: 0 0 0 3px var(--portfolio-border-strong, rgba(124, 14, 68, 0.25)), var(--portfolio-shadow, 0 8px 24px rgba(124, 14, 68, 0.12)) !important;
 }
 
 .collaborate-suggestion-notice {
   display: flex;
   align-items: center;
   padding: 8px 12px;
-  background: rgba(124, 14, 68, 0.08);
+  background: var(--nav-seg-bg, rgba(124, 14, 68, 0.08));
   border-left: 3px solid var(--portfolio-primary, #7C0E44);
   border-radius: 8px;
 }
@@ -149,9 +149,9 @@ const handleSubscribe = async () => {
 }
 
 .newsletter-input :deep(.v-field) {
-  border: 1px solid rgba(124, 14, 68, 0.16) !important;
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.16)) !important;
   border-radius: 12px !important;
-  background: #FFFFFF !important;
+  background: var(--portfolio-field-bg, #FFFFFF) !important;
 }
 
 .newsletter-input :deep(.v-label),

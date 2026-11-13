@@ -578,14 +578,14 @@ onBeforeUnmount(() => {
 }
 
 .zoom-card {
-  background: #FFFFFF !important;
+  background: var(--portfolio-surface, #FFFFFF) !important;
   color: var(--portfolio-ink, #231219) !important;
-  border: 1px solid rgba(124, 14, 68, 0.14) !important;
-  box-shadow: 0 16px 40px rgba(124, 14, 68, 0.12) !important;
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.14)) !important;
+  box-shadow: var(--portfolio-shadow, 0 16px 40px rgba(124, 14, 68, 0.12)) !important;
 }
 
 .zoom-card.is-custom-card {
-  background: #FFFFFF !important;
+  background: var(--portfolio-surface, #FFFFFF) !important;
 }
 
 .zoom-toolbar {
@@ -593,7 +593,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border-bottom: 1px solid rgba(124, 14, 68, 0.1);
+  border-bottom: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.1));
   background: var(--portfolio-surface-soft, #FAF3F0);
   color: var(--portfolio-ink, #231219);
 }
@@ -620,8 +620,8 @@ onBeforeUnmount(() => {
   max-width: 100%;
   max-height: min(70vh, 760px);
   border-radius: 14px;
-  border: 1px solid rgba(124, 14, 68, 0.14);
-  box-shadow: 0 12px 30px rgba(124, 14, 68, 0.08);
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.14));
+  box-shadow: var(--portfolio-shadow-sm, 0 12px 30px rgba(124, 14, 68, 0.08));
   transition: width 0.2s ease, height 0.2s ease;
   user-select: none;
   flex: none;
@@ -629,7 +629,7 @@ onBeforeUnmount(() => {
 
 .zoom-custom-content {
   overflow: hidden;
-  background: #FFFFFF;
+  background: var(--portfolio-surface, #FFFFFF);
 }
 
 .zoom-custom-content-inner {

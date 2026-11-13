@@ -3,10 +3,12 @@ import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import mainsvgicon from "@/assets/mainsvgicon.vue";
 import SearchBar from "@/components/SearchBar.vue";
+import { useAppTheme } from "@/composables/useAppTheme";
 
 const route = useRoute();
 const drawer = ref(false);
 const githubProfile = "https://github.com/laksh-solanki";
+const { isDark, toggleTheme } = useAppTheme();
 
 const navLinks = [
   { title: "Home", path: "/", icon: "mdi-home-variant-outline", activeIcon: "mdi-home-variant" },
@@ -79,7 +81,7 @@ watch(
         </v-list>
       </nav>
 
-      <div class="drawer-footer mt-auto pt-6">
+      <div class="drawer-footer mt-auto pt-4">
         <v-btn
           block
           class="premium-github-btn text-none"
@@ -130,6 +132,18 @@ watch(
       <div class="header-actions d-flex align-center ga-2 ga-md-3">
         <SearchBar class="search-component" />
 
+        <!-- Theme Toggle Button -->
+        <v-btn
+          class="theme-toggle-btn"
+          icon
+          variant="tonal"
+          :aria-label="isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'"
+          :title="isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'"
+          @click="toggleTheme"
+        >
+          <v-icon :icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'" size="20"></v-icon>
+        </v-btn>
+
         <v-btn
           class="github-action-btn d-none d-md-flex text-none"
           rounded="xl"
@@ -163,12 +177,12 @@ watch(
    GLOBAL HEADER (Vue App Bar)
 --------------------------------- */
 .premium-app-bar {
-  background: rgba(255, 255, 255, 0.9) !important;
+  background: var(--header-bg, rgba(255, 255, 255, 0.9)) !important;
   color: var(--portfolio-ink, #231219) !important;
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid rgba(124, 14, 68, 0.08) !important;
-  box-shadow: 0 4px 20px rgba(124, 14, 68, 0.04) !important;
+  border-bottom: 1px solid var(--header-border, rgba(124, 14, 68, 0.08)) !important;
+  box-shadow: 0 4px 20px var(--portfolio-border-color, rgba(124, 14, 68, 0.04)) !important;
   transition: all 0.3s cubic-bezier(0.2, 0.8, 0.4, 1) !important;
 }
 
@@ -195,10 +209,10 @@ watch(
 .nav-segment-control {
   display: flex;
   align-items: center;
-  background: rgba(124, 14, 68, 0.05);
+  background: var(--nav-seg-bg, rgba(124, 14, 68, 0.05));
   padding: 5px;
   border-radius: 100px;
-  border: 1px solid rgba(124, 14, 68, 0.09);
+  border: 1px solid var(--nav-seg-border, rgba(124, 14, 68, 0.09));
   gap: 3px;
 }
 
@@ -223,7 +237,7 @@ watch(
 
 .seg-item:hover {
   color: var(--portfolio-primary, #7C0E44);
-  background: rgba(124, 14, 68, 0.06);
+  background: var(--nav-seg-hover, rgba(124, 14, 68, 0.06));
 }
 
 .seg-active {
@@ -245,6 +259,22 @@ watch(
   flex-shrink: 0;
 }
 
+.theme-toggle-btn {
+  background: var(--nav-seg-bg, rgba(124, 14, 68, 0.06));
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.1));
+  border-radius: 12px;
+  color: var(--portfolio-primary, #7C0E44) !important;
+  width: 42px !important;
+  height: 42px !important;
+  transition: transform 0.25s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.05);
+  background: var(--nav-seg-hover, rgba(124, 14, 68, 0.12)) !important;
+  border-color: var(--portfolio-primary, #7C0E44) !important;
+}
+
 .github-action-btn {
   background: var(--portfolio-primary, #7C0E44) !important;
   color: #FFFFFF !important;
@@ -260,8 +290,8 @@ watch(
 }
 
 .mobile-menu-btn {
-  background: rgba(124, 14, 68, 0.06);
-  border: 1px solid rgba(124, 14, 68, 0.1);
+  background: var(--nav-seg-bg, rgba(124, 14, 68, 0.06));
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.1));
   border-radius: 12px;
   color: var(--portfolio-primary, #7C0E44) !important;
   width: 42px !important;
@@ -279,9 +309,9 @@ watch(
 }
 
 .premium-mobile-drawer :deep(.v-navigation-drawer__content) {
-  background: #FFFFFF;
-  box-shadow: -10px 0 30px rgba(124, 14, 68, 0.08);
-  border-left: 1px solid rgba(124, 14, 68, 0.1);
+  background: var(--portfolio-surface, #FFFFFF) !important;
+  box-shadow: -10px 0 30px var(--portfolio-shadow, rgba(124, 14, 68, 0.08));
+  border-left: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.1));
 }
 
 .drawer-shell {
@@ -289,7 +319,7 @@ watch(
 }
 
 .drawer-close {
-  background: rgba(124, 14, 68, 0.06);
+  background: var(--nav-seg-bg, rgba(124, 14, 68, 0.06));
   color: var(--portfolio-primary, #7C0E44) !important;
   cursor: pointer;
   pointer-events: auto;
@@ -306,6 +336,29 @@ watch(
   padding-left: 8px;
 }
 
+.drawer-theme-box {
+  background: var(--portfolio-surface-soft, #FAF3F0);
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.1));
+}
+
+.theme-box-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--nav-seg-bg, rgba(124, 14, 68, 0.08));
+  color: var(--portfolio-primary, #7C0E44);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-drawer-toggle-btn {
+  background: var(--portfolio-surface, #FFFFFF) !important;
+  color: var(--portfolio-primary, #7C0E44) !important;
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.12));
+  font-weight: 700;
+}
+
 .premium-drawer-item {
   border: 1px solid transparent !important;
   padding: 10px 14px !important;
@@ -314,8 +367,8 @@ watch(
 }
 
 .premium-drawer-item:hover {
-  background: rgba(124, 14, 68, 0.05) !important;
-  border-color: rgba(124, 14, 68, 0.1) !important;
+  background: var(--nav-seg-hover, rgba(124, 14, 68, 0.05)) !important;
+  border-color: var(--portfolio-border-color, rgba(124, 14, 68, 0.1)) !important;
   transform: translateX(4px);
 }
 
@@ -326,7 +379,7 @@ watch(
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: rgba(124, 14, 68, 0.08);
+  background: var(--nav-seg-bg, rgba(124, 14, 68, 0.08));
   color: var(--portfolio-primary, #7C0E44);
   margin-right: 14px;
   transition: all 0.2s ease;
@@ -354,8 +407,8 @@ watch(
 }
 
 .is-active-item {
-  background: rgba(124, 14, 68, 0.06) !important;
-  border-color: rgba(124, 14, 68, 0.14) !important;
+  background: var(--nav-seg-hover, rgba(124, 14, 68, 0.06)) !important;
+  border-color: var(--portfolio-border-strong, rgba(124, 14, 68, 0.14)) !important;
 }
 
 .premium-github-btn {
@@ -386,6 +439,7 @@ watch(
   .header-actions {
     gap: 4px !important;
   }
+  .theme-toggle-btn,
   .mobile-menu-btn {
     width: 38px !important;
     height: 38px !important;

@@ -67,7 +67,7 @@ const goBack = () => {
 .minimal-404 {
   border-radius: 24px;
   border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.12));
-  background: #FFFFFF !important;
+  background: var(--portfolio-surface, #FFFFFF) !important;
   box-shadow: var(--portfolio-shadow, 0 8px 24px rgba(124, 14, 68, 0.06));
 }
 

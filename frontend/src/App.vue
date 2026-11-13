@@ -17,7 +17,9 @@ import AppHeader from "@/components/AppHeader.vue";
 import CookieConsentBanner from "@/components/CookieConsentBanner.vue";
 import TopLoader from "@/components/TopLoader.vue";
 import { isGlobalLoading } from "@/router/index.js";
+import { useAppTheme } from "@/composables/useAppTheme";
 
+const { isDark } = useAppTheme();
 const loaderRef = ref(null);
 const AppFooter = defineAsyncComponent(() => import("@/components/AppFooter.vue"));
 

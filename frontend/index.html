@@ -9,6 +9,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Great+Vibes&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Open+Sans:wght@400;600;700;800&family=Poppins:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="/media/Picture/LS.svg" />
   <meta name="theme-color" content="#7C0E44" />
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("portfolio_theme");
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        var isDark = saved === "portfolioDark" || (!saved && prefersDark);
+        if (isDark) {
+          document.documentElement.setAttribute("data-theme", "dark");
+          document.documentElement.classList.add("dark", "theme-dark");
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", "#0F0C0E");
+        } else {
+          document.documentElement.setAttribute("data-theme", "light");
+          document.documentElement.classList.add("theme-light");
+        }
+      } catch (e) {}
+    })();
+  </script>
   <title>Laksh Solanki | Senior Full-Stack Engineer</title>
   <meta name="description" content="Laksh Solanki - Senior Full-Stack Engineer and UI/UX Craftsman building fast, elegant digital products." />
   <meta name="keywords" content="Laksh Solanki, Full-Stack Developer, Vue.js, Node.js, Frontend Architecture, Portfolio" />

@@ -180,17 +180,6 @@ const currentProjectTitle = computed(() => {
   <div class="projects-page-layout w-100 min-h-100">
     <template v-if="route.name === 'Projects'">
       <v-container class="py-8 py-md-12 projects-shell animate-fade-in-up">
-        <!-- Header Banner -->
-        <section class="section-shell p-6 p-md-8 mb-8 header-card">
-          <div>
-            <p class="text-overline text-primary font-weight-bold mb-2">Portfolio Workspace</p>
-            <h1 class="text-h4 text-md-h3 mb-3 font-weight-bold">Selected developer tools and product builds</h1>
-            <p class="muted-copy mb-0 intro-copy">
-              Each project focuses on practical product value: performance, clean interfaces, and maintainable code.
-            </p>
-          </div>
-        </section>
-
         <!-- Search + Categories bar -->
         <div class="d-flex align-center justify-space-between mb-8 flex-wrap ga-4">
           <div class="d-flex align-center flex-grow-1 projects-search-wrap">
@@ -306,7 +295,7 @@ const currentProjectTitle = computed(() => {
 }
 
 .header-card {
-  background: #FFFFFF !important;
+  background: var(--portfolio-surface, #FFFFFF) !important;
   border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.12));
   box-shadow: var(--portfolio-shadow, 0 8px 24px rgba(124, 14, 68, 0.06));
 }
@@ -318,26 +307,26 @@ const currentProjectTitle = computed(() => {
 }
 
 .clean-search-field :deep(.v-field) {
-  background: #FFFFFF !important;
-  border-color: rgba(124, 14, 68, 0.14) !important;
-  box-shadow: 0 2px 8px rgba(124, 14, 68, 0.04);
+  background: var(--portfolio-surface, #FFFFFF) !important;
+  border-color: var(--portfolio-border-color, rgba(124, 14, 68, 0.14)) !important;
+  box-shadow: var(--portfolio-shadow-sm, 0 2px 8px rgba(124, 14, 68, 0.04));
 }
 
 .filter-chip {
-  border: 1px solid rgba(124, 14, 68, 0.14);
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.14));
   border-radius: 999px;
   padding: 8px 18px;
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--portfolio-ink-soft, #4E3842);
-  background: #FFFFFF;
+  background: var(--portfolio-surface, #FFFFFF);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .filter-chip:hover {
   border-color: var(--portfolio-primary, #7C0E44);
-  background: rgba(124, 14, 68, 0.05);
+  background: var(--nav-seg-hover, rgba(124, 14, 68, 0.05));
   color: var(--portfolio-primary, #7C0E44);
 }
 
@@ -354,15 +343,15 @@ const currentProjectTitle = computed(() => {
   width: 100%;
   min-height: 100%;
   overflow: hidden;
-  background: #FFFFFF !important;
-  border: 1px solid rgba(124, 14, 68, 0.12) !important;
+  background: var(--portfolio-surface, #FFFFFF) !important;
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.12)) !important;
   box-shadow: var(--portfolio-shadow, 0 8px 24px rgba(124, 14, 68, 0.06));
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .project-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(124, 14, 68, 0.28) !important;
+  border-color: var(--portfolio-border-strong, rgba(124, 14, 68, 0.28)) !important;
   box-shadow: 0 12px 30px rgba(124, 14, 68, 0.09) !important;
 }
 
@@ -427,9 +416,9 @@ const currentProjectTitle = computed(() => {
 }
 
 .breadcrumb-bar {
-  background: #FFFFFF;
-  border: 1px solid rgba(124, 14, 68, 0.12);
-  box-shadow: 0 2px 10px rgba(124, 14, 68, 0.04);
+  background: var(--portfolio-surface, #FFFFFF);
+  border: 1px solid var(--portfolio-border-color, rgba(124, 14, 68, 0.12));
+  box-shadow: var(--portfolio-shadow-sm, 0 2px 10px rgba(124, 14, 68, 0.04));
 }
 
 @media (max-width: 600px) {
